@@ -25,7 +25,7 @@ Reformule la demande de feature si nécessaire pour clarifier et organiser le be
 ## 📋 Template de Base
 
 ```
-Je veux implémenter la tâche [TASK_NUMBER] du projet "Derot My Brain".
+Je veux implémenter la tâche [TASK_NUMBER] du projet "Derot My Brain". Commence par prendre connaissance de ANTIGRAVITY_INSTRUCTIONS.md.
 
 CONTEXTE DU PROJET :
 - Lire Docs/README.md pour comprendre l'organisation de la documentation
@@ -51,7 +51,7 @@ WORKFLOW D'IMPLÉMENTATION :
 2. Vérifier que les dépendances sont complétées
 3. Implémenter le backend selon les spécifications
 4. Implémenter le frontend selon les spécifications
-5. Tester selon les critères d'acceptation
+5. Tester selon les critères d'acceptation (back-end + front-end)
 6. Mettre à jour Docs/Project-Status.md :
    - Marquer la tâche comme complétée [x]
    - Mettre à jour le statut de "Not Started" à "Completed"

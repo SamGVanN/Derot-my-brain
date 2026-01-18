@@ -263,136 +263,136 @@ function UserList() {
 
 ---
 
-## State Management: Zustand
+## React Coding Best Practices
 
-For this project, **Zustand** is the recommended state management solution over Redux.
+### 1. Keys
+- **Rule**: NEVER use the array index as a key for dynamic lists (`key={index}`).
+- **Why**: React uses keys to track element identity. Index keys cause state bugs and performance issues when lists are reordered or filtered.
+- **Use**: Unique IDs from your data (e.g., `key={user.id}`).
 
-### Why Zustand?
+### 2. Hooks Rules
+- **Dependencies**: Always include ALL used variables in the dependency array of `useEffect`, `useMemo`, and `useCallback`. Do not "lie" to React to avoid re-renders—fix your logic instead.
+- **Cleanup**: Always return a cleanup function in `useEffect` when creating listeners, subscriptions, or timers.
 
-1. **App Complexity**: Small to medium-sized application
-2. **Minimal Boilerplate**: ~1KB vs Redux's ~15KB
-3. **Simpler API**: Easier to learn and use
-4. **Equivalent Performance**: No performance trade-offs
-5. **Easy Migration**: Can migrate to Redux later if needed
+### 3. Performance
+- **Referential Equality**:
+    - Use `useMemo` for expensive calculations.
+    - Use `useCallback` for functions passed to child components to ensure referential stability.
+- **React.memo**: Wrap purely presentational components in `React.memo` *only* if they re-render frequently with the same props. Premature optimization adds overhead.
 
-### When to Use Zustand
-
-Use Zustand for:
-- **Global application state** (user session, preferences, theme)
-- **Shared state** across multiple components
-- **Complex state logic** that doesn't fit in a single component
-- **State that needs to persist** across route changes
-
-**Don't use Zustand for:**
-- Local component state (use `useState`)
-- Server state (use React Query or SWR)
-- Form state (use React Hook Form or similar)
-
-### Zustand Best Practices
-
-1. **Create Focused Stores**: One store per domain/feature
-   ```tsx
-   // stores/useAuthStore.ts
-   export const useAuthStore = create((set) => ({
-     user: null,
-     login: (user) => set({ user }),
-     logout: () => set({ user: null }),
-   }));
-   
-   // stores/usePreferencesStore.ts
-   export const usePreferencesStore = create((set) => ({
-     theme: 'derot-brain',
-     language: 'en',
-     setTheme: (theme) => set({ theme }),
-     setLanguage: (language) => set({ language }),
-   }));
-   ```
-
-2. **Use Selectors**: Only subscribe to needed state
-   ```tsx
-   // ✅ GOOD: Selective subscription
-   const user = useAuthStore((state) => state.user);
-   
-   // ❌ BAD: Subscribe to entire store
-   const { user, login, logout } = useAuthStore();
-   ```
-
-3. **Separate Actions from State**: Keep stores organized
-   ```tsx
-   export const useUserStore = create((set, get) => ({
-     // State
-     users: [],
-     loading: false,
-     
-     // Actions
-     fetchUsers: async () => {
-       set({ loading: true });
-       const users = await userService.getAll();
-       set({ users, loading: false });
-     },
-   }));
-   ```
-
-4. **Persist Important State**: Use Zustand middleware
-   ```tsx
-   import { persist } from 'zustand/middleware';
-   
-   export const useAuthStore = create(
-     persist(
-       (set) => ({
-         user: null,
-         login: (user) => set({ user }),
-         logout: () => set({ user: null }),
-       }),
-       { name: 'auth-storage' }
-     )
-   );
-   ```
-
-### Integration with Architecture Principles
-
-Zustand stores should:
-- Be defined in the **Application Layer** (`/stores` or `/hooks`)
-- Contain **business logic** and **state management**
-- Be **injected** into components via hooks
-- Follow **unidirectional data flow** (actions modify state, components react)
-- Keep **UI components dumb** (they just consume store state)
-
-**Example Integration:**
-```tsx
-// stores/useQuizStore.ts (Application Layer)
-export const useQuizStore = create((set) => ({
-  currentQuiz: null,
-  score: 0,
-  loadQuiz: async (articleId) => {
-    const quiz = await quizService.generate(articleId);
-    set({ currentQuiz: quiz, score: 0 });
-  },
-  submitAnswer: (answer) => {
-    // Business logic here
-    set((state) => ({ score: state.score + (answer.correct ? 1 : 0) }));
-  },
-}));
-
-// components/QuizView.tsx (UI Layer)
-function QuizView() {
-  const { currentQuiz, score, submitAnswer } = useQuizStore();
-  
-  if (!currentQuiz) return <div>Loading...</div>;
-  
-  return (
-    <div>
-      <h2>Score: {score}</h2>
-      <QuizQuestion 
-        question={currentQuiz.questions[0]} 
-        onSubmit={submitAnswer} 
-      />
-    </div>
-  );
-}
-```
+### 4. Component Patterns
+- **Consistency**: generic `function ComponentName() {}` or const arrow functions are both fine, but **be consistent** across the project.
+- **Destructuring**: Destructure props in the function signature for clarity: `const Card = ({ title, children }) => ...`.
 
 ---
+
+## State Management: Zustand
+
+For this project, **Zustand** is the recommended state management solution.
+
+### 1. Core Principles
+- **Multiple Focused Stores**: Create small, domain-specific stores (e.g., `useAuthStore`, `useCartStore`) rather than one giant root store.
+- **Encapsulation**: **Do NOT export the store directly.** Export custom hooks that allow components to consume *specific* slices of state.
+
+### 2. Advanced Best Practices
+
+#### Encapsulation via Custom Hooks
+**Rule**: Components should never know about the store implementation. They should just use a hook.
+**Why**: This allows you to refactor state structure without breaking components and prevents components from accidentally accessing the raw store.
+
+```tsx
+// ❌ BAD: Exporting store directly
+export const useStore = create((set) => ({ ... }));
+
+// ✅ GOOD: Exporting domain-specific hooks
+// internal definition (not exported)
+const useBearStore = create((set) => ({
+  bears: 0,
+  actions: {
+    increase: () => set((state) => ({ bears: state.bears + 1 })),
+  },
+}))
+
+// public API
+export const useBears = () => useBearStore((state) => state.bears)
+export const useBearActions = () => useBearStore((state) => state.actions)
+```
+
+#### Atomic & Stable Selectors
+**Rule**: Always select the smallest possible slice of state.
+**Why**: Zustand strictly checks for equality (`oldState === newState`). If you return a new object every time, you will force re-renders.
+
+```tsx
+// ❌ BAD: Returns a new object every render -> Infinite re-renders
+const { bears, increase } = useBearStore((state) => ({ 
+  bears: state.bears, 
+  increase: state.actions.increase 
+}))
+
+// ✅ GOOD: Atomic selectors (Primitive values)
+const bears = useBearStore((state) => state.bears)
+
+// ✅ GOOD: Stable object selector with useShallow
+import { useShallow } from 'zustand/react/shallow'
+const { bears, increase } = useBearStore(
+  useShallow((state) => ({ bears: state.bears, increase: state.actions.increase }))
+)
+```
+
+#### Model Actions as Events
+**Rule**: Name actions based on the **event** that occurred, not just the setter.
+**Why**: This separates the "what happened" from the "how state changes", making the business logic clearer.
+
+```tsx
+// ❌ BAD: Setter style
+setAuthenticatedUser: (user) => set({ user, status: 'authed' })
+
+// ✅ GOOD: Event style
+onLoginSuccess: (user) => set({ user, status: 'authed' })
+```
+
+#### Separate Actions from State
+**Rule**: Group actions in a separate object or clearly separated section within the store.
+**Pattern**:
+```tsx
+const useStore = create((set) => ({
+  // State
+  count: 0,
+  
+  // Actions
+  actions: {
+    increment: () => set((state) => ({ count: state.count + 1 })),
+    reset: () => set({ count: 0 }),
+  },
+}))
+
+export const useCount = () => useStore((state) => state.count)
+export const useCountActions = () => useStore((state) => state.actions)
+```
+
+#### Reset Pattern
+**Pattern**: Use a defined initial state object to easily reset stores (e.g., on logout).
+```tsx
+const initialState = { count: 0, user: null }
+
+const useStore = create((set) => ({
+  ...initialState,
+  actions: {
+    reset: () => set(initialState),
+  }
+}))
+```
+
+#### DevTools
+**Rule**: Always use the `devtools` middleware for debugging.
+```tsx
+import { devtools } from 'zustand/middleware'
+
+const useStore = create(devtools((set) => ({ ... }), { name: 'MyStore' }))
+```
+
+### Integration with Architecture Principles
+Zustand stores belong in the **Application Layer** (`/stores` or `/hooks`). They contain business logic and state, keeping UI components "dumb".
 
 ## Summary
 

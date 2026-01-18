@@ -250,38 +250,59 @@ Create the following custom hooks:
 
 ---
 
-### Task -1.4: Component Refactoring
+### Task -1.4: Component Refactoring & Architecture Alignment
 **Priority:** CRITICAL  
 **Estimated Complexity:** High  
 **Dependencies:** Task -1.3
 
 #### Objective
-Refactor components to be "dumb" (presentation-only) and under 200 lines.
+Refactor key frontend components to strictly adhere to `frontend_guidelines.md`, specifically ensuring "Dumb Components", "Separation of Concerns", and "Custom Hooks" usage.
 
 #### Components to Refactor
-1. **`App.tsx`** (166 lines → ~80 lines)
-   - Use `useAuth()` hook instead of manual state management
-   - Remove direct localStorage access
-   - Simplify to pure routing and provider setup
 
-2. **`pages/UserPreferencesPage.tsx`** (487 lines → ~200 lines total)
-   - Split into: `GeneralPreferencesForm.tsx`, `CategoryPreferencesForm.tsx`
-   - Use `usePreferences()` and `useCategories()` hooks
-   - Remove direct fetch() calls
+1. **`App.tsx`** (Currently ~193 lines)
+   - **Goal:** Simplify to pure routing/provider setup (< 100 lines).
+   - **Action Items:**
+     - Move session validation logic (`validateSession`) into `hooks/useAuth.ts` (e.g., `useAuth().initializeSession()`).
+     - Remove direct imports of `useAuthStore` and `usePreferencesStore`. Use `useAuth()` and `usePreferences()` hooks instead.
+     - Remove `UserService` import.
+     - Remove manual `welcomeHiddenSession` state if possible or move to a UI-only wrapper.
+     - Fix pure type casting (`as any`).
 
-3. **`pages/UserSelectionPage.tsx`** (124 lines → ~80 lines)
-   - Use `useAuth()` hook instead of direct UserService calls
-   - Extract user list to separate component
+2. **`pages/UserPreferencesPage.tsx`** (Currently ~486 lines)
+   - **Goal:** Split into focused sub-components.
+   - **Action Items:**
+     - Create `components/preferences/GeneralPreferencesForm.tsx` handling Language, Theme, Question Count.
+     - Create `components/preferences/CategoryPreferencesForm.tsx` handling Category selection.
+     - Replace manual dropdowns with `@/components/ui` components (`Select`, etc.).
+     - Remove direct `UserService` and `categoryApi` calls. Use `usePreferences()` and `useCategories()` hooks.
+     - Ensure the main page component only orchestrates these forms and layout.
 
-4. **`components/history-view.tsx`** (83 lines → ~50 lines)
-   - Use `useHistory()` hook instead of direct API calls
-   - Extract activity item to separate component
+3. **`pages/UserSelectionPage.tsx`**
+   - **Goal:** Remove business logic.
+   - **Action Items:**
+     - Replace `UserService.getAllUsers()` with `useUser().users` (or `useAuth().availableUsers`).
+     - Remove `UserService.login()` calls; use `useAuth().login()`.
+
+4. **`components/history-view.tsx`**
+   - **Goal:** make it a pure presentational component.
+   - **Action Items:**
+     - Remove `useEffect` and `UserService.getHistory`.
+     - Accept data via props OR use `useHistory()` hook inside.
+     - Handle `loading` and `error` states from the hook.
+
+#### Technical Constraints
+- **Strict Separation:** UI Components MUST NOT import from `services/*` or `api/*`. They MUST import `hooks/*`.
+- **UI Components:** Use `shadcn/ui` components where available.
+- **Styling:** Use Tailwind CSS utility classes (no hardcoded colors).
 
 #### Acceptance Criteria
-- [ ] All components under 200 lines
-- [ ] Components are "dumb" (presentation-only)
-- [ ] No direct API calls in components
-- [ ] Business logic in custom hooks
+- [ ] `App.tsx` has no direct references to stores or services.
+- [ ] `UserPreferencesPage.tsx` is under 150 lines (orchestration only).
+- [ ] `GeneralPreferencesForm.tsx` and `CategoryPreferencesForm.tsx` created.
+- [ ] `history-view.tsx` uses `useHistory` hook.
+- [ ] No component imports `UserService` directly.
+- [ ] Application compiles and runs with identical functionality.
 
 ---
 

@@ -62,6 +62,7 @@
         "deselectAll": "Tout désélectionner",
         "selected_one": "{{count}} sélectionnée",
         "selected_other": "{{count}} sélectionnées",
-        "saveSuccess": "Préférences enregistrées avec succès"
+        "saveSuccess": "Préférences enregistrées avec succès",
+        "saveError": "Échec de l'enregistrement des préférences."
     }
 }

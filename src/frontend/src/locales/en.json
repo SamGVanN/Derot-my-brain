@@ -62,6 +62,7 @@
         "deselectAll": "Deselect All",
         "selected_one": "{{count}} selected",
         "selected_other": "{{count}} selected",
-        "saveSuccess": "Preferences saved successfully"
+        "saveSuccess": "Preferences saved successfully",
+        "saveError": "Failed to save preferences."
     }
 }
