@@ -79,6 +79,86 @@ If migration from JSON to embedded DB is needed:
 
 ---
 
+## 🧪 Development Methodology Requirements (CRITICAL)
+
+### Test-Driven Development (TDD)
+
+**All new features MUST be implemented using TDD:**
+
+1. **Write Tests First:**
+   - Write unit tests BEFORE implementing the feature
+   - Define expected behavior through tests
+   - Tests should fail initially (Red phase)
+
+2. **Implement Feature:**
+   - Write minimal code to make tests pass (Green phase)
+   - Focus on functionality, not optimization
+
+3. **Refactor:**
+   - Clean up code while keeping tests green
+   - Improve design and maintainability
+
+**Testing Requirements:**
+- **Backend:** Unit tests for all services, integration tests for API endpoints
+- **Frontend:** Component tests for complex UI components
+- **Coverage:** Minimum 80% code coverage for new features
+- **Test Framework:** 
+  - Backend: xUnit or NUnit
+  - Frontend: Vitest + React Testing Library
+
+### Mock Data for TestUser (CRITICAL)
+
+**Every new feature MUST include mock data for the user "TestUser":**
+
+- **User ID:** Use existing TestUser ID from `/data/users/users.json`
+- **Purpose:** Automated testing, demonstrations, and development
+- **Requirements:**
+  - Create realistic, representative mock data
+  - Cover edge cases (empty states, maximum values, etc.)
+  - Include in seed data or test fixtures
+  - Document mock data structure
+
+**Mock Data Examples:**
+```json
+// For new activity features
+{
+  "userId": "testuser-id",
+  "topic": "Quantum Mechanics",
+  "score": 18,
+  "totalQuestions": 20,
+  "date": "2026-01-18T14:30:00Z"
+}
+
+// For new preference features
+{
+  "userId": "testuser-id",
+  "newPreference": "default-value",
+  "updatedAt": "2026-01-18T14:30:00Z"
+}
+```
+
+**TestUser Data Location:**
+- User profile: `/data/users/users.json`
+- Activity history: `/data/users/user-{testuser-id}-history.json`
+- Backlog: `/data/users/user-{testuser-id}-backlog.json`
+
+### For All Tasks
+
+**Mandatory for each task:**
+1. ✅ Write tests first (TDD)
+2. ✅ Create TestUser mock data
+3. ✅ Verify tests pass with mock data
+4. ✅ Document test scenarios in acceptance criteria
+
+**Acceptance Criteria Template:**
+- [ ] Unit tests written and passing
+- [ ] Integration tests written and passing (if applicable)
+- [ ] TestUser mock data created and documented
+- [ ] Code coverage ≥ 80%
+- [ ] All tests pass in CI/CD pipeline
+
+---
+
 ## Phase -1: Frontend Architecture Migration (CRITICAL)
 
 > [!CAUTION]
@@ -537,6 +617,69 @@ Create a dedicated user preferences page where users can configure their setting
 
 ---
 
+### Task 2.3: LLM Configuration UI
+**Priority:** MEDIUM  
+**Estimated Complexity:** Medium  
+**Dependencies:** Task 0.1 (Global LLM Configuration)
+
+#### Objective
+Add frontend UI for LLM configuration in the user preferences page, allowing users to configure and test LLM connectivity.
+
+#### Specifications
+- **Frontend:**
+  - Add LLM Configuration section to `UserPreferencesPage.tsx` in "General Settings"
+  - Place BEFORE question count selector
+  - Two implementation options:
+    
+    **Option A: Separate URL and Port Fields**
+    - URL input field (e.g., "http://localhost")
+    - Port input field (e.g., "11434")
+    - Read-only combined display showing "URL:Port" (e.g., "http://localhost:11434")
+    - Auto-update combined display when either field changes
+    
+    **Option B: Single URL Field with Validation (Recommended)**
+    - Single input field for complete URL (e.g., "http://localhost:11434")
+    - Validation button (💾 icon or "Test Connection")
+    - Click triggers backend validation
+    - Display modal with results:
+      - **Success:** "✅ LLM accessible at [URL]"
+      - **Error:** "❌ Unable to reach LLM. Please verify your URL and port."
+  
+  - Save button updates global configuration
+  - Load current LLM configuration on page load
+
+- **Backend:**
+  - Add endpoint: `POST /api/config/llm/test` - Test LLM connectivity
+    - Accepts URL as parameter
+    - Attempts connection to LLM
+    - Returns success/failure with error details
+  - Update existing `PUT /api/config/llm` endpoint if needed
+  - Validation:
+    - URL format validation
+    - Port range validation (1-65535)
+    - Timeout handling (max 5 seconds)
+
+- **Error Handling:**
+  - Network errors (LLM not running)
+  - Invalid URL format
+  - Port not accessible
+  - Timeout errors
+  - Display user-friendly error messages
+
+#### Acceptance Criteria
+- [ ] LLM configuration section visible in preferences page
+- [ ] Section appears before question count selector
+- [ ] Users can input LLM URL (and port if Option A)
+- [ ] Test connection button validates LLM accessibility
+- [ ] Success modal shows when LLM is reachable
+- [ ] Error modal shows clear message when LLM is unreachable
+- [ ] Configuration saves to backend successfully
+- [ ] Current configuration loads on page initialization
+- [ ] URL validation prevents invalid formats
+- [ ] Timeout prevents indefinite waiting
+
+---
+
 ## Phase 3: Activity History Enhancements
 
 ### Task 3.1: Enhanced Activity History Model
@@ -636,6 +779,90 @@ Update the history view to display enhanced activity information with backlog in
 
 ---
 
+### Task 3.3: Activity Statistics & Calendar View
+**Priority:** LOW  
+**Estimated Complexity:** Medium  
+**Dependencies:** Task 3.1, Task 3.2
+
+#### Objective
+Add an enhanced statistics section to the history page with a GitLab-style activity calendar and best personal score display.
+
+#### Specifications
+- **Frontend:**
+  - Create `ActivityStatsPanel.tsx` component
+  - Display as sidebar or top section on history page
+  - Include the following statistics:
+    
+    **Key Statistics:**
+    - **Last Activity:** Date + Wikipedia article name (clickable to rework)
+    - **Total Activities:** Count of all completed activities
+    - **Best Personal Score:** Display as "X/Y (Z%) - [Article Name]"
+      - Example: "18/20 (90%) - Quantum Mechanics"
+      - Clickable to view that activity's details
+    
+    **Activity Calendar (GitLab-style):**
+    - Visual grid showing activity over time
+    - Each cell represents a day
+    - Color intensity based on activity count that day
+    - Hover shows: "X activities on [date]"
+    - Display last 12 months or configurable range
+    - Use theme colors for intensity gradient
+  
+  - Responsive design (collapse to compact view on mobile)
+  - Smooth animations for data updates
+
+- **Backend:**
+  - Add endpoint: `GET /api/users/{id}/statistics`
+    - Returns:
+      ```json
+      {
+        "lastActivity": {
+          "date": "2026-01-18T14:30:00Z",
+          "topic": "Quantum Mechanics",
+          "activityId": "..."
+        },
+        "totalActivities": 42,
+        "bestScore": {
+          "score": 18,
+          "totalQuestions": 20,
+          "percentage": 90,
+          "topic": "Quantum Mechanics",
+          "activityId": "...",
+          "date": "2026-01-15T10:00:00Z"
+        },
+        "activityCalendar": [
+          { "date": "2026-01-18", "count": 3 },
+          { "date": "2026-01-17", "count": 1 },
+          // ... last 365 days
+        ]
+      }
+      ```
+  - Optimize query performance for calendar data
+  - Cache statistics (update on activity completion)
+
+- **Design:**
+  - Follow existing theme system
+  - Use consistent color palette for calendar
+  - Ensure accessibility (screen readers, keyboard navigation)
+  - Add loading states for statistics fetch
+
+#### Acceptance Criteria
+- [ ] Statistics panel displays on history page
+- [ ] Last activity shows date and article name
+- [ ] Total activities count is accurate
+- [ ] Best personal score displays correctly with article name
+- [ ] Activity calendar shows last 12 months
+- [ ] Calendar cells show correct activity counts
+- [ ] Hover tooltips display date and count
+- [ ] Color intensity reflects activity frequency
+- [ ] Clicking best score navigates to that activity
+- [ ] Clicking last activity allows reworking
+- [ ] Statistics update when new activity completed
+- [ ] Responsive design works on mobile
+- [ ] Component respects current theme
+
+---
+
 ## Phase 4: Navigation & Page Structure
 
 ### Task 4.1: Main Navigation Menu
@@ -667,6 +894,32 @@ Implement a navigation menu to allow users to move between different pages of th
   - Set up React Router routes for all pages
   - Ensure navigation preserves user state
   - Add route guards for authenticated pages
+  - **Home page routing:**
+    - Not authenticated: User selection/login page
+    - Authenticated: History page (user's home)
+  - Logo/app title clickable → navigates to home
+
+- **Header Authentication State:**
+  - **When NOT authenticated:**
+    - Display language selector
+    - Display theme selector
+    - No user menu or settings button
+  
+  - **When authenticated:**
+    - **User Menu Button** (user icon + username):
+      - Dropdown menu with:
+        - Profile (navigate to profile page)
+        - History (navigate to history page)
+        - Backlog (navigate to backlog page)
+        - Logout (clear session, return to login)
+    - **Settings Button** (gear/cog icon):
+      - Navigate to preferences page
+    - **Logout Button** (logout icon):
+      - Alternative quick logout option
+    - Button order: Settings → User Menu → Logout
+  
+  - Header should adapt dynamically based on authentication state
+  - Smooth transitions when auth state changes
 
 #### Acceptance Criteria
 - [ ] Navigation menu accessible from all pages
@@ -674,6 +927,13 @@ Implement a navigation menu to allow users to move between different pages of th
 - [ ] Active page highlighted in menu
 - [ ] Navigation responsive on mobile
 - [ ] Logout functionality works correctly
+- [ ] Header shows language/theme selectors when not authenticated
+- [ ] Header shows user menu + settings + logout when authenticated
+- [ ] User menu dropdown displays all required links
+- [ ] Settings button navigates to preferences
+- [ ] Logo/title clickable and navigates to correct home page
+- [ ] Authenticated home page is history page
+- [ ] Header transitions smoothly on auth state change
 
 ---
 
@@ -698,10 +958,29 @@ Create a user profile page displaying user information with edit capabilities.
     - Edit mode toggle
     - Save/Cancel buttons in edit mode
   - Add validation for name field (non-empty, max length)
+  - **Account Deletion:**
+    - Add "Delete Account" button (danger zone section)
+    - Click opens confirmation modal:
+      - Title: "Delete Account?"
+      - Warning message: "⚠️ This action is permanent and cannot be undone."
+      - Details: "All your data will be deleted, including:"
+        - Profile information
+        - Activity history
+        - Backlog items
+        - Preferences
+      - Confirmation input: "Type your username to confirm"
+      - Actions: "Delete Account" (danger button), "Cancel"
+    - On confirmation: Delete user and redirect to login
 
 - **Backend:**
   - Add endpoint: `PUT /api/users/{id}` to update user name
+  - Add endpoint: `DELETE /api/users/{id}` to delete user account
+    - Delete user profile JSON file
+    - Delete user history JSON file
+    - Delete user backlog JSON file
+    - Return 204 No Content on success
   - Add validation for user updates
+  - Add validation for deletion (user must exist)
 
 #### Acceptance Criteria
 - [ ] Profile displays all user information
@@ -709,6 +988,12 @@ Create a user profile page displaying user information with edit capabilities.
 - [ ] Changes save successfully
 - [ ] Validation prevents invalid names
 - [ ] Statistics (activity count, backlog count) accurate
+- [ ] Delete Account button visible in danger zone
+- [ ] Confirmation modal displays all warnings
+- [ ] Username confirmation required before deletion
+- [ ] Account deletion removes all user data
+- [ ] User redirected to login after deletion
+- [ ] Deleted user cannot log back in
 
 ---
 
@@ -848,6 +1133,95 @@ Implement quiz generation using LLM and answer evaluation.
 - [ ] Error handling for LLM failures
 
 ---
+
+### Task 5.3: LLM Resource Estimation & Monitoring
+**Priority:** LOW  
+**Estimated Complexity:** Medium  
+**Dependencies:** Task 5.1, Task 5.2
+
+#### Objective
+Estimate and display LLM resource requirements based on article size, helping users understand the computational demands of quiz generation.
+
+#### Specifications
+- **Backend:**
+  - Create `LLMResourceEstimator.cs` service:
+    - Calculate article size (word count, character count)
+    - Estimate context size for each LLM phase:
+      - **Phase 1:** Article reading/analysis (base context)
+      - **Phase 2:** Question generation (prompt + article)
+      - **Phase 3:** Answer correction (prompt + article + Q&A + validation)
+    - Estimate CPU/RAM requirements based on:
+      - Article size
+      - Question count
+      - LLM model size (e.g., 7B, 8B parameters)
+    - Return resource estimates and warnings
+  
+  - Add endpoint: `POST /api/llm/estimate-resources`
+    - Request body:
+      ```json
+      {
+        "articleWordCount": 5000,
+        "questionCount": 10,
+        "modelName": "llama3:8b"
+      }
+      ```
+    - Response:
+      ```json
+      {
+        "articleSize": {
+          "wordCount": 5000,
+          "characterCount": 30000,
+          "estimatedTokens": 6500
+        },
+        "contextSizes": {
+          "phase1_reading": 6500,
+          "phase2_generation": 7000,
+          "phase3_correction": 8500
+        },
+        "resourceEstimate": {
+          "minimumRAM_GB": 8,
+          "recommendedRAM_GB": 16,
+          "estimatedProcessingTime_seconds": 45,
+          "warningLevel": "medium"
+        },
+        "warnings": [
+          "Large article may require extended processing time",
+          "Ensure at least 8GB RAM available"
+        ]
+      }
+      ```
+
+- **Frontend:**
+  - Display resource estimate before starting quiz:
+    - Show estimated processing time
+    - Show RAM requirements
+    - Display warnings for large articles
+  - Add loading indicator during quiz generation
+  - Optional: Show real-time progress for long operations
+  - Add "Performance Tips" section in guide/help
+
+- **Warning Levels:**
+  - **Low:** < 2000 words, < 30 seconds
+  - **Medium:** 2000-5000 words, 30-60 seconds
+  - **High:** > 5000 words, > 60 seconds
+  - Display appropriate warnings and recommendations
+
+- **Performance Monitoring (Optional):**
+  - Track actual processing time
+  - Compare estimates vs. actual performance
+  - Log performance metrics for optimization
+
+#### Acceptance Criteria
+- [ ] Resource estimation calculates article size correctly
+- [ ] Context sizes estimated for all three LLM phases
+- [ ] RAM requirements displayed based on model size
+- [ ] Processing time estimate shown before quiz starts
+- [ ] Warning levels (low/medium/high) calculated correctly
+- [ ] Warnings displayed for large articles
+- [ ] Frontend shows resource estimates before quiz generation
+- [ ] Loading indicators show during LLM processing
+- [ ] Performance tips available in help section
+- [ ] Estimates are reasonably accurate (within 20% margin)
 
 ## Phase 6: User Export & Data Management
 
@@ -1265,6 +1639,195 @@ Allow users to select their preferred date display format (French/European vs Am
 
 ---
 
+## Phase 9: Deployment & Distribution
+
+### Task 9.1: Cross-Platform Packaging
+**Priority:** MEDIUM  
+**Estimated Complexity:** High  
+**Dependencies:** All core features (Phase 5 minimum)
+
+#### Objective
+Package the application for Windows, macOS, and Linux as self-contained, distributable applications that require no technical setup.
+
+#### Specifications
+- **Application Structure:**
+  - Self-contained bundle including:
+    - Frontend (built React app)
+    - Backend (.NET runtime + API)
+    - Embedded web server
+    - All dependencies
+  - Single executable or app bundle
+  - No external dependencies required
+
+- **Backend Packaging:**
+  - Use .NET self-contained deployment
+  - Include runtime for target platform
+  - Embed Kestrel web server
+  - Configure to run on localhost with random available port
+  - Auto-start backend on application launch
+
+- **Frontend Packaging:**
+  - Build optimized production bundle
+  - Embed in backend as static files
+  - Serve via Kestrel
+  - Configure API base URL dynamically
+
+- **Platform-Specific Considerations:**
+  - **Windows:**
+    - Single .exe file or folder structure
+    - No .NET installation required
+    - Windows Defender compatibility
+  
+  - **macOS:**
+    - .app bundle structure
+    - Code signing (optional for V1)
+    - Gatekeeper compatibility
+  
+  - **Linux:**
+    - AppImage (single file, no installation)
+    - Snap package (optional)
+    - Flatpak (optional)
+
+- **Configuration:**
+  - Data directory: `~/DerotMyBrain/data/` or `%APPDATA%/DerotMyBrain/data/`
+  - Logs directory: `~/DerotMyBrain/logs/` or `%APPDATA%/DerotMyBrain/logs/`
+  - Auto-create directories on first run
+  - Portable mode option (data in app directory)
+
+#### Acceptance Criteria
+- [ ] Application runs on Windows without .NET installation
+- [ ] Application runs on macOS as .app bundle
+- [ ] Application runs on Linux (AppImage minimum)
+- [ ] Backend starts automatically with frontend
+- [ ] No terminal/command line required to run
+- [ ] Data persists in user directory
+- [ ] Application is self-contained (no external dependencies)
+- [ ] Port conflicts handled gracefully
+- [ ] Application can run multiple instances (different ports)
+
+---
+
+### Task 9.2: Installer Creation
+**Priority:** MEDIUM  
+**Estimated Complexity:** Medium  
+**Dependencies:** Task 9.1
+
+#### Objective
+Create user-friendly installers for each platform that handle installation, shortcuts, and uninstallation.
+
+#### Specifications
+- **Windows Installer:**
+  - MSI or EXE installer (using WiX or Inno Setup)
+  - Install to Program Files
+  - Create Start Menu shortcut
+  - Create Desktop shortcut (optional)
+  - Add to Windows Apps list
+  - Uninstaller included
+  - Check for .NET runtime (install if needed)
+
+- **macOS Installer:**
+  - DMG disk image
+  - Drag-and-drop to Applications folder
+  - Optional: PKG installer for automated deployment
+  - Code signing (recommended)
+  - Notarization (for distribution)
+
+- **Linux Installer:**
+  - AppImage (no installation needed)
+  - Snap package:
+    - `sudo snap install derot-my-brain`
+    - Auto-updates
+  - Flatpak package (optional):
+    - Flathub distribution
+  - .deb package for Debian/Ubuntu (optional)
+  - .rpm package for Fedora/RHEL (optional)
+
+- **Installer Features:**
+  - License agreement display
+  - Installation directory selection
+  - Shortcut creation options
+  - Launch on startup option (optional)
+  - Uninstaller that removes all data (with confirmation)
+
+#### Acceptance Criteria
+- [ ] Windows installer creates shortcuts and uninstaller
+- [ ] macOS DMG allows drag-and-drop installation
+- [ ] Linux AppImage runs without installation
+- [ ] Installers handle upgrades gracefully
+- [ ] Uninstallers remove application completely
+- [ ] User data preserved during upgrades
+- [ ] Installation process is intuitive for non-technical users
+- [ ] No terminal commands required for any platform
+
+---
+
+### Task 9.3: User Documentation & Distribution
+**Priority:** MEDIUM  
+**Estimated Complexity:** Low  
+**Dependencies:** Task 9.2
+
+#### Objective
+Create comprehensive, non-technical documentation for end users and set up distribution channels.
+
+#### Specifications
+- **User Documentation:**
+  - **Installation Guide:**
+    - Step-by-step with screenshots
+    - Platform-specific instructions (Windows/macOS/Linux)
+    - Troubleshooting common issues
+    - System requirements
+  
+  - **Quick Start Guide:**
+    - First-time setup
+    - Creating first user
+    - Taking first quiz
+    - Understanding the interface
+  
+  - **User Manual:**
+    - All features explained
+    - Preferences configuration
+    - LLM setup and configuration
+    - Backlog and history management
+    - Data export
+  
+  - **Troubleshooting Guide:**
+    - LLM connection issues
+    - Port conflicts
+    - Data location
+    - Performance issues
+    - How to reset application
+
+- **Distribution:**
+  - GitHub Releases:
+    - Release notes for each version
+    - Download links for all platforms
+    - Checksums for verification
+  
+  - Optional Distribution Channels:
+    - Microsoft Store (Windows)
+    - Mac App Store (macOS)
+    - Flathub (Linux)
+    - Snap Store (Linux)
+
+- **Documentation Format:**
+  - Markdown files in `/docs/user-guide/`
+  - PDF versions for offline reading
+  - In-app help links to online documentation
+  - Video tutorials (optional)
+
+#### Acceptance Criteria
+- [ ] Installation guide available for all platforms
+- [ ] Quick start guide helps new users get started
+- [ ] User manual covers all features
+- [ ] Troubleshooting guide addresses common issues
+- [ ] Documentation uses simple, non-technical language
+- [ ] Screenshots and visuals included
+- [ ] GitHub Releases set up with download links
+- [ ] Release notes document changes and new features
+- [ ] Documentation accessible from within application
+
+---
+
 ## Implementation Priority Order
 
 ### Phase -1: Frontend Architecture Migration (Pre-Sprint 0)
@@ -1289,28 +1852,37 @@ Allow users to select their preferred date display format (French/European vs Am
 7. Task 8.1: Internationalization (i18n) - **DO THIS FIRST** to avoid refactoring
 8. Task 1.1: Session Persistence
 9. Task 2.1: Extend User Model
-10. Task 4.1: Main Navigation Menu
+10. Task 4.1: Main Navigation Menu (including header auth state)
 
 ### Sprint 2: User Experience (Week 2)
 11. Task 1.2: Welcome Page
 12. Task 2.2: User Preferences Page
-13. Task 4.2: User Profile Page
-14. Task 8.2: Category Preferences Management
+13. Task 2.3: LLM Configuration UI
+14. Task 4.2: User Profile Page (including account deletion)
+15. Task 8.2: Category Preferences Management
 
 ### Sprint 3: Activity Enhancements (Week 3)
-15. Task 3.1: Enhanced Activity History Model
-16. Task 3.2: Enhanced History View UI
-17. Task 4.3: Backlog Page
-18. Task 8.4: Enhanced History and Backlog Actions
+16. Task 3.1: Enhanced Activity History Model
+17. Task 3.2: Enhanced History View UI
+18. Task 3.3: Activity Statistics & Calendar View
+19. Task 4.3: Backlog Page
+20. Task 8.4: Enhanced History and Backlog Actions
 
 ### Sprint 4: Core Functionality (Week 4-5)
-19. Task 5.1: Derot Page - Wikipedia Integration
-20. Task 5.2: Derot Page - Quiz Generation
-21. Task 8.3: Category Filtering on Derot Page
+21. Task 5.1: Derot Page - Wikipedia Integration
+22. Task 5.2: Derot Page - Quiz Generation
+23. Task 5.3: LLM Resource Estimation & Monitoring
+24. Task 8.3: Category Filtering on Derot Page
 
 ### Sprint 5: Polish & Export (Week 6)
-22. Task 6.1: User Data Export
-23. Task 7.1: Contextual Help & Tooltips
+25. Task 6.1: User Data Export
+26. Task 7.1: Contextual Help & Tooltips
+27. Task 8.5: Date Format Preferences
+
+### Sprint 6: Deployment (Week 7-8)
+28. Task 9.1: Cross-Platform Packaging
+29. Task 9.2: Installer Creation
+30. Task 9.3: User Documentation & Distribution
 
 ---
 
@@ -1347,27 +1919,65 @@ Allow users to select their preferred date display format (French/European vs Am
 
 ## Notes for Agents
 
-### General Guidelines
-- Each task should be implemented in a separate branch
-- Follow SOLID principles for backend code
-- Follow frontend architecture principles (see `Docs/frontend_guidelines.md`):
-  - Separation of Concerns
-  - Component-driven architecture
-  - Composition over inheritance
-  - Unidirectional data flow
-  - Custom Hooks for business logic
-  - Clean Architecture / Hexagonal (adapted for frontend)
-  - Use Zustand for state management
-- Use existing theme system for all UI components
-- Ensure mobile responsiveness for all pages
-- Write unit tests for backend services
-- Use TypeScript strict mode for frontend code
+### When Implementing Features:
+1. **Read the Roadmap**: Check `Implementation-Roadmap.md` for detailed specifications
+2. **Follow TDD (CRITICAL)**: 
+   - Write tests FIRST before any implementation code
+   - Red → Green → Refactor cycle
+   - Minimum 80% code coverage
+3. **Create TestUser Mock Data (CRITICAL)**:
+   - Every feature MUST include mock data for "TestUser"
+   - Use existing TestUser ID from `/data/users/users.json`
+   - Cover edge cases and realistic scenarios
+   - Document mock data structure
+4. **Follow SOLID Principles**: Especially in backend code
+5. **Follow Frontend Architecture Principles**: See `Docs/frontend_guidelines.md` for:
+   - Separation of Concerns
+   - Component-driven architecture
+   - Composition over inheritance
+   - Unidirectional data flow
+   - Custom Hooks for business logic
+   - Clean Architecture / Hexagonal (adapted for frontend)
+   - Use Zustand for state management
+6. **Use Existing Components**: Leverage shadcn/ui and existing theme system
+7. **Test Thoroughly**: 
+   - Backend: Unit tests for services, integration tests for APIs
+   - Frontend: Component tests for complex UI
+   - All tests must pass before considering task complete
+8. **Update Documentation**: Mark tasks as complete in this file and roadmap
+9. **Use TestUser**: For all automated testing and mock data creation
 
-### Testing Requirements
-- Backend: Unit tests for all services
-- Frontend: Component tests for complex components
-- Integration tests for API endpoints
-- Manual testing checklist for each task
+### Code Standards:
+- **Backend:** C# naming conventions, XML documentation comments
+- **Frontend:** React/TypeScript best practices, JSDoc comments, architecture principles (see `Docs/frontend_guidelines.md`)
+- **Styling:** Use theme system, ensure mobile responsiveness
+- **Error Handling:** Consistent patterns, user-friendly messages
+
+### Testing Guidelines (CRITICAL):
+- **TDD Mandatory**: Write tests before implementation
+- **Backend:** 
+  - Unit tests for all services (xUnit/NUnit)
+  - Integration tests for all API endpoints
+  - Mock external dependencies
+- **Frontend:** 
+  - Component tests for complex components (Vitest + React Testing Library)
+  - Test user interactions and edge cases
+- **Manual Testing:** Test on multiple browsers and screen sizes
+- **Mock Data:** Always use "TestUser" for automated testing
+- **Coverage:** Minimum 80% code coverage for new features
+- **CI/CD:** All tests must pass in pipeline before merge
+
+### TestUser Mock Data Requirements:
+- **Location:** `/data/users/` directory
+- **Files:**
+  - `users.json` - TestUser profile and preferences
+  - `user-{testuser-id}-history.json` - Activity history
+  - `user-{testuser-id}-backlog.json` - Backlog items
+- **Quality:**
+  - Realistic and representative data
+  - Cover edge cases (empty, full, maximum values)
+  - Include timestamps and proper formatting
+  - Document data structure in task acceptance criteria
 
 ### Documentation Updates
 - Update `Project-Status.md` after completing each task

@@ -158,6 +158,14 @@ This document tracks the implementation status of features defined in the Functi
   - **Status:** Not Started
   - **Roadmap Task:** 2.2
 
+- [ ] **LLM Configuration UI**: LLM setup in preferences
+  - Configure LLM URL and port
+  - Test LLM connectivity
+  - Success/error feedback modal
+  - **Status:** Not Started
+  - **Roadmap Task:** 2.3
+  - **Dependencies:** Task 0.1
+
 ---
 
 ### Phase 3: Activity History Enhancements (Priority: HIGH)
@@ -180,6 +188,15 @@ This document tracks the implementation status of features defined in the Functi
   - **Status:** Not Started
   - **Roadmap Task:** 3.2
 
+- [ ] **Activity Statistics & Calendar View**: Enhanced statistics panel
+  - GitLab-style activity calendar
+  - Best personal score display
+  - Last activity with article name
+  - Total activities count
+  - **Status:** Not Started
+  - **Roadmap Task:** 3.3
+  - **Dependencies:** Task 3.1, Task 3.2
+
 ---
 
 ### Phase 4: Navigation & Page Structure (Priority: HIGH)
@@ -189,6 +206,10 @@ This document tracks the implementation status of features defined in the Functi
   - Links to: Derot, History, Backlog, Profile, Preferences, Guide, Logout
   - Responsive design (sidebar/hamburger menu)
   - Active page highlighting
+  - **Header authentication state changes:**
+    - Not authenticated: Language + Theme selectors
+    - Authenticated: User menu dropdown + Settings button + Logout
+  - Logo clickable → home (history for authenticated users)
   - **Status:** Not Started
   - **Roadmap Task:** 4.1
 
@@ -196,6 +217,7 @@ This document tracks the implementation status of features defined in the Functi
 - [ ] **User Profile Page**: Display and edit user information
   - Show: name, ID, creation date, last connection, statistics
   - Edit name functionality
+  - **Account deletion with confirmation modal**
   - **Status:** Not Started
   - **Roadmap Task:** 4.2
 
@@ -245,6 +267,15 @@ This document tracks the implementation status of features defined in the Functi
   - Save to history only after at least one answer submitted
   - **Status:** Not Started
   - **Roadmap Task:** 5.2
+
+- [ ] **LLM Resource Estimation**: Resource monitoring and warnings
+  - Estimate CPU/RAM based on article size
+  - Display processing time estimates
+  - Warning levels for large articles
+  - Performance tips
+  - **Status:** Not Started
+  - **Roadmap Task:** 5.3
+  - **Dependencies:** Task 5.1, Task 5.2
 
 ---
 
@@ -331,6 +362,39 @@ This document tracks the implementation status of features defined in the Functi
 
 ---
 
+### Phase 9: Deployment & Distribution (Priority: MEDIUM)
+
+#### Cross-Platform Packaging
+- [ ] **Cross-Platform Packaging**: Self-contained application bundles
+  - Windows, macOS, Linux support
+  - No .NET installation required
+  - Embedded backend + frontend
+  - Self-contained deployment
+  - **Status:** Not Started
+  - **Roadmap Task:** 9.1
+  - **Dependencies:** Phase 5 (core features)
+
+#### Installer Creation
+- [ ] **Installer Creation**: User-friendly installers
+  - Windows: MSI/EXE installer
+  - macOS: DMG disk image
+  - Linux: AppImage/Snap/Flatpak
+  - Shortcuts and uninstallers
+  - **Status:** Not Started
+  - **Roadmap Task:** 9.2
+  - **Dependencies:** Task 9.1
+
+#### User Documentation
+- [ ] **User Documentation & Distribution**: End-user guides
+  - Installation guide (all platforms)
+  - Quick start guide
+  - User manual
+  - Troubleshooting guide
+  - GitHub Releases setup
+  - **Status:** Not Started
+  - **Roadmap Task:** 9.3
+  - **Dependencies:** Task 9.2
+
 ## Feature Bucket List Status (Updated)
 
 ### ✅ Addressed in Roadmap
@@ -369,6 +433,25 @@ This document tracks the implementation status of features defined in the Functi
 - [x] "Rework Topic" button in backlog
 - [x] Trash icon (🗑️) with confirmation modal in backlog
 - [x] Clear UX for temporary vs. persistent changes
+
+**Third Bucket List (bucket-list.md - 2026-01-18):**
+- [x] User profile with editable display name (Task 4.2)
+- [x] Unique user ID preserved on name change (already implemented)
+- [x] Account deletion with confirmation modal (Task 4.2)
+- [x] LLM configuration UI in preferences (Task 2.3)
+- [x] LLM URL/port configuration with validation (Task 2.3)
+- [x] Activity calendar (GitLab-style) in history (Task 3.3)
+- [x] Best personal score display (Task 3.3)
+- [x] Header authentication state changes (Task 4.1)
+- [x] User menu dropdown when authenticated (Task 4.1)
+- [x] Settings button in header (Task 4.1)
+- [x] Logo clickable → home (Task 4.1)
+- [x] Authenticated home = history page (Task 4.1)
+- [x] LLM resource estimation (CPU/RAM) (Task 5.3)
+- [x] Processing time estimates (Task 5.3)
+- [x] Cross-platform deployment (Windows/macOS/Linux) (Phase 9)
+- [x] No terminal commands required for end users (Phase 9)
+- [x] User-friendly installers (Phase 9)
 
 ### 📋 Implementation Details
 All features from the bucket list have been broken down into specific tasks in the **Implementation-Roadmap.md** document. Each task includes:
@@ -434,7 +517,13 @@ All features from the bucket list have been broken down into specific tasks in t
 ### Sprint 5: Polish & Export (Week 6)
 - User Data Export
 - Contextual Help & Tooltips
+- Date Format Preferences
 - Final testing and bug fixes
+
+### Sprint 6: Deployment (Week 7-8)
+- Cross-Platform Packaging
+- Installer Creation
+- User Documentation & Distribution
 
 ---
 
@@ -451,8 +540,17 @@ All features from the bucket list have been broken down into specific tasks in t
 
 ### When Implementing Features:
 1. **Read the Roadmap**: Check `Implementation-Roadmap.md` for detailed specifications
-2. **Follow SOLID Principles**: Especially in backend code
-3. **Follow Frontend Architecture Principles**: See `Docs/frontend_guidelines.md` for:
+2. **Follow TDD (CRITICAL)**: 
+   - Write tests FIRST before any implementation code
+   - Red → Green → Refactor cycle
+   - Minimum 80% code coverage
+3. **Create TestUser Mock Data (CRITICAL)**:
+   - Every feature MUST include mock data for "TestUser"
+   - Use existing TestUser ID from `/data/users/users.json`
+   - Cover edge cases and realistic scenarios
+   - Document mock data structure
+4. **Follow SOLID Principles**: Especially in backend code
+5. **Follow Frontend Architecture Principles**: See `Docs/frontend_guidelines.md` for:
    - Separation of Concerns
    - Component-driven architecture
    - Composition over inheritance
@@ -460,10 +558,10 @@ All features from the bucket list have been broken down into specific tasks in t
    - Custom Hooks for business logic
    - Clean Architecture / Hexagonal (adapted for frontend)
    - Use Zustand for state management
-4. **Use Existing Components**: Leverage shadcn/ui and existing theme system
-5. **Test Thoroughly**: Write unit tests for backend, component tests for complex UI
-6. **Update Documentation**: Mark tasks as complete in this file and roadmap
-7. **Use TestUser**: For all automated testing and mock data creation
+6. **Use Existing Components**: Leverage shadcn/ui and existing theme system
+7. **Test Thoroughly**: Write unit tests for backend, component tests for complex UI
+8. **Update Documentation**: Mark tasks as complete in this file and roadmap
+9. **Use TestUser**: For all automated testing and mock data creation
 
 ### Code Standards:
 - **Backend:** C# naming conventions, XML documentation comments
@@ -471,11 +569,31 @@ All features from the bucket list have been broken down into specific tasks in t
 - **Styling:** Use theme system, ensure mobile responsiveness
 - **Error Handling:** Consistent patterns, user-friendly messages
 
-### Testing Guidelines:
-- **Backend:** Unit tests for services, integration tests for APIs
-- **Frontend:** Component tests for complex components
+### Testing Guidelines (CRITICAL):
+- **TDD Mandatory**: Write tests before implementation
+- **Backend:** 
+  - Unit tests for all services (xUnit/NUnit)
+  - Integration tests for all API endpoints
+  - Mock external dependencies
+- **Frontend:** 
+  - Component tests for complex components (Vitest + React Testing Library)
+  - Test user interactions and edge cases
 - **Manual Testing:** Test on multiple browsers and screen sizes
 - **Mock Data:** Always use "TestUser" for automated testing
+- **Coverage:** Minimum 80% code coverage for new features
+- **CI/CD:** All tests must pass in pipeline before merge
+
+### TestUser Mock Data Requirements:
+- **Location:** `/data/users/` directory
+- **Files:**
+  - `users.json` - TestUser profile and preferences
+  - `user-{testuser-id}-history.json` - Activity history
+  - `user-{testuser-id}-backlog.json` - Backlog items
+- **Quality:**
+  - Realistic and representative data
+  - Cover edge cases (empty, full, maximum values)
+  - Include timestamps and proper formatting
+  - Document data structure in acceptance criteria
 
 ---
 
