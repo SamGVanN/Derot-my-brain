@@ -30,7 +30,7 @@ namespace DerotMyBrain.API.Controllers
                 return BadRequest("Name is required");
             }
 
-            var user = await _userService.CreateOrGetUserAsync(request.Name);
+            var user = await _userService.CreateOrGetUserAsync(request.Name, request.Language, request.PreferredTheme);
             return Ok(user);
         }
 
@@ -107,5 +107,7 @@ namespace DerotMyBrain.API.Controllers
     public class CreateUserRequest
     {
         public string Name { get; set; } = string.Empty;
+        public string? Language { get; set; }
+        public string? PreferredTheme { get; set; }
     }
 }

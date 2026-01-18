@@ -21,7 +21,7 @@ namespace DerotMyBrain.API.Services
             return data.Users;
         }
 
-        public async Task<User> CreateOrGetUserAsync(string name)
+        public async Task<User> CreateOrGetUserAsync(string name, string? language = null, string? preferredTheme = null)
         {
             var data = await _userRepository.GetAsync(UsersFileName);
             
@@ -48,6 +48,17 @@ namespace DerotMyBrain.API.Services
             
             // Default: All categories selected
             newUser.Preferences.SelectedCategories = allCategories.Select(c => c.Id).ToList();
+
+            // Set initial preferences if provided
+            if (!string.IsNullOrEmpty(language))
+            {
+                newUser.Preferences.Language = language;
+            }
+
+            if (!string.IsNullOrEmpty(preferredTheme))
+            {
+                newUser.Preferences.PreferredTheme = preferredTheme;
+            }
 
 
             data.Users.Add(newUser);

@@ -76,7 +76,60 @@ namespace DerotMyBrain.Tests.Services
             result.Preferences.QuestionCount.Should().Be(10); // Default value
 
             // Verify repository was called to save
+            // Verify repository was called to save
             _mockRepository.Verify(repo => repo.SaveAsync("users.json", It.IsAny<UserList>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateOrGetUserAsync_SetsInitialPreferences_ForNewUser()
+        {
+            // Arrange
+            var emptyUserList = new UserList { Users = new List<User>() };
+            var categories = new List<WikipediaCategory>();
+
+            _mockRepository
+                .Setup(repo => repo.GetAsync("users.json"))
+                .ReturnsAsync(emptyUserList);
+
+            _mockCategoryService
+                .Setup(cs => cs.GetAllCategoriesAsync())
+                .ReturnsAsync(categories);
+
+            // Act
+            var result = await _userService.CreateOrGetUserAsync("NewUser", "fr", "neo-wikipedia");
+
+            // Assert
+            result.Preferences.Language.Should().Be("fr");
+            result.Preferences.PreferredTheme.Should().Be("neo-wikipedia");
+        }
+
+        [Fact]
+        public async Task CreateOrGetUserAsync_DoesNotOverwritePreferences_ForExistingUser()
+        {
+            // Arrange
+            var existingUser = new User
+            {
+                Id = "existing-id",
+                Name = "ExistingUser",
+                Preferences = new UserPreferences 
+                { 
+                    Language = "en", 
+                    PreferredTheme = "derot-brain" 
+                }
+            };
+            var userList = new UserList { Users = new List<User> { existingUser } };
+
+            _mockRepository
+                .Setup(repo => repo.GetAsync("users.json"))
+                .ReturnsAsync(userList);
+
+            // Act
+            // Attempt to create with DIFFERENT preferences
+            var result = await _userService.CreateOrGetUserAsync("ExistingUser", "fr", "neo-wikipedia");
+
+            // Assert
+            result.Preferences.Language.Should().Be("en"); // Should keep existing
+            result.Preferences.PreferredTheme.Should().Be("derot-brain"); // Should keep existing
         }
 
         [Fact]

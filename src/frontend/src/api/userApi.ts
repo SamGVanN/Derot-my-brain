@@ -8,8 +8,8 @@ export const userApi = {
         return response.data;
     },
 
-    createOrSelectUser: async (name: string): Promise<User> => {
-        const response = await client.post<User>('/users', { name });
+    createOrSelectUser: async (name: string, options?: { language?: string; preferredTheme?: string }): Promise<User> => {
+        const response = await client.post<User>('/users', { name, ...options });
         return response.data;
     },
 

@@ -206,6 +206,9 @@ Permet d'identifier l'utilisateur sans authentification lourde.
   - Session stockée en localStorage/sessionStorage
   - Validation de session au démarrage de l'application
   - Redirection vers login uniquement si session invalide
+- **Application des préférences** :
+  - **Connexion (Login)** : Au moment de la connexion, les préférences sauvegardées de l'utilisateur (Langue, Thème) doivent être **immédiatement chargées et appliquées** à l'interface.
+  - **Création (Sign up)** : Lorsqu'un utilisateur est créé, les préférences **actives sur la page d'accueil** (Langue actuelle, Thème actuel) doivent être enregistrées comme ses préférences par défaut.
 
 **Données stockées**
 

@@ -160,11 +160,13 @@ This document tracks the implementation status of features defined in the Functi
   - **Completed Date:** 2026-01-18
   - **Roadmap Task:** 2.1
 
-- [ ] **User Preferences Page**: Dedicated settings page
-  - Configure quiz question count
-  - Select theme
-  - Future: difficulty, language, etc.
-  - **Status:** Not Started
+- [x] **User Preferences Page**: Dedicated settings page
+  - [x] Configure quiz question count
+  - [x] Select theme
+  - [x] Select language
+  - [] Future: difficulty, etc.
+  - **Status:** Completed
+  - **Completed Date:** 2026-01-18
   - **Roadmap Task:** 2.2
 
 - [ ] **LLM Configuration UI**: LLM setup in preferences
@@ -174,6 +176,14 @@ This document tracks the implementation status of features defined in the Functi
   - **Status:** Not Started
   - **Roadmap Task:** 2.3
   - **Dependencies:** Task 0.1
+
+- [x] **Contextual Preference Loading**: Smart preference handling (Task 2.4)
+  - [x] Apply saved preferences (Theme/Language) immediately on login
+  - [x] Save active context (Theme/Language) as default when creating user
+  - **Status:** Completed
+  - **Completed Date:** 2026-01-18
+  - **Roadmap Task:** 2.4
+  - **Dependencies:** Task 2.1, 2.2
 
 ---
 

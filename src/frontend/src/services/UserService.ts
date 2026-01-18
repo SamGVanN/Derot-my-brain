@@ -8,7 +8,7 @@ import { userApi } from '../api/userApi';
 export const UserService = {
     getAllUsers: (): Promise<User[]> => userApi.getAllUsers(),
 
-    createOrSelectUser: (name: string): Promise<User> => userApi.createOrSelectUser(name),
+    createOrSelectUser: (name: string, options?: { language?: string; preferredTheme?: string }): Promise<User> => userApi.createOrSelectUser(name, options),
 
     getUserById: (id: string): Promise<User> => userApi.getUserById(id),
 

@@ -609,11 +609,11 @@ Create a dedicated user preferences page where users can configure their setting
   - Optimistic UI updates with rollback on error
 
 #### Acceptance Criteria
-- [ ] Users can select question count (5/10/15/20)
-- [ ] Preferences save successfully to backend
-- [ ] UI updates immediately on save
-- [ ] Error handling for failed saves
-- [ ] Page accessible from navigation menu
+- [x] Users can select question count (5/10/15/20)
+- [x] Preferences save successfully to backend
+- [x] UI updates immediately on save
+- [x] Error handling for failed saves
+- [x] Page accessible from navigation menu
 
 ---
 
@@ -677,6 +677,35 @@ Add frontend UI for LLM configuration in the user preferences page, allowing use
 - [ ] Current configuration loads on page initialization
 - [ ] URL validation prevents invalid formats
 - [ ] Timeout prevents indefinite waiting
+
+---
+
+### Task 2.4: Contextual Preference Initialization & Loading
+**Priority:** HIGH
+**Estimated Complexity:** Medium
+**Dependencies:** Task 2.1, Task 2.2
+
+#### Objective
+Ensure that user preferences (Language, Theme) are immediately applied upon login and correctly captured from the current environment upon user creation.
+
+#### Specifications
+- **Frontend (Login Flow):**
+  - When `login` occurs:
+    - Retrieve full user object including `Preferences`.
+    - **Immediately** update the global application state (Language, Theme) to match the user's stored preferences.
+    - Ensure no "flash" of default theme/language occurs if possible (optimistic or loading state).
+
+- **Frontend (User Creation Flow):**
+  - When creating a new user:
+    - Capture the **current** active Language and Theme (which the user might have set on the Welcome/Landing page).
+    - Pass these values to the `CreateUser` payload (or update immediately after creation).
+    - Ensure the new user's initial stored preferences match what they were seeing when they clicked "Create".
+
+#### Acceptance Criteria
+- [ ] Login immediately switches theme/language to user's saved preference
+- [ ] Creating a new user saves the currently active theme/language as their default
+- [ ] Verified manual test: Change theme on landing page -> Create User -> Check Profile -> Theme matches
+- [ ] Verified manual test: Login as User A (Theme X) -> Logout -> Login as User B (Theme Y) -> Theme switches to Y
 
 ---
 

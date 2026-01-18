@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserService } from '../services/UserService';
 import type { User } from '../models/User';
+import { useTheme } from '@/components/theme-provider';
 import { Layout } from '@/components/Layout';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,7 +18,8 @@ interface UserSelectionPageProps {
 }
 
 export default function UserSelectionPage({ onUserSelected }: UserSelectionPageProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const { theme } = useTheme();
     const [username, setUsername] = useState('');
     const queryClient = useQueryClient();
 
@@ -29,7 +31,8 @@ export default function UserSelectionPage({ onUserSelected }: UserSelectionPageP
 
     // Mutation to create/select user
     const mutation = useMutation({
-        mutationFn: UserService.createOrSelectUser,
+        mutationFn: (variables: { name: string; options?: { language?: string; preferredTheme?: string } }) =>
+            UserService.createOrSelectUser(variables.name, variables.options),
         onSuccess: (user) => {
             onUserSelected(user);
             // Refetch users list
@@ -45,12 +48,13 @@ export default function UserSelectionPage({ onUserSelected }: UserSelectionPageP
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (username.trim()) {
-            mutation.mutate(username);
+            mutation.mutate({ name: username, options: { language: i18n.language, preferredTheme: theme.name } });
         }
     };
 
     const handleUserClick = (name: string) => {
-        mutation.mutate(name);
+        // For existing users, backend ignores preferences, so passing them is safe/harmless
+        mutation.mutate({ name, options: { language: i18n.language, preferredTheme: theme.name } });
     };
 
     return (

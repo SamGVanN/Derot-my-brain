@@ -1,3 +1,25 @@
+# Prompt Template pour Ajouter des tâches dans les /Docs selon besoin
+```
+Met à jours /Docs (à minima Specifications-fonctionnelles.md, Implementation-Roadmap.md, Project-Status.md) pour la feature ou tâche suivante à implémenter.
+Tu n'implémente rien, tu prépare le terrain et maintiens à jours les instructions pour l'agent développeur.
+
+FEATURE À AJOUTER :
+[FEATURE-DESCRIPTION-DETAILED]
+
+IMPORTANT :
+- Ne PAS implémenter la feature
+- Ne PAS modifier la codebase
+- Soulève les potentielles contradictions avec les spécifications fonctionnelles
+- Soulève les potentielles contradictions avec les spécifications techniques
+- Soulève les potentielles contradictions avec les spécifications de stockage
+- Demande des précisions si un point manque de clarté
+
+Peux-tu commencer par lire la demande de feature et me confirmer que tu as bien compris la tâche avant de commencer ?
+Reformule la demande de feature si nécessaire pour clarifier et organiser le besoin.
+
+```
+
+
 # Prompt Template pour Implémentation de Tâche
 
 ## 📋 Template de Base
