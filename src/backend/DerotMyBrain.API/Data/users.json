@@ -4,7 +4,7 @@
       "Id": "test-user-id-001",
       "Name": "TestUser",
       "CreatedAt": "2026-01-18T00:55:00Z",
-      "LastConnectionAt": "2026-01-18T23:24:09.6630032Z",
+      "LastConnectionAt": "2026-01-18T23:51:57.4315426Z",
       "Preferences": {
         "QuestionCount": 10,
         "PreferredTheme": "neo-wikipedia",

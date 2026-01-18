@@ -49,56 +49,24 @@ This document tracks the implementation status of features defined in the Functi
 
 #### Architecture Compliance
 - [x] **Task -1.1: Infrastructure Layer Setup**
-  - Create `/api` directory structure
-  - Centralized HTTP client (axios)
-  - Move UserService to userApi.ts
-  - Remove axios/fetch mixing
   - **Status:** Completed
   - **Completed Date:** 2026-01-18
-  - **Roadmap Task:** -1.1
-  - **⚠️ CRITICAL:** Foundation for all other work
 
 - [x] **Task -1.2: Zustand State Management Setup**
-  - Install Zustand
-  - Create `useAuthStore` (authentication state)
-  - Create `usePreferencesStore` (user preferences)
-  - Implement localStorage persistence
   - **Status:** Completed
   - **Completed Date:** 2026-01-18
-  - **Roadmap Task:** -1.2
-  - **Dependencies:** Task -1.1
 
 - [x] **Task -1.3: Custom Hooks Implementation**
-  - Create `useAuth()` hook
-  - Create `useUser()` hook
-  - Create `usePreferences()` hook
-  - Create `useHistory()` hook
-  - Enhance `useCategories()` hook
   - **Status:** Completed
   - **Completed Date:** 2026-01-18
-  - **Roadmap Task:** -1.3
-  - **Dependencies:** Task -1.2
 
 - [x] **Task -1.4: Component Refactoring**
-  - Refactor `App.tsx` (166 → ~80 lines)
-  - Refactor `UserPreferencesPage.tsx` (487 → ~200 lines)
-  - Refactor `UserSelectionPage.tsx` (124 → ~80 lines)
-  - Refactor `history-view.tsx` (83 → ~50 lines)
-  - Extract sub-components
   - **Status:** Completed
   - **Completed Date:** 2026-01-19
-  - **Roadmap Task:** -1.4
-  - **Dependencies:** Task -1.3
 
 - [x] **Task -1.5: Context Cleanup & Verification**
-  - Evaluate/simplify UserContext if needed to follow frontend_guidelines.md
-  - Run verification checklist
-  - Manual testing of all features
-  - Update documentation and frontend tests where needed
   - **Status:** Completed
   - **Completed Date:** 2026-01-19
-  - **Roadmap Task:** -1.5
-  - **Dependencies:** Task -1.4
 
 **See detailed plan:** `implementation_plan.md` in artifacts
 
@@ -109,378 +77,173 @@ This document tracks the implementation status of features defined in the Functi
 **⚠️ MUST BE DONE AFTER PHASE -1 (Architecture Migration)**
 
 #### Application Initialization
-- [x] **Application Initialization & Configuration**: Seed data and global config
-  - Initialize Wikipedia categories (13 official categories)
-  - Initialize themes (5 color palettes)
-  - Global configuration management (LLM URL/Port)
-  - Seed data stored in `/data/seed/`
-  - Configuration stored in `/data/config/`
+- [x] **Task 0.1: Application Initialization & Configuration**
   - **Status:** Completed
   - **Completed Date:** 2026-01-18
-  - **Roadmap Task:** 0.1
-  - **⚠️ CRITICAL:** MUST be done FIRST before any other task
 
 ---
 
 ### Phase 1: Core Infrastructure & UX Enhancements (Priority: HIGH)
 
 #### Session & Authentication
-- [x] **Session Persistence**: Keep user logged in after page refresh
-  - Store session in localStorage/sessionStorage
-  - Validate session on app initialization
-  - Redirect to login only if session invalid
+- [x] **Task 1.1: Session Persistence**
   - **Status:** Completed
   - **Completed Date:** 2026-01-18
-  - **Roadmap Task:** 1.1
 
 #### Welcome & Onboarding
-- [x] **Welcome Page for New Users**: First-time user onboarding
-  - Show guide explaining app purpose and features
-  - Options: Read Guide / Proceed / Don't Show Again
-  - Store preference in localStorage
+- [x] **Task 1.2: Welcome Page for New Users**
   - **Status:** Completed
   - **Completed Date:** 2026-01-18
-  - **Roadmap Task:** 1.2
 
 #### Backend Logging
-- [x] **Backend Logging System**: File-based logging (Serilog/NLog)
-  - Logs stored in `/Logs` at API root
-  - Daily log rotation
-  - Capture exceptions and startup events
+- [x] **Task 1.3: Backend Logging System**
   - **Status:** Completed
   - **Completed Date:** 2026-01-18
-  - **Roadmap Task:** 1.3
 
 ---
 
-### Phase 2: User Data Model Enhancements (Priority: HIGH)
+### Phase 2: User Preferences & i18n (Priority: HIGH)
 
 #### User Preferences
-- [x] **Extended User Model**: Add preferences and metadata
-  - Question count preference (5/10/15/20)
-  - Last connection date tracking
-  - Theme preference (move from localStorage to user data)
+- [x] **Task 2.1: Extended User Model**
   - **Status:** Completed
   - **Completed Date:** 2026-01-18
-  - **Roadmap Task:** 2.1
 
-- [ ] **User Preferences Page**: Dedicated settings page
+- [ ] **Task 2.2: User Preferences Page (Cleanup)**
   - [x] Configure quiz question count
   - [x] Select theme
   - [x] Select language
-  - [] Future: difficulty, etc.
   - **Status:** En cours (Code cleanup required: remove 'any' types)
-  - **Completed Date:** 
   - **Roadmap Task:** 2.2
 
-- [ ] **LLM Configuration UI**: LLM setup in preferences
-  - Configure LLM URL and port
-  - Test LLM connectivity
-  - Success/error feedback modal
-  - **Status:** Not Started
-  - **Roadmap Task:** 2.3
-  - **Dependencies:** Task 0.1
-
-- [x] **Contextual Preference Loading**: Smart preference handling (Task 2.4)
-  - [x] Apply saved preferences (Theme/Language) immediately on login
-  - [x] Save active context (Theme/Language) as default when creating user
+- [x] **Task 2.4: Contextual Preference Loading**
   - **Status:** Completed
   - **Completed Date:** 2026-01-18
-  - **Roadmap Task:** 2.4
-  - **Dependencies:** Task 2.1, 2.2
+
+#### Internationalization & Categories
+- [x] **Task 8.1: Internationalization (i18n) Implementation**
+  - **Status:** Completed ✅
+  - **Completed on:** 2026-01-18
+
+- [x] **Task 8.2: Category Preferences Management**
+  - **Status:** Completed ✅
+  - **Completed on:** 2026-01-18
 
 ---
 
-### Phase 3: Activity History Enhancements (Priority: HIGH)
+### Phase 3: Application Structure (Sprint A)
 
-#### Enhanced Activity Tracking
-- [ ] **Enhanced Activity Model**: Track more detailed information
-  - Last score AND best score for each activity
-  - LLM model information (name, version)
-  - Notation format: X/totalQuestions (with percentage)
-  - Backlog status flag
+#### Navigation & Profile
+- [ ] **Task 3.1: Main Navigation Menu** (Formerly 4.1)
   - **Status:** Not Started
-  - **Roadmap Task:** 3.1
-
-- [ ] **Enhanced History View**: Improved UI for activity history
-  - Display last score and best score
-  - Show LLM used (on hover or in details)
-  - Backlog indicator (book icon 📖)
-  - Add to backlog from history
-  - Sorting and filtering options
-  - **Status:** Not Started
-  - **Roadmap Task:** 3.2
-
-- [ ] **Activity Statistics & Calendar View**: Enhanced statistics panel
-  - GitLab-style activity calendar
-  - Best personal score display
-  - Last activity with article name
-  - Total activities count
-  - **Status:** Not Started
-  - **Roadmap Task:** 3.3
-  - **Dependencies:** Task 3.1, Task 3.2
-
----
-
-### Phase 4: Navigation & Page Structure (Priority: HIGH)
-
-#### Navigation System
-- [ ] **Main Navigation Menu**: App-wide navigation
   - Links to: Derot, History, Backlog, Profile, Preferences, Guide, Logout
-  - Responsive design (sidebar/hamburger menu)
-  - Active page highlighting
-  - **Header authentication state changes:**
-    - Not authenticated: Language + Theme selectors
-    - Authenticated: User menu dropdown + Settings button + Logout
-  - Logo clickable → home (history for authenticated users)
-  - **Status:** Not Started
-  - **Roadmap Task:** 4.1
+  - Header authentication state changes
 
-#### User Pages
-- [ ] **User Profile Page**: Display and edit user information
-  - Show: name, ID, creation date, last connection, statistics
-  - Edit name functionality
-  - **Account deletion with confirmation modal**
+- [ ] **Task 3.2: User Profile Page** (Formerly 4.2)
   - **Status:** Not Started
-  - **Roadmap Task:** 4.2
-
-- [ ] **Backlog Page**: Dedicated page for saved articles
-  - List all backlog items
-  - Start quiz from backlog
-  - Remove items from backlog
-  - Show last attempt and best score
-  - **Status:** Not Started
-  - **Roadmap Task:** 4.3
+  - Edit name, view stats
+  - Account deletion
 
 ---
 
-### Phase 5: Core Functionality - Derot Page (Priority: HIGH)
+### Phase 4: Data Infrastructure & LLM (Sprint B)
 
-#### Wikipedia Integration
-- [ ] **Wikipedia Service**: Fetch and display articles
-  - Random article fetching
-  - Article by category/interest
-  - Content parsing and cleaning
+#### Core Data & Configuration
+- [ ] **Task 4.1: LLM Configuration UI** (Formerly 2.3)
   - **Status:** Not Started
-  - **Roadmap Task:** 5.1
+  - Configure LLM URL/Port
+  - Connection Testing
 
-- [ ] **Derot Page - Reading Experience**:
-  - Display Wikipedia article
-  - "Recycle" button (new article without saving)
-  - "Add to Backlog" button
-  - Quick access to history/backlog (modal/drawer)
-  - Preserve article state during navigation
+- [ ] **Task 4.2: Enhanced Activity Model** (Formerly 3.1)
   - **Status:** Not Started
-  - **Roadmap Task:** 5.1
-
-#### Quiz Generation & Evaluation
-- [ ] **LLM Integration**: Ollama/OpenAI for quiz generation
-  - Generate questions based on article
-  - Configurable question count (from user preferences)
-  - Semantic answer evaluation
-  - Store LLM model information
-  - **Status:** Not Started
-  - **Roadmap Task:** 5.2
-
-- [ ] **Quiz Experience**:
-  - Display questions (configurable count: 5/10/15/20)
-  - Text input for answers
-  - Submit and evaluate
-  - Show results with user/expected answers
-  - Save to history only after at least one answer submitted
-  - **Status:** Not Started
-  - **Roadmap Task:** 5.2
-
-- [ ] **LLM Resource Estimation**: Resource monitoring and warnings
-  - Estimate CPU/RAM based on article size
-  - Display processing time estimates
-  - Warning levels for large articles
-  - Performance tips
-  - **Status:** Not Started
-  - **Roadmap Task:** 5.3
-  - **Dependencies:** Task 5.1, Task 5.2
+  - Track Last/Best Score
+  - Tracked Topic (Backlog) flag
+  - LLM Info tracking
 
 ---
 
-### Phase 6: Data Management (Priority: LOW)
+### Phase 5: Data Views - History & Backlog (Sprint C)
 
-#### User Export
-- [ ] **User Data Export**: Export user data to JSON
-  - Export profile, preferences, backlog
-  - Optional: include full history
-  - Downloadable JSON file
+#### Visualization
+- [ ] **Task 5.1: Backlog Page** (Formerly 4.3)
   - **Status:** Not Started
-  - **Roadmap Task:** 6.1
+  - View and manage saved topics
+
+- [ ] **Task 5.2: Enhanced History View** (Formerly 3.2 + 8.4)
+  - **Status:** Not Started
+  - Split cards, Last vs Best score
+  - Helper actions (Track/Untrack)
+
+- [ ] **Task 5.3: Activity Statistics** (Formerly 3.3)
+  - **Status:** Not Started
+  - Calendar view, global stats
 
 ---
 
-### Phase 7: User Guidance (Priority: LOW)
+### Phase 6: Core Functionality - Derot Page (Sprint D)
 
-#### Contextual Help
-- [ ] **Tooltips & Help**: Guide users throughout the app
-  - Tooltips on all interactive elements
-  - Help icons for complex features
-  - "Did you know?" tips
+#### The Main Loop
+- [ ] **Task 6.1: Wikipedia Integration** (Formerly 5.1)
   - **Status:** Not Started
-  - **Roadmap Task:** 7.1
+  - Fetch articles, display content
+
+- [ ] **Task 6.2: Quiz Generation & Evaluation** (Formerly 5.2)
+  - **Status:** Not Started
+  - LLM Question generation
+  - Answer evaluation
+
+- [ ] **Task 6.3: Category Filtering on Derot Page** (Formerly 8.3)
+  - **Status:** Not Started
+  - Filter by preferences
+  - Temporary logic
+
+- [ ] **Task 6.4: LLM Resource Estimation** (Formerly 5.3)
+  - **Status:** Not Started
+  - Perf monitoring
 
 ---
 
-### Phase 8: Internationalization & Category Preferences (Priority: HIGH)
+### Phase 7: Data Management (Phase 6)
 
-#### Internationalization (i18n)
-- [x] **Task 8.1: Internationalization (i18n) Implementation**: Complete translation system
-  - All UI text in resource files (en.json, fr.json)
-  - Language selector in preferences
-  - Auto-detection of browser language
-  - Support for English and French
-  - **Status:** Completed ✅
-  - **Completed on:** 2026-01-18
-  - **Roadmap Task:** 8.1
-
-#### Category Preferences (Simplified - No Named Profiles)
-- [x] **Task 8.2: Category Preferences Management**: Simple checklist in preferences
-  - **Status:** Completed ✅
-  - **Completed on:** 2026-01-18
-  - **Description**: Users can select which Wikipedia categories they are interested in.
-  - **Dependencies**: Task 2.1
-  - **Changes**:
-    - [UserPreferencesPage.tsx] Added category selection UI
-    - [UserService.cs] Initialize new users with all categories
-    - [User.cs] Added `SelectedCategories` property
-  - 13 official Wikipedia categories
-  - All categories checked by default for new users
-  - Manage from Preferences page
-  - "Select All" / "Deselect All" buttons
-  - **Roadmap Task:** 8.2
-  - **✨ SIMPLIFIED:** No named profiles, just category checkboxes
-
-- [ ] **Category Filtering on Derot Page**: Filter articles by categories
-  - Category checkboxes loaded from user preferences
-  - Temporary modifications possible (not saved unless confirmed)
-  - Clear UX for temporary vs. saved changes
-  - "Save to Preferences" button with confirmation modal
-  - Filter disabled when reworking from backlog/history
-  - "Reset" button unchecks all categories
-  - "Recycle" button unchecks all categories (complete reset)
+- [ ] **Task 7.1: User Data Export** (Formerly 6.1)
   - **Status:** Not Started
-  - **Roadmap Task:** 8.3
-  - **✨ SIMPLIFIED:** No profile dropdown, direct category selection
-
-- [ ] **Enhanced History and Backlog Actions**: Improved interactions
-  - "Rework Topic" button in history and backlog
-  - Clickable book icon (📖) to toggle backlog status
-  - Trash icon (🗑️) with confirmation in backlog
-  - Visual feedback on all actions
-  - **Status:** Not Started
-  - **Roadmap Task:** 8.4
-
-#### Date Formatting
-- [ ] **Date Format Preferences**: User-selected date format (Not Persisted)
-  - Options: French (dd/MM/yyyy), American (MM/dd/yyyy)
-  - Dropdown in preferences
-  - **Status:** Not Started
-  - **Roadmap Task:** 8.5
-  - **Note:** Choice is transient/session-based, does not affect backend data.
 
 ---
 
-### Phase 9: Deployment & Distribution (Priority: MEDIUM)
+### Phase 8: User Guidance (Phase 7)
 
-#### Cross-Platform Packaging
-- [ ] **Cross-Platform Packaging**: Self-contained application bundles
-  - Windows, macOS, Linux support
-  - No .NET installation required
-  - Embedded backend + frontend
-  - Self-contained deployment
+- [ ] **Task 8.1: Contextual Help** (Formerly 7.1)
   - **Status:** Not Started
-  - **Roadmap Task:** 9.1
-  - **Dependencies:** Phase 5 (core features)
 
-#### Installer Creation
-- [ ] **Installer Creation**: User-friendly installers
-  - Windows: MSI/EXE installer
-  - macOS: DMG disk image
-  - Linux: AppImage/Snap/Flatpak
-  - Shortcuts and uninstallers
-  - **Status:** Not Started
-  - **Roadmap Task:** 9.2
-  - **Dependencies:** Task 9.1
+---
 
-#### User Documentation
-- [ ] **User Documentation & Distribution**: End-user guides
-  - Installation guide (all platforms)
-  - Quick start guide
-  - User manual
-  - Troubleshooting guide
-  - GitHub Releases setup
-  - **Status:** Not Started
-  - **Roadmap Task:** 9.3
-  - **Dependencies:** Task 9.2
+### Phase 9: Deployment (Phase 9)
+
+- [ ] **Task 9.1: Cross-Platform Packaging**
+- [ ] **Task 9.2: Installer Creation**
+- [ ] **Task 9.3: User Documentation**
+
+---
 
 ## Feature Bucket List Status (Updated)
 
-### ✅ Addressed in Roadmap
-**Original Bucket List:**
-- [x] Session persistence on page refresh
-- [x] Welcome page for new users
-- [x] Activity history with last and best scores
-- [x] LLM information tracking
-- [x] Notation format (X/Y with percentage)
-- [x] Configurable question count (5/10/15/20)
-- [x] User preferences storage
-- [x] Navigation menu
-- [x] User profile page
-- [x] User preferences page
-- [x] User history page (enhanced)
-- [x] User tracked topics page (ex-Backlog)
-- [x] Tracked indicators in history
-- [x] Derot page (Wikipedia + Quiz)
-- [x] Quick access to history/tracked from Derot page
-- [x] Add current article to tracked topics
-- [x] Save to history only after answer submission (logic refined: Scroll=Read, Submit=Quiz)
-- [x] User data export feature
-- [x] Contextual help and tooltips
+### ✅ Feature Status Check
+**Core Features:**
+- [x] Session persistence
+- [x] Welcome page
+- [x] User preferences & categories
+- [x] i18n support
+- [ ] Navigation System (Phase 3)
+- [ ] User Profile (Phase 3)
+- [ ] LLM Config (Phase 4)
+- [ ] Enhanced History/Backlog (Phase 5)
+- [ ] Derot Page/Quiz (Phase 6)
 
 **Terminology Update (2026-01-18):**
 - **Backlog** renamed to **Tracked Topics** (Sujets Suivis)
 - **Favorites** merged into **Tracked Topics**
 - **Read** activity defined by scroll-to-bottom OR click "Passer au Quiz"
 - **My Brain** menu introduced to group History + Tracked Topics
-
-**Second Bucket List (Phase 8):**
-- [x] All text in translation resources (i18n - English + French)
-- [x] User can create "Interest Profiles" (category collections)
-- [x] Profile dropdown on Derot page with filtering
-- [x] On-the-fly category modifications (temporary, not persisted)
-- [x] Save icon (💾) with confirmation modal for profile changes
-- [x] Filter disabled when reworking from backlog/history
-- [x] Filter re-enabled after "Recycle" click
-- [x] Reset filter button during new activity
-- [x] "Rework Topic" button in history
-- [x] Clickable book icon (📖) to toggle backlog in history
-- [x] "Rework Topic" button in backlog
-- [x] Trash icon (🗑️) with confirmation modal in backlog
-- [x] Clear UX for temporary vs. persistent changes
-
-**Third Bucket List (bucket-list.md - 2026-01-18):**
-- [ ] User profile with editable display name (Task 4.2)
-- [x] Unique user ID preserved on name change (already implemented)
-- [ ] Account deletion with confirmation modal (Task 4.2)
-- [ ] LLM configuration UI in preferences (Task 2.3)
-- [ ] LLM URL/port configuration with validation (Task 2.3)
-- [ ] Activity calendar (GitLab-style) in history (Task 3.3)
-- [ ] Best personal score display (Task 3.3)
-- [ ] Header authentication state changes (Task 4.1)
-- [ ] User menu dropdown when authenticated (Task 4.1)
-- [ ] Settings button in header (Task 4.1)
-- [ ] Logo clickable → home (Task 4.1)
-- [x] Authenticated home = history page (Task 4.1)
-- [ ] LLM resource estimation (CPU/RAM) (Task 5.3)
-- [ ] Processing time estimates (Task 5.3)
-- [ ] Cross-platform deployment (Windows/macOS/Linux) (Phase 9)
-- [ ] No terminal commands required for end users (Phase 9)
-- [ ] User-friendly installers (Phase 9)
 
 ### 📋 Implementation Details
 All features from the bucket list have been broken down into specific tasks in the **Implementation-Roadmap.md** document. Each task includes:

@@ -46,20 +46,23 @@ This document explains the reorganized documentation structure for the Derot My 
 - Understanding dependencies between tasks
 
 **Key Phases:**
-0. **Phase 0:** Application Foundation (Seed Data, Global Config) - **CRITICAL - DO FIRST**
-1. **Phase 1:** Core Infrastructure & UX Enhancements (Session, Welcome Page)
-2. **Phase 2:** User Data Model Enhancements (Preferences)
-3. **Phase 3:** Activity History Enhancements (Scores, LLM tracking)
-4. **Phase 4:** Navigation & Page Structure (Menu, Profile, Backlog)
-5. **Phase 5:** Core Functionality - Derot Page (Wikipedia, Quiz)
-6. **Phase 6:** User Export & Data Management
-7. **Phase 7:** User Guidance (Tooltips, Help)
-8. **Phase 8:** Internationalization & Category Preferences
+-1. **Phase -1:** Frontend Architecture Migration - **✅ COMPLETED (2026-01-19)**
+0. **Phase 0:** Application Foundation (Seed Data, Global Config) - **✅ COMPLETED**
+1. **Phase 1:** Core Infrastructure & UX Enhancements (Session, Welcome Page) - **✅ COMPLETED**
+2. **Phase 2:** User Preferences & i18n - **✅ MOSTLY COMPLETED** (Task 2.2 cleanup pending)
+3. **Phase 3:** Application Structure (Navigation & Profile)
+4. **Phase 4:** Data Infrastructure & LLM
+5. **Phase 5:** Data Views - History & Backlog
+6. **Phase 6:** Core Functionality - Derot Page (Wikipedia, Quiz)
+7. **Phase 7:** Data Management
+8. **Phase 8:** User Guidance
+9. **Phase 9:** Deployment
 
 **Changelogs:**
 - [CHANGELOG-Phase0-Foundation.md](file:///d:/Repos/Derot-my-brain/Docs/CHANGELOG-Phase0-Foundation.md) - Application initialization
 - [CHANGELOG-Phase8-Consolidated.md](file:///d:/Repos/Derot-my-brain/Docs/CHANGELOG-Phase8-Consolidated.md) - i18n & categories (consolidated)
 - [TECHNICAL-CONSTRAINTS-Storage.md](file:///d:/Repos/Derot-my-brain/Docs/TECHNICAL-CONSTRAINTS-Storage.md) - Storage policy (JSON only)
+- [frontend_guidelines.md](file:///d:/Repos/Derot-my-brain/Docs/frontend_guidelines.md) - Frontend architecture principles (Phase -1)
 
 ---
 
@@ -191,52 +194,105 @@ Every feature from the original bucket list has been:
 
 ### Key Features Covered
 
-- [x] Session persistence on page refresh
-- [x] Welcome page for new users
-- [x] Activity history with last and best scores
-- [x] LLM information tracking
-- [x] Notation format (X/Y with percentage)
-- [x] Configurable question count (5/10/15/20)
-- [x] User preferences storage
-- [x] Navigation menu
-- [x] User profile page
-- [x] User preferences page
-- [x] Enhanced history page
-- [x] Dedicated backlog page
-- [x] Backlog indicators in history
-- [x] Derot page (Wikipedia + Quiz)
-- [x] Quick access to history/backlog from Derot
-- [x] Add article to backlog
-- [x] Save to history only after answer submission
-- [x] User data export
-- [x] Contextual help and tooltips
+**✅ Completed:**
+- [x] **Phase -1: Frontend Architecture Migration** (CRITICAL - Completed 2026-01-19)
+  - [x] Infrastructure Layer Setup (centralized API client)
+  - [x] Zustand State Management Setup
+  - [x] Custom Hooks Implementation (useAuth, useUser, usePreferences, useHistory, useCategories)
+  - [x] Component Refactoring (App.tsx, UserPreferencesPage, etc.)
+  - [x] Context Cleanup & Verification
+- [x] **Phase 0: Application Foundation**
+  - [x] Seed data initialization (13 Wikipedia categories, 5 themes)
+  - [x] Global configuration management
+- [x] **Phase 1: Core Infrastructure & UX**
+  - [x] Session persistence on page refresh
+  - [x] Welcome page for new users
+  - [x] Backend logging system (Serilog)
+- [x] **Phase 2: User Preferences & i18n**
+  - [x] Extended user model with preferences
+  - [x] User preferences page (question count, theme, language, categories)
+  - [x] Contextual preference loading (theme/language on login)
+  - [x] Internationalization (i18n) - English & French
+  - [x] Category preferences management (13 Wikipedia categories)
+
+**🚧 In Progress / Planned:**
+- [ ] **Phase 3: Application Structure**
+  - [ ] Main navigation menu
+  - [ ] User profile page
+- [ ] **Phase 4: Data Infrastructure & LLM**
+  - [ ] LLM configuration UI
+  - [ ] Enhanced activity model (scores, tracking)
+- [ ] **Phase 5: Data Views**
+  - [ ] Enhanced history view (last/best scores, split cards)
+  - [ ] Tracked Topics page (formerly Backlog)
+  - [ ] Activity statistics (calendar view)
+- [ ] **Phase 6: Core Functionality - Derot Page**
+  - [ ] Wikipedia integration
+  - [ ] Quiz generation & evaluation
+  - [ ] Category filtering
+- [ ] **Phase 7-9: Polish & Deployment**
+  - [ ] User data export
+  - [ ] Contextual help & tooltips
+  - [ ] Cross-platform packaging
+  - [ ] User documentation
 
 ---
 
 ## 🚀 Implementation Priority
 
-### Sprint 1 (Week 1) - Foundation
+### ✅ Completed Sprints
+
+**Sprint -1: Frontend Architecture Migration** ✅ COMPLETED (2026-01-19)
+- Task -1.1: Infrastructure Layer Setup
+- Task -1.2: Zustand State Management Setup
+- Task -1.3: Custom Hooks Implementation
+- Task -1.4: Component Refactoring
+- Task -1.5: Context Cleanup & Verification
+
+**Sprint 0: Foundation** ✅ COMPLETED
+- Task 0.1: Application Initialization & Configuration
+
+**Sprint 1: Core Infrastructure** ✅ COMPLETED
 - Task 1.1: Session Persistence
-- Task 2.1: Extend User Model
-- Task 4.1: Main Navigation Menu
-
-### Sprint 2 (Week 2) - User Experience
 - Task 1.2: Welcome Page
-- Task 2.2: User Preferences Page
-- Task 4.2: User Profile Page
+- Task 1.3: Backend Logging System
 
-### Sprint 3 (Week 3) - Activity Enhancements
-- Task 3.1: Enhanced Activity History Model
-- Task 3.2: Enhanced History View UI
-- Task 4.3: Backlog Page
+**Sprint 2: User Preferences & i18n** ✅ MOSTLY COMPLETED
+- Task 2.1: Extended User Model
+- Task 2.2: User Preferences Page (cleanup pending)
+- Task 2.4: Contextual Preference Loading
+- Task 2.5: Internationalization (i18n)
+- Task 2.6: Category Preferences Management
 
-### Sprint 4 (Week 4-5) - Core Functionality
-- Task 5.1: Derot Page - Wikipedia Integration
-- Task 5.2: Derot Page - Quiz Generation
+### 🚧 Next Sprints
 
-### Sprint 5 (Week 6) - Polish
-- Task 6.1: User Data Export
-- Task 7.1: Contextual Help & Tooltips
+**Sprint 3 (Week 3) - Application Structure**
+- Task 3.1: Main Navigation Menu
+- Task 3.2: User Profile Page
+
+**Sprint 4 (Week 4) - Data Infrastructure**
+- Task 4.1: LLM Configuration UI
+- Task 4.2: Enhanced Activity Model
+
+**Sprint 5 (Week 5) - Data Views**
+- Task 5.1: Backlog/Tracked Topics Page
+- Task 5.2: Enhanced History View
+- Task 5.3: Activity Statistics
+
+**Sprint 6 (Week 6-7) - Core Functionality**
+- Task 6.1: Wikipedia Integration
+- Task 6.2: Quiz Generation & Evaluation
+- Task 6.3: Category Filtering
+- Task 6.4: LLM Resource Estimation
+
+**Sprint 7 (Week 8) - Polish**
+- Task 7.1: User Data Export
+- Task 8.1: Contextual Help & Tooltips
+
+**Sprint 8 (Week 9-10) - Deployment**
+- Task 9.1: Cross-Platform Packaging
+- Task 9.2: Installer Creation
+- Task 9.3: User Documentation
 
 ---
 
@@ -250,6 +306,7 @@ Every feature from the original bucket list has been:
 ### For Implementation Agents
 - Read the specific task in **Implementation-Roadmap.md**
 - Check **Specifications-fonctionnelles.md** for detailed requirements
+- Follow **frontend_guidelines.md** for frontend architecture principles
 - Follow the acceptance criteria exactly
 - Update **Project-Status.md** when done
 

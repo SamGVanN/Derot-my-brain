@@ -551,7 +551,7 @@ Implement a robust logging system to capture backend errors and operation logs i
 
 ---
 
-## Phase 2: User Data Model Enhancements
+## Phase 2: User Preferences & i18n
 
 ### Task 2.1: Extend User Model with Preferences
 **Priority:** HIGH  
@@ -638,7 +638,330 @@ Create a dedicated user preferences page where users can configure their setting
 
 ---
 
-### Task 2.3: LLM Configuration UI
+### Task 2.4: Contextual Preference Initialization & Loading
+**Priority:** HIGH
+**Estimated Complexity:** Medium
+**Dependencies:** Task 2.1, Task 2.2
+
+#### Objective
+Ensure that user preferences (Language, Theme) are immediately applied upon login and correctly captured from the current environment upon user creation.
+
+#### Specifications
+- **Frontend (Login Flow):**
+  - When `login` occurs:
+    - Retrieve full user object including `Preferences`.
+    - **Immediately** update the global application state (Language, Theme) to match the user's stored preferences.
+    - Ensure no "flash" of default theme/language occurs if possible (optimistic or loading state).
+
+- **Frontend (User Creation Flow):**
+  - When creating a new user:
+    - Capture the **current** active Language and Theme (which the user might have set on the Welcome/Landing page).
+    - Pass these values to the `CreateUser` payload (or update immediately after creation).
+    - Ensure the new user's initial stored preferences match what they were seeing when they clicked "Create".
+
+#### Acceptance Criteria
+- [x] Login immediately switches theme/language to user's saved preference
+- [x] Creating a new user saves the currently active theme/language as their default
+- [x] Verified manual test: Change theme on landing page -> Create User -> Check Profile -> Theme matches
+- [x] Verified manual test: Login as User A (Theme X) -> Logout -> Login as User B (Theme Y) -> Theme switches to Y
+
+---
+
+### Task 2.5: Internationalization (i18n) Implementation (Formerly 8.1)
+**Priority:** HIGH  
+**Estimated Complexity:** Medium  
+**Dependencies:** None (but should be done early to avoid refactoring)
+
+#### Objective
+Implement a complete internationalization system supporting English and French, with all text content stored in translation resource files.
+
+#### Specifications
+- **Frontend:**
+  - Install and configure i18n library (e.g., `react-i18next`)
+  - Create translation resource files:
+    - `/src/locales/en.json` - English translations
+    - `/src/locales/fr.json` - French translations
+  - Create translation structure covering:
+    - Navigation menu items
+    - Page titles and headers
+    - Button labels
+    - Form labels and placeholders
+    - Error messages
+    - Tooltips and help text
+    - Welcome page content
+    - Guide content
+  - Create `useTranslation` hook wrapper for easy access
+  - Add language selector in user preferences
+  - Detect browser language on first visit (default)
+  - Store language preference in user preferences (backend)
+
+- **Backend:**
+  - Add `Language` field to `UserPreferences` model:
+    ```csharp
+    public class UserPreferences
+    {
+        public int QuestionCount { get; set; } = 10;
+        public string PreferredTheme { get; set; } = "derot-brain";
+        public string Language { get; set; } = "auto"; // "en", "fr", or "auto"
+        // ... other fields
+    }
+    ```
+  - Update preferences endpoints to handle language
+
+- **Translation File Structure:**
+  ```json
+  {
+    "nav": {
+      "derot": "Derot",
+      "history": "History",
+      "backlog": "Backlog",
+      "profile": "Profile",
+      "preferences": "Preferences",
+      "guide": "Guide",
+      "logout": "Logout"
+    },
+    "common": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "confirm": "Confirm"
+    },
+    "derot": {
+      "recycle": "Recycle",
+      "addToBacklog": "Add to Backlog",
+      "startQuiz": "Start Quiz"
+    }
+    // ... etc
+  }
+  ```
+
+#### Acceptance Criteria
+- [x] All UI text comes from translation files (no hardcoded strings)
+- [x] Users can switch between English and French
+- [x] Language preference persists across sessions
+- [x] Browser language auto-detected on first visit
+- [x] All pages and components fully translated
+- [ ] Date/time formatting respects selected language
+
+---
+
+### Task 2.6: Category Preferences Management (Formerly 8.2)
+**Priority:** HIGH  
+**Estimated Complexity:** Medium (simplified from High)  
+**Dependencies:** Task 0.1 (Seed Data), Task 2.1 (User Preferences), Task 8.1 (i18n for labels)
+
+#### Objective
+Allow users to select their preferred Wikipedia categories for article filtering. Categories are loaded from seed data initialized in Task 0.1.
+
+#### Specifications
+- **Backend:**
+  - **Use categories from seed data** (initialized in Task 0.1)
+  - Categories are already available via `GET /api/categories`
+  - No need to hardcode or create categories here
+  
+  - Update `UserPreferences` model:
+    ```csharp
+    public class UserPreferences
+    {
+        public int QuestionCount { get; set; } = 10;
+        public string PreferredTheme { get; set; } = "derot-brain";
+        public string Language { get; set; } = "auto";
+        public List<string> SelectedCategories { get; set; } = new(); // Category IDs from seed data
+    }
+    ```
+  
+  - **Default for new users:** ALL 13 categories selected (all category IDs from seed data)
+  - Initialization logic:
+    ```csharp
+    // On user creation
+    var allCategories = await _categoryService.GetAllCategories();
+    newUser.Preferences.SelectedCategories = allCategories.Select(c => c.Id).ToList();
+    ```
+  
+  - Add endpoints:
+    - `GET /api/users/{id}/preferences/categories` - Get user's selected categories
+    - `PUT /api/users/{id}/preferences/categories` - Update selected categories
+  
+  - Validation:
+    - At least one category must be selected
+    - Categories must exist in seed data
+    - Validate against `GET /api/categories`
+
+- **Frontend:**
+  - Fetch available categories from `GET /api/categories`
+  - Update `UserPreferencesPage.tsx` to include category section:
+    - **Section: "Wikipedia Categories"**
+    - Display all categories from API as checkboxes
+    - Use translated names based on current language (Name or NameFr)
+    - Visual grouping (optional: by theme)
+    - "Select All" / "Deselect All" buttons
+    - Indication of how many categories are selected (e.g., "8/13 selected")
+  
+  - Category selection UI:
+    - Checkboxes for each category
+    - Labels from API (translated via category.Name or category.NameFr)
+    - Responsive layout (grid or list)
+    - Visual feedback on selection
+  
+  - Save behavior:
+    - "Save" button updates preferences
+    - Validation: at least 1 category required
+    - Success/error notification
+  
+  - Default state for new users: All categories checked (loaded from API)
+
+#### Acceptance Criteria
+- [x] Categories loaded from seed data via API
+- [x] User preferences include selected categories list (IDs)
+- [x] New users have ALL categories selected by default
+- [x] Users can check/uncheck categories in Preferences page
+- [x] At least one category must remain selected
+- [x] "Select All" and "Deselect All" buttons work correctly
+- [x] Changes save successfully to backend
+- [x] Category selection persists across sessions
+- [x] Category names displayed in correct language (EN/FR)
+- [x] Validation prevents selecting non-existent categories
+
+---
+
+## Phase 3: Application Structure (Sprint A)
+
+### Task 3.1: Main Navigation Menu (Formerly 4.1)
+**Priority:** HIGH  
+**Estimated Complexity:** Medium  
+**Dependencies:** None
+
+#### Objective
+Implement a navigation menu to allow users to move between different pages of the application.
+
+#### Specifications
+- **Frontend:**
+  - Create `NavigationMenu.tsx` component with links to:
+    - **Derot** (main Wikipedia/quiz page)
+    - **History** (activity history)
+    - **Backlog** (user's saved articles)
+    - **Profile** (user information)
+    - **Preferences** (user settings)
+    - **Guide** (help/welcome guide)
+    - **Logout**
+  - Design options:
+    - Sidebar navigation (collapsible)
+    - Top navigation bar
+    - Hamburger menu for mobile
+  - Highlight active page
+  - Integrate with existing `Layout.tsx`
+
+- **Routing:**
+  - Set up React Router routes for all pages
+  - Ensure navigation preserves user state
+  - Add route guards for authenticated pages
+  - **Home page routing:**
+    - Not authenticated: User selection/login page
+    - Authenticated: History page (user's home)
+  - Logo/app title clickable → navigates to home
+
+- **Header Authentication State:**
+  - **When NOT authenticated:**
+    - Display language selector
+    - Display theme selector
+    - No user menu or settings button
+  
+  - **When authenticated:**
+    - **User Menu Button** (user icon + username):
+      - Dropdown menu with:
+        - Profile (navigate to profile page)
+        - History (navigate to history page)
+        - Backlog (navigate to backlog page)
+        - Logout (clear session, return to login)
+    - **Settings Button** (gear/cog icon):
+      - Navigate to preferences page
+    - **Logout Button** (logout icon):
+      - Alternative quick logout option
+    - Button order: Settings → User Menu → Logout
+  
+  - Header should adapt dynamically based on authentication state
+  - Smooth transitions when auth state changes
+
+#### Acceptance Criteria
+- [ ] Navigation menu accessible from all pages
+- [ ] All pages reachable via navigation
+- [ ] Active page highlighted in menu
+- [ ] Navigation responsive on mobile
+- [ ] Logout functionality works correctly
+- [ ] Header shows language/theme selectors when not authenticated
+- [ ] Header shows user menu + settings + logout when authenticated
+- [ ] User menu dropdown displays all required links
+- [ ] Settings button navigates to preferences
+- [ ] Logo/title clickable and navigates to correct home page
+- [ ] Authenticated home page is history page
+- [ ] Header transitions smoothly on auth state change
+
+---
+
+### Task 3.2: User Profile Page (Formerly 4.2)
+**Priority:** MEDIUM  
+**Estimated Complexity:** Low  
+**Dependencies:** Task 2.1
+
+#### Objective
+Create a user profile page displaying user information with edit capabilities.
+
+#### Specifications
+- **Frontend:**
+  - Create `UserProfilePage.tsx` with:
+    - Display fields:
+      - Name (editable)
+      - User ID (read-only)
+      - Account created date (read-only)
+      - Last connection date (read-only)
+      - Total activities count
+      - Total backlog items count
+    - Edit mode toggle
+    - Save/Cancel buttons in edit mode
+  - Add validation for name field (non-empty, max length)
+  - **Account Deletion:**
+    - Add "Delete Account" button (danger zone section)
+    - Click opens confirmation modal:
+      - Title: "Delete Account?"
+      - Warning message: "⚠️ This action is permanent and cannot be undone."
+      - Details: "All your data will be deleted, including:"
+        - Profile information
+        - Activity history
+        - Backlog items
+        - Preferences
+      - Confirmation input: "Type your username to confirm"
+      - Actions: "Delete Account" (danger button), "Cancel"
+    - On confirmation: Delete user and redirect to login
+
+- **Backend:**
+  - Add endpoint: `PUT /api/users/{id}` to update user name
+  - Add endpoint: `DELETE /api/users/{id}` to delete user account
+    - Delete user profile JSON file
+    - Delete user history JSON file
+    - Delete user backlog JSON file
+    - Return 204 No Content on success
+  - Add validation for user updates
+  - Add validation for deletion (user must exist)
+
+#### Acceptance Criteria
+- [ ] Profile displays all user information
+- [ ] User can edit their name
+- [ ] Changes save successfully
+- [ ] Validation prevents invalid names
+- [ ] Statistics (activity count, backlog count) accurate
+- [ ] Delete Account button visible in danger zone
+- [ ] Confirmation modal displays all warnings
+- [ ] Username confirmation required before deletion
+- [ ] Account deletion removes all user data
+- [ ] User redirected to login after deletion
+- [ ] Deleted user cannot log back in
+
+---
+
+## Phase 4: Data Infrastructure & LLM (Sprint B)
+
+### Task 4.1: LLM Configuration UI (Formerly 2.3)
 **Priority:** MEDIUM  
 **Estimated Complexity:** Medium  
 **Dependencies:** Task 0.1 (Global LLM Configuration)
@@ -701,38 +1024,7 @@ Add frontend UI for LLM configuration in the user preferences page, allowing use
 
 ---
 
-### Task 2.4: Contextual Preference Initialization & Loading
-**Priority:** HIGH
-**Estimated Complexity:** Medium
-**Dependencies:** Task 2.1, Task 2.2
-
-#### Objective
-Ensure that user preferences (Language, Theme) are immediately applied upon login and correctly captured from the current environment upon user creation.
-
-#### Specifications
-- **Frontend (Login Flow):**
-  - When `login` occurs:
-    - Retrieve full user object including `Preferences`.
-    - **Immediately** update the global application state (Language, Theme) to match the user's stored preferences.
-    - Ensure no "flash" of default theme/language occurs if possible (optimistic or loading state).
-
-- **Frontend (User Creation Flow):**
-  - When creating a new user:
-    - Capture the **current** active Language and Theme (which the user might have set on the Welcome/Landing page).
-    - Pass these values to the `CreateUser` payload (or update immediately after creation).
-    - Ensure the new user's initial stored preferences match what they were seeing when they clicked "Create".
-
-#### Acceptance Criteria
-- [x] Login immediately switches theme/language to user's saved preference
-- [x] Creating a new user saves the currently active theme/language as their default
-- [x] Verified manual test: Change theme on landing page -> Create User -> Check Profile -> Theme matches
-- [x] Verified manual test: Login as User A (Theme X) -> Logout -> Login as User B (Theme Y) -> Theme switches to Y
-
----
-
-## Phase 3: Activity History Enhancements
-
-### Task 3.1: Enhanced Activity History Model
+### Task 4.2: Enhanced Activity Model (Formerly 3.1)
 **Priority:** HIGH  
 **Estimated Complexity:** Medium  
 **Dependencies:** None
@@ -792,10 +1084,49 @@ Enhance the activity history to track LLM information, best scores, and "Tracked
 
 ---
 
-### Task 3.2: Enhanced History View UI
+## Phase 5: Data Views - History & Backlog (Sprint C)
+
+### Task 5.1: Backlog Page (Formerly 4.3)
+**Priority:** HIGH  
+**Estimated Complexity:** Medium  
+**Dependencies:** Task 4.2
+
+#### Objective
+Create a dedicated backlog page where users can view and manage their saved articles.
+
+#### Specifications
+- **Frontend:**
+  - Create `BacklogPage.tsx` with:
+    - Grid/list view of backlog items
+    - Each item shows:
+      - Article title
+      - Date added to backlog
+      - Last attempt date (if any)
+      - Best score (if attempted)
+      - Actions: "Start Quiz", "Remove from Backlog"
+    - Empty state message when backlog is empty
+    - Search/filter functionality
+
+- **Backend:**
+  - Add endpoints:
+    - `GET /api/users/{id}/backlog` - Get all backlog items
+    - `POST /api/users/{id}/backlog` - Add item to backlog
+    - `DELETE /api/users/{id}/backlog/{activityId}` - Remove from backlog
+  - Update `UserActivity` service to manage backlog flag
+
+#### Acceptance Criteria
+- [ ] Backlog page displays all saved articles
+- [ ] Users can start quiz from backlog
+- [ ] Users can remove items from backlog
+- [ ] Empty state shown when no items
+- [ ] Search/filter works correctly
+
+---
+
+### Task 5.2: Enhanced History View (Formerly 3.2)
 **Priority:** MEDIUM  
 **Estimated Complexity:** Medium  
-**Dependencies:** Task 3.1
+**Dependencies:** Task 4.2
 
 #### Objective
 Update the history view to display enhanced activity information with "Tracked Topic" indicators and Split Card design.
@@ -835,10 +1166,10 @@ Update the history view to display enhanced activity information with "Tracked T
 
 ---
 
-### Task 3.3: Activity Statistics & Calendar View
+### Task 5.3: Activity Statistics (Formerly 3.3)
 **Priority:** LOW  
 **Estimated Complexity:** Medium  
-**Dependencies:** Task 3.1, Task 3.2
+**Dependencies:** Task 4.2, Task 5.2
 
 #### Objective
 Add an enhanced statistics section to the history page with a GitLab-style activity calendar and best personal score display.
@@ -919,180 +1250,478 @@ Add an enhanced statistics section to the history page with a GitLab-style activ
 
 ---
 
-## Phase 4: Navigation & Page Structure
-
-### Task 4.1: Main Navigation Menu
-**Priority:** HIGH  
-**Estimated Complexity:** Medium  
-**Dependencies:** None
-
-#### Objective
-Implement a navigation menu to allow users to move between different pages of the application.
-
-#### Specifications
-- **Frontend:**
-  - Create `NavigationMenu.tsx` component with links to:
-    - **Derot** (main Wikipedia/quiz page)
-    - **History** (activity history)
-    - **Backlog** (user's saved articles)
-    - **Profile** (user information)
-    - **Preferences** (user settings)
-    - **Guide** (help/welcome guide)
-    - **Logout**
-  - Design options:
-    - Sidebar navigation (collapsible)
-    - Top navigation bar
-    - Hamburger menu for mobile
-  - Highlight active page
-  - Integrate with existing `Layout.tsx`
-
-- **Routing:**
-  - Set up React Router routes for all pages
-  - Ensure navigation preserves user state
-  - Add route guards for authenticated pages
-  - **Home page routing:**
-    - Not authenticated: User selection/login page
-    - Authenticated: History page (user's home)
-  - Logo/app title clickable → navigates to home
-
-- **Header Authentication State:**
-  - **When NOT authenticated:**
-    - Display language selector
-    - Display theme selector
-    - No user menu or settings button
-  
-  - **When authenticated:**
-    - **User Menu Button** (user icon + username):
-      - Dropdown menu with:
-        - Profile (navigate to profile page)
-        - History (navigate to history page)
-        - Backlog (navigate to backlog page)
-        - Logout (clear session, return to login)
-    - **Settings Button** (gear/cog icon):
-      - Navigate to preferences page
-    - **Logout Button** (logout icon):
-      - Alternative quick logout option
-    - Button order: Settings → User Menu → Logout
-  
-  - Header should adapt dynamically based on authentication state
-  - Smooth transitions when auth state changes
-
-#### Acceptance Criteria
-- [ ] Navigation menu accessible from all pages
-- [ ] All pages reachable via navigation
-- [ ] Active page highlighted in menu
-- [ ] Navigation responsive on mobile
-- [ ] Logout functionality works correctly
-- [ ] Header shows language/theme selectors when not authenticated
-- [ ] Header shows user menu + settings + logout when authenticated
-- [ ] User menu dropdown displays all required links
-- [ ] Settings button navigates to preferences
-- [ ] Logo/title clickable and navigates to correct home page
-- [ ] Authenticated home page is history page
-- [ ] Header transitions smoothly on auth state change
-
----
-
-### Task 4.2: User Profile Page
+### Task 5.4: Enhanced History and Backlog Actions (Formerly 8.4)
 **Priority:** MEDIUM  
 **Estimated Complexity:** Low  
-**Dependencies:** Task 2.1
+**Dependencies:** Task 5.2, Task 5.1
 
 #### Objective
-Create a user profile page displaying user information with edit capabilities.
+Update History and Backlog pages with improved action buttons and interactions.
 
 #### Specifications
-- **Frontend:**
-  - Create `UserProfilePage.tsx` with:
-    - Display fields:
-      - Name (editable)
-      - User ID (read-only)
-      - Account created date (read-only)
-      - Last connection date (read-only)
-      - Total activities count
-      - Total backlog items count
-    - Edit mode toggle
-    - Save/Cancel buttons in edit mode
-  - Add validation for name field (non-empty, max length)
-  - **Account Deletion:**
-    - Add "Delete Account" button (danger zone section)
-    - Click opens confirmation modal:
-      - Title: "Delete Account?"
-      - Warning message: "⚠️ This action is permanent and cannot be undone."
-      - Details: "All your data will be deleted, including:"
-        - Profile information
-        - Activity history
-        - Backlog items
-        - Preferences
-      - Confirmation input: "Type your username to confirm"
-      - Actions: "Delete Account" (danger button), "Cancel"
-    - On confirmation: Delete user and redirect to login
+- **History Page Updates:**
+  - Update `history-view.tsx` component:
+    - **"Rework Topic" button** for each activity:
+      - Icon: 🔄 or similar
+      - Tooltip: "Rework this topic with a new quiz"
+      - Action: Navigate to Derot page with article loaded
+      - Disables profile filter (as per Task 6.3 rules)
+    - **Book icon (📖) for backlog toggle:**
+      - Clickable icon (not just indicator)
+      - Filled/solid when in backlog
+      - Outline/empty when not in backlog
+      - Click toggles backlog status
+      - No confirmation modal (instant toggle)
+      - Visual feedback on toggle (animation/color change)
+      - Tooltip: "Add to backlog" / "Remove from backlog"
+
+- **Backlog Page Updates:**
+  - Update `BacklogPage.tsx` component:
+    - **"Rework Topic" button** for each item:
+      - Same as history page
+      - Navigates to Derot page with article
+    - **Trash icon (🗑️) for removal:**
+      - Click opens confirmation modal:
+        - Title: "Remove from backlog?"
+        - Message: "Are you sure you want to remove '{ArticleTitle}' from your backlog? This won't delete your activity history."
+        - Actions: "Remove", "Cancel"
+      - On confirm: Remove from backlog
+      - Visual feedback (item fades out)
 
 - **Backend:**
-  - Add endpoint: `PUT /api/users/{id}` to update user name
-  - Add endpoint: `DELETE /api/users/{id}` to delete user account
-    - Delete user profile JSON file
-    - Delete user history JSON file
-    - Delete user backlog JSON file
-    - Return 204 No Content on success
-  - Add validation for user updates
-  - Add validation for deletion (user must exist)
+  - Update backlog endpoints:
+    - `POST /api/users/{id}/backlog/{activityId}/toggle` - Toggle backlog status
+    - Ensure DELETE endpoint has proper validation
 
 #### Acceptance Criteria
-- [ ] Profile displays all user information
-- [ ] User can edit their name
-- [ ] Changes save successfully
-- [ ] Validation prevents invalid names
-- [ ] Statistics (activity count, backlog count) accurate
-- [ ] Delete Account button visible in danger zone
-- [ ] Confirmation modal displays all warnings
-- [ ] Username confirmation required before deletion
-- [ ] Account deletion removes all user data
-- [ ] User redirected to login after deletion
-- [ ] Deleted user cannot log back in
+- [ ] History page has "Rework Topic" button for each activity
+- [ ] Book icon in history is clickable and toggles backlog status
+- [ ] Book icon shows filled/outline state correctly
+- [ ] Backlog page has "Rework Topic" button
+- [ ] Trash icon in backlog opens confirmation modal
+- [ ] Confirmation modal clearly explains the action
+- [ ] Backlog removal works correctly
+- [ ] Visual feedback on all actions
+- [ ] Tooltips explain each action
 
 ---
 
-### Task 4.3: Backlog Page
+## Phase 6: Core Functionality - Derot Page (Sprint D)
+
+### Task 6.1: Derot Page - Wikipedia Integration (Formerly 5.1)
+**Priority:** HIGH  
+**Estimated Complexity:** High  
+**Dependencies:** Task 2.1 (for question count preference)
+
+#### Objective
+Create the main "Derot" page where users read Wikipedia articles and take quizzes.
+
+#### Specifications
+- **Backend:**
+  - Create `WikipediaService.cs`:
+    - Integrate with Wikipedia API
+    - Fetch random article
+    - Fetch article by category/interest
+    - **Use User Language**: Fetch content from appropriate Wikipedia locale (en/fr) based on user preference
+    - Parse and clean article content
+  - Add endpoints:
+    - `GET /api/wikipedia/random` - Get random article
+    - `GET /api/wikipedia/article/{title}` - Get specific article
+    - `GET /api/wikipedia/categories` - Get available categories
+
+- **Frontend:**
+  - Create `DerotPage.tsx` with:
+    - Article display area (markdown rendering)
+    - "Recycle" button (get new article without saving)
+    - "Start Quiz" button
+    - "Add to Backlog" button
+    - Sidebar/overlay for quick access to:
+      - History (modal/drawer)
+      - Backlog (modal/drawer)
+    - Current article state preservation during navigation
+
+- **State Management:**
+  - Preserve article content when opening history/backlog
+  - Don't save to history until at least one answer submitted
+
+#### Acceptance Criteria
+- [ ] Wikipedia articles load and display correctly
+- [ ] "Recycle" button loads new article without saving
+- [ ] "Add to Backlog" saves current article
+- [ ] History/backlog accessible without losing article state
+- [ ] Article only saved to history after quiz submission
+
+---
+
+### Task 6.2: Derot Page - Quiz Generation & Evaluation (Formerly 5.2)
+**Priority:** HIGH  
+**Estimated Complexity:** Very High  
+**Dependencies:** Task 6.1, Task 4.1 (LLM Config)
+
+#### Objective
+Implement the core quiz loop: generate questions via LLM, collect answers, evaluate results, and save to history.
+
+#### Specifications
+- **Backend:**
+  - Create `LlmService.cs`:
+    - Connect to configured LLM (Ollama)
+    - Construct prompts for Question Generation
+    - Construct prompts for Answer Evaluation
+  - **Question Generation:**
+    - Input: Article content (chunked if needed)
+    - Output: JSON array of questions (Multiple Choice or Open)
+    - Count: Based on user preference (default 10)
+  - **Evaluation:**
+    - Input: User answers + Correct answers/Context
+    - Output: Score (0-100%), Corrections/Explanations
+
+- **Frontend:**
+  - **Quiz Mode UI:**
+    - Display questions one by one or list (User preference? start with 1 by 1)
+    - Input fields for answers
+    - "Submit" button
+  - **Results Mode UI:**
+    - Score display
+    - Question-by-question review:
+      - User answer vs Correct answer
+      - Explanation
+    - "Try Another Article" button
+    - "Retry Quiz" button (same article)
+
+- **Flow:**
+  1. User reads article -> Clicks "Start Quiz"
+  2. Backend generates questions (show loading spinner)
+  3. User answers questions -> Clicks "Submit"
+  4. Backend evaluates -> Returns results -> Saves Activity (Score)
+  5. Frontend displays results
+
+#### Acceptance Criteria
+- [ ] Quiz generates correct number of questions
+- [ ] LLM integration works for generation
+- [ ] User can submit answers
+- [ ] LLM evaluates answers accurately
+- [ ] Results page shows score and corrections
+- [ ] Activity saved to history upon completion
+- [ ] Loading states handled gracefully
+
+---
+
+### Task 6.3: Category Filtering on Derot Page (Formerly 8.3)
 **Priority:** HIGH  
 **Estimated Complexity:** Medium  
-**Dependencies:** Task 3.1
+**Dependencies:** Task 2.6 (Category Prefs), Task 6.1
 
 #### Objective
-Create a dedicated backlog page where users can view and manage their saved articles.
+Implement category filtering on the Derot page using user's selected categories from preferences, with ability to temporarily modify selection.
 
 #### Specifications
-- **Frontend:**
-  - Create `BacklogPage.tsx` with:
-    - Grid/list view of backlog items
-    - Each item shows:
-      - Article title
-      - Date added to backlog
-      - Last attempt date (if any)
-      - Best score (if attempted)
-      - Actions: "Start Quiz", "Remove from Backlog"
-    - Empty state message when backlog is empty
-    - Search/filter functionality
+- **Frontend (Derot Page):**
+  - **Category Filter Section** at top of page:
+    - Display user's selected categories from preferences
+    - Show as checkboxes or chips/badges
+    - User can temporarily check/uncheck categories
+    - Visual indicator showing X/13 categories selected
+  
+  - **Filter Behavior:**
+    - **When starting NEW activity:**
+      - Categories loaded from user preferences
+      - User can modify selection temporarily
+      - Changes are NOT saved unless "Save" button clicked
+      - Visual indicator: "⚠️ Temporary changes (not saved to preferences)"
+    
+    - **When working from Backlog/History:**
+      - Category filter HIDDEN or DISABLED (greyed out)
+      - Message: "Category filter not available when reworking an article"
+      - Cannot modify categories
+    
+    - **After clicking "Recycle" button:**
+      - Category filter becomes available again
+      - **All categories UNCHECKED** (complete reset)
+      - User must re-select categories or click "Load from Preferences"
+
+  - **Temporary Modifications UI:**
+    - Checkboxes for all 13 categories
+    - Current selection highlighted
+    - Counter: "X/13 categories selected"
+    - **Warning indicator** when different from saved preferences
+    - **"Save to Preferences" button** appears when modifications made:
+      - Click opens confirmation modal:
+        - "Save these X categories to your preferences?"
+        - "This will update your default category selection"
+        - Options: "Save", "Cancel"
+    - **"Load from Preferences" button:**
+      - Reloads categories from user preferences
+      - Discards temporary changes
+    - **"Reset" button:**
+      - Unchecks ALL categories
+      - Only available for new activity (not from backlog/history)
 
 - **Backend:**
-  - Add endpoints:
-    - `GET /api/users/{id}/backlog` - Get all backlog items
-    - `POST /api/users/{id}/backlog` - Add item to backlog
-    - `DELETE /api/users/{id}/backlog/{activityId}` - Remove from backlog
-  - Update `UserActivity` service to manage backlog flag
+  - Update Wikipedia service to filter by categories:
+    - `GET /api/wikipedia/random?categories=culture-arts,science`
+  - Ensure at least one category is selected for filtering
+  - Return random article from selected categories
 
 #### Acceptance Criteria
-- [ ] Backlog page displays all saved articles
-- [ ] Users can start quiz from backlog
-- [ ] Users can remove items from backlog
-- [ ] Empty state shown when no items
-- [ ] Search/filter works correctly
+- [ ] Category checkboxes display user's preferences on load
+- [ ] Filter hidden/disabled when reworking article from backlog/history
+- [ ] Filter available for new activities
+- [ ] User can modify categories temporarily
+- [ ] Visual indicator shows temporary changes
+- [ ] "Save to Preferences" button appears when modified
+- [ ] Confirmation modal explains what will be saved
+- [ ] "Load from Preferences" button restores saved selection
+- [ ] "Reset" button unchecks all categories
+- [ ] Recycle button unchecks all categories (complete reset)
+- [ ] Wikipedia API filters articles by selected categories
+- [ ] At least one category must be selected to load article
+- [ ] UX clearly communicates temporary vs. saved changes
 
 ---
 
-## Phase 5: Derot Page (Main Quiz Experience)
+### Task 6.4: LLM Resource Estimation & Monitoring (Formerly 5.3)
+**Priority:** MEDIUM  
+**Estimated Complexity:** Low  
+**Dependencies:** Task 6.1
 
-### Task 5.1: Derot Page - Wikipedia Integration
+#### Objective
+Estimate and display the computational cost (time/RAM) of generating a quiz for a given article length, preventing user frustration.
+
+#### Specifications
+- **Backend:**
+  - Analyze article length (token count approx)
+  - Estimate generation time based on LLM model (e.g., 50 tokens/sec)
+  - Return metadata with article:
+    ```json
+    {
+      "title": "Quantum Mechanics",
+      "wordCount": 5000,
+      "estimatedGenTime": 120, // seconds
+      "complexity": "High"
+    }
+    ```
+
+- **Frontend:**
+  - Display "Estimated Quiz Gen Time: ~2 mins" on Derot page
+  - Warning if article is very long (>5000 words):
+    - "⚠️ Long article. Quiz generation may take 2-3 minutes."
+  - Progress bar during generation (simulated or real if streaming)
+
+#### Acceptance Criteria
+- [ ] Estimated generation time displayed
+- [ ] Warnings shown for long articles
+- [ ] Progress feedback provided during wait
+
+---
+
+## Phase 7: Data Management (User Export)
+
+### Task 7.1: User Data Export Feature (Formerly 6.1)
+**Priority:** LOW  
+**Estimated Complexity:** Medium  
+**Dependencies:** All previous tasks
+
+#### Objective
+Allow users to export their data (profile, preferences, backlog, and optionally history).
+
+#### Specifications
+- **Backend:**
+  - Create `ExportService.cs`:
+    - Generate JSON export of user data
+    - Include: user profile, preferences, backlog
+    - Optional: include full history
+  - Add endpoint:
+    - `GET /api/users/{id}/export?includeHistory=true` - Export user data
+
+- **Frontend:**
+  - Add export button in user profile or preferences page
+  - Create `ExportModal.tsx`:
+    - Checkbox: "Include activity history"
+    - Export format: JSON
+    - Download button
+  - Generate downloadable file with user data
+
+#### Acceptance Criteria
+- [ ] Users can export their data
+- [ ] Export includes profile and preferences
+- [ ] Export includes backlog
+- [ ] History inclusion is optional
+- [ ] Downloaded file is valid JSON
+- [ ] Export button accessible from profile/preferences
+
+---
+
+## Phase 8: User Guidance & Onboarding
+
+### Task 8.1: Contextual Help & Tooltips (Formerly 7.1)
+**Priority:** LOW  
+**Estimated Complexity:** Low  
+**Dependencies:** All page implementations
+
+#### Objective
+Add contextual help and tooltips throughout the application to guide users.
+
+#### Specifications
+- **Frontend:**
+  - Add tooltips to all interactive elements
+  - Add help icons (?) next to complex features
+  - Create `HelpTooltip.tsx` reusable component
+- **Welcome Page Updates:**
+  - Ensure welcome page mentions all key features
+
+#### Acceptance Criteria
+- [ ] All interactive elements have tooltips
+- [ ] Tooltips are clear and concise
+- [ ] Help icons provide additional context
+- [ ] Welcome page covers all features
+
+---
+
+### Task 8.2: Date Format Preferences (Formerly 8.5)
+**Priority:** MEDIUM  
+**Estimated Complexity:** Low  
+**Dependencies:** Task 2.5 (i18n)
+
+#### Objective
+Allow users to select their preferred date display format (French/European vs American), while ensuring backend data remains standardized.
+
+#### Specifications
+- **Constraints (CRITICAL):**
+  - **Backend Persistence:** Dates in the data layer MUST always remain in the "French" format (or standard ISO).
+  - **Frontend Responsibility:** The frontend is solely responsible for converting the standardized backend date into the user's preferred display format.
+  - **Storage:** This preference is NOT persisted. It functions as a session-level setting.
+
+- **Frontend:**
+  - Add a "Date Format" dropdown in the **Preferences Page**.
+    - Options: "French (dd/MM/yyyy)", "American (MM/dd/yyyy)".
+  - Create a centralized date formatting utility/hook that respects this setting.
+  - Apply this formatting to all date displays.
+  - Default: French format.
+
+#### Acceptance Criteria
+- [ ] Date format dropdown available in Preferences
+- [ ] User can switch between formats
+- [ ] All dates in the UI update immediately to reflect the choice
+- [ ] Backend data files remain completely unchanged
+- [ ] Preference functions as a transient/session setting
+
+---
+
+## Phase 9: Deployment & Distribution
+
+### Task 9.1: Cross-Platform Packaging
+**Priority:** MEDIUM  
+**Estimated Complexity:** High  
+**Dependencies:** All core features
+
+#### Objective
+Package the application for Windows, macOS, and Linux as self-contained, distributable applications.
+
+#### Specifications
+- **Backend:** Self-contained .NET deployment.
+- **Frontend:** Built production bundle embedded in backend.
+- **Platforms:** Windows (.exe), macOS (.app), Linux (AppImage).
+
+#### Acceptance Criteria
+- [ ] Application runs on Windows, macOS, Linux
+- [ ] No external dependencies (.NET installed) required
+- [ ] Backend starts automatically
+
+---
+
+### Task 9.2: Installer Creation
+**Priority:** MEDIUM  
+**Estimated Complexity:** Medium  
+**Dependencies:** Task 9.1
+
+#### Objective
+Create user-friendly installers for each platform.
+
+#### Specifications
+- **Windows:** MSI/EXE installer.
+- **macOS:** DMG/PKG.
+- **Linux:** AppImage/Snap.
+
+#### Acceptance Criteria
+- [ ] Installers created for all platforms
+- [ ] Install/Uninstall works correctly
+- [ ] Shortcuts created
+
+---
+
+### Task 9.3: User Documentation & Distribution
+**Priority:** MEDIUM  
+**Estimated Complexity:** Low  
+**Dependencies:** Task 9.2
+
+#### Objective
+Create comprehensive user documentation and setup distribution.
+
+#### Specifications
+- **Docs:** Installation Guide, User Manual, Troubleshooting.
+- **Distribution:** GitHub Releases.
+
+#### Acceptance Criteria
+- [ ] Documentation complete
+- [ ] GitHub Releases set up
+
+---
+
+## Implementation Priority Order
+
+### Phase -1: Frontend Architecture Migration (Pre-Sprint 0)
+1. **Task -1.1: Infrastructure Layer Setup** - [x]
+2. **Task -1.2: Zustand State Management Setup** - [/]
+3. **Task -1.3: Custom Hooks Implementation** - [/]
+4. **Task -1.4: Component Refactoring** - [/]
+5. **Task -1.5: Context Cleanup & Verification** - [ ]
+
+### Sprint 0: Foundation (Pre-Sprint 1)
+6. **Task 0.1: Application Initialization & Configuration** - [x]
+
+### Phase 1: Core Infrastructure
+7. **Task 1.1: Session Persistence** - [x]
+8. **Task 1.2: Welcome Page** - [x]
+
+### Phase 2: User Preferences & i18n
+9. **Task 2.1: Extend User Model** - [ ]
+10. **Task 2.2: User Preferences Page** - [ ]
+11. **Task 2.4: Contextual Preference Loading** - [ ]
+12. **Task 2.5: Internationalization (i18n)** - [x]
+13. **Task 2.6: Category Preferences** - [x]
+
+### Phase 3: Application Structure (Sprint A)
+14. **Task 3.1: Main Navigation Menu** - [ ]
+15. **Task 3.2: User Profile Page** - [ ]
+
+### Phase 4: Data Infrastructure & LLM (Sprint B)
+16. **Task 4.1: LLM Configuration UI** - [ ]
+17. **Task 4.2: Enhanced Activity Model** - [ ]
+
+### Phase 5: Data Views - History & Backlog (Sprint C)
+18. **Task 5.1: Backlog Page** - [ ]
+19. **Task 5.2: Enhanced History View** - [ ]
+20. **Task 5.3: Activity Statistics** - [ ]
+21. **Task 5.4: Enhanced History Actions** - [ ]
+
+### Phase 6: Derot Page (Sprint D)
+22. **Task 6.1: Wikipedia Integration** - [ ]
+23. **Task 6.2: Quiz Generation** - [ ]
+24. **Task 6.3: Category Filtering** - [ ]
+25. **Task 6.4: Resource Estimation** - [ ]
+
+### Phase 7: Data Management
+26. **Task 7.1: User Data Export** - [ ]
+
+### Phase 8: User Guidance
+27. **Task 8.1: Help & Tooltips** - [ ]
+28. **Task 8.2: Date Preferences** - [ ]
+
+### Phase 9: Deployment
+29. **Task 9.1: Packaging** - [ ]
+30. **Task 9.2: Installers** - [ ]
+31. **Task 9.3: Documentation** - [ ]
+
 **Priority:** HIGH  
 **Estimated Complexity:** High  
 **Dependencies:** Task 2.1 (for question count preference)
