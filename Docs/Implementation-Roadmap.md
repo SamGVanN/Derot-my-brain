@@ -273,6 +273,33 @@ Implement a welcome page that appears for first-time users, explaining the app's
 
 ---
 
+### Task 1.3: Backend Logging System
+**Priority:** HIGH  
+**Estimated Complexity:** Low  
+**Dependencies:** None
+
+#### Objective
+Implement a robust logging system to capture backend errors and operation logs in files, replacing the ephemeral terminal output.
+
+#### Specifications
+- **Backend:**
+  - Install and configure a logging library (recommended: **Serilog** or **NLog**).
+  - Configure logging to write to files in a `/Logs` directory at the root of the API project (e.g., `DerotMyBrain.API/Logs/`).
+  - **Constraints:**
+    - Logs must be persisted to files.
+    - Directory must be `/Logs` at the API root.
+    - Log rotation (e.g., daily) should be enabled.
+    - Capture all unhandled exceptions and critical application events.
+
+#### Acceptance Criteria
+- [ ] Logging library installed (Serilog/NLog)
+- [ ] Logs are written to `/Logs` directory
+- [ ] Log files rotate daily
+- [ ] Error logs capture stack traces and context
+- [ ] INFO level logs capture startup and key events
+
+---
+
 ## Phase 2: User Data Model Enhancements
 
 ### Task 2.1: Extend User Model with Preferences
@@ -1052,6 +1079,39 @@ Update History and Backlog pages with improved action buttons and interactions.
 - [ ] Backlog removal works correctly
 - [ ] Visual feedback on all actions
 - [ ] Tooltips explain each action
+
+---
+
+### Task 8.5: Date Format Preferences
+**Priority:** MEDIUM  
+**Estimated Complexity:** Low  
+**Dependencies:** Task 8.1 (Internationalization)
+
+#### Objective
+Allow users to select their preferred date display format (French/European vs American), while ensuring backend data remains standardized.
+
+#### Specifications
+- **Constraints (CRITICAL):**
+  - **Backend Persistence:** Dates in the data layer MUST always remain in the "French" format (or standard ISO) as is currently done. The user's choice **DOES NOT** affect the format stored in backend JSON files.
+  - **Frontend Responsibility:** The frontend is solely responsible for converting the standardized backend date into the user's preferred display format.
+  - **Storage:** "Ce choix n'est pas persisté" - The user has specified this preference is NOT persisted. It functions as a session-level or temporary setting.
+
+- **Frontend:**
+  - Add a "Date Format" dropdown in the **Preferences Page** (alongside Language/Theme).
+    - Options: "French (dd/MM/yyyy)", "American (MM/dd/yyyy)", etc.
+  - Create a centralized date formatting utility/hook that respects this setting.
+  - Apply this formatting to all date displays:
+    - History dates
+    - Profile dates
+    - Backlog dates
+  - Default: French format (as per current behavior).
+
+#### Acceptance Criteria
+- [ ] Date format dropdown available in Preferences
+- [ ] User can switch between formats
+- [ ] All dates in the UI update immediately to reflect the choice
+- [ ] Backend data files remain completely unchanged
+- [ ] Preference functions as a transient/session setting (not persisted to API)
 
 ---
 

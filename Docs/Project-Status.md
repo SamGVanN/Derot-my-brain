@@ -69,6 +69,14 @@ This document tracks the implementation status of features defined in the Functi
   - **Status:** Not Started
   - **Roadmap Task:** 1.2
 
+#### Backend Logging
+- [ ] **Backend Logging System**: File-based logging (Serilog/NLog)
+  - Logs stored in `/Logs` at API root
+  - Daily log rotation
+  - Capture exceptions and startup events
+  - **Status:** Not Started
+  - **Roadmap Task:** 1.3
+
 ---
 
 ### Phase 2: User Data Model Enhancements (Priority: HIGH)
@@ -250,6 +258,14 @@ This document tracks the implementation status of features defined in the Functi
   - Visual feedback on all actions
   - **Status:** Not Started
   - **Roadmap Task:** 8.4
+
+#### Date Formatting
+- [ ] **Date Format Preferences**: User-selected date format (Not Persisted)
+  - Options: French (dd/MM/yyyy), American (MM/dd/yyyy)
+  - Dropdown in preferences
+  - **Status:** Not Started
+  - **Roadmap Task:** 8.5
+  - **Note:** Choice is transient/session-based, does not affect backend data.
 
 ---
 
