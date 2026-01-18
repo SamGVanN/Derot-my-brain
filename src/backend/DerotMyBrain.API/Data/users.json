@@ -4,25 +4,13 @@
       "Id": "test-user-id-001",
       "Name": "TestUser",
       "CreatedAt": "2026-01-18T00:55:00Z",
-      "LastConnectionAt": "0001-01-01T00:00:00",
+      "LastConnectionAt": "2026-01-18T06:17:56.6224248Z",
       "Preferences": {
-        "QuestionCount": 5,
-        "PreferredTheme": "derot-brain",
+        "QuestionCount": 15,
+        "PreferredTheme": "mind-lab",
         "Language": "en",
         "SelectedCategories": [
-          "general-reference",
-          "culture-arts",
-          "geography-places",
-          "health-fitness",
-          "history-events",
-          "human-activities",
-          "mathematics-logic",
-          "natural-sciences",
-          "people-self",
-          "philosophy-thinking",
-          "religion-belief",
-          "society-sciences",
-          "technology-sciences"
+          "health-fitness"
         ]
       }
     }

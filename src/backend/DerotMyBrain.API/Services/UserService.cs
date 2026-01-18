@@ -25,9 +25,13 @@ namespace DerotMyBrain.API.Services
         {
             var data = await _userRepository.GetAsync(UsersFileName);
             
-            var existingUser = data.Users.FirstOrDefault(u => u.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            if (existingUser != null)
+            var existingUserIndex = data.Users.FindIndex(u => u.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (existingUserIndex != -1)
             {
+                var existingUser = data.Users[existingUserIndex];
+                existingUser.LastConnectionAt = DateTime.UtcNow;
+                data.Users[existingUserIndex] = existingUser;
+                await _userRepository.SaveAsync(UsersFileName, data);
                 return existingUser;
             }
 
@@ -38,7 +42,8 @@ namespace DerotMyBrain.API.Services
             {
                 Id = Guid.NewGuid().ToString(),
                 Name = name,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                LastConnectionAt = DateTime.UtcNow
             };
             
             // Default: All categories selected

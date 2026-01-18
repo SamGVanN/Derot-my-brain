@@ -84,11 +84,12 @@ This document tracks the implementation status of features defined in the Functi
 ### Phase 2: User Data Model Enhancements (Priority: HIGH)
 
 #### User Preferences
-- [ ] **Extended User Model**: Add preferences and metadata
+- [x] **Extended User Model**: Add preferences and metadata
   - Question count preference (5/10/15/20)
   - Last connection date tracking
   - Theme preference (move from localStorage to user data)
-  - **Status:** Not Started
+  - **Status:** Completed
+  - **Completed Date:** 2026-01-18
   - **Roadmap Task:** 2.1
 
 - [ ] **User Preferences Page**: Dedicated settings page

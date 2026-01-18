@@ -45,6 +45,17 @@ namespace DerotMyBrain.API.Controllers
             return Ok(user);
         }
 
+        [HttpGet("{id}/preferences")]
+        public async Task<IActionResult> GetPreferences(string id)
+        {
+            var user = await _userService.GetUserByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user.Preferences);
+        }
+
         [HttpPut("{id}/preferences")]
         public async Task<IActionResult> UpdatePreferences(string id, [FromBody] UserPreferences preferences)
         {

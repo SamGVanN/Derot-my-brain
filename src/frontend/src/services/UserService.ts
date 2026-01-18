@@ -45,6 +45,11 @@ export const UserService = {
         // However, roadmap says PUT /api/users/{id}/preferences
         const response = await api.put<User>(`/users/${userId}/preferences`, preferences);
         return response.data;
+    },
+
+    getPreferences: async (userId: string): Promise<User['preferences']> => {
+        const response = await api.get<User['preferences']>(`/users/${userId}/preferences`);
+        return response.data;
     }
 
 };
