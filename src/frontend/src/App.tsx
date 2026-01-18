@@ -1,8 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UserService } from './services/UserService';
-import { ThemeProvider, useTheme } from './components/theme-provider';
+import { ThemeProvider } from './components/theme-provider';
 import { Button } from '@/components/ui/button';
 import UserSelectionPage from './pages/UserSelectionPage';
 import UserPreferencesPage from './pages/UserPreferencesPage';
@@ -12,75 +12,82 @@ import { Layout } from './components/Layout';
 import type { User } from './models/User';
 import { Settings, Home } from 'lucide-react';
 import { UserContext } from './contexts/UserContext';
+import { useAuthStore } from './stores/useAuthStore';
+import { usePreferencesStore } from './stores/usePreferencesStore';
 
 const queryClient = new QueryClient();
 
-function AppContent() {
+
+
+function AppContentRefactored() {
   const { i18n, t } = useTranslation();
-  const { setTheme } = useTheme();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [isInitializing, setIsInitializing] = useState(true);
+
+  // Auth Store
+  const { user, login, logout, updateUser, isInitializing, setInitializing } = useAuthStore();
+
+  // Preferences Store
+  const { hasSeenWelcome, setHasSeenWelcome, setPreferences } = usePreferencesStore();
+
+  // View State
   const [currentView, setCurrentView] = useState<'home' | 'preferences'>('home');
-  const [showWelcome, setShowWelcome] = useState(true);
   const [isOnPreferencesPage, setIsOnPreferencesPage] = useState(false);
 
-  const sessionRestored = useRef(false);
-
+  // Restore Session (Validation against backend)
   useEffect(() => {
-    if (sessionRestored.current) return;
-
-    const restoreSession = async () => {
-      sessionRestored.current = true;
-      const storedUserId = localStorage.getItem('userId');
-      if (storedUserId) {
+    const validateSession = async () => {
+      if (user) {
         try {
-          const user = await UserService.getUserById(storedUserId);
-          setCurrentUser(user);
-          if (user.preferences?.language && user.preferences.language !== 'auto') {
-            i18n.changeLanguage(user.preferences.language);
+          // Validate if user still exists in backend
+          const refreshedUser = await UserService.getUserById(user.id);
+          // Update store with fresh data
+          login(refreshedUser);
+          // Sync preferences
+          if (refreshedUser.preferences) {
+            setPreferences(refreshedUser.preferences);
+            // i18n sync
+            if (refreshedUser.preferences.language && refreshedUser.preferences.language !== 'auto') {
+              i18n.changeLanguage(refreshedUser.preferences.language);
+            }
           }
-          if (user.preferences?.preferredTheme) {
-            setTheme(user.preferences.preferredTheme);
-          }
-          checkWelcomeStatus();
         } catch (error) {
-          console.error('Failed to restore session:', error);
-          localStorage.removeItem('userId');
+          console.error('Session validation failed:', error);
+          logout();
         }
       }
-      setIsInitializing(false);
+      setInitializing(false);
     };
 
-    restoreSession();
-  }, [i18n, setTheme]);
+    validateSession();
+  }, [user?.id]); // Only runs on mount if user is persisted, or if ID changes
 
-  const checkWelcomeStatus = () => {
-    const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
-    setShowWelcome(hasSeenWelcome !== 'true');
-  };
+  const handleUserSelected = (selectedUser: User) => {
+    login(selectedUser);
 
-  const handleUserSelected = (user: User) => {
-    localStorage.setItem('userId', user.id);
-    setCurrentUser(user);
-    if (user.preferences?.language && user.preferences.language !== 'auto') {
-      i18n.changeLanguage(user.preferences.language);
+    // Apply preferences immediately
+    if (selectedUser.preferences) {
+      setPreferences(selectedUser.preferences);
+      if (selectedUser.preferences.language && selectedUser.preferences.language !== 'auto') {
+        i18n.changeLanguage(selectedUser.preferences.language);
+      }
     }
-    if (user.preferences?.preferredTheme) {
-      setTheme(user.preferences.preferredTheme);
-    }
-    checkWelcomeStatus();
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('userId');
-    setCurrentUser(null);
+    logout();
     setCurrentView('home');
-    setShowWelcome(false); // Reset welcome state on logout
+    // Note: We do NOT reset preferences here, reverting to "Anonymous" state (last active settings)
   };
 
   const handleUserUpdated = (updatedUser: User) => {
-    setCurrentUser(updatedUser);
-    // Optionally stay on preferences or go back
+    updateUser(updatedUser);
+
+    // Update preferences store
+    if (updatedUser.preferences) {
+      setPreferences(updatedUser.preferences);
+      if (updatedUser.preferences.language && updatedUser.preferences.language !== 'auto') {
+        i18n.changeLanguage(updatedUser.preferences.language);
+      }
+    }
   };
 
   const handlePreferencesOpen = () => {
@@ -93,27 +100,27 @@ function AppContent() {
     setIsOnPreferencesPage(false);
   };
 
-  const handleWelcomeProceed = () => {
-    setShowWelcome(false);
-  };
+  // Welcome Page Logic
+  const showWelcome = !hasSeenWelcome;
 
-  const handleWelcomeDismiss = () => {
-    localStorage.setItem('hasSeenWelcome', 'true');
-    setShowWelcome(false);
-  };
+
+
+  // Re-implementing logic with local override
+  const [welcomeHiddenSession, setWelcomeHiddenSession] = useState(false);
+  const shouldDisplayWelcome = showWelcome && !welcomeHiddenSession;
 
   return (
-    <UserContext.Provider value={{ currentUser, setCurrentUser, isOnPreferencesPage, setIsOnPreferencesPage }}>
+    <UserContext.Provider value={{ currentUser: user, setCurrentUser: updateUser as any, isOnPreferencesPage, setIsOnPreferencesPage }}>
       {isInitializing ? (
         <div className="flex items-center justify-center min-h-screen bg-background">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      ) : currentUser ? (
-        showWelcome ? (
+      ) : user ? (
+        shouldDisplayWelcome ? (
           <WelcomePage
-            user={currentUser}
-            onProceed={handleWelcomeProceed}
-            onDismiss={handleWelcomeDismiss}
+            user={user}
+            onProceed={() => setWelcomeHiddenSession(true)}
+            onDismiss={() => setHasSeenWelcome(true)}
           />
         ) : currentView === 'preferences' ? (
           <div className="relative">
@@ -126,7 +133,7 @@ function AppContent() {
               {t('nav.derot')}
             </Button>
             <UserPreferencesPage
-              user={currentUser}
+              user={user}
               onUserUpdated={handleUserUpdated}
               onCancel={handlePreferencesClose}
             />
@@ -136,7 +143,7 @@ function AppContent() {
             <div className="max-w-4xl mx-auto py-8 px-4 space-y-8">
               <div className="flex justify-between items-center">
                 <div className="space-y-1">
-                  <h1 className="text-3xl font-bold text-foreground">{t('welcome.title')} {currentUser.name}!</h1>
+                  <h1 className="text-3xl font-bold text-foreground">{t('welcome.title')} {user.name}!</h1>
                   <p className="text-muted-foreground">{t('welcome.intro')}</p>
                 </div>
                 <div className="flex gap-2">
@@ -157,7 +164,7 @@ function AppContent() {
                   </Button>
                 </div>
               </div>
-              <HistoryView user={currentUser} />
+              <HistoryView user={user} />
             </div>
           </Layout>
         )
@@ -168,14 +175,18 @@ function AppContent() {
   );
 }
 
+// Need to define useState outside in the real function
+import { useState } from 'react';
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AppContent />
+        <AppContentRefactored />
       </ThemeProvider>
     </QueryClientProvider>
   );
 }
 
 export default App;
+

@@ -1,32 +1,26 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import { type Theme, themes, defaultTheme } from "@/lib/themes";
+import { usePreferencesStore } from "@/stores/usePreferencesStore";
 
 type ThemeContextType = {
     theme: Theme;
     setTheme: (themeName: string) => void;
 };
 
+// We keep the context for backward compatibility for now, 
+// OR we can just use the store hook directly in components.
+// But the requirement says "No direct localStorage access".
+// This component is responsible for applying the theme to the DOM.
+
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-    const [currentTheme, setCurrentTheme] = useState<Theme>(defaultTheme);
+    const themeName = usePreferencesStore((state) => state.theme);
+    const setTheme = usePreferencesStore((state) => state.setTheme);
 
-    // Initialize from localStorage or default
-    useEffect(() => {
-        const savedThemeName = localStorage.getItem("theme");
-        if (savedThemeName && themes[savedThemeName]) {
-            setCurrentTheme(themes[savedThemeName]);
-        }
-    }, []);
+    const currentTheme = themes[themeName] || defaultTheme;
 
-    const setTheme = (themeName: string) => {
-        if (themes[themeName]) {
-            const newTheme = themes[themeName];
-            setCurrentTheme(newTheme);
-            localStorage.setItem("theme", themeName);
-        }
-    };
-
+    // Apply theme to DOM
     useEffect(() => {
         const root = document.documentElement;
 
@@ -39,7 +33,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
         // Apply CSS variables
         Object.entries(currentTheme.colors).forEach(([key, value]) => {
-            // Special handling if we had non-string values, but now all are strings
             root.style.setProperty(`--${key}`, value);
         });
     }, [currentTheme]);
@@ -58,3 +51,4 @@ export function useTheme() {
     }
     return context;
 }
+

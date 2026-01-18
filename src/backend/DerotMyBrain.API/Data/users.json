@@ -4,7 +4,7 @@
       "Id": "test-user-id-001",
       "Name": "TestUser",
       "CreatedAt": "2026-01-18T00:55:00Z",
-      "LastConnectionAt": "2026-01-18T19:57:17.0515525Z",
+      "LastConnectionAt": "2026-01-18T20:11:44.2779871Z",
       "Preferences": {
         "QuestionCount": 20,
         "PreferredTheme": "derot-brain",
@@ -19,7 +19,7 @@
       "Id": "699a3f8e-4c01-4fd0-ae68-d21f89828392",
       "Name": "Sam",
       "CreatedAt": "2026-01-18T19:28:01.015586Z",
-      "LastConnectionAt": "2026-01-18T19:57:20.0675182Z",
+      "LastConnectionAt": "2026-01-18T20:13:08.3241511Z",
       "Preferences": {
         "QuestionCount": 5,
         "PreferredTheme": "mind-lab",
@@ -31,7 +31,6 @@
           "history-events"
         ]
       }
-    },
     }
   ]
 }
