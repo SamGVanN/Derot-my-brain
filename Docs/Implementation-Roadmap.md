@@ -364,7 +364,7 @@ Create a dedicated user preferences page where users can configure their setting
 - **Frontend:**
   - Create `UserPreferencesPage.tsx` with:
     - **Quiz Settings:**
-      - Question count selector: Radio buttons or dropdown for 5/10/15/20
+      - Question count selector: Radio buttons or dropdown for 5/10/15/20 (initially 10 on user creation)
       - Visual indication of current selection
     - **Theme Settings:**
       - Theme selector (reuse existing `ThemeSelector` component)
@@ -1186,6 +1186,14 @@ Allow users to select their preferred date display format (French/European vs Am
 ### General Guidelines
 - Each task should be implemented in a separate branch
 - Follow SOLID principles for backend code
+- Follow frontend architecture principles (see `Docs/frontend_guidelines.md`):
+  - Separation of Concerns
+  - Component-driven architecture
+  - Composition over inheritance
+  - Unidirectional data flow
+  - Custom Hooks for business logic
+  - Clean Architecture / Hexagonal (adapted for frontend)
+  - Use Zustand for state management
 - Use existing theme system for all UI components
 - Ensure mobile responsiveness for all pages
 - Write unit tests for backend services
@@ -1205,7 +1213,7 @@ Allow users to select their preferred date display format (French/European vs Am
 
 ### Code Standards
 - Backend: Follow C# naming conventions
-- Frontend: Follow React/TypeScript best practices
+- Frontend: Follow React/TypeScript best practices and architecture principles (see `Docs/frontend_guidelines.md`)
 - Use existing components from shadcn/ui
 - Maintain consistent error handling patterns
 - Add JSDoc/XML comments for public APIs

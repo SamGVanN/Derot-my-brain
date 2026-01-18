@@ -72,6 +72,21 @@ namespace DerotMyBrain.API.Services
                 return null;
             }
 
+            // Validation
+            var allowedQuestionCounts = new[] { 5, 10, 15, 20 };
+            if (!allowedQuestionCounts.Contains(user.Preferences.QuestionCount))
+            {
+                // Fallback to default if invalid
+                user.Preferences.QuestionCount = 10;
+            }
+
+            var allowedLanguages = new[] { "en", "fr", "auto" };
+            if (!string.IsNullOrEmpty(user.Preferences.Language) && 
+                !allowedLanguages.Contains(user.Preferences.Language))
+            {
+                user.Preferences.Language = "auto";
+            }
+
             data.Users[existingUserIndex] = user;
             await _userRepository.SaveAsync(UsersFileName, data);
             return user;

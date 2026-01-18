@@ -13,7 +13,17 @@
 - **Frontend**: React + TypeScript (using Vite).
   - Use well-known, tested, and approved libraries.
   - *Styling*: **shadcn/ui** + Tailwind CSS (Selected).
+  - **State Management**: **Zustand** (recommended over Redux).
   - **Constraint**: **FOSS (Free and Open Source) or Free resources ONLY**.
+  - **MUST respect Frontend Architecture Principles** (see `Docs/frontend_guidelines.md`):
+    - Separation of Concerns
+    - Component-driven architecture (one component = one responsibility)
+    - Composition over inheritance
+    - Unidirectional data flow (props down, events up)
+    - Custom Hooks for business logic (useAuth, useUser, useQuiz, etc.)
+    - Clean Architecture / Hexagonal (adapted for frontend)
+    - Keep UI components "dumb" (presentation only)
+    - Dependency injection via props/context
 - **Backend**: ASP.NET Core Web API.
   - **MUST respect SOLID principles**.
 - **AI**: Ollama exposing a local HTTP API.

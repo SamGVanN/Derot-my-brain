@@ -4,13 +4,14 @@
       "Id": "test-user-id-001",
       "Name": "TestUser",
       "CreatedAt": "2026-01-18T00:55:00Z",
-      "LastConnectionAt": "2026-01-18T06:17:56.6224248Z",
+      "LastConnectionAt": "2026-01-18T14:09:34.1578185Z",
       "Preferences": {
-        "QuestionCount": 15,
-        "PreferredTheme": "mind-lab",
+        "QuestionCount": 20,
+        "PreferredTheme": "curiosity-loop",
         "Language": "en",
         "SelectedCategories": [
-          "health-fitness"
+          "health-fitness",
+          "general-reference"
         ]
       }
     }

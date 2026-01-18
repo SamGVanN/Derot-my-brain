@@ -70,6 +70,38 @@ namespace DerotMyBrain.API.Controllers
 
             return Ok(updatedUser);
         }
+
+        [HttpPatch("{id}/preferences/general")]
+        public async Task<IActionResult> UpdateGeneralPreferences(string id, [FromBody] DTOs.GeneralPreferencesDto dto)
+        {
+            var user = await _userService.GetUserByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.Preferences.Language = dto.Language;
+            user.Preferences.PreferredTheme = dto.PreferredTheme;
+            user.Preferences.QuestionCount = dto.QuestionCount;
+
+            var updatedUser = await _userService.UpdateUserAsync(user);
+            return Ok(updatedUser);
+        }
+
+        [HttpPatch("{id}/preferences/categories")]
+        public async Task<IActionResult> UpdateCategoryPreferences(string id, [FromBody] DTOs.CategoryPreferencesDto dto)
+        {
+            var user = await _userService.GetUserByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.Preferences.SelectedCategories = dto.SelectedCategories;
+
+            var updatedUser = await _userService.UpdateUserAsync(user);
+            return Ok(updatedUser);
+        }
     }
 
     public class CreateUserRequest

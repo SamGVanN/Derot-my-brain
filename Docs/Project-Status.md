@@ -328,8 +328,9 @@ All features from the bucket list have been broken down into specific tasks in t
 - **Build Tool:** Vite
 - **UI Library:** shadcn/ui (Radix UI primitives)
 - **Styling:** Tailwind CSS
-- **State Management:** React Context API (may add Zustand/Redux later)
+- **State Management:** Zustand (recommended over Redux for this app's complexity)
 - **Routing:** React Router (to be added)
+- **Internationalization:** react-i18next
 
 ### Backend
 - **Framework:** ASP.NET Core 9.0 Web API
@@ -392,14 +393,22 @@ All features from the bucket list have been broken down into specific tasks in t
 ### When Implementing Features:
 1. **Read the Roadmap**: Check `Implementation-Roadmap.md` for detailed specifications
 2. **Follow SOLID Principles**: Especially in backend code
-3. **Use Existing Components**: Leverage shadcn/ui and existing theme system
-4. **Test Thoroughly**: Write unit tests for backend, component tests for complex UI
-5. **Update Documentation**: Mark tasks as complete in this file and roadmap
-6. **Use TestUser**: For all automated testing and mock data creation
+3. **Follow Frontend Architecture Principles**: See `Docs/frontend_guidelines.md` for:
+   - Separation of Concerns
+   - Component-driven architecture
+   - Composition over inheritance
+   - Unidirectional data flow
+   - Custom Hooks for business logic
+   - Clean Architecture / Hexagonal (adapted for frontend)
+   - Use Zustand for state management
+4. **Use Existing Components**: Leverage shadcn/ui and existing theme system
+5. **Test Thoroughly**: Write unit tests for backend, component tests for complex UI
+6. **Update Documentation**: Mark tasks as complete in this file and roadmap
+7. **Use TestUser**: For all automated testing and mock data creation
 
 ### Code Standards:
 - **Backend:** C# naming conventions, XML documentation comments
-- **Frontend:** React/TypeScript best practices, JSDoc comments
+- **Frontend:** React/TypeScript best practices, JSDoc comments, architecture principles (see `Docs/frontend_guidelines.md`)
 - **Styling:** Use theme system, ensure mobile responsiveness
 - **Error Handling:** Consistent patterns, user-friendly messages
 
