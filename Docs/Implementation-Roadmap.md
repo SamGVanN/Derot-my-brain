@@ -28,7 +28,7 @@ All data must be stored as JSON files in the `/data/` directory:
 └── users/                   # User-specific data
     ├── users.json           # User profiles and preferences
     ├── user-{id}-history.json    # Activity history per user
-    └── user-{id}-backlog.json    # Backlog per user
+    └── user-{id}-tracked.json    # Tracked topics (favorites) per user
 ```
 
 ### Acceptable Alternatives (If Complexity Requires)
@@ -140,7 +140,7 @@ If migration from JSON to embedded DB is needed:
 **TestUser Data Location:**
 - User profile: `/data/users/users.json`
 - Activity history: `/data/users/user-{testuser-id}-history.json`
-- Backlog: `/data/users/user-{testuser-id}-backlog.json`
+- Tracked Topics: `/data/users/user-{testuser-id}-tracked.json`
 
 ### For All Tasks
 
@@ -602,7 +602,7 @@ Create a dedicated user preferences page where users can configure their setting
       - Section for difficulty, language, etc.
   - Add "Save" and "Cancel" buttons
   - Show success/error notifications on save
-  - Add navigation link in main menu
+  - Add "My Brain" (Historique + Tracked Topics) navigation link in main menu
 
 - **API Integration:**
   - Call `PUT /api/users/{id}/preferences` on save
@@ -688,7 +688,7 @@ Add frontend UI for LLM configuration in the user preferences page, allowing use
 **Dependencies:** None
 
 #### Objective
-Enhance the activity history to track LLM information, best scores, and backlog status.
+Enhance the activity history to track LLM information, best scores, and "Tracked Topic" status (formerly Backlog).
 
 #### Specifications
 - **Backend:**
@@ -706,7 +706,8 @@ Enhance the activity history to track LLM information, best scores, and backlog 
         public int BestScore { get; set; }
         public int TotalQuestions { get; set; } // e.g., 5, 10, 15, 20
         public LLMInfo LlmUsed { get; set; }
-        public bool IsInBacklog { get; set; }
+        public bool IsTracked { get; set; } // True if topic is in Tracked Topics
+        public string Type { get; set; } // "Read" or "Quiz"
     }
     
     public class LLMInfo
@@ -717,7 +718,10 @@ Enhance the activity history to track LLM information, best scores, and backlog 
     ```
   - Update `UserService.cs` to:
     - Track best score across all attempts
-    - Update last attempt date on each quiz completion
+    - Update last attempt date on each session
+    - **Logic for "Read" vs "Quiz"**:
+      - **Read**: Created if user scrolls to bottom OR clicks "Start Quiz".
+      - **Quiz**: Created (or updates Read) only if answers are submitted.
     - Store LLM information with each activity
   - Add migration logic for existing activities
 
@@ -726,15 +730,14 @@ Enhance the activity history to track LLM information, best scores, and backlog 
   - Update history display to show:
     - Last score: `X/Y` (e.g., 7/10)
     - Best score: `X/Y` (e.g., 9/10)
-    - Percentage calculated as: `(score / totalQuestions) * 100`
     - LLM used (shown on hover or in details)
-    - Backlog indicator (book icon)
+    - Tracked indicator (⭐ icon)
 
 #### Acceptance Criteria
 - [ ] Activities track both last and best scores
-- [ ] Notation format is `X/totalQuestions` with percentage
+- [ ] Activity Type ("Read" vs "Quiz") is correctly determined
 - [ ] LLM information stored with each activity
-- [ ] Backlog status tracked per activity
+- [ ] Tracked status (IsTracked) available per activity
 - [ ] Existing activities migrated successfully
 
 ---
@@ -745,36 +748,39 @@ Enhance the activity history to track LLM information, best scores, and backlog 
 **Dependencies:** Task 3.1
 
 #### Objective
-Update the history view to display enhanced activity information with backlog indicators.
+Update the history view to display enhanced activity information with "Tracked Topic" indicators and Split Card design.
 
 #### Specifications
 - **Frontend:**
   - Update `history-view.tsx` component:
-    - Display activities in a grid/table format
-    - Columns:
-      - Topic (clickable to restart activity)
-      - First Attempt Date
-      - Last Attempt Date
-      - Last Score (X/Y - Z%)
-      - Best Score (X/Y - Z%)
-      - LLM Used (tooltip on hover)
-      - Backlog Status (book icon if in backlog)
-      - Actions (Add to Backlog button if not already)
-  - Add visual indicator for backlog items (e.g., 📖 icon)
+    - Display activities as cards (Grid layout)
+    - **Card Design**:
+      - **Standard**: Simple card for non-tracked topics.
+      - **Split Card (Tracked Topics)**: 
+        - Left: Current Session Stats
+        - Right: Best Score (Personal Record)
+        - *Mobile*: Vertical layout instead of split.
+      - **Festive Card**: Special style if Session Score > Best Score (New Record!)
+    - Data displayed:
+      - Topic (clickable to restart)
+      - Date
+      - Badge "Read" or "Quiz" + Score
+      - Tracked indicator (⭐ icon)
+      - Actions: "Track Topic" (Add to favorites)
   - Add sorting options (by date, score, topic)
-  - Add filtering options (all, backlog only, not in backlog)
+  - Add filtering options (all, tracked, non-tracked)
 
 - **Interactions:**
   - Click topic to restart quiz on that article
-  - Click "Add to Backlog" to add activity
+  - Click "Track Topic" (⭐) to add to tracked topics
   - Hover over LLM info to see model details
 
 #### Acceptance Criteria
-- [ ] History displays all enhanced information
-- [ ] Backlog items clearly indicated with icon
-- [ ] Scores shown in X/Y format with percentage
-- [ ] LLM information visible on hover
-- [ ] Users can add activities to backlog from history
+- [ ] History displays Split Cards for tracked topics
+- [ ] Mobile view uses vertical layout for cards
+- [ ] Festive card appears for new records
+- [ ] Tracked items clearly indicated with ⭐ icon
+- [ ] Users can track/untrack topics from history
 - [ ] Sorting and filtering work correctly
 
 ---

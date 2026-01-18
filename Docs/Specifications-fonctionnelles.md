@@ -21,7 +21,7 @@ Application web locale destinée à stimuler la curiosité et l'apprentissage ac
   - L'utilisateur obtient son **score**
   - Les **réponses attendues** sont affichées
 - Le sujet est enregistré dans un **historique utilisateur**
-- Le sujet peut être ajouté à un **backlog personnel** pour révision ultérieure.
+- Le sujet peut être ajouté aux **Sujets Suivis** (Tracked Topics) pour révision ultérieure.
 
 **Contraintes clés**
 
@@ -95,8 +95,8 @@ L'application "Derot My Brain" doit être :
 │   └── app-config.json            # URL LLM, paramètres globaux
 └── users/                         # Données utilisateurs
     ├── users.json                 # Profils et préférences
-    ├── user-{id}-history.json     # Historique par utilisateur
-    └── user-{id}-backlog.json     # Backlog par utilisateur
+    ├── user-{id}-history.json     # Historique complet par utilisateur
+    └── user-{id}-tracked.json     # Sujets suivis (Tracked Topics) par utilisateur
 ```
 
 ---
@@ -108,7 +108,8 @@ L'application "Derot My Brain" doit être :
 - Consultation d'un article Wikipédia
 - Quiz
 - Résultats
-- Historique & backlog
+- Résultats
+- Historique & Sujets Suivis ("My Brain")
 
 ## 1.4 Fonctionnalités détaillées (ordre d'implémentation)
 
@@ -144,7 +145,16 @@ Données immuables déployées avec l'application :
      - Derot Brain (Dark/Violet) - **Par défaut**
      - Knowledge Core (Dark/Cyan)
      - Mind Lab (Dark/Teal)
+     - Mind Lab (Dark/Teal)
      - Neo-Wikipedia (Light/Blue)
+
+**Menu "My Brain"**
+
+Nouveau regroupement dans la navigation :
+- **My Brain** (Mon Cerveau) : Point d'entrée unique regroupant :
+  - **Historique** : Timeline de toutes les sessions
+  - **Sujets Suivis** (Tracked Topics) : Liste consolidée des sujets à travailler/maîtriser ("Favoris")
+  - Métaphore : "Historique = Ce que j'ai vécu", "Sujets Suivis = Ce que je retiens/veux retenir"
 
 **Configuration globale**
 
@@ -239,8 +249,9 @@ Page affichée lors de la première visite d'un utilisateur pour expliquer le fo
 - Fonctionnalités principales :
   - Lecture d'articles Wikipédia
   - Génération de quiz par IA
+  - Génération de quiz par IA
   - Historique des activités
-  - Backlog personnel
+  - Sujets suivis (Tracked Topics)
 - Explication "pour les nuls" (langage simple, visuel)
 - Accessible ultérieurement depuis le menu d'aide
 
@@ -283,8 +294,9 @@ Système de traduction complet permettant l'utilisation de l'application en angl
 {
   "nav": {
     "derot": "Derot",
+    "my_brain": "My Brain",
+    "tracked_topics": "Sujets Suivis",
     "history": "Historique",
-    "backlog": "Backlog",
     "profile": "Profil",
     "preferences": "Préférences",
     "guide": "Guide",
@@ -444,17 +456,28 @@ Bouton **"Passer au quiz"**
 
 **Description**
 
-Liste chronologique des sujets consultés par l'utilisateur avec suivi détaillé des performances.
+Liste chronologique immuable de toutes les sessions. Chaque entrée correspond à une session unique (Lecture ou Quiz).
+
+**Règles de gestion : Création d'une entrée**
+1.  **Session "READ" (Lecture)** :
+    *   Créée si l'utilisateur a atteint le bas de la page (scroll) **OU** a cliqué sur "Passer au Quiz".
+    *   Si l'utilisateur quitte avant, pas d'entrée.
+2.  **Session "QUIZ"** :
+    *   Créée si l'utilisateur a **soumis ses réponses** au backend.
+    *   Le type "Quiz" remplace le type "Read" pour cette session spécifique si les deux conditions sont remplies.
 
 **Champs affichés**
 
-- Sujet (titre de la page Wikipédia)
-- Date de première consultation
-- Date de dernière tentative
-- **Dernier score** : X/Y (Z%) - Score de la dernière tentative
-- **Meilleur score** : X/Y (Z%) - Meilleur score obtenu toutes tentatives confondues
-- **Modèle LLM utilisé** : Affiché au survol ou dans les détails (ex: "llama3:8b v1.0")
-- **Indicateur backlog** : Icône 📖 si l'article est dans le backlog
+*   **Type** : Badge "Lecture" ou "Quiz"
+*   **Sujet** : Titre de l'article
+*   **Date** : Date de la session
+*   **Score Session** : X/Y (si Quiz)
+*   **Comparaison (si Sujet Suivi)** :
+    *   Affichage "Split Card" (bicolonne sur Desktop / Vertical sur Mobile)
+    *   Gauche : Score de *cette session*
+    *   Droite : Meilleur score historique (*Personal Best*)
+    *   *Carte Festive* : Si le score de la session est un nouveau record !
+*   **Indicateur Suivi** : Icône ⭐ si le sujet est dans les "Tracked Topics"
 
 **Actions**
 
@@ -582,10 +605,10 @@ Page affichant les informations de l'utilisateur avec possibilité de modificati
 - **Date de création du compte** : Lecture seule
 - **Dernière connexion** : Lecture seule
 - **Statistiques** :
-  - Nombre total d'activités
-  - Nombre d'articles dans le backlog
+  - Nombre d'articles suivis (Tracked Topics)
   - Score moyen
   - Meilleur score global
+  - Historique complet des sessions
 
 **Fonctionnalités**
 
@@ -643,7 +666,7 @@ Page principale de l'application où l'utilisateur lit des articles Wikipédia e
     - Modifications **non sauvegardées** sauf si bouton "Sauvegarder" cliqué
     - Indicateur visuel : "⚠️ Modifications temporaires (non sauvegardées)"
   
-  - **Activité depuis Backlog/Historique** :
+  - **Activité depuis Historique/Sujets Suivis** :
     - Filtre de catégories **masqué ou désactivé** (grisé)
     - Message affiché : "Filtre de catégories non disponible lors du retravail d'un article"
     - Impossible de modifier les catégories
@@ -680,15 +703,16 @@ Page principale de l'application où l'utilisateur lit des articles Wikipédia e
     - Charge un nouvel article sans sauvegarder
     - **Réinitialise le filtre** (décoche toutes les catégories)
     - Réactive le filtre de catégories
-  - **"Ajouter au backlog"** : Sauvegarder l'article pour plus tard
+  - **"Suivre ce sujet"** (Track Topic) :
+    - Sauvegarder l'article dans les "Tracked Topics" pour le revoir plus tard
+    - Icône ⭐ simple et visible
   - **"Démarrer le quiz"** : Lancer le quiz sur cet article
 
 **Accès rapide**
 
 - Sidebar ou drawer pour accéder à :
-  - Historique (modal/drawer)
-  - Backlog (modal/drawer)
-- **Préservation de l'état** : L'article en cours reste chargé lors de la consultation de l'historique/backlog
+  - **My Brain** (Historique & Sujets Suivis)
+- **Préservation de l'état** : L'article en cours reste chargé lors de la consultation de l'historique/sujets suivis
 - Possibilité de fermer le drawer et revenir à l'article
 
 **Zone de quiz**
@@ -701,16 +725,17 @@ Page principale de l'application où l'utilisateur lit des articles Wikipédia e
 
 **Règles importantes**
 
-- L'article n'est sauvegardé dans l'historique **que si au moins une réponse est soumise**
+- L'article est enregistré dans l'historique **"Read"** si scroll bas de page OU clic "Passer au Quiz"
+- L'article est enregistré dans l'historique **"Quiz"** (remplace Read) si réponses soumises
 - Le bouton "Recycler" ne sauvegarde rien ET réinitialise le filtre (décoche toutes les catégories)
-- Le filtre est désactivé/masqué quand on retravaille un article du backlog/historique
+- Le filtre est désactivé/masqué quand on retravaille un article existant
 - Au moins une catégorie doit être sélectionnée pour charger un article
 - L'utilisateur est informé de ces règles via tooltips et guide
 
 **Tooltips et aide contextuelle**
 
 - "Recycler" : "Charger un nouvel article sans sauvegarder celui-ci (décoche toutes les catégories)"
-- "Ajouter au backlog" : "Sauvegarder cet article pour le revoir plus tard"
+- "Suivre" (⭐) : "Ajouter aux sujets suivis pour le maîtriser"
 - "Démarrer le quiz" : "Commencer le quiz (l'article sera sauvegardé dans l'historique)"
 - "Sauvegarder dans préférences" : "Sauvegarder cette sélection de catégories comme défaut"
 - "Charger depuis préférences" : "Recharger les catégories sauvegardées"
@@ -726,7 +751,7 @@ Fonctionnalité permettant à l'utilisateur d'exporter toutes ses données au fo
 **Données exportées**
 
 - **Profil utilisateur** : ID, nom, dates, préférences
-- **Backlog** : Liste complète des articles sauvegardés
+- **Tracked Topics** : Liste complète des sujets suivis
 - **Historique** (optionnel) : Toutes les activités avec scores et détails
 
 **Interface**

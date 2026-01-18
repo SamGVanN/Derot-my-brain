@@ -418,14 +418,20 @@ This document tracks the implementation status of features defined in the Functi
 - [x] User profile page
 - [x] User preferences page
 - [x] User history page (enhanced)
-- [x] User backlog page
-- [x] Backlog indicators in history
+- [x] User tracked topics page (ex-Backlog)
+- [x] Tracked indicators in history
 - [x] Derot page (Wikipedia + Quiz)
-- [x] Quick access to history/backlog from Derot page
-- [x] Add current article to backlog
-- [x] Save to history only after answer submission
+- [x] Quick access to history/tracked from Derot page
+- [x] Add current article to tracked topics
+- [x] Save to history only after answer submission (logic refined: Scroll=Read, Submit=Quiz)
 - [x] User data export feature
 - [x] Contextual help and tooltips
+
+**Terminology Update (2026-01-18):**
+- **Backlog** renamed to **Tracked Topics** (Sujets Suivis)
+- **Favorites** merged into **Tracked Topics**
+- **Read** activity defined by scroll-to-bottom OR click "Passer au Quiz"
+- **My Brain** menu introduced to group History + Tracked Topics
 
 **Second Bucket List (Phase 8):**
 - [x] All text in translation resources (i18n - English + French)
@@ -596,7 +602,7 @@ All features from the bucket list have been broken down into specific tasks in t
 - **Files:**
   - `users.json` - TestUser profile and preferences
   - `user-{testuser-id}-history.json` - Activity history
-  - `user-{testuser-id}-backlog.json` - Backlog items
+  - `user-{testuser-id}-tracked.json` - Tracked Topics (ex-Backlog) items
 - **Quality:**
   - Realistic and representative data
   - Cover edge cases (empty, full, maximum values)

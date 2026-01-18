@@ -1,0 +1,1 @@
+forker ou intégrer dans cette appli le meme concept mais ave des fichiers quel'utilisateur upload au lieu de selectionner un article wikipédia
