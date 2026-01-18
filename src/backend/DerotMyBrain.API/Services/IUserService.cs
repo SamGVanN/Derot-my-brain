@@ -7,5 +7,6 @@ namespace DerotMyBrain.API.Services
         Task<List<User>> GetAllUsersAsync();
         Task<User> CreateOrGetUserAsync(string name);
         Task<User?> GetUserByIdAsync(string id);
+        Task<User?> UpdateUserAsync(User user);
     }
 }

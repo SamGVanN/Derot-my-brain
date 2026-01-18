@@ -3,17 +3,46 @@
     {
       "Id": "samuel-id-001",
       "Name": "Samuel",
-      "CreatedAt": "2026-01-17T23:15:42.1213059Z"
+      "CreatedAt": "2026-01-17T23:15:42.1213059Z",
+      "LastConnectionAt": "0001-01-01T00:00:00",
+      "Preferences": {
+        "QuestionCount": 10,
+        "PreferredTheme": "derot-brain",
+        "Language": "en"
+      }
     },
     {
       "Id": "anodaone-id-001",
       "Name": "Anodaone",
-      "CreatedAt": "2026-01-18T00:49:29.0943508Z"
+      "CreatedAt": "2026-01-18T00:49:29.0943508Z",
+      "LastConnectionAt": "0001-01-01T00:00:00",
+      "Preferences": {
+        "QuestionCount": 10,
+        "PreferredTheme": "derot-brain",
+        "Language": "auto"
+      }
     },
     {
       "Id": "test-user-id-001",
       "Name": "TestUser",
-      "CreatedAt": "2026-01-18T00:55:00.0000000Z"
+      "CreatedAt": "2026-01-18T00:55:00Z",
+      "LastConnectionAt": "0001-01-01T00:00:00",
+      "Preferences": {
+        "QuestionCount": 10,
+        "PreferredTheme": "derot-brain",
+        "Language": "fr"
+      }
+    },
+    {
+      "Id": "8a176c85-ab4e-47af-b827-a0b258a7828a",
+      "Name": "aze",
+      "CreatedAt": "2026-01-18T04:34:34.1142769Z",
+      "LastConnectionAt": "0001-01-01T00:00:00",
+      "Preferences": {
+        "QuestionCount": 10,
+        "PreferredTheme": "derot-brain",
+        "Language": "auto"
+      }
     }
   ]
 }

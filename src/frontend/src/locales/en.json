@@ -1,0 +1,51 @@
+{
+    "history": {
+        "title": "Your Learning Journey",
+        "loading": "Loading history...",
+        "error": "Could not load history.",
+        "empty": "No activities recorded yet. Start exploring!"
+    },
+    "common": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "delete": "Delete",
+        "edit": "Edit",
+        "loading": "Loading...",
+        "error": "Error"
+    },
+    "nav": {
+        "derot": "Derot",
+        "history": "History",
+        "backlog": "Backlog",
+        "profile": "Profile",
+        "preferences": "Preferences",
+        "guide": "Guide",
+        "logout": "Logout"
+    },
+    "welcome": {
+        "title": "Welcome to Derot My Brain",
+        "intro": "The app that transforms your curiosity into active knowledge.",
+        "readGuide": "Read the Guide",
+        "startApp": "Start using App",
+        "dontShowAgain": "Don't show again"
+    },
+    "userSelection": {
+        "title": "Who are you?",
+        "placeholder": "Enter your name",
+        "newUser": "New user",
+        "selectProfile": "Select a profile"
+    },
+    "preferences": {
+        "title": "Preferences",
+        "language": "Interface Language",
+        "theme": "Theme",
+        "questionCount": "Questions per Quiz",
+        "categories": "Wikipedia Categories",
+        "categoriesDescription": "Select the categories you want to explore.",
+        "selectAll": "Select All",
+        "deselectAll": "Deselect All",
+        "selected": "{{count}} selected",
+        "saveSuccess": "Preferences saved successfully"
+    }
+}

@@ -588,6 +588,7 @@ Create the main "Derot" page where users read Wikipedia articles and take quizze
     - Integrate with Wikipedia API
     - Fetch random article
     - Fetch article by category/interest
+    - **Use User Language**: Fetch content from appropriate Wikipedia locale (en/fr) based on user preference
     - Parse and clean article content
   - Add endpoints:
     - `GET /api/wikipedia/random` - Get random article

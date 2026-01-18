@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Brain } from "lucide-react";
 import { ThemeSelector } from "./theme-selector";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface LayoutProps {
     children: ReactNode;
@@ -22,6 +23,7 @@ export function Layout({ children }: LayoutProps) {
                         </span>
                     </div>
                     <nav className="text-sm font-medium text-muted-foreground flex gap-4 items-center">
+                        <LanguageSwitcher />
                         <ThemeSelector />
                     </nav>
                 </div>

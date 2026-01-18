@@ -205,14 +205,14 @@ This document tracks the implementation status of features defined in the Functi
 ### Phase 8: Internationalization & Category Preferences (Priority: HIGH)
 
 #### Internationalization (i18n)
-- [ ] **i18n Implementation**: Complete translation system
+- [x] **Task 8.1: Internationalization (i18n) Implementation**: Complete translation system
   - All UI text in resource files (en.json, fr.json)
   - Language selector in preferences
   - Auto-detection of browser language
   - Support for English and French
-  - **Status:** Not Started
+  - **Status:** Completed ✅
+  - **Completed on:** 2026-01-18
   - **Roadmap Task:** 8.1
-  - **⚠️ IMPORTANT:** Should be done FIRST in Sprint 1 to avoid refactoring
 
 #### Category Preferences (Simplified - No Named Profiles)
 - [ ] **Category Preferences Management**: Simple checklist in preferences

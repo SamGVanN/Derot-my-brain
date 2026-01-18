@@ -7,6 +7,15 @@ namespace DerotMyBrain.API.Models
         public string Name { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; }
+        public DateTime LastConnectionAt { get; set; }
+        public UserPreferences Preferences { get; set; } = new UserPreferences();
+    }
+
+    public class UserPreferences
+    {
+        public int QuestionCount { get; set; } = 10;
+        public string PreferredTheme { get; set; } = "derot-brain";
+        public string Language { get; set; } = "auto"; // "en", "fr", or "auto"
     }
 
     public class UserList

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { UserService } from '../services/UserService';
 import type { UserActivity } from '../models/UserActivity';
 import type { User } from '../models/User';
@@ -8,6 +9,7 @@ interface HistoryViewProps {
 }
 
 export const HistoryView: React.FC<HistoryViewProps> = ({ user }) => {
+    const { t } = useTranslation();
     const [history, setHistory] = useState<UserActivity[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -21,27 +23,27 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ user }) => {
                 setError(null);
             } catch (err) {
                 console.error('Failed to fetch history:', err);
-                setError('Could not load history.');
+                setError(t('history.error'));
             } finally {
                 setLoading(false);
             }
         };
 
         fetchHistory();
-    }, [user.id]);
+    }, [user.id, t]);
 
 
-    if (loading) return <div className="p-4">Loading history...</div>;
+    if (loading) return <div className="p-4">{t('history.loading')}</div>;
     if (error) return <div className="p-4 text-red-500">{error}</div>;
 
     return (
         <div className="p-6 bg-card/50 backdrop-blur-md rounded-xl border border-border shadow-2xl">
             <h2 className="text-2xl font-bold mb-6 text-foreground">
-                Your Learning Journey
+                {t('history.title')}
             </h2>
 
             {history.length === 0 ? (
-                <p className="text-muted-foreground italic text-center py-8">No activities recorded yet. Start exploring!</p>
+                <p className="text-muted-foreground italic text-center py-8">{t('history.empty')}</p>
             ) : (
                 <div className="space-y-4">
                     {history.map((activity) => (

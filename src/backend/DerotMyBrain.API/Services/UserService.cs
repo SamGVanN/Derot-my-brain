@@ -48,5 +48,20 @@ namespace DerotMyBrain.API.Services
             var data = await _userRepository.GetAsync(UsersFileName);
             return data.Users.FirstOrDefault(u => u.Id == id);
         }
+
+        public async Task<User?> UpdateUserAsync(User user)
+        {
+            var data = await _userRepository.GetAsync(UsersFileName);
+            var existingUserIndex = data.Users.FindIndex(u => u.Id == user.Id);
+
+            if (existingUserIndex == -1)
+            {
+                return null;
+            }
+
+            data.Users[existingUserIndex] = user;
+            await _userRepository.SaveAsync(UsersFileName, data);
+            return user;
+        }
     }
 }

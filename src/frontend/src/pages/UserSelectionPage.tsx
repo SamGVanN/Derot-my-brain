@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserService } from '../services/UserService';
 import type { User } from '../models/User';
@@ -16,7 +17,7 @@ interface UserSelectionPageProps {
 }
 
 export default function UserSelectionPage({ onUserSelected }: UserSelectionPageProps) {
-
+    const { t } = useTranslation();
     const [username, setUsername] = useState('');
     const queryClient = useQueryClient();
 
@@ -55,27 +56,26 @@ export default function UserSelectionPage({ onUserSelected }: UserSelectionPageP
     return (
         <Layout>
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
-
                 <div className="text-center space-y-2">
                     <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-500">
-                        Ready to learn?
+                        {t('welcome.title')}
                     </h1>
                     <p className="text-muted-foreground text-lg">
-                        Pick up where you left off or start a new journey.
+                        {t('welcome.intro')}
                     </p>
                 </div>
 
                 <Card className="w-full max-w-md shadow-2xl border-t-4 border-t-primary/80 dark:bg-card/50 backdrop-blur-sm">
                     <CardHeader className="text-center">
-                        <CardTitle className="text-xl">Identify Yourself</CardTitle>
-                        <CardDescription>Enter your name to access your brain.</CardDescription>
+                        <CardTitle className="text-xl">{t('userSelection.title')}</CardTitle>
+                        <CardDescription>{t('userSelection.placeholder')}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
 
                         {/* New User Form */}
                         <form onSubmit={handleSubmit} className="flex gap-3">
                             <Input
-                                placeholder="Your name..."
+                                placeholder={t('userSelection.placeholder')}
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                                 className="flex-1 h-11 text-lg"
@@ -87,14 +87,14 @@ export default function UserSelectionPage({ onUserSelected }: UserSelectionPageP
 
                         {/* Existing Users List */}
                         <div className="space-y-3 pt-4 border-t border-border/50">
-                            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Existing Users</h3>
+                            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('userSelection.selectProfile')}</h3>
 
                             {isLoading && <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>}
-                            {error && <p className="text-xs text-destructive text-center">Error loading users</p>}
+                            {error && <p className="text-xs text-destructive text-center">{t('common.error')}</p>}
 
                             <ScrollArea className="h-[200px] pr-4">
                                 {users?.length === 0 && (
-                                    <p className="text-center text-sm text-muted-foreground py-8">No users found. Be the first!</p>
+                                    <p className="text-center text-sm text-muted-foreground py-8">{t('userSelection.newUser')}</p>
                                 )}
 
                                 <div className="grid gap-2">
@@ -115,7 +115,6 @@ export default function UserSelectionPage({ onUserSelected }: UserSelectionPageP
                                 </div>
                             </ScrollArea>
                         </div>
-
                     </CardContent>
                 </Card>
             </div>

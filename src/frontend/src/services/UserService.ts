@@ -34,6 +34,13 @@ export const UserService = {
     addActivity: async (userId: string, activity: Partial<UserActivity>): Promise<UserActivity> => {
         const response = await api.post<UserActivity>(`/users/${userId}/history`, activity);
         return response.data;
+    },
+
+    updatePreferences: async (userId: string, preferences: Partial<User['preferences']>): Promise<User> => {
+        // We'll need a specific endpoint or just partial update to user
+        // However, roadmap says PUT /api/users/{id}/preferences
+        const response = await api.put<User>(`/users/${userId}/preferences`, preferences);
+        return response.data;
     }
 
 };

@@ -1,0 +1,51 @@
+{
+    "history": {
+        "title": "Votre Parcours d'Apprentissage",
+        "loading": "Chargement de l'historique...",
+        "error": "Impossible de charger l'historique.",
+        "empty": "Aucune activité enregistrée. Commencez à explorer !"
+    },
+    "common": {
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "confirm": "Confirmer",
+        "delete": "Supprimer",
+        "edit": "Modifier",
+        "loading": "Chargement...",
+        "error": "Erreur"
+    },
+    "nav": {
+        "derot": "Derot",
+        "history": "Historique",
+        "backlog": "Backlog",
+        "profile": "Profil",
+        "preferences": "Préférences",
+        "guide": "Guide",
+        "logout": "Déconnexion"
+    },
+    "welcome": {
+        "title": "Bienvenue sur Derot My Brain",
+        "intro": "L'application qui transforme votre curiosité en connaissances actives.",
+        "readGuide": "Lire le guide",
+        "startApp": "Utiliser l'application",
+        "dontShowAgain": "Ne plus afficher"
+    },
+    "userSelection": {
+        "title": "Qui êtes-vous ?",
+        "placeholder": "Entrez votre nom",
+        "newUser": "Nouvel utilisateur",
+        "selectProfile": "Sélectionnez un profil"
+    },
+    "preferences": {
+        "title": "Préférences",
+        "language": "Langue de l'interface",
+        "theme": "Thème",
+        "questionCount": "Questions par Quiz",
+        "categories": "Catégories Wikipédia",
+        "categoriesDescription": "Sélectionnez les catégories que vous souhaitez explorer.",
+        "selectAll": "Tout sélectionner",
+        "deselectAll": "Tout désélectionner",
+        "selected": "{{count}} sélectionnée{{plural}}",
+        "saveSuccess": "Préférences enregistrées avec succès"
+    }
+}
