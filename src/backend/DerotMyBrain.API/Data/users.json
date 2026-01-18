@@ -20,7 +20,7 @@
       "Preferences": {
         "QuestionCount": 10,
         "PreferredTheme": "derot-brain",
-        "Language": "auto",
+        "Language": "en",
         "SelectedCategories": []
       }
     },
@@ -58,7 +58,7 @@
       "Preferences": {
         "QuestionCount": 10,
         "PreferredTheme": "derot-brain",
-        "Language": "auto",
+        "Language": "en",
         "SelectedCategories": []
       }
     }

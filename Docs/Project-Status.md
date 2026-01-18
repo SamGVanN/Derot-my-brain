@@ -62,11 +62,12 @@ This document tracks the implementation status of features defined in the Functi
   - **Roadmap Task:** 1.1
 
 #### Welcome & Onboarding
-- [ ] **Welcome Page for New Users**: First-time user onboarding
+- [x] **Welcome Page for New Users**: First-time user onboarding
   - Show guide explaining app purpose and features
   - Options: Read Guide / Proceed / Don't Show Again
   - Store preference in localStorage
-  - **Status:** Not Started
+  - **Status:** Completed
+  - **Completed Date:** 2026-01-18
   - **Roadmap Task:** 1.2
 
 #### Backend Logging

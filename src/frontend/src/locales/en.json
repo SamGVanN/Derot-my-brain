@@ -11,6 +11,8 @@
         "confirm": "Confirm",
         "delete": "Delete",
         "edit": "Edit",
+        "back": "Back",
+        "or": "OR",
         "loading": "Loading...",
         "error": "Error"
     },
@@ -28,7 +30,20 @@
         "intro": "The app that transforms your curiosity into active knowledge.",
         "readGuide": "Read the Guide",
         "startApp": "Start using App",
-        "dontShowAgain": "Don't show again"
+        "dontShowAgain": "Don't show again",
+        "guide": {
+            "title": "Getting Started Guide",
+            "purposeTitle": "Why Derot My Brain?",
+            "purposeText": "Stop doomscrolling and start learning. Derot uses your curiosity to help you learn actively from Wikipedia articles.",
+            "feature1Title": "Read & Explore",
+            "feature1Text": "Discover random Wikipedia articles or choose specific categories to satisfy your curiosity.",
+            "feature2Title": "Active Quizzes",
+            "feature2Text": "Challenge yourself with AI-generated quizzes about the articles you just read.",
+            "feature3Title": "Track Progress",
+            "feature3Text": "Keep track of your learning journey, scores, and best performances over time.",
+            "feature4Title": "Your Backlog",
+            "feature4Text": "Save interesting articles to your backlog to read and quiz yourself on later."
+        }
     },
     "userSelection": {
         "title": "Who are you?",

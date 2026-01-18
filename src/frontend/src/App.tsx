@@ -6,6 +6,7 @@ import { ThemeProvider } from './components/theme-provider';
 import { Button } from '@/components/ui/button';
 import UserSelectionPage from './pages/UserSelectionPage';
 import UserPreferencesPage from './pages/UserPreferencesPage';
+import { WelcomePage } from './features/welcome/WelcomePage';
 import { HistoryView } from './components/history-view';
 import { Layout } from './components/Layout';
 import type { User } from './models/User';
@@ -18,6 +19,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [currentView, setCurrentView] = useState<'home' | 'preferences'>('home');
+  const [showWelcome, setShowWelcome] = useState(true);
 
   useEffect(() => {
     const restoreSession = async () => {
@@ -29,6 +31,7 @@ function App() {
           if (user.preferences?.language && user.preferences.language !== 'auto') {
             i18n.changeLanguage(user.preferences.language);
           }
+          checkWelcomeStatus();
         } catch (error) {
           console.error('Failed to restore session:', error);
           localStorage.removeItem('userId');
@@ -39,6 +42,12 @@ function App() {
 
     restoreSession();
   }, []);
+
+  const checkWelcomeStatus = () => {
+    const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
+    console.log('[App] Checking welcome status. hasSeenWelcome:', hasSeenWelcome);
+    setShowWelcome(hasSeenWelcome !== 'true');
+  };
 
   useEffect(() => {
     const updatePreferences = async () => {
@@ -65,17 +74,28 @@ function App() {
     if (user.preferences?.language && user.preferences.language !== 'auto') {
       i18n.changeLanguage(user.preferences.language);
     }
+    checkWelcomeStatus();
   };
 
   const handleLogout = () => {
     localStorage.removeItem('userId');
     setCurrentUser(null);
     setCurrentView('home');
+    setShowWelcome(false); // Reset welcome state on logout
   };
 
   const handleUserUpdated = (updatedUser: User) => {
     setCurrentUser(updatedUser);
     // Optionally stay on preferences or go back
+  };
+
+  const handleWelcomeProceed = () => {
+    setShowWelcome(false);
+  };
+
+  const handleWelcomeDismiss = () => {
+    localStorage.setItem('hasSeenWelcome', 'true');
+    setShowWelcome(false);
   };
 
   // Render logic simplified to be inside providers
@@ -87,7 +107,13 @@ function App() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : currentUser ? (
-          currentView === 'preferences' ? (
+          showWelcome ? (
+            <WelcomePage
+              user={currentUser}
+              onProceed={handleWelcomeProceed}
+              onDismiss={handleWelcomeDismiss}
+            />
+          ) : currentView === 'preferences' ? (
             <div className="relative">
               <Button
                 variant="ghost"

@@ -5,7 +5,7 @@ import { UserService } from '../services/UserService';
 import type { User, UserPreferences } from '../models/User';
 import type { WikipediaCategory } from '../models/Category';
 import { Layout } from '@/components/Layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -14,6 +14,8 @@ import { Loader2, CheckCircle2 } from 'lucide-react';
 import { ThemeSelector } from '@/components/theme-selector';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Separator } from '@/components/ui/separator';
+import { GuideContent } from '../features/welcome/GuideContent';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface UserPreferencesPageProps {
     user: User;
@@ -26,6 +28,7 @@ export default function UserPreferencesPage({ user, onUserUpdated }: UserPrefere
     const [preferences, setPreferences] = useState<UserPreferences>(user.preferences);
     const [selectedCategories, setSelectedCategories] = useState<string[]>(user.preferences.selectedCategories || []);
     const [saveSuccess, setSaveSuccess] = useState(false);
+    const [showGuide, setShowGuide] = useState(false);
 
     // Fetch categories
     const { data: categories, isLoading: isLoadingCategories } = useQuery({
@@ -139,6 +142,20 @@ export default function UserPreferencesPage({ user, onUserUpdated }: UserPrefere
                                     ))}
                                 </RadioGroup>
                             </div>
+
+                            <Separator />
+
+                            <div className="space-y-3">
+                                <Label>{t('welcome.guide.title')}</Label>
+                                <div className="flex flex-wrap gap-4">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setShowGuide(true)}
+                                    >
+                                        {t('welcome.readGuide')}
+                                    </Button>
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -214,6 +231,29 @@ export default function UserPreferencesPage({ user, onUserUpdated }: UserPrefere
                     <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
                         <CheckCircle2 className="h-4 w-4" />
                         {t('preferences.saveSuccess')}
+                    </div>
+                )}
+
+                {/* Guide Modal */}
+                {showGuide && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+                        <Card className="w-full max-w-3xl max-h-[90vh] flex flex-col shadow-xl">
+                            <CardHeader>
+                                <CardTitle className="text-2xl text-center">
+                                    {t('welcome.guide.title')}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex-1 overflow-hidden">
+                                <ScrollArea className="h-full pr-4">
+                                    <GuideContent />
+                                </ScrollArea>
+                            </CardContent>
+                            <CardFooter className="flex justify-end border-t p-6">
+                                <Button onClick={() => setShowGuide(false)}>
+                                    {t('common.back')}
+                                </Button>
+                            </CardFooter>
+                        </Card>
                     </div>
                 )}
             </div>
