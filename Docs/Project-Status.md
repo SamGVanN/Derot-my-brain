@@ -48,12 +48,13 @@ This document tracks the implementation status of features defined in the Functi
 > **HIGHEST PRIORITY**: This phase MUST be completed BEFORE Phase 0 and all other features.
 
 #### Architecture Compliance
-- [ ] **Task -1.1: Infrastructure Layer Setup**
+- [x] **Task -1.1: Infrastructure Layer Setup**
   - Create `/api` directory structure
   - Centralized HTTP client (axios)
   - Move UserService to userApi.ts
   - Remove axios/fetch mixing
-  - **Status:** Not Started
+  - **Status:** Completed
+  - **Completed Date:** 2026-01-18
   - **Roadmap Task:** -1.1
   - **⚠️ CRITICAL:** Foundation for all other work
 
