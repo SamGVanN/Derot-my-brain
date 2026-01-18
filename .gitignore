@@ -17,6 +17,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+TestResults/
 
 # Visual Studio cache/options
 .vs/
@@ -112,6 +113,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+test_output.txt
 
 # Environment variables
 .env

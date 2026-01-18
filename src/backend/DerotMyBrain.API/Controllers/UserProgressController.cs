@@ -18,7 +18,7 @@ namespace DerotMyBrain.API.Controllers
         [HttpGet]
         public async Task<ActionResult<List<UserActivity>>> GetHistory(string userId)
         {
-            var history = await _repository.GetAsync($"history_{userId}.json");
+            var history = await _repository.GetAsync($"user-{userId}-history.json");
             return Ok(history);
         }
 
@@ -36,9 +36,9 @@ namespace DerotMyBrain.API.Controllers
                 activity.Timestamp = DateTime.UtcNow;
             }
 
-            var history = await _repository.GetAsync($"history_{userId}.json");
+            var history = await _repository.GetAsync($"user-{userId}-history.json");
             history.Add(activity);
-            await _repository.SaveAsync($"history_{userId}.json", history);
+            await _repository.SaveAsync($"user-{userId}-history.json", history);
 
             return CreatedAtAction(nameof(GetHistory), new { userId }, activity);
         }

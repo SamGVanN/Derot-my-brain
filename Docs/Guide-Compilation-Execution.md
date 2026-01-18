@@ -39,6 +39,14 @@ Pour compiler et lancer le backend, suivez ces étapes :
 > Le backend ouvrira automatiquement votre navigateur par défaut à l'adresse du Swagger UI : `http://localhost:<port>/swagger/index.html` (exemple : `http://localhost:5077/swagger/index.html`).
 > C'est ici que vous pourrez tester les API.
 
+### Exécution des tests
+
+Pour lancer les tests unitaires et d'intégration :
+
+```bash
+dotnet test
+```
+
 ## Frontend (React/Vite)
 
 Pour lancer le frontend, suivez ces étapes dans un **nouveau terminal** :
@@ -61,6 +69,20 @@ Pour lancer le frontend, suivez ces étapes dans un **nouveau terminal** :
 > [!NOTE]
 > Le frontend sera accessible à l'adresse indiquée dans le terminal (généralement `http://localhost:5173`).
 
+### Exécution des tests
+
+Pour lancer les tests unitaires (Vitest) :
+
+```bash
+npm run test
+```
+
+Ou pour lancer les tests avec une interface graphique :
+
+```bash
+npm run test:ui
+```
+
 ## Résumé des commandes
 
 | Composant | Action | Terminal | Répertoire cible | Commande |
@@ -68,8 +90,10 @@ Pour lancer le frontend, suivez ces étapes dans un **nouveau terminal** :
 | **Backend** | Installation | Terminal A | `src/backend` | `dotnet restore` |
 | **Backend** | Compilation | Terminal A | `src/backend` | `dotnet build` |
 | **Backend** | Lancement | Terminal A | `src/backend` | `dotnet watch run --project DerotMyBrain.API` |
+| **Backend** | Tests | Terminal A | `src/backend` | `dotnet test` |
 | **Frontend** | Installation | Terminal B | `src/frontend` | `npm install` |
 | **Frontend** | Lancement | Terminal B | `src/frontend` | `npm run dev` |
+| **Frontend** | Tests | Terminal B | `src/frontend` | `npm run test` |
 
 > [!TIP]
 > Pour changer de répertoire, utilisez la commande `cd` suivie du chemin.

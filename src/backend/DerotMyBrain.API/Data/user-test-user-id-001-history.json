@@ -1,0 +1,135 @@
+[
+  {
+    "Id": "208d3913-b0a2-41e0-8f43-c9ec8f26b8f8",
+    "UserId": "test-user-id-001",
+    "ActivityType": "Read",
+    "Description": "Read an article about Biology",
+    "Timestamp": "2026-01-18T00:49:48.7084379Z",
+    "Score": 0,
+    "Topic": "Biology",
+    "WikipediaUrl": "https://en.wikipedia.org/wiki/Biology",
+    "LastScore": 0,
+    "BestScore": 0,
+    "TotalQuestions": 0,
+    "IsInBacklog": false
+  },
+  {
+    "Id": "ca20c86c-7466-42a0-a5e4-1b56903aad99",
+    "UserId": "test-user-id-001",
+    "ActivityType": "Quiz",
+    "Description": "Quiz on Ancient Rome",
+    "Timestamp": "2026-01-18T00:50:37.8426949Z",
+    "Score": 18,
+    "Topic": "Ancient Rome",
+    "WikipediaUrl": "https://en.wikipedia.org/wiki/Ancient_Rome",
+    "LastScore": 18,
+    "BestScore": 18,
+    "TotalQuestions": 20,
+    "LlmUsed": {
+      "ModelName": "llama3:8b",
+      "Version": "v1.0"
+    },
+    "IsInBacklog": false
+  },
+  {
+    "Id": "act-003",
+    "UserId": "test-user-id-001",
+    "ActivityType": "Quiz",
+    "Description": "Quiz on Quantum Mechanics",
+    "Timestamp": "2026-01-15T10:30:00Z",
+    "Score": 15,
+    "Topic": "Quantum Mechanics",
+    "WikipediaUrl": "https://en.wikipedia.org/wiki/Quantum_mechanics",
+    "LastScore": 15,
+    "BestScore": 18,
+    "TotalQuestions": 20,
+    "LlmUsed": {
+      "ModelName": "llama3:8b",
+      "Version": "v1.0"
+    },
+    "IsInBacklog": true
+  },
+  {
+    "Id": "act-004",
+    "UserId": "test-user-id-001",
+    "ActivityType": "Read",
+    "Description": "Read about Artificial Intelligence",
+    "Timestamp": "2026-01-18T09:00:00Z",
+    "Score": 0,
+    "Topic": "Artificial Intelligence",
+    "WikipediaUrl": "https://en.wikipedia.org/wiki/Artificial_intelligence",
+    "IsInBacklog": true
+  },
+  {
+    "Id": "act-005",
+    "UserId": "test-user-id-001",
+    "ActivityType": "Quiz",
+    "Description": "Quiz on Philosophy",
+    "Timestamp": "2026-01-17T14:20:00Z",
+    "Score": 9,
+    "Topic": "Philosophy",
+    "WikipediaUrl": "https://en.wikipedia.org/wiki/Philosophy",
+    "LastScore": 9,
+    "BestScore": 9,
+    "TotalQuestions": 10,
+    "LlmUsed": {
+      "ModelName": "mistral:7b",
+      "Version": "v0.3"
+    },
+    "IsInBacklog": false
+  },
+  {
+    "Id": "act-006",
+    "UserId": "test-user-id-001",
+    "ActivityType": "Quiz",
+    "Description": "Quiz on Photosynthesis",
+    "Timestamp": "2026-01-16T11:15:00Z",
+    "Score": 5,
+    "Topic": "Photosynthesis",
+    "WikipediaUrl": "https://en.wikipedia.org/wiki/Photosynthesis",
+    "LastScore": 5,
+    "BestScore": 5,
+    "TotalQuestions": 5,
+    "LlmUsed": {
+      "ModelName": "llama3:8b",
+      "Version": "v1.0"
+    },
+    "IsInBacklog": false
+  },
+  {
+    "Id": "act-007",
+    "UserId": "test-user-id-001",
+    "ActivityType": "Quiz",
+    "Description": "Quiz on String Theory",
+    "Timestamp": "2026-01-14T16:45:00Z",
+    "Score": 8,
+    "Topic": "String Theory",
+    "WikipediaUrl": "https://en.wikipedia.org/wiki/String_theory",
+    "LastScore": 8,
+    "BestScore": 12,
+    "TotalQuestions": 15,
+    "LlmUsed": {
+      "ModelName": "gpt-4o",
+      "Version": "2024-05-13"
+    },
+    "IsInBacklog": true
+  },
+  {
+    "Id": "act-008",
+    "UserId": "test-user-id-001",
+    "ActivityType": "Quiz",
+    "Description": "Quiz on The Mona Lisa",
+    "Timestamp": "2026-01-13T09:10:00Z",
+    "Score": 10,
+    "Topic": "Mona Lisa",
+    "WikipediaUrl": "https://en.wikipedia.org/wiki/Mona_Lisa",
+    "LastScore": 10,
+    "BestScore": 10,
+    "TotalQuestions": 10,
+    "LlmUsed": {
+      "ModelName": "llama3:8b",
+      "Version": "v1.0"
+    },
+    "IsInBacklog": false
+  }
+]
