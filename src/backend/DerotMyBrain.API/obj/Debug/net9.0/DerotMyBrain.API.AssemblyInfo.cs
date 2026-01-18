@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DerotMyBrain.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ca004c1c9bfb84e2c3503567ba1c2414a5ffcea8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63390e99d932c2d7bb9660c5e651357151a1f6ba")]
 [assembly: System.Reflection.AssemblyProductAttribute("DerotMyBrain.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DerotMyBrain.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

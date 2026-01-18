@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Brain } from "lucide-react";
+import { ThemeSelector } from "./theme-selector";
 
 interface LayoutProps {
     children: ReactNode;
@@ -20,8 +21,8 @@ export function Layout({ children }: LayoutProps) {
                             Derot My Brain
                         </span>
                     </div>
-                    <nav className="text-sm font-medium text-muted-foreground flex gap-4">
-                        {/* Future Nav Links */}
+                    <nav className="text-sm font-medium text-muted-foreground flex gap-4 items-center">
+                        <ThemeSelector />
                     </nav>
                 </div>
             </header>

@@ -4,7 +4,7 @@
 "Derot My Brain" is a local web application designed to stimulate curiosity and active learning using Wikipedia content. It alternates between free reading and dynamically generated quizzes.
 
 **Key Goals:**
-- **Local hosting**: Run entirely on the user's machine (Windows/Homelab).
+- **Local hosting**: Run entirely on the user's machine (Windows/Linux/Homelab).
 - **No SQL**: Data persistence handled via local JSON files.
 - **Local AI**: Use Ollama (llama3, mistral, etc.) for generating questions and evaluating answers.
 - **Active Learning**: Read -> Quiz -> History/Backlog loop.
