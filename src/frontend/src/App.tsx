@@ -12,9 +12,7 @@ import type { User } from './models/User';
 import { Settings, LogOut } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { usePreferences } from './hooks/usePreferences';
-// Legacy context kept for minimal disruption if any deep components use it, 
-// but pointing to store values. Ideally remove in Task -1.5
-import { UserContext } from './contexts/UserContext';
+
 
 const queryClient = new QueryClient();
 
@@ -99,45 +97,43 @@ function AppContent() {
 
   // Main Dashboard (Home)
   return (
-    <UserContext.Provider value={{ currentUser: user, setCurrentUser: login as any, isOnPreferencesPage: false, setIsOnPreferencesPage: () => { } }}>
-      <Layout>
-        <div className="container max-w-5xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-700">
+    <Layout>
+      <div className="container max-w-5xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-700">
 
-          {/* Dashboard Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-6 bg-card/50 rounded-xl border shadow-sm backdrop-blur-sm">
-            <div className="space-y-1">
-              <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-500">
-                {t('welcome.title')} {user.name}!
-              </h1>
-              <p className="text-muted-foreground">{t('welcome.intro')}</p>
-            </div>
-
-            <div className="flex gap-2 w-full md:w-auto">
-              <Button
-                variant="outline"
-                onClick={() => handleNavigate('preferences')}
-                className="gap-2 flex-1 md:flex-none shadow-sm hover:shadow-md transition-all"
-              >
-                <Settings className="h-4 w-4" />
-                {t('nav.preferences')}
-              </Button>
-              <Button
-                onClick={handleLogout}
-                variant="ghost"
-                className="gap-2 flex-1 md:flex-none text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-              >
-                <LogOut className="h-4 w-4" />
-                {t('nav.logout')}
-              </Button>
-            </div>
+        {/* Dashboard Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-6 bg-card/50 rounded-xl border shadow-sm backdrop-blur-sm">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-500">
+              {t('welcome.title')} {user.name}!
+            </h1>
+            <p className="text-muted-foreground">{t('welcome.intro')}</p>
           </div>
 
-          {/* Main Content Area - History View */}
-          <HistoryView user={user} />
-
+          <div className="flex gap-2 w-full md:w-auto">
+            <Button
+              variant="outline"
+              onClick={() => handleNavigate('preferences')}
+              className="gap-2 flex-1 md:flex-none shadow-sm hover:shadow-md transition-all"
+            >
+              <Settings className="h-4 w-4" />
+              {t('nav.preferences')}
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="ghost"
+              className="gap-2 flex-1 md:flex-none text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            >
+              <LogOut className="h-4 w-4" />
+              {t('nav.logout')}
+            </Button>
+          </div>
         </div>
-      </Layout>
-    </UserContext.Provider>
+
+        {/* Main Content Area - History View */}
+        <HistoryView user={user} />
+
+      </div>
+    </Layout>
   );
 }
 

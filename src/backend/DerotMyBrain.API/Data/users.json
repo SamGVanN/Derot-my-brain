@@ -4,11 +4,11 @@
       "Id": "test-user-id-001",
       "Name": "TestUser",
       "CreatedAt": "2026-01-18T00:55:00Z",
-      "LastConnectionAt": "2026-01-18T23:13:32.334536Z",
+      "LastConnectionAt": "2026-01-18T23:24:09.6630032Z",
       "Preferences": {
         "QuestionCount": 10,
         "PreferredTheme": "neo-wikipedia",
-        "Language": "en",
+        "Language": "fr",
         "SelectedCategories": []
       }
     },
@@ -16,7 +16,7 @@
       "Id": "699a3f8e-4c01-4fd0-ae68-d21f89828392",
       "Name": "Sam",
       "CreatedAt": "2026-01-18T19:28:01.015586Z",
-      "LastConnectionAt": "2026-01-18T23:04:19.5408991Z",
+      "LastConnectionAt": "2026-01-18T23:24:07.2082384Z",
       "Preferences": {
         "QuestionCount": 5,
         "PreferredTheme": "mind-lab",
