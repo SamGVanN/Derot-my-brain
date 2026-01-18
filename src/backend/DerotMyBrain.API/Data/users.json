@@ -4,7 +4,7 @@
       "Id": "test-user-id-001",
       "Name": "TestUser",
       "CreatedAt": "2026-01-18T00:55:00Z",
-      "LastConnectionAt": "2026-01-18T20:11:44.2779871Z",
+      "LastConnectionAt": "2026-01-18T20:18:21.0413848Z",
       "Preferences": {
         "QuestionCount": 20,
         "PreferredTheme": "derot-brain",

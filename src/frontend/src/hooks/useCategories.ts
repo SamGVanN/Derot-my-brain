@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { WikipediaCategory } from '../models/SeedData';
 import { categoryApi } from '../api/categoryApi';
 
@@ -11,25 +11,25 @@ export function useCategories() {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                setLoading(true);
-                setError(null);
+    const fetchCategories = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError(null);
 
-                const data = await categoryApi.getAllCategories();
-                setCategories(data);
-            } catch (err) {
-                const errorMessage = err instanceof Error ? err.message : 'Failed to fetch categories';
-                setError(errorMessage);
-                console.error('Error fetching categories:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCategories();
+            const data = await categoryApi.getAllCategories();
+            setCategories(data);
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to fetch categories';
+            setError(errorMessage);
+            console.error('Error fetching categories:', err);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
-    return { categories, loading, error };
+    useEffect(() => {
+        fetchCategories();
+    }, [fetchCategories]);
+
+    return { categories, loading, error, refetch: fetchCategories };
 }

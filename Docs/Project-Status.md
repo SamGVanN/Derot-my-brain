@@ -68,13 +68,14 @@ This document tracks the implementation status of features defined in the Functi
   - **Roadmap Task:** -1.2
   - **Dependencies:** Task -1.1
 
-- [ ] **Task -1.3: Custom Hooks Implementation**
+- [x] **Task -1.3: Custom Hooks Implementation**
   - Create `useAuth()` hook
   - Create `useUser()` hook
   - Create `usePreferences()` hook
   - Create `useHistory()` hook
   - Enhance `useCategories()` hook
-  - **Status:** Not Started
+  - **Status:** Completed
+  - **Completed Date:** 2026-01-18
   - **Roadmap Task:** -1.3
   - **Dependencies:** Task -1.2
 
