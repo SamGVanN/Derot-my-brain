@@ -86,7 +86,7 @@ export default function UserSelectionPage({ onUserSelected }: UserSelectionPageP
                         </form>
 
                         {/* Existing Users List */}
-                        <div className="space-y-3 pt-4 border-t border-border/50">
+                        <div className="space-y-4 pt-4 border-t border-border/50">
                             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t('userSelection.selectProfile')}</h3>
 
                             {isLoading && <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>}
@@ -102,10 +102,10 @@ export default function UserSelectionPage({ onUserSelected }: UserSelectionPageP
                                         <Button
                                             key={user.name}
                                             variant="outline"
-                                            className="w-full justify-start h-12 text-base font-normal hover:border-primary/50 hover:bg-primary/5 transition-all group"
+                                            className="w-full justify-start h-12 text-base font-normal transition-all group"
                                             onClick={() => handleUserClick(user.name)}
                                         >
-                                            <div className="p-1 bg-muted rounded-full mr-3 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                                            <div className="p-1 bg-muted rounded-full mr-3 transition-colors group-hover:bg-accent-foreground/10 group-hover:text-accent-foreground">
                                                 <UserIcon className="h-4 w-4" />
                                             </div>
 

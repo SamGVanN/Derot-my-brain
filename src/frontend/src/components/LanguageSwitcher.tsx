@@ -42,9 +42,9 @@ export function LanguageSwitcher() {
                 variant="outline"
                 size="sm"
                 onClick={toggleOpen}
-                className="flex items-center gap-2 h-9 border-border/60 bg-background/50 backdrop-blur-sm"
+                className="flex items-center gap-2 h-9 border-border/60 bg-background/50 backdrop-blur-sm group"
             >
-                <Globe className="h-4 w-4 text-primary" />
+                <Globe className="h-4 w-4 text-primary group-hover:text-accent-foreground transition-colors" />
                 <span className="hidden sm:inline-block font-medium">{currentLanguage.label}</span>
                 <ChevronDown className={cn("h-3 w-3 text-muted-foreground transition-transform duration-200", isOpen && "rotate-180")} />
             </Button>

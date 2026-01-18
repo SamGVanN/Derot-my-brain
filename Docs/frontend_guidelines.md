@@ -29,3 +29,13 @@ Use the shared UI components from `@/components/ui` whenever possible (e.g., `Bu
 ### 4. Verification
 After implementing a new feature, ALWAYS test it by switching themes (Light vs Dark vs Custom) to ensure all elements remain legible and aesthetically pleasing.
 
+### 5. Hover Effects
+Consistency in hover effects is crucial for the theme system.
+- **Rule**: Interactive elements (list items, custom buttons) MUST use the `accent` color for hover states (`hover:bg-accent`, `hover:text-accent-foreground`), NOT `primary`.
+- **Reasoning**: Some themes (e.g., Mind Lab) use distinct colors for Primary (Action) and Accent (Interaction/Feedback).
+- **Implementation**: Prefer using standard `variant="ghost"` or `variant="outline"` which handle this automatically. If manually styling, use `hover:bg-accent` instead of `hover:bg-primary/x`.
+
+### 6. Icon & Nested Element Rules
+- **Rule**: Icons or containers inside interactive elements that adapt on hover MUST also use the `accent` color family to match their parent.
+- **Example**: If a button turns `bg-accent` on hover, an icon inside it should stay visible or adapt using `group-hover:text-accent-foreground`. Avoid using `group-hover:text-primary` as this breaks the theme consistency.
+

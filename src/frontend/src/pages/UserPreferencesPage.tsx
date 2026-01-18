@@ -111,15 +111,15 @@ export default function UserPreferencesPage({ user, onUserUpdated }: UserPrefere
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <Label>{t('preferences.language')}</Label>
-                                    <div className="pt-1">
+                                <div>
+                                    <Label className="mb-3 block">{t('preferences.language')}</Label>
+                                    <div>
                                         <LanguageSwitcher />
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>{t('preferences.theme')}</Label>
-                                    <div className="pt-1">
+                                <div>
+                                    <Label className="mb-3 block">{t('preferences.theme')}</Label>
+                                    <div>
                                         <ThemeSelector />
                                     </div>
                                 </div>
@@ -127,8 +127,8 @@ export default function UserPreferencesPage({ user, onUserUpdated }: UserPrefere
 
                             <Separator />
 
-                            <div className="space-y-3">
-                                <Label>{t('preferences.questionCount')}</Label>
+                            <div>
+                                <Label className="mb-3 block">{t('preferences.questionCount')}</Label>
                                 <RadioGroup
                                     value={preferences.questionCount?.toString()}
                                     onValueChange={(val: string) => setPreferences({ ...preferences, questionCount: parseInt(val) })}
@@ -145,8 +145,8 @@ export default function UserPreferencesPage({ user, onUserUpdated }: UserPrefere
 
                             <Separator />
 
-                            <div className="space-y-3">
-                                <Label>{t('welcome.guide.title')}</Label>
+                            <div>
+                                <Label className="mb-3 block">{t('welcome.guide.title')}</Label>
                                 <div className="flex flex-wrap gap-4">
                                     <Button
                                         variant="outline"
