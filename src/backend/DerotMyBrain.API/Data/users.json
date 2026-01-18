@@ -4,32 +4,24 @@
       "Id": "test-user-id-001",
       "Name": "TestUser",
       "CreatedAt": "2026-01-18T00:55:00Z",
-      "LastConnectionAt": "2026-01-18T21:35:38.1604448Z",
+      "LastConnectionAt": "2026-01-18T23:13:32.334536Z",
       "Preferences": {
-        "QuestionCount": 20,
-        "PreferredTheme": "derot-brain",
+        "QuestionCount": 10,
+        "PreferredTheme": "neo-wikipedia",
         "Language": "en",
-        "SelectedCategories": [
-          "health-fitness",
-          "general-reference"
-        ]
+        "SelectedCategories": []
       }
     },
     {
       "Id": "699a3f8e-4c01-4fd0-ae68-d21f89828392",
       "Name": "Sam",
       "CreatedAt": "2026-01-18T19:28:01.015586Z",
-      "LastConnectionAt": "2026-01-18T21:35:34.6421311Z",
+      "LastConnectionAt": "2026-01-18T23:04:19.5408991Z",
       "Preferences": {
         "QuestionCount": 5,
         "PreferredTheme": "mind-lab",
         "Language": "fr",
-        "SelectedCategories": [
-          "philosophy-thinking",
-          "technology-sciences",
-          "natural-sciences",
-          "history-events"
-        ]
+        "SelectedCategories": []
       }
     }
   ]

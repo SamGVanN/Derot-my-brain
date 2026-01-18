@@ -19,6 +19,7 @@ export function useAuth() {
     } = useAuthStore();
 
     const { setPreferences } = usePreferencesStore();
+    const userId = user?.id;
 
     const login = useCallback((userToLogin: any) => {
         storeLogin(userToLogin);
@@ -35,15 +36,19 @@ export function useAuth() {
     }, [storeLogout]);
 
     const validateSession = useCallback(async () => {
-        if (!user?.id) {
+        if (!userId) {
             setInitializing(false);
             return;
         }
 
         try {
             // Validate if user still exists in backend
-            const validUser = await userApi.getUserById(user.id);
+            const validUser = await userApi.getUserById(userId);
+            // Updating the user will create a new object reference, 
+            // but userId (primitive) remains unstable if we don't depend on it specifically.
+            // By depending on userId primitive, we avoid the loop.
             updateUser(validUser);
+
             // Also sync preferences
             if (validUser.preferences) {
                 setPreferences(validUser.preferences);
@@ -54,7 +59,7 @@ export function useAuth() {
         } finally {
             setInitializing(false);
         }
-    }, [user, updateUser, logout, setInitializing, setPreferences]);
+    }, [userId, updateUser, logout, setInitializing, setPreferences]);
 
     return {
         user,

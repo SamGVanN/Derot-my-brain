@@ -79,21 +79,22 @@ This document tracks the implementation status of features defined in the Functi
   - **Roadmap Task:** -1.3
   - **Dependencies:** Task -1.2
 
-- [ ] **Task -1.4: Component Refactoring**
+- [x] **Task -1.4: Component Refactoring**
   - Refactor `App.tsx` (166 → ~80 lines)
   - Refactor `UserPreferencesPage.tsx` (487 → ~200 lines)
   - Refactor `UserSelectionPage.tsx` (124 → ~80 lines)
   - Refactor `history-view.tsx` (83 → ~50 lines)
   - Extract sub-components
-  - **Status:** Not Started
+  - **Status:** Completed
+  - **Completed Date:** 2026-01-19
   - **Roadmap Task:** -1.4
   - **Dependencies:** Task -1.3
 
 - [ ] **Task -1.5: Context Cleanup & Verification**
-  - Evaluate/simplify UserContext
+  - Evaluate/simplify UserContext if needed to follow frontend_guidelines.md
   - Run verification checklist
   - Manual testing of all features
-  - Update documentation
+  - Update documentation and frontend tests where needed
   - **Status:** Not Started
   - **Roadmap Task:** -1.5
   - **Dependencies:** Task -1.4

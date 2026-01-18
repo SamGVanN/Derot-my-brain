@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { UserService } from '../services/UserService';
+import { useUser } from '../hooks/useUser';
 import type { User } from '../models/User';
 import { useTheme } from '@/components/theme-provider';
 import { Layout } from '@/components/Layout';
@@ -23,20 +23,22 @@ export default function UserSelectionPage({ onUserSelected }: UserSelectionPageP
     const [username, setUsername] = useState('');
     const queryClient = useQueryClient();
 
+    // Custom Hooks
+    const { getAllUsers, createOrSelectUser } = useUser();
+
     // Query to get all users
     const { data: users, isLoading, error } = useQuery({
         queryKey: ['users'],
-        queryFn: UserService.getAllUsers,
+        queryFn: getAllUsers,
     });
 
     // Mutation to create/select user
     const mutation = useMutation({
         mutationFn: (variables: { name: string; options?: { language?: string; preferredTheme?: string } }) =>
-            UserService.createOrSelectUser(variables.name, variables.options),
+            createOrSelectUser(variables.name, variables.options),
         onSuccess: (user) => {
             onUserSelected(user);
-            // Refetch users list
-
+            // Refetch users list (optimistic update or simple invalidate)
             queryClient.invalidateQueries({ queryKey: ['users'] });
             setUsername('');
         },

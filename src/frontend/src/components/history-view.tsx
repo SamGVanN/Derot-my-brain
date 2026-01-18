@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { UserService } from '../services/UserService';
-import type { UserActivity } from '../models/UserActivity';
+import { useQuery } from '@tanstack/react-query';
+import { useHistory } from '../hooks/useHistory';
 import type { User } from '../models/User';
+import type { UserActivity } from '../models/UserActivity';
+import { Loader2, AlertCircle } from 'lucide-react';
 
 interface HistoryViewProps {
     user: User;
@@ -10,31 +12,34 @@ interface HistoryViewProps {
 
 export const HistoryView: React.FC<HistoryViewProps> = ({ user }) => {
     const { t } = useTranslation();
-    const [history, setHistory] = useState<UserActivity[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { fetchHistory } = useHistory();
 
-    useEffect(() => {
-        const fetchHistory = async () => {
-            try {
-                setLoading(true);
-                const data = await UserService.getHistory(user.id);
-                setHistory(data.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
-                setError(null);
-            } catch (err) {
-                console.error('Failed to fetch history:', err);
-                setError(t('history.error'));
-            } finally {
-                setLoading(false);
-            }
-        };
+    const { data: history, isLoading, error } = useQuery({
+        queryKey: ['history', user.id],
+        queryFn: fetchHistory,
+        select: (data) => [...data].sort((a, b) =>
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        ),
+        enabled: !!user.id
+    });
 
-        fetchHistory();
-    }, [user.id, t]);
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center p-8 bg-card/50 rounded-xl border border-border">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="ml-2 text-muted-foreground">{t('history.loading')}</span>
+            </div>
+        );
+    }
 
-
-    if (loading) return <div className="p-4">{t('history.loading')}</div>;
-    if (error) return <div className="p-4 text-red-500">{error}</div>;
+    if (error) {
+        return (
+            <div className="flex items-center gap-2 p-4 text-destructive bg-destructive/10 rounded-xl border border-destructive/20">
+                <AlertCircle className="h-5 w-5" />
+                <span>{t('history.error')}</span>
+            </div>
+        );
+    }
 
     return (
         <div className="p-6 bg-card/50 backdrop-blur-md rounded-xl border border-border shadow-2xl">
@@ -42,11 +47,11 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ user }) => {
                 {t('history.title')}
             </h2>
 
-            {history.length === 0 ? (
+            {!history || history.length === 0 ? (
                 <p className="text-muted-foreground italic text-center py-8">{t('history.empty')}</p>
             ) : (
                 <div className="space-y-4">
-                    {history.map((activity) => (
+                    {history.map((activity: UserActivity) => (
                         <div
                             key={activity.id}
                             className="p-4 rounded-lg bg-muted/40 border border-border/50 hover:border-border transition-all group"
