@@ -79,7 +79,157 @@ If migration from JSON to embedded DB is needed:
 
 ---
 
+## Phase -1: Frontend Architecture Migration (CRITICAL)
+
+> [!CAUTION]
+> **CRITICAL PRIORITY**: This phase MUST be completed BEFORE Phase 0 and all other features. The current frontend codebase violates the architecture principles defined in `Docs/frontend_guidelines.md`. Implementing new features on top of this foundation will lead to technical debt and maintainability issues.
+
+**See detailed implementation plan:** `C:\Users\samue\.gemini\antigravity\brain\c4c2af8b-5dba-4a61-ad75-7b261354d2cc\implementation_plan.md`
+
+### Task -1.1: Infrastructure Layer Setup
+**Priority:** CRITICAL  
+**Estimated Complexity:** Medium  
+**Dependencies:** None
+
+#### Objective
+Establish proper Infrastructure Layer with centralized HTTP client and API organization.
+
+#### Current Issues
+- UserService mixes `axios` and `fetch`
+- Hardcoded API URLs throughout codebase
+- No centralized error handling
+- Services in wrong directory (`/services` instead of `/api`)
+
+#### Specifications
+1. Create `/api` directory structure (client.ts, endpoints.ts, userApi.ts, categoryApi.ts)
+2. Implement centralized axios instance with base URL from environment
+3. Move and refactor `UserService.ts` → `userApi.ts`
+4. Remove axios/fetch mixing
+
+#### Acceptance Criteria
+- [ ] `/api` directory created with proper structure
+- [ ] Centralized HTTP client implemented
+- [ ] All API calls use centralized client
+- [ ] No hardcoded API URLs in components
+
+---
+
+### Task -1.2: Zustand State Management Setup
+**Priority:** CRITICAL  
+**Estimated Complexity:** Medium  
+**Dependencies:** Task -1.1
+
+#### Objective
+Implement Zustand stores for global state management (authentication and preferences).
+
+#### Current Issues
+- No global state management
+- State scattered across components
+- Direct localStorage access in components
+
+#### Specifications
+1. Install Zustand: `npm install zustand`
+2. Create `stores/useAuthStore.ts` with authentication state and persistence
+3. Create `stores/usePreferencesStore.ts` with user preferences state
+4. Implement Zustand middleware for localStorage persistence
+
+#### Acceptance Criteria
+- [ ] Zustand installed and configured
+- [ ] `useAuthStore` implemented with persistence
+- [ ] `usePreferencesStore` implemented
+- [ ] No direct localStorage access in components
+
+---
+
+### Task -1.3: Custom Hooks Implementation
+**Priority:** CRITICAL  
+**Estimated Complexity:** High  
+**Dependencies:** Task -1.2
+
+#### Objective
+Extract all business logic from components into custom hooks.
+
+#### Current Issues
+- Business logic embedded in components
+- Direct API calls in components (App.tsx, UserPreferencesPage, history-view)
+- Components are too large (App.tsx: 166 lines, UserPreferencesPage: 487 lines)
+
+#### Specifications
+Create the following custom hooks:
+1. `hooks/useAuth.ts` - Authentication logic (wraps useAuthStore)
+2. `hooks/useUser.ts` - User operations
+3. `hooks/usePreferences.ts` - Preferences management (wraps usePreferencesStore)
+4. `hooks/useHistory.ts` - History operations
+5. Enhance `hooks/useCategories.ts` - Use centralized API client
+
+#### Acceptance Criteria
+- [ ] All 5 custom hooks implemented
+- [ ] Hooks follow Single Responsibility Principle
+- [ ] Business logic extracted from components
+- [ ] No direct API calls in components
+
+---
+
+### Task -1.4: Component Refactoring
+**Priority:** CRITICAL  
+**Estimated Complexity:** High  
+**Dependencies:** Task -1.3
+
+#### Objective
+Refactor components to be "dumb" (presentation-only) and under 200 lines.
+
+#### Components to Refactor
+1. **`App.tsx`** (166 lines → ~80 lines)
+   - Use `useAuth()` hook instead of manual state management
+   - Remove direct localStorage access
+   - Simplify to pure routing and provider setup
+
+2. **`pages/UserPreferencesPage.tsx`** (487 lines → ~200 lines total)
+   - Split into: `GeneralPreferencesForm.tsx`, `CategoryPreferencesForm.tsx`
+   - Use `usePreferences()` and `useCategories()` hooks
+   - Remove direct fetch() calls
+
+3. **`pages/UserSelectionPage.tsx`** (124 lines → ~80 lines)
+   - Use `useAuth()` hook instead of direct UserService calls
+   - Extract user list to separate component
+
+4. **`components/history-view.tsx`** (83 lines → ~50 lines)
+   - Use `useHistory()` hook instead of direct API calls
+   - Extract activity item to separate component
+
+#### Acceptance Criteria
+- [ ] All components under 200 lines
+- [ ] Components are "dumb" (presentation-only)
+- [ ] No direct API calls in components
+- [ ] Business logic in custom hooks
+
+---
+
+### Task -1.5: Context Cleanup & Verification
+**Priority:** HIGH  
+**Estimated Complexity:** Low  
+**Dependencies:** Task -1.4
+
+#### Objective
+Clean up redundant contexts and verify all architecture principles are followed.
+
+#### Specifications
+1. Evaluate `contexts/UserContext.tsx` - may be redundant with Zustand stores
+2. Run full verification checklist (see implementation plan)
+3. Manual testing of all features
+4. Update documentation
+
+#### Acceptance Criteria
+- [ ] UserContext simplified or removed
+- [ ] All verification checklist items pass
+- [ ] All manual tests pass
+- [ ] No regression in existing functionality
+
+---
+
 ## Phase 0: Application Foundation & Initialization
+
+**⚠️ MUST BE DONE AFTER PHASE -1 (Architecture Migration)**
 
 ### Task 0.1: Application Initialization & Configuration
 **Priority:** CRITICAL  
@@ -1117,36 +1267,50 @@ Allow users to select their preferred date display format (French/European vs Am
 
 ## Implementation Priority Order
 
+### Phase -1: Frontend Architecture Migration (Pre-Sprint 0)
+**⚠️ ABSOLUTE FIRST PRIORITY - MUST BE DONE BEFORE EVERYTHING ELSE**
+
+1. **Task -1.1: Infrastructure Layer Setup** - CRITICAL
+2. **Task -1.2: Zustand State Management Setup** - CRITICAL
+3. **Task -1.3: Custom Hooks Implementation** - CRITICAL
+4. **Task -1.4: Component Refactoring** - CRITICAL
+5. **Task -1.5: Context Cleanup & Verification** - HIGH
+
+**Estimated Duration:** 2-3 weeks  
+**Rationale:** Current codebase violates architecture principles. Must be fixed before building new features.
+
+---
+
 ### Sprint 0: Foundation (Pre-Sprint 1)
-**⚠️ MUST BE DONE FIRST BEFORE ANY OTHER TASK**
-1. **Task 0.1: Application Initialization & Configuration** - CRITICAL
+**⚠️ MUST BE DONE AFTER PHASE -1**
+6. **Task 0.1: Application Initialization & Configuration** - CRITICAL
 
 ### Sprint 1: Core Infrastructure (Week 1)
-2. Task 8.1: Internationalization (i18n) - **DO THIS FIRST** to avoid refactoring
-3. Task 1.1: Session Persistence
-4. Task 2.1: Extend User Model
-5. Task 4.1: Main Navigation Menu
+7. Task 8.1: Internationalization (i18n) - **DO THIS FIRST** to avoid refactoring
+8. Task 1.1: Session Persistence
+9. Task 2.1: Extend User Model
+10. Task 4.1: Main Navigation Menu
 
 ### Sprint 2: User Experience (Week 2)
-6. Task 1.2: Welcome Page
-7. Task 2.2: User Preferences Page
-8. Task 4.2: User Profile Page
-9. Task 8.2: Category Preferences Management
+11. Task 1.2: Welcome Page
+12. Task 2.2: User Preferences Page
+13. Task 4.2: User Profile Page
+14. Task 8.2: Category Preferences Management
 
 ### Sprint 3: Activity Enhancements (Week 3)
-10. Task 3.1: Enhanced Activity History Model
-11. Task 3.2: Enhanced History View UI
-12. Task 4.3: Backlog Page
-13. Task 8.4: Enhanced History and Backlog Actions
+15. Task 3.1: Enhanced Activity History Model
+16. Task 3.2: Enhanced History View UI
+17. Task 4.3: Backlog Page
+18. Task 8.4: Enhanced History and Backlog Actions
 
 ### Sprint 4: Core Functionality (Week 4-5)
-14. Task 5.1: Derot Page - Wikipedia Integration
-15. Task 5.2: Derot Page - Quiz Generation
-16. Task 8.3: Category Filtering on Derot Page
+19. Task 5.1: Derot Page - Wikipedia Integration
+20. Task 5.2: Derot Page - Quiz Generation
+21. Task 8.3: Category Filtering on Derot Page
 
 ### Sprint 5: Polish & Export (Week 6)
-17. Task 6.1: User Data Export
-18. Task 7.1: Contextual Help & Tooltips
+22. Task 6.1: User Data Export
+23. Task 7.1: Contextual Help & Tooltips
 
 ---
 

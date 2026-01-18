@@ -34,7 +34,66 @@ This document tracks the implementation status of features defined in the Functi
 
 ## 🚧 In Progress / Planned Features
 
+### Phase -1: Frontend Architecture Migration (Priority: CRITICAL)
+
+> [!CAUTION]
+> **HIGHEST PRIORITY**: This phase MUST be completed BEFORE Phase 0 and all other features.
+
+#### Architecture Compliance
+- [ ] **Task -1.1: Infrastructure Layer Setup**
+  - Create `/api` directory structure
+  - Centralized HTTP client (axios)
+  - Move UserService to userApi.ts
+  - Remove axios/fetch mixing
+  - **Status:** Not Started
+  - **Roadmap Task:** -1.1
+  - **⚠️ CRITICAL:** Foundation for all other work
+
+- [ ] **Task -1.2: Zustand State Management Setup**
+  - Install Zustand
+  - Create `useAuthStore` (authentication state)
+  - Create `usePreferencesStore` (user preferences)
+  - Implement localStorage persistence
+  - **Status:** Not Started
+  - **Roadmap Task:** -1.2
+  - **Dependencies:** Task -1.1
+
+- [ ] **Task -1.3: Custom Hooks Implementation**
+  - Create `useAuth()` hook
+  - Create `useUser()` hook
+  - Create `usePreferences()` hook
+  - Create `useHistory()` hook
+  - Enhance `useCategories()` hook
+  - **Status:** Not Started
+  - **Roadmap Task:** -1.3
+  - **Dependencies:** Task -1.2
+
+- [ ] **Task -1.4: Component Refactoring**
+  - Refactor `App.tsx` (166 → ~80 lines)
+  - Refactor `UserPreferencesPage.tsx` (487 → ~200 lines)
+  - Refactor `UserSelectionPage.tsx` (124 → ~80 lines)
+  - Refactor `history-view.tsx` (83 → ~50 lines)
+  - Extract sub-components
+  - **Status:** Not Started
+  - **Roadmap Task:** -1.4
+  - **Dependencies:** Task -1.3
+
+- [ ] **Task -1.5: Context Cleanup & Verification**
+  - Evaluate/simplify UserContext
+  - Run verification checklist
+  - Manual testing of all features
+  - Update documentation
+  - **Status:** Not Started
+  - **Roadmap Task:** -1.5
+  - **Dependencies:** Task -1.4
+
+**See detailed plan:** `implementation_plan.md` in artifacts
+
+---
+
 ### Phase 0: Application Foundation (Priority: CRITICAL)
+
+**⚠️ MUST BE DONE AFTER PHASE -1 (Architecture Migration)**
 
 #### Application Initialization
 - [x] **Application Initialization & Configuration**: Seed data and global config
