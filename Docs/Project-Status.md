@@ -37,13 +37,14 @@ This document tracks the implementation status of features defined in the Functi
 ### Phase 0: Application Foundation (Priority: CRITICAL)
 
 #### Application Initialization
-- [ ] **Application Initialization & Configuration**: Seed data and global config
+- [x] **Application Initialization & Configuration**: Seed data and global config
   - Initialize Wikipedia categories (13 official categories)
   - Initialize themes (5 color palettes)
   - Global configuration management (LLM URL/Port)
   - Seed data stored in `/data/seed/`
   - Configuration stored in `/data/config/`
-  - **Status:** Not Started
+  - **Status:** Completed
+  - **Completed Date:** 2026-01-18
   - **Roadmap Task:** 0.1
   - **⚠️ CRITICAL:** MUST be done FIRST before any other task
 

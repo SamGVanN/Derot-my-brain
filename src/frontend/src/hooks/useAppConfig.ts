@@ -1,0 +1,94 @@
+import { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
+import type { AppConfiguration, LLMConfiguration } from '../models/Configuration';
+
+const API_URL = 'http://localhost:5077/api';
+
+/**
+ * React hook to fetch and update global application configuration.
+ * Configuration is shared across all users.
+ */
+export function useAppConfig() {
+    const [config, setConfig] = useState<AppConfiguration | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const [updating, setUpdating] = useState<boolean>(false);
+
+    // Fetch configuration
+    const fetchConfig = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const response = await axios.get<AppConfiguration>(`${API_URL}/config`);
+            setConfig(response.data);
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to fetch configuration';
+            setError(errorMessage);
+            console.error('Error fetching configuration:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    // Update full configuration
+    const updateConfig = useCallback(async (newConfig: AppConfiguration): Promise<boolean> => {
+        try {
+            setUpdating(true);
+            setError(null);
+
+            const response = await axios.put<AppConfiguration>(`${API_URL}/config`, newConfig);
+            setConfig(response.data);
+            return true;
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to update configuration';
+            setError(errorMessage);
+            console.error('Error updating configuration:', err);
+            return false;
+        } finally {
+            setUpdating(false);
+        }
+    }, []);
+
+    // Update LLM configuration only
+    const updateLLMConfig = useCallback(async (llmConfig: LLMConfiguration): Promise<boolean> => {
+        try {
+            setUpdating(true);
+            setError(null);
+
+            const response = await axios.put<LLMConfiguration>(`${API_URL}/config/llm`, llmConfig);
+
+            // Update local state
+            if (config) {
+                setConfig({
+                    ...config,
+                    llm: response.data,
+                    lastUpdated: new Date().toISOString()
+                });
+            }
+
+            return true;
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to update LLM configuration';
+            setError(errorMessage);
+            console.error('Error updating LLM configuration:', err);
+            return false;
+        } finally {
+            setUpdating(false);
+        }
+    }, [config]);
+
+    useEffect(() => {
+        fetchConfig();
+    }, [fetchConfig]);
+
+    return {
+        config,
+        loading,
+        error,
+        updating,
+        updateConfig,
+        updateLLMConfig,
+        refetch: fetchConfig
+    };
+}

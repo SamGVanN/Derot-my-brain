@@ -1,0 +1,39 @@
+{
+  "Themes": [
+    {
+      "Id": "curiosity-loop",
+      "Name": "Curiosity Loop",
+      "Description": "Dark theme with blue accents",
+      "IsDefault": false,
+      "IsActive": true
+    },
+    {
+      "Id": "derot-brain",
+      "Name": "Derot Brain",
+      "Description": "Dark theme with violet accents",
+      "IsDefault": true,
+      "IsActive": true
+    },
+    {
+      "Id": "knowledge-core",
+      "Name": "Knowledge Core",
+      "Description": "Dark theme with cyan accents",
+      "IsDefault": false,
+      "IsActive": true
+    },
+    {
+      "Id": "mind-lab",
+      "Name": "Mind Lab",
+      "Description": "Dark theme with teal accents",
+      "IsDefault": false,
+      "IsActive": true
+    },
+    {
+      "Id": "neo-wikipedia",
+      "Name": "Neo-Wikipedia",
+      "Description": "Light theme with blue accents",
+      "IsDefault": false,
+      "IsActive": true
+    }
+  ]
+}

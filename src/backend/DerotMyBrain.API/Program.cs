@@ -8,13 +8,25 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Configuration
-builder.Configuration["DataDirectory"] = Path.Combine(Directory.GetCurrentDirectory(), "Data");
+builder.Configuration["DataDirectory"] = Path.Combine(Directory.GetCurrentDirectory(), "data");
 
 // Service Registration (DI)
 builder.Services.AddScoped(typeof(DerotMyBrain.API.Repositories.IJsonRepository<>), typeof(DerotMyBrain.API.Repositories.JsonRepository<>));
 builder.Services.AddScoped<DerotMyBrain.API.Services.IUserService, DerotMyBrain.API.Services.UserService>();
 
+// Register initialization services as singletons
+builder.Services.AddSingleton<DerotMyBrain.API.Services.ISeedDataService, DerotMyBrain.API.Services.SeedDataService>();
+builder.Services.AddSingleton<DerotMyBrain.API.Services.IConfigurationService, DerotMyBrain.API.Services.ConfigurationService>();
+builder.Services.AddSingleton<DerotMyBrain.API.Services.IInitializationService, DerotMyBrain.API.Services.InitializationService>();
+
 var app = builder.Build();
+
+// Initialize application (seed data and configuration)
+using (var scope = app.Services.CreateScope())
+{
+    var initService = scope.ServiceProvider.GetRequiredService<DerotMyBrain.API.Services.IInitializationService>();
+    await initService.InitializeAsync();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

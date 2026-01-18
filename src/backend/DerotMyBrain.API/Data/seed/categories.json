@@ -1,0 +1,95 @@
+{
+  "Categories": [
+    {
+      "Id": "general-reference",
+      "Name": "General reference",
+      "NameFr": "R\u00E9f\u00E9rence g\u00E9n\u00E9rale",
+      "Order": 1,
+      "IsActive": true
+    },
+    {
+      "Id": "culture-arts",
+      "Name": "Culture and the arts",
+      "NameFr": "Culture et arts",
+      "Order": 2,
+      "IsActive": true
+    },
+    {
+      "Id": "geography-places",
+      "Name": "Geography and places",
+      "NameFr": "G\u00E9ographie et lieux",
+      "Order": 3,
+      "IsActive": true
+    },
+    {
+      "Id": "health-fitness",
+      "Name": "Health and fitness",
+      "NameFr": "Sant\u00E9 et forme",
+      "Order": 4,
+      "IsActive": true
+    },
+    {
+      "Id": "history-events",
+      "Name": "History and events",
+      "NameFr": "Histoire et \u00E9v\u00E9nements",
+      "Order": 5,
+      "IsActive": true
+    },
+    {
+      "Id": "human-activities",
+      "Name": "Human activities",
+      "NameFr": "Activit\u00E9s humaines",
+      "Order": 6,
+      "IsActive": true
+    },
+    {
+      "Id": "mathematics-logic",
+      "Name": "Mathematics and logic",
+      "NameFr": "Math\u00E9matiques et logique",
+      "Order": 7,
+      "IsActive": true
+    },
+    {
+      "Id": "natural-sciences",
+      "Name": "Natural and physical sciences",
+      "NameFr": "Sciences naturelles et physiques",
+      "Order": 8,
+      "IsActive": true
+    },
+    {
+      "Id": "people-self",
+      "Name": "People and self",
+      "NameFr": "Personnes et soi",
+      "Order": 9,
+      "IsActive": true
+    },
+    {
+      "Id": "philosophy-thinking",
+      "Name": "Philosophy and thinking",
+      "NameFr": "Philosophie et pens\u00E9e",
+      "Order": 10,
+      "IsActive": true
+    },
+    {
+      "Id": "religion-belief",
+      "Name": "Religion and belief systems",
+      "NameFr": "Religion et syst\u00E8mes de croyance",
+      "Order": 11,
+      "IsActive": true
+    },
+    {
+      "Id": "society-sciences",
+      "Name": "Society and social sciences",
+      "NameFr": "Soci\u00E9t\u00E9 et sciences sociales",
+      "Order": 12,
+      "IsActive": true
+    },
+    {
+      "Id": "technology-sciences",
+      "Name": "Technology and applied sciences",
+      "NameFr": "Technologie et sciences appliqu\u00E9es",
+      "Order": 13,
+      "IsActive": true
+    }
+  ]
+}
