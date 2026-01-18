@@ -1,71 +1,33 @@
-import axios from 'axios';
 import type { User } from '../models/User';
 import type { UserActivity } from '../models/UserActivity';
+import { userApi } from '../api/userApi';
 
-
-const API_URL = 'http://localhost:5077/api'; // Default .NET API URL, check launchSettings.json usually
-
-const api = axios.create({
-    baseURL: API_URL,
-});
-
+/**
+ * @deprecated Use userApi directly instead. This service is kept for backward compatibility to ease migration.
+ */
 export const UserService = {
-    getAllUsers: async (): Promise<User[]> => {
-        const response = await api.get<User[]>('/users');
-        return response.data;
-    },
+    getAllUsers: (): Promise<User[]> => userApi.getAllUsers(),
 
-    createOrSelectUser: async (name: string): Promise<User> => {
-        const response = await fetch(`${API_URL}/users`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name }),
-        });
-        if (!response.ok) throw new Error('Failed to create/select user');
-        return response.json();
-    },
+    createOrSelectUser: (name: string): Promise<User> => userApi.createOrSelectUser(name),
 
-    getUserById: async (id: string): Promise<User> => {
-        const response = await api.get<User>(`/users/${id}`);
-        return response.data;
-    },
+    getUserById: (id: string): Promise<User> => userApi.getUserById(id),
 
-    getHistory: async (userId: string): Promise<UserActivity[]> => {
-        const response = await api.get<UserActivity[]>(`/users/${userId}/history`);
-        return response.data;
-    },
+    getHistory: (userId: string): Promise<UserActivity[]> => userApi.getHistory(userId),
 
-    addActivity: async (userId: string, activity: Partial<UserActivity>): Promise<UserActivity> => {
-        const response = await api.post<UserActivity>(`/users/${userId}/history`, activity);
-        return response.data;
-    },
+    addActivity: (userId: string, activity: Partial<UserActivity>): Promise<UserActivity> =>
+        userApi.addActivity(userId, activity),
 
-    updatePreferences: async (userId: string, preferences: Partial<User['preferences']>): Promise<User> => {
-        // We'll need a specific endpoint or just partial update to user
-        // However, roadmap says PUT /api/users/{id}/preferences
-        const response = await api.put<User>(`/users/${userId}/preferences`, preferences);
-        return response.data;
-    },
+    updatePreferences: (userId: string, preferences: Partial<User['preferences']>): Promise<User> =>
+        userApi.updatePreferences(userId, preferences),
 
-    getPreferences: async (userId: string): Promise<User['preferences']> => {
-        const response = await api.get<User['preferences']>(`/users/${userId}/preferences`);
-        return response.data;
-    },
+    getPreferences: (userId: string): Promise<User['preferences']> => userApi.getPreferences(userId),
 
-    updateGeneralPreferences: async (userId: string, preferences: {
+    updateGeneralPreferences: (userId: string, preferences: {
         language: string;
         preferredTheme: string;
         questionCount: number;
-    }): Promise<User> => {
-        const response = await api.patch<User>(`/users/${userId}/preferences/general`, preferences);
-        return response.data;
-    },
+    }): Promise<User> => userApi.updateGeneralPreferences(userId, preferences),
 
-    updateCategoryPreferences: async (userId: string, selectedCategories: string[]): Promise<User> => {
-        const response = await api.patch<User>(`/users/${userId}/preferences/categories`, { selectedCategories });
-        return response.data;
-    }
-
-
+    updateCategoryPreferences: (userId: string, selectedCategories: string[]): Promise<User> =>
+        userApi.updateCategoryPreferences(userId, selectedCategories)
 };
-

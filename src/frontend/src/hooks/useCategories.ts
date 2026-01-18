@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import type { WikipediaCategory } from '../models/SeedData';
-
-const API_URL = 'http://localhost:5077/api';
+import { categoryApi } from '../api/categoryApi';
 
 /**
  * React hook to fetch and cache Wikipedia categories.
@@ -19,8 +17,8 @@ export function useCategories() {
                 setLoading(true);
                 setError(null);
 
-                const response = await axios.get<WikipediaCategory[]>(`${API_URL}/categories`);
-                setCategories(response.data);
+                const data = await categoryApi.getAllCategories();
+                setCategories(data);
             } catch (err) {
                 const errorMessage = err instanceof Error ? err.message : 'Failed to fetch categories';
                 setError(errorMessage);

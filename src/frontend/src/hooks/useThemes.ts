@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import type { Theme } from '../models/SeedData';
-
-const API_URL = 'http://localhost:5077/api';
+import { themeApi } from '../api/themeApi';
 
 /**
  * React hook to fetch and cache UI themes.
@@ -19,8 +17,8 @@ export function useThemes() {
                 setLoading(true);
                 setError(null);
 
-                const response = await axios.get<Theme[]>(`${API_URL}/themes`);
-                setThemes(response.data);
+                const data = await themeApi.getAllThemes();
+                setThemes(data);
             } catch (err) {
                 const errorMessage = err instanceof Error ? err.message : 'Failed to fetch themes';
                 setError(errorMessage);

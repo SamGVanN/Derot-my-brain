@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserService } from '../services/UserService';
 import type { User } from '../models/User';
-import type { WikipediaCategory } from '../models/Category';
+
+import { categoryApi } from '@/api/categoryApi';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,7 +31,7 @@ const languages = [
     { code: 'fr', label: 'Français' }
 ];
 
-export default function UserPreferencesPage({ user, onUserUpdated, onCancel }: UserPreferencesPageProps) {
+export default function UserPreferencesPage({ user, onUserUpdated }: UserPreferencesPageProps) {
     const { t, i18n } = useTranslation();
     const queryClient = useQueryClient();
     const { setTheme } = useTheme();
@@ -61,9 +62,7 @@ export default function UserPreferencesPage({ user, onUserUpdated, onCancel }: U
     const { data: categories, isLoading: isLoadingCategories } = useQuery({
         queryKey: ['categories'],
         queryFn: async () => {
-            const response = await fetch('http://localhost:5077/api/categories');
-            if (!response.ok) throw new Error('Failed to fetch categories');
-            return response.json() as Promise<WikipediaCategory[]>;
+            return categoryApi.getAllCategories();
         }
     });
 

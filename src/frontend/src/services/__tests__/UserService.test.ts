@@ -24,13 +24,8 @@ vi.mock('axios', () => {
 });
 
 describe('UserService', () => {
-    // Mock global fetch
-    const fetchMock = vi.fn();
-    global.fetch = fetchMock;
-
     beforeEach(() => {
         vi.clearAllMocks();
-        fetchMock.mockReset();
     });
 
     it('getAllUsers calls GET /users', async () => {
@@ -53,23 +48,13 @@ describe('UserService', () => {
         expect(result).toEqual(mockUser);
     });
 
-    it('createOrSelectUser uses fetch to POST /users', async () => {
+    it('createOrSelectUser calls POST /users', async () => {
         const mockUser = { id: '2', name: 'New User' };
-        fetchMock.mockResolvedValueOnce({
-            ok: true,
-            json: async () => mockUser,
-        });
+        mocks.post.mockResolvedValueOnce({ data: mockUser });
 
         const result = await UserService.createOrSelectUser('New User');
 
-        expect(fetchMock).toHaveBeenCalledWith(
-            expect.stringContaining('/users'),
-            expect.objectContaining({
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: 'New User' }),
-            })
-        );
+        expect(mocks.post).toHaveBeenCalledWith('/users', { name: 'New User' });
         expect(result).toEqual(mockUser);
     });
 

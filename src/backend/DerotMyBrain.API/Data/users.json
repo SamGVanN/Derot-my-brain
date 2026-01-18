@@ -4,10 +4,10 @@
       "Id": "test-user-id-001",
       "Name": "TestUser",
       "CreatedAt": "2026-01-18T00:55:00Z",
-      "LastConnectionAt": "2026-01-18T14:09:34.1578185Z",
+      "LastConnectionAt": "2026-01-18T19:24:22.6646563Z",
       "Preferences": {
         "QuestionCount": 20,
-        "PreferredTheme": "curiosity-loop",
+        "PreferredTheme": "knowledge-core",
         "Language": "en",
         "SelectedCategories": [
           "health-fitness",
