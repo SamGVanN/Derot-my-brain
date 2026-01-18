@@ -12,6 +12,7 @@ builder.Configuration["DataDirectory"] = Path.Combine(Directory.GetCurrentDirect
 
 // Service Registration (DI)
 builder.Services.AddScoped(typeof(DerotMyBrain.API.Repositories.IJsonRepository<>), typeof(DerotMyBrain.API.Repositories.JsonRepository<>));
+builder.Services.AddScoped<DerotMyBrain.API.Services.ICategoryService, DerotMyBrain.API.Services.CategoryService>(); // Added
 builder.Services.AddScoped<DerotMyBrain.API.Services.IUserService, DerotMyBrain.API.Services.UserService>();
 
 // Register initialization services as singletons

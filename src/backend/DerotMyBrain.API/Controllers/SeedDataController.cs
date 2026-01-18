@@ -13,11 +13,13 @@ namespace DerotMyBrain.API.Controllers
     public class SeedDataController : ControllerBase
     {
         private readonly ISeedDataService _seedDataService;
+        private readonly ICategoryService _categoryService;
         private readonly ILogger<SeedDataController> _logger;
 
-        public SeedDataController(ISeedDataService seedDataService, ILogger<SeedDataController> logger)
+        public SeedDataController(ISeedDataService seedDataService, ICategoryService categoryService, ILogger<SeedDataController> logger)
         {
             _seedDataService = seedDataService;
+            _categoryService = categoryService;
             _logger = logger;
         }
 
@@ -32,7 +34,7 @@ namespace DerotMyBrain.API.Controllers
         {
             try
             {
-                var categories = await _seedDataService.GetCategoriesAsync();
+                var categories = await _categoryService.GetAllCategoriesAsync();
                 _logger.LogInformation("Retrieved {Count} Wikipedia categories", categories.Count);
                 return Ok(categories);
             }

@@ -215,12 +215,19 @@ This document tracks the implementation status of features defined in the Functi
   - **Roadmap Task:** 8.1
 
 #### Category Preferences (Simplified - No Named Profiles)
-- [ ] **Category Preferences Management**: Simple checklist in preferences
+- [x] **Task 8.2: Category Preferences Management**: Simple checklist in preferences
+  - **Status:** Completed ✅
+  - **Completed on:** 2026-01-18
+  - **Description**: Users can select which Wikipedia categories they are interested in.
+  - **Dependencies**: Task 2.1
+  - **Changes**:
+    - [UserPreferencesPage.tsx] Added category selection UI
+    - [UserService.cs] Initialize new users with all categories
+    - [User.cs] Added `SelectedCategories` property
   - 13 official Wikipedia categories
   - All categories checked by default for new users
   - Manage from Preferences page
   - "Select All" / "Deselect All" buttons
-  - **Status:** Not Started
   - **Roadmap Task:** 8.2
   - **✨ SIMPLIFIED:** No named profiles, just category checkboxes
 

@@ -5,9 +5,11 @@ import { UserService } from './services/UserService';
 import { ThemeProvider } from './components/theme-provider';
 import { Button } from '@/components/ui/button';
 import UserSelectionPage from './pages/UserSelectionPage';
+import UserPreferencesPage from './pages/UserPreferencesPage';
 import { HistoryView } from './components/history-view';
 import { Layout } from './components/Layout';
 import type { User } from './models/User';
+import { Settings, Home } from 'lucide-react';
 
 const queryClient = new QueryClient();
 
@@ -15,6 +17,7 @@ function App() {
   const { i18n, t } = useTranslation();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [currentView, setCurrentView] = useState<'home' | 'preferences'>('home');
 
   useEffect(() => {
     const restoreSession = async () => {
@@ -67,38 +70,65 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('userId');
     setCurrentUser(null);
+    setCurrentView('home');
   };
 
-  if (isInitializing) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  const handleUserUpdated = (updatedUser: User) => {
+    setCurrentUser(updatedUser);
+    // Optionally stay on preferences or go back
+  };
 
+  // Render logic simplified to be inside providers
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        {currentUser ? (
-          <Layout>
-            <div className="max-w-4xl mx-auto py-8 px-4 space-y-8">
-              <div className="flex justify-between items-center">
-                <div className="space-y-1">
-                  <h1 className="text-3xl font-bold text-foreground">{t('welcome.title')} {currentUser.name}!</h1>
-                  <p className="text-muted-foreground">{t('welcome.intro')}</p>
-                </div>
-                <Button
-                  onClick={handleLogout}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  {t('nav.logout')}
-                </Button>
-              </div>
-              <HistoryView user={currentUser} />
+        {isInitializing ? (
+          <div className="flex items-center justify-center min-h-screen bg-background">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : currentUser ? (
+          currentView === 'preferences' ? (
+            <div className="relative">
+              <Button
+                variant="ghost"
+                className="absolute top-20 left-4 z-50 md:left-8 gap-2"
+                onClick={() => setCurrentView('home')}
+              >
+                <Home className="h-4 w-4" />
+                {t('nav.derot')}
+              </Button>
+              <UserPreferencesPage user={currentUser} onUserUpdated={handleUserUpdated} />
             </div>
-          </Layout>
+          ) : (
+            <Layout>
+              <div className="max-w-4xl mx-auto py-8 px-4 space-y-8">
+                <div className="flex justify-between items-center">
+                  <div className="space-y-1">
+                    <h1 className="text-3xl font-bold text-foreground">{t('welcome.title')} {currentUser.name}!</h1>
+                    <p className="text-muted-foreground">{t('welcome.intro')}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setCurrentView('preferences')}
+                      className="gap-2"
+                    >
+                      <Settings className="h-4 w-4" />
+                      {t('nav.preferences')}
+                    </Button>
+                    <Button
+                      onClick={handleLogout}
+                      variant="outline"
+                      className="gap-2"
+                    >
+                      {t('nav.logout')}
+                    </Button>
+                  </div>
+                </div>
+                <HistoryView user={currentUser} />
+              </div>
+            </Layout>
+          )
         ) : (
           <UserSelectionPage onUserSelected={handleUserSelected} />
         )}

@@ -16,6 +16,7 @@ namespace DerotMyBrain.API.Models
         public int QuestionCount { get; set; } = 10;
         public string PreferredTheme { get; set; } = "derot-brain";
         public string Language { get; set; } = "auto"; // "en", "fr", or "auto"
+        public List<string> SelectedCategories { get; set; } = new();
     }
 
     public class UserList

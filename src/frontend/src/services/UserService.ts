@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { User, CreateUserRequest } from '../models/User';
+import type { User } from '../models/User';
 import type { UserActivity } from '../models/UserActivity';
 
 
@@ -16,9 +16,13 @@ export const UserService = {
     },
 
     createOrSelectUser: async (name: string): Promise<User> => {
-        const request: CreateUserRequest = { name };
-        const response = await api.post<User>('/users', request);
-        return response.data;
+        const response = await fetch(`${API_URL}/users`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name }),
+        });
+        if (!response.ok) throw new Error('Failed to create/select user');
+        return response.json();
     },
 
     getUserById: async (id: string): Promise<User> => {

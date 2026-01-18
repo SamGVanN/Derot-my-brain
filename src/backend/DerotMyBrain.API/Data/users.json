@@ -8,7 +8,8 @@
       "Preferences": {
         "QuestionCount": 10,
         "PreferredTheme": "derot-brain",
-        "Language": "en"
+        "Language": "en",
+        "SelectedCategories": []
       }
     },
     {
@@ -19,7 +20,8 @@
       "Preferences": {
         "QuestionCount": 10,
         "PreferredTheme": "derot-brain",
-        "Language": "auto"
+        "Language": "auto",
+        "SelectedCategories": []
       }
     },
     {
@@ -28,9 +30,24 @@
       "CreatedAt": "2026-01-18T00:55:00Z",
       "LastConnectionAt": "0001-01-01T00:00:00",
       "Preferences": {
-        "QuestionCount": 10,
+        "QuestionCount": 5,
         "PreferredTheme": "derot-brain",
-        "Language": "fr"
+        "Language": "en",
+        "SelectedCategories": [
+          "general-reference",
+          "culture-arts",
+          "geography-places",
+          "health-fitness",
+          "history-events",
+          "human-activities",
+          "mathematics-logic",
+          "natural-sciences",
+          "people-self",
+          "philosophy-thinking",
+          "religion-belief",
+          "society-sciences",
+          "technology-sciences"
+        ]
       }
     },
     {
@@ -41,7 +58,8 @@
       "Preferences": {
         "QuestionCount": 10,
         "PreferredTheme": "derot-brain",
-        "Language": "auto"
+        "Language": "auto",
+        "SelectedCategories": []
       }
     }
   ]

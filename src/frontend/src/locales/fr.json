@@ -45,7 +45,8 @@
         "categoriesDescription": "Sélectionnez les catégories que vous souhaitez explorer.",
         "selectAll": "Tout sélectionner",
         "deselectAll": "Tout désélectionner",
-        "selected": "{{count}} sélectionnée{{plural}}",
+        "selected_one": "{{count}} sélectionnée",
+        "selected_other": "{{count}} sélectionnées",
         "saveSuccess": "Préférences enregistrées avec succès"
     }
 }

@@ -321,7 +321,7 @@ Extend the User model to include user preferences and metadata (quiz question co
 - [ ] Last connection updates on each login
 - [ ] Preferences can be retrieved and updated via API
 - [ ] Existing users migrated with default preferences
-- [ ] Frontend state includes user preferences
+- [x] Frontend state includes user preferences
 
 ---
 

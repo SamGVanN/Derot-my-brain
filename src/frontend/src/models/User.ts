@@ -10,6 +10,7 @@ export interface UserPreferences {
     questionCount: number;
     preferredTheme: string;
     language: string;
+    selectedCategories: string[];
 }
 
 

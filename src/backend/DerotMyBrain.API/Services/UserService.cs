@@ -6,11 +6,13 @@ namespace DerotMyBrain.API.Services
     public class UserService : IUserService
     {
         private readonly IJsonRepository<UserList> _userRepository;
+        private readonly ICategoryService _categoryService;
         private const string UsersFileName = "users.json";
 
-        public UserService(IJsonRepository<UserList> userRepository)
+        public UserService(IJsonRepository<UserList> userRepository, ICategoryService categoryService)
         {
             _userRepository = userRepository;
+            _categoryService = categoryService;
         }
 
         public async Task<List<User>> GetAllUsersAsync()
@@ -29,12 +31,18 @@ namespace DerotMyBrain.API.Services
                 return existingUser;
             }
 
+            // Fetch all categories to set as default for new user
+            var allCategories = await _categoryService.GetAllCategoriesAsync();
+
             var newUser = new User
             {
                 Id = Guid.NewGuid().ToString(),
                 Name = name,
                 CreatedAt = DateTime.UtcNow
             };
+            
+            // Default: All categories selected
+            newUser.Preferences.SelectedCategories = allCategories.Select(c => c.Id).ToList();
 
 
             data.Users.Add(newUser);
