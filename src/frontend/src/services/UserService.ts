@@ -50,7 +50,22 @@ export const UserService = {
     getPreferences: async (userId: string): Promise<User['preferences']> => {
         const response = await api.get<User['preferences']>(`/users/${userId}/preferences`);
         return response.data;
+    },
+
+    updateGeneralPreferences: async (userId: string, preferences: {
+        language: string;
+        preferredTheme: string;
+        questionCount: number;
+    }): Promise<User> => {
+        const response = await api.patch<User>(`/users/${userId}/preferences/general`, preferences);
+        return response.data;
+    },
+
+    updateCategoryPreferences: async (userId: string, selectedCategories: string[]): Promise<User> => {
+        const response = await api.patch<User>(`/users/${userId}/preferences/categories`, { selectedCategories });
+        return response.data;
     }
+
 
 };
 

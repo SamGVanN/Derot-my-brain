@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Globe, Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useUserContext } from "@/contexts/UserContext";
+import { UserService } from "@/services/UserService";
 
 const languages = [
     { code: 'en', label: 'English' },
@@ -13,6 +15,7 @@ export function LanguageSwitcher() {
     const { i18n } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const { currentUser, setCurrentUser, isOnPreferencesPage } = useUserContext();
 
     const currentLanguage = languages.find(l => l.code === i18n.language.split('-')[0]) || languages[0];
 
@@ -31,9 +34,26 @@ export function LanguageSwitcher() {
 
     const toggleOpen = () => setIsOpen(!isOpen);
 
-    const changeLanguage = (code: string) => {
+    const changeLanguage = async (code: string) => {
         i18n.changeLanguage(code);
         setIsOpen(false);
+
+        // Sauvegarde automatique au backend (uniquement la langue)
+        if (currentUser) {
+            try {
+                const updatedUser = await UserService.updateGeneralPreferences(
+                    currentUser.id,
+                    {
+                        language: code,
+                        preferredTheme: currentUser.preferences.preferredTheme,
+                        questionCount: currentUser.preferences.questionCount
+                    }
+                );
+                setCurrentUser(updatedUser);
+            } catch (error) {
+                console.error('Failed to save language preference:', error);
+            }
+        }
     };
 
     return (
@@ -42,6 +62,7 @@ export function LanguageSwitcher() {
                 variant="outline"
                 size="sm"
                 onClick={toggleOpen}
+                disabled={isOnPreferencesPage}
                 className="flex items-center gap-2 h-9 border-border/60 bg-background/50 backdrop-blur-sm group"
             >
                 <Globe className="h-4 w-4 text-primary group-hover:text-accent-foreground transition-colors" />

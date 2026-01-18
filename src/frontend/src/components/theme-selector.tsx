@@ -4,11 +4,14 @@ import { themes } from "@/lib/themes";
 import { Palette, Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useUserContext } from "@/contexts/UserContext";
+import { UserService } from "@/services/UserService";
 
 export function ThemeSelector() {
     const { theme, setTheme } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const { currentUser, setCurrentUser, isOnPreferencesPage } = useUserContext();
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -25,12 +28,35 @@ export function ThemeSelector() {
 
     const toggleOpen = () => setIsOpen(!isOpen);
 
+    const handleThemeChange = async (themeName: string) => {
+        setTheme(themeName); // Sauvegarde dans localStorage + applique le thème
+        setIsOpen(false);
+
+        // Sauvegarde automatique au backend (uniquement le thème)
+        if (currentUser) {
+            try {
+                const updatedUser = await UserService.updateGeneralPreferences(
+                    currentUser.id,
+                    {
+                        language: currentUser.preferences.language,
+                        preferredTheme: themeName,
+                        questionCount: currentUser.preferences.questionCount
+                    }
+                );
+                setCurrentUser(updatedUser);
+            } catch (error) {
+                console.error('Failed to save theme preference:', error);
+            }
+        }
+    };
+
     return (
         <div className="relative inline-block text-left" ref={dropdownRef}>
             <Button
                 variant="outline"
                 size="sm"
                 onClick={toggleOpen}
+                disabled={isOnPreferencesPage}
                 className="flex items-center gap-2 h-9 border-border/60 bg-background/50 backdrop-blur-sm group"
             >
                 <Palette className="h-4 w-4 text-primary group-hover:text-accent-foreground transition-colors" />
@@ -46,10 +72,7 @@ export function ThemeSelector() {
                             return (
                                 <button
                                     key={t.name}
-                                    onClick={() => {
-                                        setTheme(t.name);
-                                        setIsOpen(false);
-                                    }}
+                                    onClick={() => handleThemeChange(t.name)}
                                     className={cn(
                                         "w-full flex items-center justify-between rounded-sm px-3 py-2.5 text-sm transition-colors",
                                         isSelected
