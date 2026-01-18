@@ -187,10 +187,10 @@ Establish proper Infrastructure Layer with centralized HTTP client and API organ
 4. Remove axios/fetch mixing
 
 #### Acceptance Criteria
-- [ ] `/api` directory created with proper structure
-- [ ] Centralized HTTP client implemented
-- [ ] All API calls use centralized client
-- [ ] No hardcoded API URLs in components
+- [x] `/api` directory created with proper structure
+- [x] Centralized HTTP client implemented
+- [x] All API calls use centralized client
+- [x] No hardcoded API URLs in components
 
 ---
 
@@ -214,10 +214,10 @@ Implement Zustand stores for global state management (authentication and prefere
 4. Implement Zustand middleware for localStorage persistence
 
 #### Acceptance Criteria
-- [ ] Zustand installed and configured
-- [ ] `useAuthStore` implemented with persistence
-- [ ] `usePreferencesStore` implemented
-- [ ] No direct localStorage access in components
+- [x] Zustand installed and configured
+- [x] `useAuthStore` implemented with persistence
+- [x] `usePreferencesStore` implemented
+- [x] No direct localStorage access in components
 
 ---
 
@@ -243,10 +243,10 @@ Create the following custom hooks:
 5. Enhance `hooks/useCategories.ts` - Use centralized API client
 
 #### Acceptance Criteria
-- [ ] All 5 custom hooks implemented
-- [ ] Hooks follow Single Responsibility Principle
-- [ ] Business logic extracted from components
-- [ ] No direct API calls in components
+- [x] All 5 custom hooks implemented
+- [x] Hooks follow Single Responsibility Principle
+- [x] Business logic extracted from components
+- [x] No direct API calls in components
 
 ---
 
@@ -297,12 +297,12 @@ Refactor key frontend components to strictly adhere to `frontend_guidelines.md`,
 - **Styling:** Use Tailwind CSS utility classes (no hardcoded colors).
 
 #### Acceptance Criteria
-- [ ] `App.tsx` has no direct references to stores or services.
-- [ ] `UserPreferencesPage.tsx` is under 150 lines (orchestration only).
-- [ ] `GeneralPreferencesForm.tsx` and `CategoryPreferencesForm.tsx` created.
-- [ ] `history-view.tsx` uses `useHistory` hook.
-- [ ] No component imports `UserService` directly.
-- [ ] Application compiles and runs with identical functionality.
+- [x] `App.tsx` has no direct references to stores or services.
+- [x] `UserPreferencesPage.tsx` is under 150 lines (orchestration only).
+- [x] `GeneralPreferencesForm.tsx` and `CategoryPreferencesForm.tsx` created.
+- [x] `history-view.tsx` uses `useHistory` hook.
+- [x] No component imports `UserService` directly.
+- [x] Application compiles and runs with identical functionality.
 
 ---
 
@@ -321,10 +321,10 @@ Clean up redundant contexts and verify all architecture principles are followed.
 4. Update documentation
 
 #### Acceptance Criteria
-- [ ] UserContext simplified or removed
-- [ ] All verification checklist items pass
-- [ ] All manual tests pass
-- [ ] No regression in existing functionality
+- [x] UserContext simplified or removed
+- [x] All verification checklist items pass
+- [x] All manual tests pass
+- [x] No regression in existing functionality
 
 ---
 
@@ -443,16 +443,16 @@ Set up application initialization with seed data (categories, themes) and global
   - User data: `/data/users/` (see Technical Constraints section for structure)
 
 #### Acceptance Criteria
-- [ ] Seed data (categories + themes) initialized on first startup
-- [ ] 13 Wikipedia categories available via API
-- [ ] 5 themes available via API
-- [ ] Global configuration created with default LLM URL
+- [x] Seed data (categories + themes) initialized on first startup
+- [x] 13 Wikipedia categories available via API
+- [x] 5 themes available via API
+- [x] Global configuration created with default LLM URL
 - [ ] LLM configuration can be retrieved via API
 - [ ] LLM configuration can be updated via API
-- [ ] Initialization is idempotent (can run multiple times safely)
-- [ ] Seed data is immutable (cannot be deleted/modified by users)
+- [x] Initialization is idempotent (can run multiple times safely)
+- [x] Seed data is immutable (cannot be deleted/modified by users)
 - [ ] Frontend can fetch and display LLM configuration
-- [ ] Error handling for missing/corrupted seed data
+- [x] Error handling for missing/corrupted seed data
 
 ---
 
@@ -481,10 +481,10 @@ Implement session persistence so that refreshing a page keeps the user authentic
   - Return 404 if user not found (session invalidation)
 
 #### Acceptance Criteria
-- [ ] User remains logged in after page refresh
-- [ ] Invalid/deleted users are redirected to login
-- [ ] Session persists across browser tabs
-- [ ] Explicit logout clears session properly
+- [x] User remains logged in after page refresh
+- [x] Invalid/deleted users are redirected to login
+- [x] Session persists across browser tabs
+- [x] Explicit logout clears session properly
 
 ---
 
@@ -516,10 +516,10 @@ Implement a welcome page that appears for first-time users, explaining the app's
   - Make guide scannable with headers and bullet points
 
 #### Acceptance Criteria
-- [ ] New users see welcome page on first visit
-- [ ] "Don't Show Again" option persists preference
-- [ ] Guide is clear, concise, and beginner-friendly
-- [ ] Welcome page respects current theme
+- [x] New users see welcome page on first visit
+- [x] "Don't Show Again" option persists preference
+- [x] Guide is clear, concise, and beginner-friendly
+- [x] Welcome page respects current theme
 - [ ] Users can access guide later from settings/help menu
 
 ---
@@ -543,11 +543,11 @@ Implement a robust logging system to capture backend errors and operation logs i
     - Capture all unhandled exceptions and critical application events.
 
 #### Acceptance Criteria
-- [ ] Logging library installed (Serilog/NLog)
-- [ ] Logs are written to `/Logs` directory
-- [ ] Log files rotate daily
-- [ ] Error logs capture stack traces and context
-- [ ] INFO level logs capture startup and key events
+- [x] Logging library installed (Serilog/NLog)
+- [x] Logs are written to `/Logs` directory
+- [x] Log files rotate daily
+- [x] Error logs capture stack traces and context
+- [x] INFO level logs capture startup and key events
 
 ---
 
@@ -595,10 +595,10 @@ Extend the User model to include user preferences and metadata (quiz question co
   - Update login flow to fetch user preferences
 
 #### Acceptance Criteria
-- [ ] User model includes preferences and last connection date
-- [ ] Last connection updates on each login
-- [ ] Preferences can be retrieved and updated via API
-- [ ] Existing users migrated with default preferences
+- [x] User model includes preferences and last connection date
+- [x] Last connection updates on each login
+- [x] Preferences can be retrieved and updated via API
+- [x] Existing users migrated with default preferences
 - [x] Frontend state includes user preferences
 
 ---
@@ -723,10 +723,10 @@ Ensure that user preferences (Language, Theme) are immediately applied upon logi
     - Ensure the new user's initial stored preferences match what they were seeing when they clicked "Create".
 
 #### Acceptance Criteria
-- [ ] Login immediately switches theme/language to user's saved preference
-- [ ] Creating a new user saves the currently active theme/language as their default
-- [ ] Verified manual test: Change theme on landing page -> Create User -> Check Profile -> Theme matches
-- [ ] Verified manual test: Login as User A (Theme X) -> Logout -> Login as User B (Theme Y) -> Theme switches to Y
+- [x] Login immediately switches theme/language to user's saved preference
+- [x] Creating a new user saves the currently active theme/language as their default
+- [x] Verified manual test: Change theme on landing page -> Create User -> Check Profile -> Theme matches
+- [x] Verified manual test: Login as User A (Theme X) -> Logout -> Login as User B (Theme Y) -> Theme switches to Y
 
 ---
 
@@ -1438,11 +1438,11 @@ Implement a complete internationalization system supporting English and French, 
   ```
 
 #### Acceptance Criteria
-- [ ] All UI text comes from translation files (no hardcoded strings)
-- [ ] Users can switch between English and French
-- [ ] Language preference persists across sessions
-- [ ] Browser language auto-detected on first visit
-- [ ] All pages and components fully translated
+- [x] All UI text comes from translation files (no hardcoded strings)
+- [x] Users can switch between English and French
+- [x] Language preference persists across sessions
+- [x] Browser language auto-detected on first visit
+- [x] All pages and components fully translated
 - [ ] Date/time formatting respects selected language
 
 ---
@@ -1513,16 +1513,16 @@ Allow users to select their preferred Wikipedia categories for article filtering
   - Default state for new users: All categories checked (loaded from API)
 
 #### Acceptance Criteria
-- [ ] Categories loaded from seed data via API
-- [ ] User preferences include selected categories list (IDs)
-- [ ] New users have ALL categories selected by default
-- [ ] Users can check/uncheck categories in Preferences page
-- [ ] At least one category must remain selected
-- [ ] "Select All" and "Deselect All" buttons work correctly
-- [ ] Changes save successfully to backend
-- [ ] Category selection persists across sessions
-- [ ] Category names displayed in correct language (EN/FR)
-- [ ] Validation prevents selecting non-existent categories
+- [x] Categories loaded from seed data via API
+- [x] User preferences include selected categories list (IDs)
+- [x] New users have ALL categories selected by default
+- [x] Users can check/uncheck categories in Preferences page
+- [x] At least one category must remain selected
+- [x] "Select All" and "Deselect All" buttons work correctly
+- [x] Changes save successfully to backend
+- [x] Category selection persists across sessions
+- [x] Category names displayed in correct language (EN/FR)
+- [x] Validation prevents selecting non-existent categories
 
 ---
 

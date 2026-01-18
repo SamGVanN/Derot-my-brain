@@ -164,13 +164,13 @@ This document tracks the implementation status of features defined in the Functi
   - **Completed Date:** 2026-01-18
   - **Roadmap Task:** 2.1
 
-- [x] **User Preferences Page**: Dedicated settings page
+- [ ] **User Preferences Page**: Dedicated settings page
   - [x] Configure quiz question count
   - [x] Select theme
   - [x] Select language
   - [] Future: difficulty, etc.
-  - **Status:** Completed
-  - **Completed Date:** 2026-01-18
+  - **Status:** En cours (Code cleanup required: remove 'any' types)
+  - **Completed Date:** 
   - **Roadmap Task:** 2.2
 
 - [ ] **LLM Configuration UI**: LLM setup in preferences
@@ -464,23 +464,23 @@ This document tracks the implementation status of features defined in the Functi
 - [x] Clear UX for temporary vs. persistent changes
 
 **Third Bucket List (bucket-list.md - 2026-01-18):**
-- [x] User profile with editable display name (Task 4.2)
+- [ ] User profile with editable display name (Task 4.2)
 - [x] Unique user ID preserved on name change (already implemented)
-- [x] Account deletion with confirmation modal (Task 4.2)
-- [x] LLM configuration UI in preferences (Task 2.3)
-- [x] LLM URL/port configuration with validation (Task 2.3)
-- [x] Activity calendar (GitLab-style) in history (Task 3.3)
-- [x] Best personal score display (Task 3.3)
-- [x] Header authentication state changes (Task 4.1)
-- [x] User menu dropdown when authenticated (Task 4.1)
-- [x] Settings button in header (Task 4.1)
-- [x] Logo clickable → home (Task 4.1)
+- [ ] Account deletion with confirmation modal (Task 4.2)
+- [ ] LLM configuration UI in preferences (Task 2.3)
+- [ ] LLM URL/port configuration with validation (Task 2.3)
+- [ ] Activity calendar (GitLab-style) in history (Task 3.3)
+- [ ] Best personal score display (Task 3.3)
+- [ ] Header authentication state changes (Task 4.1)
+- [ ] User menu dropdown when authenticated (Task 4.1)
+- [ ] Settings button in header (Task 4.1)
+- [ ] Logo clickable → home (Task 4.1)
 - [x] Authenticated home = history page (Task 4.1)
-- [x] LLM resource estimation (CPU/RAM) (Task 5.3)
-- [x] Processing time estimates (Task 5.3)
-- [x] Cross-platform deployment (Windows/macOS/Linux) (Phase 9)
-- [x] No terminal commands required for end users (Phase 9)
-- [x] User-friendly installers (Phase 9)
+- [ ] LLM resource estimation (CPU/RAM) (Task 5.3)
+- [ ] Processing time estimates (Task 5.3)
+- [ ] Cross-platform deployment (Windows/macOS/Linux) (Phase 9)
+- [ ] No terminal commands required for end users (Phase 9)
+- [ ] User-friendly installers (Phase 9)
 
 ### 📋 Implementation Details
 All features from the bucket list have been broken down into specific tasks in the **Implementation-Roadmap.md** document. Each task includes:
