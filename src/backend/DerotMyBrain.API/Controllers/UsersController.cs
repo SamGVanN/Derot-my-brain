@@ -33,6 +33,17 @@ namespace DerotMyBrain.API.Controllers
             var user = await _userService.CreateOrGetUserAsync(request.Name);
             return Ok(user);
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(string id)
+        {
+            var user = await _userService.GetUserByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
     }
 
     public class CreateUserRequest

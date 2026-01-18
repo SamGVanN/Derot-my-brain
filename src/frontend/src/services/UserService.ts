@@ -21,6 +21,11 @@ export const UserService = {
         return response.data;
     },
 
+    getUserById: async (id: string): Promise<User> => {
+        const response = await api.get<User>(`/users/${id}`);
+        return response.data;
+    },
+
     getHistory: async (userId: string): Promise<UserActivity[]> => {
         const response = await api.get<UserActivity[]>(`/users/${userId}/history`);
         return response.data;

@@ -42,5 +42,11 @@ namespace DerotMyBrain.API.Services
 
             return newUser;
         }
+
+        public async Task<User?> GetUserByIdAsync(string id)
+        {
+            var data = await _userRepository.GetAsync(UsersFileName);
+            return data.Users.FirstOrDefault(u => u.Id == id);
+        }
     }
 }

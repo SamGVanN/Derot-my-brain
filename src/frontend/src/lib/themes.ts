@@ -39,19 +39,7 @@ export type Theme = {
   };
 };
 
-const sharedColors = {
-  // Default sidebar colors if not specified
-  sidebar: {
-    background: "#0F172A",
-    foreground: "#F8FAFC",
-    border: "#1E293B",
-    accent: "#1E293B",
-    "accent-foreground": "#F8FAFC",
-    primary: "#3B82F6",
-    "primary-foreground": "#FFFFFF",
-    ring: "#3B82F6",
-  }
-}
+
 
 export const themes: Record<string, Theme> = {
   "curiosity-loop": {

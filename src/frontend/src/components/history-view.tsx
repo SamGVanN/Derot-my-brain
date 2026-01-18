@@ -35,40 +35,40 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ user }) => {
     if (error) return <div className="p-4 text-red-500">{error}</div>;
 
     return (
-        <div className="p-6 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 shadow-2xl">
-            <h2 className="text-2xl font-bold mb-6 text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+        <div className="p-6 bg-card/50 backdrop-blur-md rounded-xl border border-border shadow-2xl">
+            <h2 className="text-2xl font-bold mb-6 text-foreground">
                 Your Learning Journey
             </h2>
 
             {history.length === 0 ? (
-                <p className="text-white/60 italic text-center py-8">No activities recorded yet. Start exploring!</p>
+                <p className="text-muted-foreground italic text-center py-8">No activities recorded yet. Start exploring!</p>
             ) : (
                 <div className="space-y-4">
                     {history.map((activity) => (
                         <div
                             key={activity.id}
-                            className="p-4 rounded-lg bg-white/5 border border-white/5 hover:border-white/20 transition-all group"
+                            className="p-4 rounded-lg bg-muted/40 border border-border/50 hover:border-border transition-all group"
                         >
                             <div className="flex justify-between items-start mb-1">
-                                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
                                     {activity.activityType}
                                 </span>
-                                <span className="text-xs text-white/40 group-hover:text-white/60 transition-colors">
+                                <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
                                     {new Date(activity.timestamp).toLocaleString()}
                                 </span>
                             </div>
-                            <p className="text-white/90 font-medium">
+                            <p className="text-foreground font-medium">
                                 {activity.description}
                             </p>
                             {activity.score !== undefined && activity.score !== null && (
                                 <div className="mt-2 flex items-center gap-2">
-                                    <div className="h-1.5 flex-1 bg-white/10 rounded-full overflow-hidden">
+                                    <div className="h-1.5 flex-1 bg-muted rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-gradient-to-r from-green-400 to-emerald-500"
                                             style={{ width: `${activity.score}%` }}
                                         />
                                     </div>
-                                    <span className="text-sm font-bold text-green-400">{activity.score}%</span>
+                                    <span className="text-sm font-bold text-green-500">{activity.score}%</span>
                                 </div>
                             )}
                         </div>
