@@ -31,7 +31,77 @@ Application web locale destinée à stimuler la curiosité et l'apprentissage ac
 - Identification utilisateur **simple**
 - Architecture simple, maintenable, évolutive
 
-## 1.2 Parcours utilisateur global
+## 1.2 Stack technique
+
+- **Backend** : ASP.NET Core Web API, C# 13
+- **Frontend** : React 18 + TypeScript, Vite, shadcn/ui, Tailwind CSS
+- **LLM** : Ollama (local) ou AnythingLLM
+- **Stockage** : Fichiers JSON locaux
+- **Pas de base de données SQL**
+
+---
+
+## 1.2.1 Contraintes Techniques de Stockage ⚠️
+
+### Règle Fondamentale : JSON Uniquement pour le POC/V1
+
+**Obligatoire :**
+- ✅ Fichiers JSON stockés localement dans `/data/`
+- ✅ Application autonome, déployable localement
+- ✅ Fonctionne hors ligne sans dépendances externes
+
+**Interdit :**
+- ❌ SQL Server, PostgreSQL, MySQL (nécessitent installation/serveur externe)
+- ❌ Bases de données cloud (nécessitent connexion internet)
+- ❌ Toute dépendance nécessitant configuration utilisateur (connection string, etc.)
+
+### Alternatives Acceptables (Si Complexité le Nécessite)
+
+Si un agent IA détecte que les fichiers JSON deviennent insuffisants, **UNIQUEMENT** les alternatives suivantes sont acceptables :
+
+1. **SQLite** ✅
+   - Base de données embarquée (fichier unique)
+   - Aucune installation requise
+   - Fonctionne hors ligne
+   - Gérée de façon autonome par l'application
+
+2. **LiteDB** ✅ (Recommandé pour .NET)
+   - Base de données NoSQL embarquée
+   - DLL unique, aucune installation
+   - Fonctionne hors ligne
+   - Natif .NET
+
+3. **RavenDB Embedded** ✅
+   - Base de données NoSQL embarquée
+   - Aucune installation requise
+   - Fonctionne hors ligne
+
+### Justification
+
+L'application "Derot My Brain" doit être :
+- **Portable** : Copier/coller le dossier suffit pour déployer
+- **Autonome** : Aucune dépendance externe à installer
+- **Offline-first** : Fonctionne sans connexion internet
+- **Simple** : Pas de configuration complexe pour l'utilisateur
+
+### Structure de Stockage
+
+```
+/data/
+├── seed/                          # Données de référence immuables
+│   ├── categories.json            # 13 catégories Wikipedia
+│   └── themes.json                # 5 thèmes de couleurs
+├── config/                        # Configuration globale
+│   └── app-config.json            # URL LLM, paramètres globaux
+└── users/                         # Données utilisateurs
+    ├── users.json                 # Profils et préférences
+    ├── user-{id}-history.json     # Historique par utilisateur
+    └── user-{id}-backlog.json     # Backlog par utilisateur
+```
+
+---
+
+## 1.3 Parcours utilisateur global
 
 - Page d'identification
 - Sélection des axes d'intérêt
@@ -40,7 +110,70 @@ Application web locale destinée à stimuler la curiosité et l'apprentissage ac
 - Résultats
 - Historique & backlog
 
-## 1.3 Fonctionnalités détaillées (ordre d'implémentation)
+## 1.4 Fonctionnalités détaillées (ordre d'implémentation)
+
+### 1.4.0 Initialisation de l'application et configuration
+
+**Description**
+
+Système d'initialisation de l'application au premier démarrage, incluant les données de référence (seed data) et la configuration globale.
+
+**Données de référence (Seed Data)**
+
+Données immuables déployées avec l'application :
+
+1. **Catégories Wikipedia** (13 catégories officielles)
+   - Stockées dans `/data/seed/categories.json`
+   - Chaque catégorie contient :
+     - ID unique (ex: "culture-arts")
+     - Nom en anglais (ex: "Culture and the arts")
+     - Nom en français (ex: "Culture et arts")
+     - Ordre d'affichage
+   - Initialisées au premier démarrage
+   - Immuables (ne peuvent pas être modifiées par les utilisateurs)
+
+2. **Thèmes** (5 palettes de couleurs)
+   - Stockées dans `/data/seed/themes.json`
+   - Chaque thème contient :
+     - ID unique (ex: "derot-brain")
+     - Nom (ex: "Derot Brain")
+     - Description
+     - Indicateur de thème par défaut
+   - Thèmes disponibles :
+     - Curiosity Loop (Dark/Blue)
+     - Derot Brain (Dark/Violet) - **Par défaut**
+     - Knowledge Core (Dark/Cyan)
+     - Mind Lab (Dark/Teal)
+     - Neo-Wikipedia (Light/Blue)
+
+**Configuration globale**
+
+Configuration partagée entre tous les utilisateurs :
+
+- **Configuration LLM** :
+  - URL du serveur LLM (ex: "http://localhost:11434")
+  - Port (ex: 11434)
+  - Provider (Ollama, AnythingLLM, OpenAI)
+  - Modèle par défaut (ex: "llama3:8b")
+  - Timeout en secondes
+- Stockée dans `/data/config/app-config.json`
+- Modifiable via API (endpoints admin)
+- Valeurs par défaut créées au premier démarrage
+
+**Processus d'initialisation**
+
+1. Vérification de l'existence des données de référence
+2. Si absentes, initialisation depuis les fichiers seed
+3. Vérification de la configuration globale
+4. Si absente, création avec valeurs par défaut
+5. Journalisation du statut d'initialisation
+
+**Règles**
+
+- Initialisation idempotente (peut être exécutée plusieurs fois sans duplication)
+- Seed data immuable (pas de modification/suppression par utilisateurs)
+- Configuration globale modifiable uniquement via API
+- Validation des données lors de l'initialisation
 
 ### 1.3.1 Identification utilisateur
 
@@ -59,6 +192,10 @@ Permet d'identifier l'utilisateur sans authentification lourde.
 - Le nom est l'unique identifiant
 - Création automatique si le nom n'existe pas
 - Persistance dans un fichier local
+- **Session persistante** : L'utilisateur reste connecté après rafraîchissement de la page
+  - Session stockée en localStorage/sessionStorage
+  - Validation de session au démarrage de l'application
+  - Redirection vers login uniquement si session invalide
 
 **Données stockées**
 
@@ -66,8 +203,14 @@ Permet d'identifier l'utilisateur sans authentification lourde.
 {
   "users": [
     {
+      "id": "unique-guid",
       "name": "Alex",
-      "createdAt": "2026-01-10"
+      "createdAt": "2026-01-10",
+      "lastConnectionAt": "2026-01-18",
+      "preferences": {
+        "questionCount": 10,
+        "preferredTheme": "derot-brain"
+      }
     }
   ]
 }
@@ -75,20 +218,154 @@ Permet d'identifier l'utilisateur sans authentification lourde.
 
 
 
-### 1.3.2 Sélection des axes d'intérêt
+### 1.3.2 Page d'accueil pour nouveaux utilisateurs
 
-**Axes disponibles**
+**Description**
 
-- Histoire / Géographie
-- Sciences
-- Économie
-- Arts
+Page affichée lors de la première visite d'un utilisateur pour expliquer le fonctionnement de l'application.
 
-**Comportement**
+**Fonctionnement**
 
-- Sélection **multi-choix**
-- Les axes sélectionnés influencent le choix de la page Wikipédia
-- Option "aucun filtre" possible (aléatoire total)
+- Détection automatique des nouveaux utilisateurs (via localStorage ou cookie)
+- Affichage d'un message de bienvenue
+- Trois options proposées :
+  1. **"Lire le guide"** : Affiche un guide détaillé expliquant l'application
+  2. **"Utiliser l'application"** : Passe directement à l'application
+  3. **"Ne plus afficher"** : Passe à l'application et enregistre la préférence
+
+**Contenu du guide**
+
+- Objectif de l'application (apprentissage actif via Wikipédia)
+- Fonctionnalités principales :
+  - Lecture d'articles Wikipédia
+  - Génération de quiz par IA
+  - Historique des activités
+  - Backlog personnel
+- Explication "pour les nuls" (langage simple, visuel)
+- Accessible ultérieurement depuis le menu d'aide
+
+**Règles**
+
+- Préférence stockée en localStorage : `hasSeenWelcome`
+- Guide accessible à tout moment depuis le menu
+- Design cohérent avec le système de thèmes
+
+
+### 1.3.2a Internationalisation (i18n)
+
+**Description**
+
+Système de traduction complet permettant l'utilisation de l'application en anglais et en français.
+
+**Fonctionnement**
+
+- **Fichiers de ressources** : Tous les textes de l'interface stockés dans des fichiers JSON
+  - `/src/locales/en.json` - Traductions anglaises
+  - `/src/locales/fr.json` - Traductions françaises
+- **Détection automatique** : Langue du navigateur détectée au premier lancement
+- **Sélection manuelle** : Choix de la langue dans les préférences utilisateur
+- **Persistance** : Préférence de langue sauvegardée dans les données utilisateur
+
+**Contenu traduit**
+
+- Menu de navigation
+- Titres et en-têtes de pages
+- Libellés de boutons
+- Libellés et placeholders de formulaires
+- Messages d'erreur
+- Tooltips et textes d'aide
+- Contenu de la page d'accueil
+- Contenu du guide
+
+**Structure des fichiers de traduction**
+
+```json
+{
+  "nav": {
+    "derot": "Derot",
+    "history": "Historique",
+    "backlog": "Backlog",
+    "profile": "Profil",
+    "preferences": "Préférences",
+    "guide": "Guide",
+    "logout": "Déconnexion"
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "confirm": "Confirmer"
+  }
+  // ... etc
+}
+```
+
+**Règles**
+
+- Aucun texte codé en dur dans les composants
+- Format de date/heure adapté à la langue sélectionnée
+- Langue par défaut : détection automatique ou français
+- Changement de langue immédiat (pas de rechargement de page)
+
+
+### 1.3.3 Préférences de catégories Wikipedia
+
+**Description**
+
+Système permettant aux utilisateurs de sélectionner leurs catégories Wikipedia préférées pour filtrer la sélection d'articles. Pas de profils nommés - juste une liste simple de catégories cochables dans les préférences.
+
+**Catégories disponibles**
+
+Liste des **13 catégories officielles Wikipedia** :
+1. General reference (Référence générale)
+2. Culture and the arts (Culture et arts)
+3. Geography and places (Géographie et lieux)
+4. Health and fitness (Santé et forme)
+5. History and events (Histoire et événements)
+6. Human activities (Activités humaines)
+7. Mathematics and logic (Mathématiques et logique)
+8. Natural and physical sciences (Sciences naturelles et physiques)
+9. People and self (Personnes et soi)
+10. Philosophy and thinking (Philosophie et pensée)
+11. Religion and belief systems (Religion et systèmes de croyance)
+12. Society and social sciences (Société et sciences sociales)
+13. Technology and applied sciences (Technologie et sciences appliquées)
+
+**Configuration par défaut**
+
+Pour les nouveaux utilisateurs, **TOUTES les 13 catégories sont cochées** par défaut.
+- L'utilisateur peut décocher les catégories qui ne l'intéressent pas
+- Au moins une catégorie doit rester cochée
+- Les préférences sont sauvegardées dans les données utilisateur
+
+**Gestion des catégories**
+
+- Accessible depuis la page **Préférences**
+- Section dédiée : "Catégories Wikipedia"
+- Interface :
+  - 13 cases à cocher (une par catégorie)
+  - Compteur : "X/13 catégories sélectionnées"
+  - Boutons "Tout sélectionner" / "Tout désélectionner"
+  - Bouton "Enregistrer" pour sauvegarder
+- Validation :
+  - Au moins une catégorie doit être cochée
+  - Message d'erreur si tentative de tout décocher
+
+**Utilisation sur la page Derot**
+
+- Section de filtrage en haut de la page
+- Affichage des catégories sélectionnées depuis les préférences
+- Modifications temporaires possibles (voir section 1.3.13 pour détails)
+- Filtrage des articles Wikipedia selon les catégories cochées
+
+**Règles**
+
+- Nouveaux utilisateurs : Toutes les catégories cochées par défaut
+- Au moins une catégorie doit rester cochée
+- Catégories sauvegardées dans les préférences utilisateur
+- Catégories synchronisées entre sessions
+- Les 13 catégories sont fixes (provenant de l'API Wikipedia)
 
 ### 1.3.3 Sélection et affichage d'un article Wikipédia
 
@@ -116,11 +393,16 @@ Bouton **"Passer au quiz"**
 
 **Comportement**
 
-- Génération de **5 questions** liées au contenu de l'article
+- Génération de **questions configurables** (5, 10, 15 ou 20) liées au contenu de l'article
+  - Nombre de questions défini dans les préférences utilisateur
+  - Valeur par défaut : 10 questions
 - Questions générées à la volée (non stockées)
 - Types de questions :
   - Réponses courtes (texte libre)
   - Faits précis (dates, concepts, définitions simples)
+- **Informations LLM enregistrées** :
+  - Nom du modèle utilisé (ex: "llama3:8b")
+  - Version du modèle
 
 ### 1.3.5 Quiz - déroulement
 
@@ -141,74 +423,340 @@ Bouton **"Passer au quiz"**
 
 **Affichage**
 
-- Score global (ex : 3 / 5)
+- Score global avec notation **X/Y (Z%)** 
+  - X = nombre de réponses correctes
+  - Y = nombre total de questions (5, 10, 15 ou 20)
+  - Z = pourcentage calculé : (X / Y) × 100
+  - Exemple : 7/10 (70%)
 - Pour chaque question :
   - Réponse utilisateur
   - Réponse attendue "idéale"
+  - Indication correct/incorrect
+- **Informations LLM** : Modèle utilisé pour générer le quiz (affiché au survol ou dans les détails)
 
 **Actions possibles**
 
 - Bouton **"Ajouter au backlog"**
 - Bouton **"Retour accueil"**
+- Bouton **"Nouvel article"**
 
 ### 1.3.7 Historique utilisateur
 
 **Description**
 
-Liste chronologique des sujets consultés par l'utilisateur.
+Liste chronologique des sujets consultés par l'utilisateur avec suivi détaillé des performances.
 
 **Champs affichés**
 
 - Sujet (titre de la page Wikipédia)
 - Date de première consultation
-- Dernier score obtenu
+- Date de dernière tentative
+- **Dernier score** : X/Y (Z%) - Score de la dernière tentative
+- **Meilleur score** : X/Y (Z%) - Meilleur score obtenu toutes tentatives confondues
+- **Modèle LLM utilisé** : Affiché au survol ou dans les détails (ex: "llama3:8b v1.0")
+- **Indicateur backlog** : Icône 📖 si l'article est dans le backlog
 
 **Actions**
 
+- Clic sur le sujet : Relancer un quiz sur cet article
 - Bouton **"Ajouter au backlog"** (si non déjà présent)
+- Icône backlog cliquable pour accéder directement au backlog
+
+**Fonctionnalités supplémentaires**
+
+- Tri par : date, score, titre
+- Filtrage : tous / dans le backlog / hors backlog
+- Recherche par titre d'article
 
 ### 1.3.8 Backlog utilisateur
 
 **Description**
 
-Liste de sujets à retravailler ultérieurement.
+Page dédiée listant les sujets que l'utilisateur souhaite retravailler ultérieurement.
+
+**Affichage**
+
+- Grille ou liste des articles en backlog
+- Pour chaque article :
+  - Titre de la page Wikipédia
+  - Date d'ajout au backlog
+  - Date de dernière tentative (si applicable)
+  - Meilleur score obtenu (si déjà tenté) : X/Y (Z%)
+  - Actions : "Démarrer le quiz", "Retirer du backlog"
+- Message d'état vide si aucun article dans le backlog
+- Fonctionnalités de recherche et filtrage
 
 **Règles**
 
 - Contient uniquement :
   - Titre de la page Wikipédia
   - Lien / identifiant de la page
+  - Métadonnées (dates, scores)
 - **Aucune question stockée**
 - À chaque nouvelle tentative :
-  - Questions régénérées
+  - Questions régénérées par le LLM
   - Nouveau quiz indépendant
+- Accessible depuis :
+  - Menu de navigation principal
+  - Page d'historique (via icône backlog)
+  - Page Derot (bouton "Ajouter au backlog")
 
 ### 1.3.9 Persistance des données
 
 **Contraintes**
 
 - Pas de SQL
-- Fichiers locaux
+- Fichiers locaux (JSON)
+- Un fichier par utilisateur pour l'historique
 
-**Structure possible**
+**Structure complète**
 
+**Fichier utilisateurs** (`users.json`):
 ```json
 {
-  "user": "Alex",
-  "history": [
+  "users": [
     {
-      "topic": "Révolution française",
-      "firstSeen": "2026-01-10",
-      "lastScore": 4
+      "id": "unique-guid",
+      "name": "Alex",
+      "createdAt": "2026-01-10",
+      "lastConnectionAt": "2026-01-18",
+      "preferences": {
+        "questionCount": 10,
+        "preferredTheme": "derot-brain"
+      }
     }
-  ],
-  "backlog": [
-    "Physique quantique"
   ]
 }
 ```
 
-### 1.3.10 Interface Utilisateur & Thèmes
+**Fichier historique utilisateur** (`user-{id}-history.json`):
+```json
+{
+  "userId": "unique-guid",
+  "activities": [
+    {
+      "id": "activity-guid",
+      "topic": "Révolution française",
+      "wikipediaUrl": "https://fr.wikipedia.org/wiki/Révolution_française",
+      "firstAttemptDate": "2026-01-10",
+      "lastAttemptDate": "2026-01-15",
+      "lastScore": 7,
+      "bestScore": 9,
+      "totalQuestions": 10,
+      "llmUsed": {
+        "modelName": "llama3:8b",
+        "version": "v1.0"
+      },
+      "isInBacklog": true
+    }
+  ]
+}
+```
+
+### 1.3.10 Navigation et structure des pages
+
+**Menu de navigation principal**
+
+- Accessible depuis toutes les pages de l'application
+- Options de navigation :
+  - **Derot** : Page principale (lecture + quiz)
+  - **Historique** : Historique des activités
+  - **Backlog** : Articles sauvegardés
+  - **Profil** : Informations utilisateur
+  - **Préférences** : Paramètres utilisateur
+  - **Guide** : Aide et guide d'utilisation
+  - **Déconnexion** : Retour à la page de login
+- Design responsive (sidebar sur desktop, hamburger menu sur mobile)
+- Indication visuelle de la page active
+
+### 1.3.11 Page Profil utilisateur
+
+**Description**
+
+Page affichant les informations de l'utilisateur avec possibilité de modification.
+
+**Informations affichées**
+
+- **Nom** : Modifiable
+- **ID utilisateur** : Lecture seule
+- **Date de création du compte** : Lecture seule
+- **Dernière connexion** : Lecture seule
+- **Statistiques** :
+  - Nombre total d'activités
+  - Nombre d'articles dans le backlog
+  - Score moyen
+  - Meilleur score global
+
+**Fonctionnalités**
+
+- Mode édition pour modifier le nom
+- Boutons "Enregistrer" / "Annuler" en mode édition
+- Validation du nom (non vide, longueur max)
+- Lien vers la page de préférences
+- Bouton d'export des données
+
+### 1.3.12 Page Préférences utilisateur
+
+**Description**
+
+Page dédiée à la configuration des paramètres utilisateur.
+
+**Paramètres disponibles**
+
+**Paramètres de quiz**
+- **Nombre de questions** : Sélection entre 5, 10, 15 ou 20
+  - Boutons radio ou menu déroulant
+  - Valeur par défaut : 10
+  - Indication visuelle de la sélection actuelle
+
+**Paramètres d'interface**
+- **Thème** : Sélecteur de thème (réutilisation du composant existant)
+- Prévisualisation du thème sélectionné
+
+**Paramètres futurs** (placeholders)
+- Difficulté des questions
+- Langue de l'interface
+- Notifications
+
+**Actions**
+- Bouton "Enregistrer" : Sauvegarde les préférences
+- Bouton "Annuler" : Annule les modifications
+- Notification de succès/erreur après sauvegarde
+
+### 1.3.13 Page Derot (Lecture et Quiz)
+
+**Description**
+
+Page principale de l'application où l'utilisateur lit des articles Wikipédia et passe des quiz.
+
+**Filtrage par catégories**
+
+- **Section de filtrage des catégories** en haut de la page :
+  - Affichage des catégories sélectionnées depuis les préférences utilisateur
+  - Cases à cocher ou chips/badges pour chaque catégorie
+  - Compteur : "X/13 catégories sélectionnées"
+
+- **Comportement du filtre selon le contexte** :
+  - **Nouvelle activité** (au chargement initial de la page) :
+    - Catégories chargées depuis les préférences utilisateur
+    - Utilisateur peut modifier la sélection temporairement
+    - Modifications **non sauvegardées** sauf si bouton "Sauvegarder" cliqué
+    - Indicateur visuel : "⚠️ Modifications temporaires (non sauvegardées)"
+  
+  - **Activité depuis Backlog/Historique** :
+    - Filtre de catégories **masqué ou désactivé** (grisé)
+    - Message affiché : "Filtre de catégories non disponible lors du retravail d'un article"
+    - Impossible de modifier les catégories
+  
+  - **Après clic sur "Recycler"** :
+    - Filtre de catégories **réactivé**
+    - **Toutes les catégories décochées** (reset complet)
+    - Utilisateur doit re-sélectionner des catégories ou cliquer sur "Charger depuis préférences"
+
+- **Modifications temporaires** :
+  - Cases à cocher pour les 13 catégories
+  - Sélection actuelle mise en évidence
+  - Compteur : "X/13 catégories sélectionnées"
+  - **Indicateur d'avertissement** quand différent des préférences sauvegardées
+  - **Bouton "Sauvegarder dans préférences"** apparaît si modifications :
+    - Clic ouvre modale de confirmation :
+      - "Sauvegarder ces X catégories dans vos préférences ?"
+      - "Cela mettra à jour votre sélection par défaut de catégories"
+      - Options : "Sauvegarder", "Annuler"
+  - **Bouton "Charger depuis préférences"** :
+    - Recharge les catégories depuis les préférences utilisateur
+    - Annule les modifications temporaires
+  - **Bouton "Reset"** :
+    - Décoche TOUTES les catégories
+    - Disponible uniquement pour nouvelle activité (pas depuis backlog/historique)
+
+**Zone de lecture**
+
+- Affichage de l'article Wikipédia (contenu principal)
+- Rendu markdown du contenu
+- Titre de l'article bien visible
+- Boutons d'action :
+  - **"Recycler"** : 
+    - Charge un nouvel article sans sauvegarder
+    - **Réinitialise le filtre** (décoche toutes les catégories)
+    - Réactive le filtre de catégories
+  - **"Ajouter au backlog"** : Sauvegarder l'article pour plus tard
+  - **"Démarrer le quiz"** : Lancer le quiz sur cet article
+
+**Accès rapide**
+
+- Sidebar ou drawer pour accéder à :
+  - Historique (modal/drawer)
+  - Backlog (modal/drawer)
+- **Préservation de l'état** : L'article en cours reste chargé lors de la consultation de l'historique/backlog
+- Possibilité de fermer le drawer et revenir à l'article
+
+**Zone de quiz**
+
+- Affichage des questions (une par une ou toutes ensemble selon préférence)
+- Champ de saisie pour chaque réponse
+- Indicateur de progression (Question X/Y)
+- Bouton "Soumettre" pour valider les réponses
+- Affichage des résultats après soumission
+
+**Règles importantes**
+
+- L'article n'est sauvegardé dans l'historique **que si au moins une réponse est soumise**
+- Le bouton "Recycler" ne sauvegarde rien ET réinitialise le filtre (décoche toutes les catégories)
+- Le filtre est désactivé/masqué quand on retravaille un article du backlog/historique
+- Au moins une catégorie doit être sélectionnée pour charger un article
+- L'utilisateur est informé de ces règles via tooltips et guide
+
+**Tooltips et aide contextuelle**
+
+- "Recycler" : "Charger un nouvel article sans sauvegarder celui-ci (décoche toutes les catégories)"
+- "Ajouter au backlog" : "Sauvegarder cet article pour le revoir plus tard"
+- "Démarrer le quiz" : "Commencer le quiz (l'article sera sauvegardé dans l'historique)"
+- "Sauvegarder dans préférences" : "Sauvegarder cette sélection de catégories comme défaut"
+- "Charger depuis préférences" : "Recharger les catégories sauvegardées"
+- "Reset" : "Décocher toutes les catégories"
+- Icône d'aide (?) pour plus d'informations
+
+### 1.3.14 Export des données utilisateur
+
+**Description**
+
+Fonctionnalité permettant à l'utilisateur d'exporter toutes ses données au format JSON.
+
+**Données exportées**
+
+- **Profil utilisateur** : ID, nom, dates, préférences
+- **Backlog** : Liste complète des articles sauvegardés
+- **Historique** (optionnel) : Toutes les activités avec scores et détails
+
+**Interface**
+
+- Bouton "Exporter mes données" dans la page Profil ou Préférences
+- Modal de confirmation avec options :
+  - Checkbox "Inclure l'historique complet"
+  - Bouton "Télécharger"
+  - Bouton "Annuler"
+- Génération d'un fichier JSON téléchargeable
+- Nom du fichier : `derot-export-{username}-{date}.json`
+
+**Format d'export**
+
+```json
+{
+  "exportDate": "2026-01-18T12:00:00Z",
+  "user": {
+    "id": "...",
+    "name": "...",
+    "createdAt": "...",
+    "lastConnectionAt": "...",
+    "preferences": { ... }
+  },
+  "backlog": [ ... ],
+  "history": [ ... ] // Optionnel
+}
+```
+
+### 1.3.15 Interface Utilisateur & Thèmes
 
 **Système de thèmes**
 
@@ -343,6 +891,7 @@ Puis :
 ➡️ Simple  
 ➡️ Robuste  
 ➡️ Pas besoin d'embeddings complexes en V1
+➡️ 5 questions -> note sur 5
 
 ### 2.6 Stack finale recommandée (V1)
 

@@ -1,14 +1,22 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserService } from '../services/UserService';
+import type { User } from '../models/User';
 import { Layout } from '@/components/Layout';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { User, ArrowRight, Loader2 } from 'lucide-react';
+import { User as UserIcon, ArrowRight, Loader2 } from 'lucide-react';
 
-export default function UserSelectionPage() {
+
+interface UserSelectionPageProps {
+    onUserSelected: (user: User) => void;
+}
+
+export default function UserSelectionPage({ onUserSelected }: UserSelectionPageProps) {
+
     const [username, setUsername] = useState('');
     const queryClient = useQueryClient();
 
@@ -22,9 +30,9 @@ export default function UserSelectionPage() {
     const mutation = useMutation({
         mutationFn: UserService.createOrSelectUser,
         onSuccess: (user) => {
-            // In a real app, we would set the user in a global context here
-            alert(`Welcome, ${user.name}!`);
+            onUserSelected(user);
             // Refetch users list
+
             queryClient.invalidateQueries({ queryKey: ['users'] });
             setUsername('');
         },
@@ -98,8 +106,9 @@ export default function UserSelectionPage() {
                                             onClick={() => handleUserClick(user.name)}
                                         >
                                             <div className="p-1 bg-muted rounded-full mr-3 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                                <User className="h-4 w-4" />
+                                                <UserIcon className="h-4 w-4" />
                                             </div>
+
                                             {user.name}
                                         </Button>
                                     ))}

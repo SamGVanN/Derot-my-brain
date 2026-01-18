@@ -31,9 +31,11 @@ namespace DerotMyBrain.API.Services
 
             var newUser = new User
             {
+                Id = Guid.NewGuid().ToString(),
                 Name = name,
                 CreatedAt = DateTime.UtcNow
             };
+
 
             data.Users.Add(newUser);
             await _userRepository.SaveAsync(UsersFileName, data);

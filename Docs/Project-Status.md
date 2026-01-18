@@ -1,28 +1,391 @@
 # Project Status and Roadmap
 
 ## Overview
-This document tracks the implementation status of features defined in the Functional Specifications and verifies alignment with the project goals.
+This document tracks the implementation status of features defined in the Functional Specifications and the feature bucket list. It provides a high-level view of what's completed, in progress, and planned.
 
-## Core Features Status
+**Last Updated:** 2026-01-18
 
-### 1. User Management
-- [x] **User Identification**: Simple login screen asking for a name.
-- [x] **Profile Selection**: Display list of existing users.
-- [ ] **History & Progress**: Tracking individual user progress (Database implemented, UI pending).
+---
 
-### 2. Content & Knowledge
-- [ ] **Wikipedia Article Fetching**: Integration with Wikipedia API.
-- [ ] **Quiz Generation**: LLM integration to generate questions.
-- [ ] **Spaced Repetition System**: Algorithm to schedule reviews.
+## Current Implementation Status
 
-### 3. User Interface (UI/UX)
-- [x] **Project Structure**: Frontend (React/Vite) and Backend (.NET) initialized.
-- [x] **Theme System**: Dynamic switching between 5 themes (Curiosity Loop, Derot Brain, Knowledge Core, Mind Lab, Neo-Wikipedia).
-- [x] **Theme Persistence**: Save user preference.
-- [ ] **Responsive Design**: Ensure mobile compatibility (ongoing).
+### ✅ Completed Features
 
-## Backlog
-- [ ] Implement Backend Service for Wikipedia API.
-- [ ] Implement LLM Service (Ollama/OpenAI) for Quiz Generation.
-- [ ] Create "Learn" mode UI (Reading + Quiz).
-- [ ] Create "Review" mode UI (Spaced Repetition).
+#### 1. User Management (Basic)
+- [x] **User Identification**: Simple login screen asking for a name
+- [x] **Profile Selection**: Display list of existing users
+- [x] **User Model with ID**: Users have unique IDs (GUID-based)
+- [x] **History & Progress**: Basic tracking of user activities (Full stack implemented)
+
+#### 2. User Interface (UI/UX)
+- [x] **Project Structure**: Frontend (React/Vite) and Backend (.NET) initialized
+- [x] **Theme System**: Dynamic switching between 5 themes (Curiosity Loop, Derot Brain, Knowledge Core, Mind Lab, Neo-Wikipedia)
+- [x] **Theme Persistence**: Save user preference in localStorage
+- [x] **Basic Layout**: Header and main content area
+
+#### 3. Backend Infrastructure
+- [x] **ASP.NET Core Web API**: Backend initialized
+- [x] **JSON File Storage**: Repository pattern for user data
+- [x] **User Service**: CRUD operations for users
+- [x] **User Activity Model**: Basic activity tracking structure
+- [x] **CORS Configuration**: Frontend-backend communication enabled
+
+---
+
+## 🚧 In Progress / Planned Features
+
+### Phase 0: Application Foundation (Priority: CRITICAL)
+
+#### Application Initialization
+- [ ] **Application Initialization & Configuration**: Seed data and global config
+  - Initialize Wikipedia categories (13 official categories)
+  - Initialize themes (5 color palettes)
+  - Global configuration management (LLM URL/Port)
+  - Seed data stored in `/data/seed/`
+  - Configuration stored in `/data/config/`
+  - **Status:** Not Started
+  - **Roadmap Task:** 0.1
+  - **⚠️ CRITICAL:** MUST be done FIRST before any other task
+
+---
+
+### Phase 1: Core Infrastructure & UX Enhancements (Priority: HIGH)
+
+#### Session & Authentication
+- [ ] **Session Persistence**: Keep user logged in after page refresh
+  - Store session in localStorage/sessionStorage
+  - Validate session on app initialization
+  - Redirect to login only if session invalid
+  - **Status:** Not Started
+  - **Roadmap Task:** 1.1
+
+#### Welcome & Onboarding
+- [ ] **Welcome Page for New Users**: First-time user onboarding
+  - Show guide explaining app purpose and features
+  - Options: Read Guide / Proceed / Don't Show Again
+  - Store preference in localStorage
+  - **Status:** Not Started
+  - **Roadmap Task:** 1.2
+
+---
+
+### Phase 2: User Data Model Enhancements (Priority: HIGH)
+
+#### User Preferences
+- [ ] **Extended User Model**: Add preferences and metadata
+  - Question count preference (5/10/15/20)
+  - Last connection date tracking
+  - Theme preference (move from localStorage to user data)
+  - **Status:** Not Started
+  - **Roadmap Task:** 2.1
+
+- [ ] **User Preferences Page**: Dedicated settings page
+  - Configure quiz question count
+  - Select theme
+  - Future: difficulty, language, etc.
+  - **Status:** Not Started
+  - **Roadmap Task:** 2.2
+
+---
+
+### Phase 3: Activity History Enhancements (Priority: HIGH)
+
+#### Enhanced Activity Tracking
+- [ ] **Enhanced Activity Model**: Track more detailed information
+  - Last score AND best score for each activity
+  - LLM model information (name, version)
+  - Notation format: X/totalQuestions (with percentage)
+  - Backlog status flag
+  - **Status:** Not Started
+  - **Roadmap Task:** 3.1
+
+- [ ] **Enhanced History View**: Improved UI for activity history
+  - Display last score and best score
+  - Show LLM used (on hover or in details)
+  - Backlog indicator (book icon 📖)
+  - Add to backlog from history
+  - Sorting and filtering options
+  - **Status:** Not Started
+  - **Roadmap Task:** 3.2
+
+---
+
+### Phase 4: Navigation & Page Structure (Priority: HIGH)
+
+#### Navigation System
+- [ ] **Main Navigation Menu**: App-wide navigation
+  - Links to: Derot, History, Backlog, Profile, Preferences, Guide, Logout
+  - Responsive design (sidebar/hamburger menu)
+  - Active page highlighting
+  - **Status:** Not Started
+  - **Roadmap Task:** 4.1
+
+#### User Pages
+- [ ] **User Profile Page**: Display and edit user information
+  - Show: name, ID, creation date, last connection, statistics
+  - Edit name functionality
+  - **Status:** Not Started
+  - **Roadmap Task:** 4.2
+
+- [ ] **Backlog Page**: Dedicated page for saved articles
+  - List all backlog items
+  - Start quiz from backlog
+  - Remove items from backlog
+  - Show last attempt and best score
+  - **Status:** Not Started
+  - **Roadmap Task:** 4.3
+
+---
+
+### Phase 5: Core Functionality - Derot Page (Priority: HIGH)
+
+#### Wikipedia Integration
+- [ ] **Wikipedia Service**: Fetch and display articles
+  - Random article fetching
+  - Article by category/interest
+  - Content parsing and cleaning
+  - **Status:** Not Started
+  - **Roadmap Task:** 5.1
+
+- [ ] **Derot Page - Reading Experience**:
+  - Display Wikipedia article
+  - "Recycle" button (new article without saving)
+  - "Add to Backlog" button
+  - Quick access to history/backlog (modal/drawer)
+  - Preserve article state during navigation
+  - **Status:** Not Started
+  - **Roadmap Task:** 5.1
+
+#### Quiz Generation & Evaluation
+- [ ] **LLM Integration**: Ollama/OpenAI for quiz generation
+  - Generate questions based on article
+  - Configurable question count (from user preferences)
+  - Semantic answer evaluation
+  - Store LLM model information
+  - **Status:** Not Started
+  - **Roadmap Task:** 5.2
+
+- [ ] **Quiz Experience**:
+  - Display questions (configurable count: 5/10/15/20)
+  - Text input for answers
+  - Submit and evaluate
+  - Show results with user/expected answers
+  - Save to history only after at least one answer submitted
+  - **Status:** Not Started
+  - **Roadmap Task:** 5.2
+
+---
+
+### Phase 6: Data Management (Priority: LOW)
+
+#### User Export
+- [ ] **User Data Export**: Export user data to JSON
+  - Export profile, preferences, backlog
+  - Optional: include full history
+  - Downloadable JSON file
+  - **Status:** Not Started
+  - **Roadmap Task:** 6.1
+
+---
+
+### Phase 7: User Guidance (Priority: LOW)
+
+#### Contextual Help
+- [ ] **Tooltips & Help**: Guide users throughout the app
+  - Tooltips on all interactive elements
+  - Help icons for complex features
+  - "Did you know?" tips
+  - **Status:** Not Started
+  - **Roadmap Task:** 7.1
+
+---
+
+### Phase 8: Internationalization & Category Preferences (Priority: HIGH)
+
+#### Internationalization (i18n)
+- [ ] **i18n Implementation**: Complete translation system
+  - All UI text in resource files (en.json, fr.json)
+  - Language selector in preferences
+  - Auto-detection of browser language
+  - Support for English and French
+  - **Status:** Not Started
+  - **Roadmap Task:** 8.1
+  - **⚠️ IMPORTANT:** Should be done FIRST in Sprint 1 to avoid refactoring
+
+#### Category Preferences (Simplified - No Named Profiles)
+- [ ] **Category Preferences Management**: Simple checklist in preferences
+  - 13 official Wikipedia categories
+  - All categories checked by default for new users
+  - Manage from Preferences page
+  - "Select All" / "Deselect All" buttons
+  - **Status:** Not Started
+  - **Roadmap Task:** 8.2
+  - **✨ SIMPLIFIED:** No named profiles, just category checkboxes
+
+- [ ] **Category Filtering on Derot Page**: Filter articles by categories
+  - Category checkboxes loaded from user preferences
+  - Temporary modifications possible (not saved unless confirmed)
+  - Clear UX for temporary vs. saved changes
+  - "Save to Preferences" button with confirmation modal
+  - Filter disabled when reworking from backlog/history
+  - "Reset" button unchecks all categories
+  - "Recycle" button unchecks all categories (complete reset)
+  - **Status:** Not Started
+  - **Roadmap Task:** 8.3
+  - **✨ SIMPLIFIED:** No profile dropdown, direct category selection
+
+- [ ] **Enhanced History and Backlog Actions**: Improved interactions
+  - "Rework Topic" button in history and backlog
+  - Clickable book icon (📖) to toggle backlog status
+  - Trash icon (🗑️) with confirmation in backlog
+  - Visual feedback on all actions
+  - **Status:** Not Started
+  - **Roadmap Task:** 8.4
+
+---
+
+## Feature Bucket List Status (Updated)
+
+### ✅ Addressed in Roadmap
+**Original Bucket List:**
+- [x] Session persistence on page refresh
+- [x] Welcome page for new users
+- [x] Activity history with last and best scores
+- [x] LLM information tracking
+- [x] Notation format (X/Y with percentage)
+- [x] Configurable question count (5/10/15/20)
+- [x] User preferences storage
+- [x] Navigation menu
+- [x] User profile page
+- [x] User preferences page
+- [x] User history page (enhanced)
+- [x] User backlog page
+- [x] Backlog indicators in history
+- [x] Derot page (Wikipedia + Quiz)
+- [x] Quick access to history/backlog from Derot page
+- [x] Add current article to backlog
+- [x] Save to history only after answer submission
+- [x] User data export feature
+- [x] Contextual help and tooltips
+
+**Second Bucket List (Phase 8):**
+- [x] All text in translation resources (i18n - English + French)
+- [x] User can create "Interest Profiles" (category collections)
+- [x] Profile dropdown on Derot page with filtering
+- [x] On-the-fly category modifications (temporary, not persisted)
+- [x] Save icon (💾) with confirmation modal for profile changes
+- [x] Filter disabled when reworking from backlog/history
+- [x] Filter re-enabled after "Recycle" click
+- [x] Reset filter button during new activity
+- [x] "Rework Topic" button in history
+- [x] Clickable book icon (📖) to toggle backlog in history
+- [x] "Rework Topic" button in backlog
+- [x] Trash icon (🗑️) with confirmation modal in backlog
+- [x] Clear UX for temporary vs. persistent changes
+
+### 📋 Implementation Details
+All features from the bucket list have been broken down into specific tasks in the **Implementation-Roadmap.md** document. Each task includes:
+- Clear objectives
+- Detailed specifications
+- Acceptance criteria
+- Dependencies
+- Priority and complexity ratings
+
+---
+
+## Technology Stack
+
+### Frontend
+- **Framework:** React 18 + TypeScript
+- **Build Tool:** Vite
+- **UI Library:** shadcn/ui (Radix UI primitives)
+- **Styling:** Tailwind CSS
+- **State Management:** React Context API (may add Zustand/Redux later)
+- **Routing:** React Router (to be added)
+
+### Backend
+- **Framework:** ASP.NET Core 9.0 Web API
+- **Language:** C# 13
+- **Storage:** JSON files (no SQL database)
+- **Architecture:** Repository pattern, Service layer
+
+### AI/LLM (Planned)
+- **Primary:** Ollama (local LLM)
+- **Models:** llama3:8b, qwen2.5:7b, mistral:7b
+- **Fallback:** OpenAI API (optional)
+
+### Development Tools
+- **Version Control:** Git
+- **IDE:** Visual Studio / VS Code
+- **Package Managers:** npm (frontend), NuGet (backend)
+
+---
+
+## Implementation Timeline
+
+### Sprint 1: Core Infrastructure (Week 1)
+- Session Persistence
+- Extended User Model
+- Main Navigation Menu
+
+### Sprint 2: User Experience (Week 2)
+- Welcome Page
+- User Preferences Page
+- User Profile Page
+
+### Sprint 3: Activity Enhancements (Week 3)
+- Enhanced Activity History Model
+- Enhanced History View UI
+- Backlog Page
+
+### Sprint 4: Core Functionality (Week 4-5)
+- Wikipedia Integration
+- Derot Page Implementation
+- Quiz Generation & Evaluation
+
+### Sprint 5: Polish & Export (Week 6)
+- User Data Export
+- Contextual Help & Tooltips
+- Final testing and bug fixes
+
+---
+
+## Next Steps
+
+1. **Review Implementation Roadmap**: See `Implementation-Roadmap.md` for detailed task breakdowns
+2. **Start with Sprint 1**: Begin with session persistence and navigation
+3. **Iterative Development**: Complete one task at a time, test thoroughly
+4. **Update Documentation**: Keep this file and roadmap updated as features are completed
+
+---
+
+## Notes for Agents
+
+### When Implementing Features:
+1. **Read the Roadmap**: Check `Implementation-Roadmap.md` for detailed specifications
+2. **Follow SOLID Principles**: Especially in backend code
+3. **Use Existing Components**: Leverage shadcn/ui and existing theme system
+4. **Test Thoroughly**: Write unit tests for backend, component tests for complex UI
+5. **Update Documentation**: Mark tasks as complete in this file and roadmap
+6. **Use TestUser**: For all automated testing and mock data creation
+
+### Code Standards:
+- **Backend:** C# naming conventions, XML documentation comments
+- **Frontend:** React/TypeScript best practices, JSDoc comments
+- **Styling:** Use theme system, ensure mobile responsiveness
+- **Error Handling:** Consistent patterns, user-friendly messages
+
+### Testing Guidelines:
+- **Backend:** Unit tests for services, integration tests for APIs
+- **Frontend:** Component tests for complex components
+- **Manual Testing:** Test on multiple browsers and screen sizes
+- **Mock Data:** Always use "TestUser" for automated testing
+
+---
+
+## Related Documentation
+
+- **[Implementation-Roadmap.md](file:///d:/Repos/Derot-my-brain/Docs/Implementation-Roadmap.md)**: Detailed task breakdowns with specifications
+- **[Specifications-fonctionnelles.md](file:///d:/Repos/Derot-my-brain/Docs/Specifications-fonctionnelles.md)**: Original functional specifications
+- **[Guide-Compilation-Execution.md](file:///d:/Repos/Derot-my-brain/Docs/Guide-Compilation-Execution.md)**: How to build and run the project
+- **[ArchitectureDiagram.md](file:///d:/Repos/Derot-my-brain/Docs/ArchitectureDiagram.md)**: System architecture overview
