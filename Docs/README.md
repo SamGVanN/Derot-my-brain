@@ -121,16 +121,9 @@ This document explains the reorganized documentation structure for the Derot My 
 
 ---
 
-#### 6. **[features/Welcome_page_for_new_users.md](file:///d:/Repos/Derot-my-brain/Docs/features/Welcome_page_for_new_users.md)**
-**Purpose:** Original feature request for welcome page
-
-**Note:** This has been integrated into the main specifications (Section 1.3.2)
-
----
-
 ### Templates Directory
 
-#### 7. **Templates/** folder
+#### 6. **Templates/** folder
 Contains reference templates for:
 - **[PROMPT-TEMPLATE-Implementation.md](file:///d:/Repos/Derot-my-brain/Docs/Templates/PROMPT-TEMPLATE-Implementation.md)** - Template pour déléguer l'implémentation d'une tâche à un agent
 - API endpoints documentation

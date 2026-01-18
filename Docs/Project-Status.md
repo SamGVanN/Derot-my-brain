@@ -71,11 +71,12 @@ This document tracks the implementation status of features defined in the Functi
   - **Roadmap Task:** 1.2
 
 #### Backend Logging
-- [ ] **Backend Logging System**: File-based logging (Serilog/NLog)
+- [x] **Backend Logging System**: File-based logging (Serilog/NLog)
   - Logs stored in `/Logs` at API root
   - Daily log rotation
   - Capture exceptions and startup events
-  - **Status:** Not Started
+  - **Status:** Completed
+  - **Completed Date:** 2026-01-18
   - **Roadmap Task:** 1.3
 
 ---
