@@ -5,6 +5,8 @@ import { usePreferences } from '../hooks/usePreferences';
 import type { User } from '../models/User';
 import { GeneralPreferencesForm } from '@/components/preferences/GeneralPreferencesForm';
 import { CategoryPreferencesForm } from '@/components/preferences/CategoryPreferencesForm';
+import { LLMConfigurationForm } from '@/components/preferences/LLMConfigurationForm';
+import { useAppConfig } from '@/hooks/useAppConfig';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft } from 'lucide-react';
@@ -18,6 +20,7 @@ interface UserPreferencesPageProps {
 export default function UserPreferencesPage({ user, onCancel }: UserPreferencesPageProps) {
     const { t } = useTranslation();
     const { updateGenericPreferences } = usePreferences();
+    const { config: appConfig, loading: configLoading, updateLLMConfig, testLLMConnection } = useAppConfig();
     const [isSaving, setIsSaving] = useState(false);
 
     // Ensure we have preferences object even if partial
@@ -97,6 +100,24 @@ export default function UserPreferencesPage({ user, onCancel }: UserPreferencesP
                         selectedCategories={preferences.selectedCategories || []}
                         onSave={handleCategoriesSave}
                         isSaving={isSaving}
+                    />
+                </section>
+
+                <Separator />
+
+                {/* LLM Configuration Section (Global) */}
+                <section>
+                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        {t('preferences.section.ai', 'AI Engine Configuration')}
+                        <span className="text-xs font-normal text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
+                            {t('common.global', 'Global/System')}
+                        </span>
+                    </h2>
+                    <LLMConfigurationForm
+                        config={appConfig}
+                        onSave={updateLLMConfig}
+                        onTestConnection={testLLMConnection}
+                        isLoading={configLoading}
                     />
                 </section>
             </div>

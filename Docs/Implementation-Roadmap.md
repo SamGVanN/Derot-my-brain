@@ -1011,16 +1011,16 @@ Add frontend UI for LLM configuration in the user preferences page, allowing use
   - Display user-friendly error messages
 
 #### Acceptance Criteria
-- [ ] LLM configuration section visible in preferences page
-- [ ] Section appears before question count selector
-- [ ] Users can input LLM URL (and port if Option A)
-- [ ] Test connection button validates LLM accessibility
-- [ ] Success modal shows when LLM is reachable
-- [ ] Error modal shows clear message when LLM is unreachable
-- [ ] Configuration saves to backend successfully
-- [ ] Current configuration loads on page initialization
-- [ ] URL validation prevents invalid formats
-- [ ] Timeout prevents indefinite waiting
+- [x] LLM configuration section visible in preferences page
+- [x] Section appears before question count selector
+- [x] Users can input LLM URL (and port if Option A)
+- [x] Test connection button validates LLM accessibility
+- [x] Success modal shows when LLM is reachable
+- [x] Error modal shows clear message when LLM is unreachable
+- [x] Configuration saves to backend successfully
+- [x] Current configuration loads on page initialization
+- [x] URL validation prevents invalid formats
+- [x] Timeout prevents indefinite waiting
 
 ---
 
@@ -1695,7 +1695,7 @@ Create comprehensive user documentation and setup distribution.
 15. **Task 3.2: User Profile Page** - [ ]
 
 ### Phase 4: Data Infrastructure & LLM (Sprint B)
-16. **Task 4.1: LLM Configuration UI** - [ ]
+16. **Task 4.1: LLM Configuration UI** - [x]
 17. **Task 4.2: Enhanced Activity Model** - [ ]
 
 ### Phase 5: Data Views - History & Backlog (Sprint C)

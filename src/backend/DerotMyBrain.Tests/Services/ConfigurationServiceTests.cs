@@ -3,6 +3,9 @@ using Xunit;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net;
+using Moq.Protected;
 using DerotMyBrain.API.Services;
 using DerotMyBrain.API.Models;
 
@@ -13,6 +16,8 @@ namespace DerotMyBrain.Tests.Services
         private readonly string _testConfigDirectory;
         private readonly ConfigurationService _configService;
         private readonly Mock<ILogger<ConfigurationService>> _mockLogger;
+        private readonly Mock<IHttpClientFactory> _mockHttpClientFactory;
+        private readonly Mock<HttpMessageHandler> _mockHttpMessageHandler;
 
         public ConfigurationServiceTests()
         {
@@ -28,7 +33,14 @@ namespace DerotMyBrain.Tests.Services
                 .Build();
 
             _mockLogger = new Mock<ILogger<ConfigurationService>>();
-            _configService = new ConfigurationService(config, _mockLogger.Object);
+            _mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+
+            // Setup HttpClient factory to return a client with our mocked handler
+            var client = new HttpClient(_mockHttpMessageHandler.Object);
+            _mockHttpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(client);
+
+            _configService = new ConfigurationService(config, _mockLogger.Object, _mockHttpClientFactory.Object);
         }
 
         [Fact]
@@ -286,6 +298,94 @@ namespace DerotMyBrain.Tests.Services
             await Assert.ThrowsAsync<ArgumentException>(
                 async () => await _configService.UpdateLLMConfigurationAsync(llmConfig)
             );
+        }
+
+        [Fact]
+        public async Task TestLLMConnectionAsync_ReturnsTrue_WhenConnectionSuccessful()
+        {
+            // Arrange
+            var llmConfig = new LLMConfiguration
+            {
+                Url = "http://localhost:11434",
+                Port = 11434
+            };
+
+            _mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK
+                });
+
+            // Act
+            var result = await _configService.TestLLMConnectionAsync(llmConfig);
+
+            // Assert
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task TestLLMConnectionAsync_ReturnsFalse_WhenConnectionFailed()
+        {
+            // Arrange
+            var llmConfig = new LLMConfiguration
+            {
+                Url = "http://localhost:11434",
+                Port = 11434
+            };
+
+            _mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ThrowsAsync(new HttpRequestException("Connection failed"));
+
+            // Act
+            var result = await _configService.TestLLMConnectionAsync(llmConfig);
+
+            // Assert
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task TestLLMConnectionAsync_UsesCorrectUrl()
+        {
+            // Arrange
+            var llmConfig = new LLMConfiguration
+            {
+                Url = "http://localhost:11434",
+                Port = 11434
+            };
+
+            HttpRequestMessage? capturedRequest = null;
+
+            _mockHttpMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                 .Callback<HttpRequestMessage, CancellationToken>((r, c) => capturedRequest = r)
+                .ReturnsAsync(new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK
+                });
+
+            // Act
+            await _configService.TestLLMConnectionAsync(llmConfig);
+
+            // Assert
+            capturedRequest.Should().NotBeNull();
+            capturedRequest!.RequestUri!.ToString().Should().StartWith("http://localhost:11434/");
         }
 
         public void Dispose()

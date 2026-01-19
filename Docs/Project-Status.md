@@ -166,8 +166,9 @@ This document tracks the implementation status of features defined in the Functi
 ### Phase 4: Data Infrastructure & LLM (Sprint B)
 
 #### Core Data & Configuration
-- [ ] **Task 4.1: LLM Configuration UI** (Formerly 2.3)
-  - **Status:** Not Started
+- [x] **Task 4.1: LLM Configuration UI** (Formerly 2.3)
+  - **Status:** Completed ✅
+  - **Completed Date:** 2026-01-19
   - Configure LLM URL/Port
   - Connection Testing
 

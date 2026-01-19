@@ -132,5 +132,41 @@ namespace DerotMyBrain.API.Controllers
                 return StatusCode(500, new { error = "Failed to update LLM configuration", message = ex.Message });
             }
         }
+        /// <summary>
+        /// Test the connection to the LLM server
+        /// </summary>
+        /// <param name="llmConfig">Optional configuration to test. If null, uses current global config.</param>
+        /// <returns>Success status and message</returns>
+        [HttpPost("llm/test")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> TestLLMConnection([FromBody] LLMConfiguration? llmConfig)
+        {
+            try
+            {
+                // If config not provided in body, use current global config
+                if (llmConfig == null)
+                {
+                    llmConfig = await _configurationService.GetLLMConfigurationAsync();
+                }
+
+                _logger.LogInformation("Testing LLM connection...");
+                var success = await _configurationService.TestLLMConnectionAsync(llmConfig);
+
+                if (success)
+                {
+                    return Ok(new { success = true, message = "Successfully connected to LLM" });
+                }
+                else
+                {
+                    return Ok(new { success = false, message = "Failed to connect to LLM. Please check URL and Port." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error testing LLM connection");
+                return StatusCode(500, new { success = false, error = "Internal error during connection test", message = ex.Message });
+            }
+        }
     }
 }

@@ -78,6 +78,19 @@ export function useAppConfig() {
         }
     }, [config]);
 
+    // Test LLM Connection
+    const testLLMConnection = useCallback(async (llmConfig: LLMConfiguration): Promise<{ success: boolean; message: string }> => {
+        try {
+            // We use POST here as per backend implementation
+            const response = await axios.post<{ success: boolean; message: string }>(`${API_URL}/config/llm/test`, llmConfig);
+            return response.data;
+        } catch (err: any) {
+            console.error('Error testing LLM connection:', err);
+            const message = err.response?.data?.message || err.message || 'Failed to test connection';
+            return { success: false, message };
+        }
+    }, []);
+
     useEffect(() => {
         fetchConfig();
     }, [fetchConfig]);
@@ -89,6 +102,7 @@ export function useAppConfig() {
         updating,
         updateConfig,
         updateLLMConfig,
+        testLLMConnection,
         refetch: fetchConfig
     };
 }

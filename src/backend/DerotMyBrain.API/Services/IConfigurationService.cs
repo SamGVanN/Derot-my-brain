@@ -12,5 +12,6 @@ namespace DerotMyBrain.API.Services
         Task<AppConfiguration> UpdateConfigurationAsync(AppConfiguration config);
         Task<LLMConfiguration> GetLLMConfigurationAsync();
         Task<LLMConfiguration> UpdateLLMConfigurationAsync(LLMConfiguration llmConfig);
+        Task<bool> TestLLMConnectionAsync(LLMConfiguration config);
     }
 }

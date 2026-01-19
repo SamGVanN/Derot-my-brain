@@ -11,14 +11,16 @@ namespace DerotMyBrain.API.Services
     {
         private readonly string _configDirectory;
         private readonly ILogger<ConfigurationService> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
         private const string ConfigFileName = "app-config.json";
         private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-        public ConfigurationService(IConfiguration configuration, ILogger<ConfigurationService> logger)
+        public ConfigurationService(IConfiguration configuration, ILogger<ConfigurationService> logger, IHttpClientFactory httpClientFactory)
         {
             var dataDirectory = configuration["DataDirectory"] ?? "Data";
             _configDirectory = Path.Combine(dataDirectory, "config");
             _logger = logger;
+            _httpClientFactory = httpClientFactory;
         }
 
         /// <summary>
@@ -136,6 +138,39 @@ namespace DerotMyBrain.API.Services
             finally
             {
                 _semaphore.Release();
+            }
+        }
+
+        /// <summary>
+        /// Test the connection to the LLM server
+        /// </summary>
+        public async Task<bool> TestLLMConnectionAsync(LLMConfiguration config)
+        {
+            ValidateLLMConfiguration(config);
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                client.Timeout = TimeSpan.FromSeconds(5); // Fast test timeout
+
+                var url = $"{config.Url}:{config.Port}";
+                if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+                {
+                    url = "http://" + url;
+                }
+
+                _logger.LogInformation("Testing LLM connection at {Url}", url);
+
+                // Try to hit the root endpoint or a lightweight status endpoint
+                // For Ollama, GET / is usually OK or returns 200
+                var response = await client.GetAsync(url);
+                
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "LLM connection test failed");
+                return false;
             }
         }
 

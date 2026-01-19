@@ -1,0 +1,11 @@
+{
+    "id": "global",
+    "llm": {
+        "url": "http://localhost:11434",
+        "port": 11434,
+        "provider": "ollama",
+        "defaultModel": "llama3:8b",
+        "timeoutSeconds": 30
+    },
+    "lastUpdated": "2026-01-19T23:00:00Z"
+}
