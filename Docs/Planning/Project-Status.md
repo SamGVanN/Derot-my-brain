@@ -174,9 +174,7 @@ This document tracks the implementation status of features defined in the Functi
 
 - [ ] **Task 4.2: Enhanced Activity Model** (Formerly 3.1)
   - **Status:** Not Started
-  - Track Last/Best Score
-  - Tracked Topic (Backlog) flag
-  - LLM Info tracking
+  - 10 sub-tasks in **Roadmap**
 
 ---
 

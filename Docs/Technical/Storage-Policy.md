@@ -1,52 +1,136 @@
 # Technical Constraints - Storage Policy
 
-**Date:** 2026-01-18  
-**Version:** Storage Policy V1 - JSON Only
+**Date:** 2026-01-20  
+**Version:** Storage Policy V2 - SQLite for V1  
+**Last Updated:** 2026-01-20
 
 ---
 
 ## 🎯 Objectif
 
-Clarifier la politique de stockage pour le POC/V1 de "Derot My Brain" et définir les alternatives acceptables si nécessaire.
+Définir la politique de stockage pour V1 de "Derot My Brain" avec une base de données embarquée pour supporter les fonctionnalités dashboard futures.
 
 ---
 
-## ⚠️ Règle Fondamentale
+## ⚠️ Règle Fondamentale V1
 
-### JSON Files ONLY - No SQL Database
+### SQLite + Entity Framework Core - Embedded Database
 
-**Pour le POC/V1, l'application DOIT utiliser UNIQUEMENT des fichiers JSON.**
+**Pour V1, l'application utilise SQLite comme base de données embarquée.**
+
+**Décision Architecturale (2026-01-20):**
+- ✅ **SQLite** au lieu de fichiers JSON
+- ✅ **Entity Framework Core** pour l'accès aux données
+- ✅ **Fichier unique** `.db` (comme JSON, portable)
+- ✅ **Aucune installation** requise pour l'utilisateur
+- ✅ **Dashboard ready** dès V1 (requêtes SQL natives)
 
 ---
 
-## ✅ Ce Qui Est Obligatoire
+## 📋 Pourquoi SQLite pour V1 ?
 
-### Stockage JSON Local
+**Décision prise le 2026-01-20 lors de la spécification de Task 4.2 (Enhanced Activity Model)**
+
+### Besoins Identifiés
+
+**V1 Requirements:**
+- Stockage local (pas de serveur externe)
+- Pas d'installation pour l'utilisateur
+- Support des requêtes pour dashboard
+
+**Besoins Futurs (Dashboard):**
+- Statistiques agrégées (nb quizz/jour, graphiques d'activité)
+- Classements (meilleurs scores par sujet)
+- Analytics (topics les plus lus, topics les plus testés)
+- Requêtes complexes (GROUP BY, ORDER BY, COUNT, etc.)
+
+### Problème avec JSON
+
+Les fichiers JSON ne supportent pas nativement:
+- ❌ Requêtes SQL (GROUP BY, COUNT, aggregations)
+- ❌ Indexation (recherche linéaire O(n))
+- ❌ Optimisation des requêtes dashboard
+- ❌ Transactions ACID
+- ❌ Migration future = réécriture complète du Repository layer
+
+### Solution: SQLite + Entity Framework Core
+
+**Avantages:**
+- ✅ **Dashboard ready** dès V1 (requêtes SQL natives)
+- ✅ **Évite la dette technique** (pas de migration JSON → DB plus tard)
+- ✅ **Complexité similaire** à JSON avec EF Core
+- ✅ **Portabilité maintenue** (fichier unique `.db`)
+- ✅ **Performance** (indexation, compression, ACID)
+- ✅ **Maturité** (24 ans, utilisé par milliards d'appareils)
+
+---
+
+## ✅ Structure de Stockage V1
+
+### Fichier SQLite Unique
 
 ```
 /data/
-├── seed/                          # Données de référence immuables
-│   ├── categories.json            # 13 catégories Wikipedia
-│   └── themes.json                # 5 thèmes de couleurs
-├── config/                        # Configuration globale
-│   └── app-config.json            # URL LLM, paramètres globaux
-└── users/                         # Données utilisateurs
-    ├── users.json                 # Profils et préférences
-    ├── user-{id}-history.json     # Historique par utilisateur
-    └── user-{id}-backlog.json     # Backlog par utilisateur
+└── derot-my-brain.db    # Base de données SQLite embarquée
 ```
 
-### Caractéristiques Requises
+### Schéma de Base de Données
 
-- ✅ **Portable** : Copier/coller le dossier `/data/` suffit pour migrer
-- ✅ **Autonome** : Aucune installation externe requise
+```sql
+-- Table Users
+CREATE TABLE Users (
+    Id TEXT PRIMARY KEY,
+    Name TEXT NOT NULL,
+    CreatedAt TEXT NOT NULL,
+    LastConnectionAt TEXT NOT NULL
+);
+
+-- Table UserPreferences
+CREATE TABLE UserPreferences (
+    UserId TEXT PRIMARY KEY,
+    QuestionCount INTEGER DEFAULT 10,
+    PreferredTheme TEXT DEFAULT 'derot-brain',
+    Language TEXT DEFAULT 'auto',
+    FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+);
+
+-- Table Activities
+CREATE TABLE Activities (
+    Id TEXT PRIMARY KEY,
+    UserId TEXT NOT NULL,
+    Topic TEXT NOT NULL,
+    WikipediaUrl TEXT NOT NULL,
+    FirstAttemptDate TEXT NOT NULL,
+    LastAttemptDate TEXT NOT NULL,
+    LastScore INTEGER NOT NULL,
+    BestScore INTEGER NOT NULL,
+    TotalQuestions INTEGER NOT NULL,
+    LlmModelName TEXT,
+    LlmVersion TEXT,
+    IsTracked INTEGER DEFAULT 0,
+    Type TEXT NOT NULL,
+    FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+);
+
+-- Index pour performance
+CREATE INDEX idx_activities_user_date ON Activities(UserId, LastAttemptDate);
+CREATE INDEX idx_activities_tracked ON Activities(UserId, IsTracked);
+CREATE INDEX idx_activities_type ON Activities(UserId, Type);
+```
+
+### Caractéristiques de SQLite pour V1
+
+- ✅ **Portable** : Fichier unique `.db` - copier/coller suffit pour migrer
+- ✅ **Autonome** : Bibliothèque incluse dans .NET, aucune installation externe
 - ✅ **Offline-first** : Fonctionne sans connexion internet
-- ✅ **Simple** : Pas de configuration utilisateur (connection string, etc.)
+- ✅ **Simple** : Pas de configuration utilisateur (connection string automatique)
 - ✅ **Self-contained** : Tout est dans l'application
+- ✅ **Performant** : Indexation, compression, transactions ACID
+- ✅ **Dashboard ready** : Requêtes SQL natives pour statistiques
 
 ---
 
-## ❌ Ce Qui Est Interdit
+## ❌ Ce Qui Reste Interdit
 
 ### Bases de Données Nécessitant Installation/Configuration
 

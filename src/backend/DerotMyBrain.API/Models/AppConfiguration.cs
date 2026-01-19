@@ -29,7 +29,7 @@ namespace DerotMyBrain.API.Models
         /// <summary>
         /// LLM server URL (e.g., "http://localhost:11434")
         /// </summary>
-        public string Url { get; set; } = "http://localhost:11434";
+        public string Url { get; set; } = "http://127.0.0.1:11434";
 
         /// <summary>
         /// LLM server port

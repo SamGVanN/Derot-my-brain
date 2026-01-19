@@ -21,12 +21,15 @@ This document outlines the backend development guidelines, architectural pattern
 - **ASP.NET Core Web API** - RESTful API framework
 - **C# 13** - Latest language features
 - **Serilog** - Structured logging
-- **JSON File Storage** - See [Storage-Policy.md](file:///d:/Repos/Derot-my-brain/Docs/Technical/Storage-Policy.md)
+- **SQLite + Entity Framework Core** - Embedded database for V1 (See [Storage-Policy.md](file:///d:/Repos/Derot-my-brain/Docs/Technical/Storage-Policy.md))
+  - **Decision Date:** 2026-01-20
+  - **Rationale:** Dashboard-ready, avoids technical debt, maintains portability
 
 ### Testing
 
 - **xUnit** - Unit testing framework
 - **Moq** - Mocking framework
+- **EF Core InMemory** - For testing database operations
 - See [Testing-Strategy.md](file:///d:/Repos/Derot-my-brain/Docs/Technical/Testing-Strategy.md) for details
 
 ---
@@ -152,7 +155,87 @@ public class JsonUserRepository : IUserRepository
 - Log all data access operations
 - Handle exceptions appropriately
 
-### 3. Service Layer
+### 3. Entity Framework Core (V1)
+
+**SQLite + EF Core is used for V1 data storage.**
+
+#### DbContext Configuration
+
+```csharp
+public class DerotDbContext : DbContext
+{
+    public DbSet<User> Users { get; set; }
+    public DbSet<UserPreferences> UserPreferences { get; set; }
+    public DbSet<UserActivity> Activities { get; set; }
+    
+    public DerotDbContext(DbContextOptions<DerotDbContext> options) : base(options)
+    {
+    }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        
+        // Configure entities
+        modelBuilder.Entity<UserActivity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).IsRequired();
+            
+            // Indexes for performance
+            entity.HasIndex(e => new { e.UserId, e.LastAttemptDate });
+            entity.HasIndex(e => new { e.UserId, e.IsTracked });
+            
+            // Foreign key
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.Activities)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+    }
+}
+```
+
+#### Repository Implementation with EF Core
+
+```csharp
+public class SqliteActivityRepository : IActivityRepository
+{
+    private readonly DerotDbContext _context;
+    private readonly ILogger<SqliteActivityRepository> _logger;
+    
+    public SqliteActivityRepository(DerotDbContext context, ILogger<SqliteActivityRepository> logger)
+    {
+        _context = context;
+        _logger = logger;
+    }
+    
+    public async Task<IEnumerable<UserActivity>> GetAllAsync(string userId)
+    {
+        return await _context.Activities
+            .Where(a => a.UserId == userId)
+            .OrderByDescending(a => a.LastAttemptDate)
+            .ToListAsync();
+    }
+    
+    public async Task<UserActivity> CreateAsync(UserActivity activity)
+    {
+        _context.Activities.Add(activity);
+        await _context.SaveChangesAsync();
+        return activity;
+    }
+}
+```
+
+**EF Core Best Practices:**
+- Always use `async/await` with `ToListAsync()`, `FirstOrDefaultAsync()`, etc.
+- Use `AsNoTracking()` for read-only queries to improve performance
+- Configure indexes in `OnModelCreating` for frequently queried fields
+- Use foreign keys and cascade delete for data integrity
+- Never use `.Result` or `.Wait()` - always async
+- Use `DbContext` scoped lifetime (default in ASP.NET Core)
+
+### 4. Service Layer
 
 **Business logic belongs in services, not controllers.**
 

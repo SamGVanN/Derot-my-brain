@@ -1024,63 +1024,323 @@ Add frontend UI for LLM configuration in the user preferences page, allowing use
 
 ---
 
-### Task 4.2: Enhanced Activity Model (Formerly 3.1)
-**Priority:** HIGH  
+### Task 4.2: Enhanced Activity Model with SQLite (Decomposed into 10 sub-tasks)
+
+**⚠️ ARCHITECTURAL DECISION: SQLite + Entity Framework Core for V1**
+
+This task has been decomposed into 10 sub-tasks to implement the Enhanced Activity Model using SQLite instead of JSON files. This decision was made to:
+- Support future dashboard features with complex queries (GROUP BY, COUNT, aggregations)
+- Avoid technical debt from future JSON → Database migration
+- Maintain portability (single `.db` file like JSON)
+- Enable better performance with indexing and ACID transactions
+
+**See detailed specifications:** `C:\Users\samue\.gemini\antigravity\brain\32bdcc6b-9c9d-412c-8d75-93a8cf1bae1a\implementation_plan.md`
+
+---
+
+#### **Task 4.2.1: Backend - SQLite Setup & Models**
+**Priority:** CRITICAL  
 **Estimated Complexity:** Medium  
 **Dependencies:** None
 
-#### Objective
-Enhance the activity history to track LLM information, best scores, and "Tracked Topic" status (formerly Backlog).
+**Objective:**
+- Install and configure SQLite + Entity Framework Core
+- Create data models (User, UserPreferences, UserActivity)
+- Create DbContext
+- Generate initial migration
 
-#### Specifications
-- **Backend:**
-  - Update `UserActivity.cs` model:
-    ```csharp
-    public class UserActivity
-    {
-        public string Id { get; set; }
-        public string UserId { get; set; }
-        public string Topic { get; set; } // Wikipedia article title
-        public string WikipediaUrl { get; set; }
-        public DateTime FirstAttemptDate { get; set; }
-        public DateTime LastAttemptDate { get; set; }
-        public int LastScore { get; set; }
-        public int BestScore { get; set; }
-        public int TotalQuestions { get; set; } // e.g., 5, 10, 15, 20
-        public LLMInfo LlmUsed { get; set; }
-        public bool IsTracked { get; set; } // True if topic is in Tracked Topics
-        public string Type { get; set; } // "Read" or "Quiz"
-    }
-    
-    public class LLMInfo
-    {
-        public string ModelName { get; set; } // e.g., "llama3:8b"
-        public string Version { get; set; } // e.g., "v1.0"
-    }
-    ```
-  - Update `UserService.cs` to:
-    - Track best score across all attempts
-    - Update last attempt date on each session
-    - **Logic for "Read" vs "Quiz"**:
-      - **Read**: Created if user scrolls to bottom OR clicks "Start Quiz".
-      - **Quiz**: Created (or updates Read) only if answers are submitted.
-    - Store LLM information with each activity
-  - Add migration logic for existing activities
+**Specifications:**
+- Install NuGet packages: `Microsoft.EntityFrameworkCore.Sqlite`, `Microsoft.EntityFrameworkCore.Design`
+- Create `Data/DerotDbContext.cs` with DbSets for Users, UserPreferences, Activities
+- Create `Models/UserActivity.cs`:
+  ```csharp
+  public class UserActivity
+  {
+      public string Id { get; set; }
+      public string UserId { get; set; }
+      public string Topic { get; set; }
+      public string WikipediaUrl { get; set; }
+      public DateTime FirstAttemptDate { get; set; }
+      public DateTime LastAttemptDate { get; set; }
+      public int LastScore { get; set; }
+      public int BestScore { get; set; }
+      public int TotalQuestions { get; set; }
+      public string? LlmModelName { get; set; }
+      public string? LlmVersion { get; set; }
+      public bool IsTracked { get; set; }
+      public string Type { get; set; } // "Read" or "Quiz"
+  }
+  ```
+- Create indexes for performance (UserId+LastAttemptDate, UserId+IsTracked, UserId+Type)
+- Run: `dotnet ef migrations add InitialCreate`
+- Run: `dotnet ef database update`
 
-- **Frontend:**
-  - Update `UserActivity` TypeScript interface
-  - Update history display to show:
-    - Last score: `X/Y` (e.g., 7/10)
-    - Best score: `X/Y` (e.g., 9/10)
-    - LLM used (shown on hover or in details)
-    - Tracked indicator (⭐ icon)
+**Acceptance Criteria:**
+- [ ] SQLite configured with EF Core
+- [ ] DbContext created with DbSets (Users, UserPreferences, Activities)
+- [ ] UserActivity model complete with all fields
+- [ ] Initial migration generated and applied
+- [ ] Database file created at `data/derot-my-brain.db`
+- [ ] Indexes created for performance
+- [ ] No regression on existing features
 
-#### Acceptance Criteria
-- [ ] Activities track both last and best scores
-- [ ] Activity Type ("Read" vs "Quiz") is correctly determined
-- [ ] LLM information stored with each activity
-- [ ] Tracked status (IsTracked) available per activity
-- [ ] Existing activities migrated successfully
+---
+
+#### **Task 4.2.2: Backend - Repository Layer (SQLite)**
+**Priority:** HIGH  
+**Estimated Complexity:** Medium  
+**Dependencies:** Task 4.2.1
+
+**Objective:**
+- Implement Repository pattern for SQLite
+- Replace existing JSON repositories
+- Maintain IRepository interface (SOLID - Open/Closed Principle)
+
+**Specifications:**
+- Create `Repositories/IActivityRepository.cs`:
+  ```csharp
+  public interface IActivityRepository
+  {
+      Task<IEnumerable<UserActivity>> GetAllAsync(string userId);
+      Task<IEnumerable<UserActivity>> GetTrackedAsync(string userId);
+      Task<UserActivity?> GetByIdAsync(string userId, string activityId);
+      Task<UserActivity> CreateAsync(UserActivity activity);
+      Task<UserActivity> UpdateAsync(UserActivity activity);
+      Task DeleteAsync(string userId, string activityId);
+      
+      // Dashboard queries
+      Task<UserStatisticsDto> GetStatisticsAsync(string userId);
+      Task<IEnumerable<ActivityCalendarDto>> GetActivityCalendarAsync(string userId, int days);
+      Task<IEnumerable<TopScoreDto>> GetTopScoresAsync(string userId, int limit);
+  }
+  ```
+- Create `Repositories/SqliteActivityRepository.cs` implementing the interface with EF Core
+- Configure dependency injection in `Program.cs`
+
+**Acceptance Criteria:**
+- [ ] IActivityRepository interface defined
+- [ ] SqliteActivityRepository implemented with EF Core
+- [ ] CRUD methods implemented (GetAll, GetById, Create, Update, Delete)
+- [ ] Dashboard query methods implemented
+- [ ] Unit tests with InMemory SQLite database (≥80% coverage)
+- [ ] Dependency injection configured
+
+---
+
+#### **Task 4.2.3: Backend - Activity Service Layer**
+**Priority:** HIGH  
+**Estimated Complexity:** Medium  
+**Dependencies:** Task 4.2.2
+
+**Objective:**
+- Implement business logic for activity management
+- Handle BestScore calculation
+- Implement "Read" vs "Quiz" logic
+- Add dashboard methods
+
+**Specifications:**
+- Create `Services/IActivityService.cs` and `Services/ActivityService.cs`
+- Implement BestScore logic: `BestScore = Math.Max(BestScore, LastScore)`
+- Implement "Read" vs "Quiz" logic:
+  - **Read**: Created when user scrolls to bottom OR clicks "Start Quiz"
+  - **Quiz**: Created/updated when answers are submitted
+- Add dashboard methods: GetStatistics, GetActivityCalendar, GetTopScores
+
+**Acceptance Criteria:**
+- [ ] Service implements all interface methods
+- [ ] BestScore updated correctly (max of all scores)
+- [ ] "Read" vs "Quiz" logic implemented
+- [ ] Dashboard methods implemented
+- [ ] Unit tests with Moq (≥80% coverage)
+- [ ] Error handling (NotFoundException, ValidationException)
+
+---
+
+#### **Task 4.2.4: Backend - API Endpoints & DTOs**
+**Priority:** HIGH  
+**Estimated Complexity:** Low  
+**Dependencies:** Task 4.2.3
+
+**Objective:**
+- Create REST endpoints for activities and tracked topics
+- Implement DTOs
+- Add dashboard endpoints
+
+**Specifications:**
+- Create `Controllers/ActivitiesController.cs`
+- Create DTOs: `CreateActivityDto`, `UserActivityDto`, `UserStatisticsDto`, `ActivityCalendarDto`, `TopScoreDto`
+- Implement endpoints:
+  - `GET /api/users/{userId}/activities`
+  - `GET /api/users/{userId}/activities/{activityId}`
+  - `POST /api/users/{userId}/activities`
+  - `DELETE /api/users/{userId}/activities/{activityId}`
+  - `GET /api/users/{userId}/tracked-topics`
+  - `POST /api/users/{userId}/activities/{activityId}/track`
+  - `DELETE /api/users/{userId}/activities/{activityId}/track`
+  - `GET /api/users/{userId}/statistics`
+  - `GET /api/users/{userId}/statistics/activity-calendar`
+  - `GET /api/users/{userId}/statistics/top-scores?limit=10`
+
+**Acceptance Criteria:**
+- [ ] All endpoints implemented and documented
+- [ ] DTOs validated with Data Annotations
+- [ ] Error handling (404, 400, 500)
+- [ ] Integration tests pass
+- [ ] Swagger documentation updated
+
+---
+
+#### **Task 4.2.5: Backend - Database Seeding & Mock Data**
+**Priority:** HIGH  
+**Estimated Complexity:** Low  
+**Dependencies:** Task 4.2.1
+
+**Objective:**
+- Create database seeding system
+- Create realistic mock data for TestUser
+- Cover all scenarios (Read, Quiz, Tracked, Non-tracked)
+
+**Specifications:**
+- Create `Data/DbInitializer.cs` with `SeedAsync` method
+- Seed TestUser with:
+  - 15-20 varied activities
+  - Mix of "Read" (30%) and "Quiz" (70%)
+  - Mix of Tracked (5-7) and Non-tracked
+  - Different scores (0/10, 5/10, 10/10, 18/20, etc.)
+  - Different LLMs (llama3:8b, mistral:7b, qwen2.5:7b)
+  - Dates spread over 6 months
+- Call seeding in `Program.cs` on application startup
+
+**Acceptance Criteria:**
+- [ ] DbInitializer created with SeedAsync method
+- [ ] Seeding called on application startup
+- [ ] Realistic and consistent data
+- [ ] Covers edge cases (score 0, perfect score, etc.)
+- [ ] Scenarios documented
+- [ ] Idempotent (can be called multiple times without duplication)
+
+---
+
+#### **Task 4.2.6: Frontend - TypeScript Interfaces & API Client**
+**Priority:** MEDIUM  
+**Estimated Complexity:** Low  
+**Dependencies:** Task 4.2.4
+
+**Objective:**
+- Create TypeScript interfaces for DTOs
+- Implement API calls in centralized client
+- Add dashboard endpoints
+
+**Specifications:**
+- Create `types/UserActivity.ts`, `types/UserStatistics.ts`
+- Create `api/activityApi.ts` with all endpoints
+- Use centralized axios client
+- Implement error handling
+
+**Acceptance Criteria:**
+- [ ] TypeScript interfaces match backend DTOs
+- [ ] API client uses centralized axios
+- [ ] Dashboard endpoints implemented
+- [ ] Error handling implemented
+- [ ] Unit tests with mocks
+
+---
+
+#### **Task 4.2.7: Frontend - Custom Hooks**
+**Priority:** MEDIUM  
+**Estimated Complexity:** Medium  
+**Dependencies:** Task 4.2.6
+
+**Objective:**
+- Create hooks for activity management
+- Implement track/untrack logic
+- Create dashboard hooks
+
+**Specifications:**
+- Create `hooks/useActivities.ts`, `hooks/useTrackedTopics.ts`, `hooks/useUserStatistics.ts`
+- Encapsulate all business logic
+- Handle loading/error states
+
+**Acceptance Criteria:**
+- [ ] Hooks encapsulate all business logic
+- [ ] No direct API calls in components
+- [ ] Loading/error states managed
+- [ ] Tests with React Testing Library
+- [ ] Dashboard hooks functional
+
+---
+
+#### **Task 4.2.8: Frontend - History View Update**
+**Priority:** MEDIUM  
+**Estimated Complexity:** Medium  
+**Dependencies:** Task 4.2.7
+
+**Objective:**
+- Update history display
+- Show Last Score, Best Score, LLM info, Tracked indicator
+
+**Specifications:**
+- Update `components/history-view.tsx`
+- Display Last Score (X/Y) and Best Score (X/Y)
+- Show ⭐ icon for Tracked Topics
+- Show LLM info on hover
+
+**Acceptance Criteria:**
+- [ ] Last Score displayed (X/Y)
+- [ ] Best Score displayed (X/Y)
+- [ ] ⭐ icon for Tracked Topics
+- [ ] LLM info on hover
+- [ ] Render tests pass
+- [ ] Responsive design
+
+---
+
+#### **Task 4.2.9: Frontend - Tracked Topics Page**
+**Priority:** LOW  
+**Estimated Complexity:** Medium  
+**Dependencies:** Task 4.2.7
+
+**Objective:**
+- Create dedicated Tracked Topics page
+- Allow track/untrack from history
+
+**Specifications:**
+- Create `pages/TrackedTopicsPage.tsx`
+- Add track/untrack buttons in history
+- Handle empty state
+
+**Acceptance Criteria:**
+- [ ] Page displays only Tracked Topics
+- [ ] "Track" button in history works
+- [ ] "Untrack" button in Tracked Topics works
+- [ ] Interaction tests pass
+- [ ] Empty state when no tracked topics
+
+---
+
+#### **Task 4.2.10: Frontend - Dashboard Statistics (Optional V1)**
+**Priority:** LOW  
+**Estimated Complexity:** High  
+**Dependencies:** Task 4.2.7
+
+**Objective:**
+- Create dashboard page with statistics
+- Display activity graphs
+- Display top scores
+
+**Specifications:**
+- Create `pages/DashboardPage.tsx`
+- Use chart library (recharts or chart.js)
+- Display global statistics
+- Display activity calendar (GitLab-style)
+- Display top 10 scores
+
+**Acceptance Criteria:**
+- [ ] Global statistics displayed
+- [ ] Activity calendar (GitLab-style) displayed
+- [ ] Top 10 scores displayed
+- [ ] Responsive design
+- [ ] Render tests pass
 
 ---
 
