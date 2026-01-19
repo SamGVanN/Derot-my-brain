@@ -36,6 +36,7 @@ Consistency in hover effects is crucial for the theme system.
 - **Implementation**: Prefer using standard `variant="ghost"` or `variant="outline"` which handle this automatically. If manually styling, use `hover:bg-accent` instead of `hover:bg-primary/x`.
 
 ### 6. Icon & Nested Element Rules
+- **Library**: Use **Lucide React** for all icons.
 - **Rule**: Icons or containers inside interactive elements that adapt on hover MUST also use the `accent` color family to match their parent.
 - **Example**: If a button turns `bg-accent` on hover, an icon inside it should stay visible or adapt using `group-hover:text-accent-foreground`. Avoid using `group-hover:text-primary` as this breaks the theme consistency.
 
