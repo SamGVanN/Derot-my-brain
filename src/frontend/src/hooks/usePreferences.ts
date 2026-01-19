@@ -12,9 +12,11 @@ export function usePreferences() {
         theme,
         language,
         hasSeenWelcome,
+        sessionWelcomeDismissed,
         setTheme: setStoreTheme,
         setLanguage: setStoreLanguage,
         setHasSeenWelcome: setStoreHasSeenWelcome,
+        setSessionWelcomeDismissed: setStoreSessionWelcomeDismissed,
         setPreferences: setStorePreferences
     } = usePreferencesStore();
 
@@ -72,6 +74,14 @@ export function usePreferences() {
         setStoreHasSeenWelcome(hasSeen);
     }, [setStoreHasSeenWelcome]);
 
+    // Dismiss welcome for this session
+    const dismissWelcomeSession = useCallback(() => {
+        setStoreSessionWelcomeDismissed(true);
+        if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.setItem('welcome_dismissed', 'true');
+        }
+    }, [setStoreSessionWelcomeDismissed]);
+
     // Generic update for other preferences (like question count)
     const updateGenericPreferences = useCallback(async (prefs: any) => {
         // Update local store if applicable (store handles partial updates)
@@ -98,7 +108,9 @@ export function usePreferences() {
         theme,
         language,
         hasSeenWelcome,
+        sessionWelcomeDismissed,
         setHasSeenWelcome,
+        dismissWelcomeSession,
         updateTheme,
         updateLanguage,
         updateGenericPreferences

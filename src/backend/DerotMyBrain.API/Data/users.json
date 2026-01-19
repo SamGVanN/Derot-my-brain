@@ -4,10 +4,10 @@
       "Id": "test-user-id-001",
       "Name": "TestUser",
       "CreatedAt": "2026-01-18T00:55:00Z",
-      "LastConnectionAt": "2026-01-19T00:40:13.2732335Z",
+      "LastConnectionAt": "2026-01-19T21:13:02.3423127Z",
       "Preferences": {
         "QuestionCount": 10,
-        "PreferredTheme": "neo-wikipedia",
+        "PreferredTheme": "derot-brain",
         "Language": "en",
         "SelectedCategories": []
       }
@@ -30,24 +30,10 @@
       "CreatedAt": "2026-01-19T00:39:24.1002398Z",
       "LastConnectionAt": "2026-01-19T20:49:50.2062544Z",
       "Preferences": {
-        "QuestionCount": 10,
-        "PreferredTheme": "knowledge-core",
+        "QuestionCount": 5,
+        "PreferredTheme": "mind-lab",
         "Language": "fr",
-        "SelectedCategories": [
-          "general-reference",
-          "culture-arts",
-          "geography-places",
-          "health-fitness",
-          "history-events",
-          "human-activities",
-          "mathematics-logic",
-          "natural-sciences",
-          "people-self",
-          "philosophy-thinking",
-          "religion-belief",
-          "society-sciences",
-          "technology-sciences"
-        ]
+        "SelectedCategories": []
       }
     },
     {

@@ -37,16 +37,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Welcome Route Component (shows welcome page if needed)
 function WelcomeRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const { hasSeenWelcome, setHasSeenWelcome } = usePreferences();
+  const { hasSeenWelcome, setHasSeenWelcome, sessionWelcomeDismissed, dismissWelcomeSession } = usePreferences();
 
-  if (user && !hasSeenWelcome) {
+  if (user && !hasSeenWelcome && !sessionWelcomeDismissed) {
     return (
       <WelcomePage
         user={user}
-        onProceed={() => {/* Welcome dismissed for session */ }}
+        onProceed={dismissWelcomeSession}
         onDismiss={() => setHasSeenWelcome(true)}
       />
     );
