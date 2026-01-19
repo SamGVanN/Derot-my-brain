@@ -4,11 +4,11 @@
       "Id": "test-user-id-001",
       "Name": "TestUser",
       "CreatedAt": "2026-01-18T00:55:00Z",
-      "LastConnectionAt": "2026-01-18T23:51:57.4315426Z",
+      "LastConnectionAt": "2026-01-19T00:40:13.2732335Z",
       "Preferences": {
         "QuestionCount": 10,
         "PreferredTheme": "neo-wikipedia",
-        "Language": "fr",
+        "Language": "en",
         "SelectedCategories": []
       }
     },
@@ -16,11 +16,49 @@
       "Id": "699a3f8e-4c01-4fd0-ae68-d21f89828392",
       "Name": "Sam",
       "CreatedAt": "2026-01-18T19:28:01.015586Z",
-      "LastConnectionAt": "2026-01-18T23:24:07.2082384Z",
+      "LastConnectionAt": "2026-01-19T00:40:14.9851553Z",
       "Preferences": {
         "QuestionCount": 5,
         "PreferredTheme": "mind-lab",
         "Language": "fr",
+        "SelectedCategories": []
+      }
+    },
+    {
+      "Id": "d8228733-664e-412d-8d53-140a639a2d92",
+      "Name": "FR-KnowledgeCore",
+      "CreatedAt": "2026-01-19T00:39:24.1002398Z",
+      "LastConnectionAt": "2026-01-19T00:40:17.0664371Z",
+      "Preferences": {
+        "QuestionCount": 10,
+        "PreferredTheme": "knowledge-core",
+        "Language": "fr",
+        "SelectedCategories": [
+          "general-reference",
+          "culture-arts",
+          "geography-places",
+          "health-fitness",
+          "history-events",
+          "human-activities",
+          "mathematics-logic",
+          "natural-sciences",
+          "people-self",
+          "philosophy-thinking",
+          "religion-belief",
+          "society-sciences",
+          "technology-sciences"
+        ]
+      }
+    },
+    {
+      "Id": "ae8f252a-5d43-46d1-8792-5559d461283b",
+      "Name": "EN-CuriosityLoop",
+      "CreatedAt": "2026-01-19T00:39:54.9317812Z",
+      "LastConnectionAt": "2026-01-19T00:40:10.1304344Z",
+      "Preferences": {
+        "QuestionCount": 10,
+        "PreferredTheme": "curiosity-loop",
+        "Language": "en",
         "SelectedCategories": []
       }
     }

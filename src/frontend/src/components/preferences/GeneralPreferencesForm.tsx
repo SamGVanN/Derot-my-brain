@@ -37,10 +37,11 @@ export function GeneralPreferencesForm({ preferences, onSave, isSaving }: Genera
     // This happens if user changed theme via Header (temporary) but hasn't saved it here.
     const isThemeMismatch = theme && theme.name !== preferences.preferredTheme;
 
-    // Check if current active language differs from form's elected language
+    // Check if current active language differs from saved preference
     // We treat 'en-US' and 'en' as the same
+    // Don't show mismatch for 'auto' preference (browser language detection)
     const currentLangCode = i18n.language.split('-')[0];
-    const isLanguageMismatch = currentLangCode !== preferences.language;
+    const isLanguageMismatch = preferences.language !== 'auto' && currentLangCode !== preferences.language;
 
     // Sync local state when props change
     useEffect(() => {

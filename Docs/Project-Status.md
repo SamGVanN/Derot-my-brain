@@ -3,7 +3,7 @@
 ## Overview
 This document tracks the implementation status of features defined in the Functional Specifications and the feature bucket list. It provides a high-level view of what's completed, in progress, and planned.
 
-**Last Updated:** 2026-01-18
+**Last Updated:** 2026-01-19
 
 ---
 
@@ -109,11 +109,14 @@ This document tracks the implementation status of features defined in the Functi
   - **Status:** Completed
   - **Completed Date:** 2026-01-18
 
-- [ ] **Task 2.2: User Preferences Page (Cleanup)**
+- [x] **Task 2.2: User Preferences Page (Cleanup)**
   - [x] Configure quiz question count
   - [x] Select theme
   - [x] Select language
-  - **Status:** En cours (Code cleanup required: remove 'any' types)
+  - [x] Language/theme mismatch indicators working correctly
+  - [x] Comprehensive test coverage (41 tests passing)
+  - **Status:** Completed ✅
+  - **Completed Date:** 2026-01-19
   - **Roadmap Task:** 2.2
 
 - [x] **Task 2.4: Contextual Preference Loading**

@@ -14,7 +14,9 @@
         "back": "Retour",
         "or": "OU",
         "loading": "Chargement...",
-        "error": "Erreur"
+        "error": "Erreur",
+        "selectAll": "Tout sélectionner",
+        "deselectAll": "Tout désélectionner"
     },
     "nav": {
         "derot": "Derot",
@@ -24,6 +26,14 @@
         "preferences": "Préférences",
         "guide": "Guide",
         "logout": "Déconnexion"
+    },
+    "layout": {
+        "appName": "Derot My Brain",
+        "footer": "© 2026 Derot My Brain. Apprentissage Local.",
+        "version": "v0.1.0"
+    },
+    "theme": {
+        "fallback": "Thème"
     },
     "welcome": {
         "title": "Bienvenue sur Derot My Brain",
@@ -53,16 +63,38 @@
     },
     "preferences": {
         "title": "Préférences",
-        "language": "Langue de l'interface",
-        "theme": "Thème",
-        "questionCount": "Questions par Quiz",
-        "categories": "Catégories Wikipédia",
-        "categoriesDescription": "Sélectionnez les catégories que vous souhaitez explorer.",
-        "selectAll": "Tout sélectionner",
-        "deselectAll": "Tout désélectionner",
+        "subtitle": "Gérez les paramètres de votre application et vos centres d'intérêt.",
         "selected_one": "{{count}} sélectionnée",
         "selected_other": "{{count}} sélectionnées",
         "saveSuccess": "Préférences enregistrées avec succès",
-        "saveError": "Échec de l'enregistrement des préférences."
+        "saveError": "Échec de l'enregistrement des préférences.",
+        "general": {
+            "title": "Paramètres Généraux",
+            "description": "Personnalisez votre expérience locale.",
+            "note": "Note : Les modifications non enregistrées (appliquées immédiatement) ne sont valables que pour la session en cours."
+        },
+        "language": {
+            "label": "Langue de l'Interface",
+            "mismatch": "La langue actuellement active ({{langName}}) est différente de la langue de votre profil enregistré."
+        },
+        "theme": {
+            "label": "Thème d'Apparence",
+            "mismatch": "Le thème actuellement actif ({{themeName}}) est différent du thème de votre profil enregistré."
+        },
+        "quiz": {
+            "questionCount": "Questions par Quiz"
+        },
+        "categories": {
+            "title": "Domaines de Connaissance",
+            "description": "Sélectionnez les sujets que vous souhaitez explorer."
+        },
+        "about": {
+            "title": "À Propos des Paramètres",
+            "description": "Personnalisez votre expérience. Ces paramètres seront automatiquement chargés à chaque connexion."
+        },
+        "section": {
+            "general": "Paramètres Généraux",
+            "interests": "Centres d'Intérêt & Sujets"
+        }
     }
 }

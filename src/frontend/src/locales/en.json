@@ -14,7 +14,9 @@
         "back": "Back",
         "or": "OR",
         "loading": "Loading...",
-        "error": "Error"
+        "error": "Error",
+        "selectAll": "Select All",
+        "deselectAll": "Deselect All"
     },
     "nav": {
         "derot": "Derot",
@@ -24,6 +26,14 @@
         "preferences": "Preferences",
         "guide": "Guide",
         "logout": "Logout"
+    },
+    "layout": {
+        "appName": "Derot My Brain",
+        "footer": "© 2026 Derot My Brain. Local Learning.",
+        "version": "v0.1.0"
+    },
+    "theme": {
+        "fallback": "Theme"
     },
     "welcome": {
         "title": "Welcome to Derot My Brain",
@@ -53,16 +63,38 @@
     },
     "preferences": {
         "title": "Preferences",
-        "language": "Interface Language",
-        "theme": "Theme",
-        "questionCount": "Questions per Quiz",
-        "categories": "Wikipedia Categories",
-        "categoriesDescription": "Select the categories you want to explore.",
-        "selectAll": "Select All",
-        "deselectAll": "Deselect All",
+        "subtitle": "Manage your application settings and interests.",
         "selected_one": "{{count}} selected",
         "selected_other": "{{count}} selected",
         "saveSuccess": "Preferences saved successfully",
-        "saveError": "Failed to save preferences."
+        "saveError": "Failed to save preferences.",
+        "general": {
+            "title": "General Settings",
+            "description": "Customize your local experience.",
+            "note": "Note: Unsaved changes (applied immediately) are valid only for the current session."
+        },
+        "language": {
+            "label": "Interface Language",
+            "mismatch": "The language currently active ({{langName}}) is different from your saved profile language."
+        },
+        "theme": {
+            "label": "Appearance Theme",
+            "mismatch": "The theme currently active ({{themeName}}) is different from your saved profile theme."
+        },
+        "quiz": {
+            "questionCount": "Questions per Quiz"
+        },
+        "categories": {
+            "title": "Knowledge Areas",
+            "description": "Select the topics you want to explore."
+        },
+        "about": {
+            "title": "About Settings",
+            "description": "Customize your experience. These settings will be automatically loaded every time you log in."
+        },
+        "section": {
+            "general": "General Settings",
+            "interests": "Interests & Topics"
+        }
     }
 }
