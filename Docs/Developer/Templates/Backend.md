@@ -7,9 +7,12 @@ Je veux implémenter le BACKEND de la tâche [TASK_NUMBER] du projet "Derot My B
 
 DOCUMENTATION À LIRE :
 - ANTIGRAVITY_INSTRUCTIONS.md (workflow général)
-- Docs/Implementation-Roadmap.md section [TASK_NUMBER]
-- Docs/Specifications-fonctionnelles.md (section correspondante)
-- Docs/TECHNICAL-CONSTRAINTS-Storage.md (JSON UNIQUEMENT)
+- Docs/README.md (organisation)
+- Docs/Planning/Project-Status.md (état actuel)
+- Docs/Planning/Implementation-Roadmap.md (tâche spécifique)
+- Docs/Technical/Storage-Policy.md (JSON UNIQUEMENT)
+- Docs/Technical/Backend-Guidelines.md (architecture backend)
+- Docs/Technical/Testing-Strategy.md (méthodologie TDD)
 
 SCOPE BACKEND :
 - Services et logique métier
@@ -48,9 +51,9 @@ Je veux implémenter le BACKEND de la tâche 3.1 (Session Management) du projet 
 
 DOCUMENTATION À LIRE :
 - ANTIGRAVITY_INSTRUCTIONS.md
-- Docs/Implementation-Roadmap.md section 3.1
-- Docs/Specifications-fonctionnelles.md section "1.4.5 Gestion des sessions"
-- Docs/TECHNICAL-CONSTRAINTS-Storage.md
+- Docs/Planning/Implementation-Roadmap.md section 3.1
+- Docs/Planning/Specifications-fonctionnelles.md section "1.4.5 Gestion des sessions"
+- Docs/Technical/Storage-Policy.md
 
 SCOPE BACKEND :
 - SessionService pour créer/gérer les sessions

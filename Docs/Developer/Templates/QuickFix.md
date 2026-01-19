@@ -57,6 +57,11 @@ COMPORTEMENT ACTUEL :
 - L'indicateur ne s'affiche jamais
 
 CONTEXTE :
+- Docs/README.md (organisation)
+- Docs/Planning/Project-Status.md (état actuel)
+- Docs/Technical/Frontend-Architecture.md (si frontend)
+- Docs/Technical/Backend-Guidelines.md (si backend)
+- Docs/Technical/Testing-Strategy.md (tests de non-régression)
 - Fichier : src/frontend/src/components/preferences/GeneralPreferencesForm.tsx
 - Composant : GeneralPreferencesForm
 - Ligne approximative : ~50-70 (zone de l'indicateur de langue)

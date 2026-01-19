@@ -4,7 +4,7 @@ Ce dossier contient des templates de prompts spécialisés pour différents type
 
 ## 📚 Templates Disponibles
 
-### 🔧 [PROMPT-TEMPLATE-Implementation.md](./PROMPT-TEMPLATE-Implementation.md)
+### 🔧 [Implementation.md](./Templates/Implementation.md)
 **Usage :** Implémentation complète d'une tâche (backend + frontend)
 - Template de base le plus complet
 - Inclut tous les aspects d'une tâche
@@ -13,7 +13,7 @@ Ce dossier contient des templates de prompts spécialisés pour différents type
 
 ---
 
-### ⚙️ [PROMPT-TEMPLATE-Backend.md](./PROMPT-TEMPLATE-Backend.md)
+### ⚙️ [Backend.md](./Templates/Backend.md)
 **Usage :** Implémentation backend uniquement
 - Focus sur API, services, et stockage JSON
 - Controllers et endpoints
@@ -22,7 +22,7 @@ Ce dossier contient des templates de prompts spécialisés pour différents type
 
 ---
 
-### 🎨 [PROMPT-TEMPLATE-Frontend.md](./PROMPT-TEMPLATE-Frontend.md)
+### 🎨 [Frontend.md](./Templates/Frontend.md)
 **Usage :** Implémentation frontend uniquement
 - Focus sur composants React et UI
 - Hooks personnalisés
@@ -32,7 +32,7 @@ Ce dossier contient des templates de prompts spécialisés pour différents type
 
 ---
 
-### 🎭 [PROMPT-TEMPLATE-UI-UX.md](./PROMPT-TEMPLATE-UI-UX.md)
+### 🎭 [UI-UX.md](./Templates/UI-UX.md)
 **Usage :** Améliorations visuelles et UX
 - Design et cohérence visuelle
 - Responsive design
@@ -42,7 +42,7 @@ Ce dossier contient des templates de prompts spécialisés pour différents type
 
 ---
 
-### 🔄 [PROMPT-TEMPLATE-Migration.md](./PROMPT-TEMPLATE-Migration.md)
+### 🔄 [Migration.md](./Templates/Migration.md)
 **Usage :** Migrations et refactoring majeurs
 - Changements d'architecture
 - Migration de technologies
@@ -51,7 +51,7 @@ Ce dossier contient des templates de prompts spécialisés pour différents type
 
 ---
 
-### 🐛 [PROMPT-TEMPLATE-QuickFix.md](./PROMPT-TEMPLATE-QuickFix.md)
+### 🐛 [QuickFix.md](./Templates/QuickFix.md)
 **Usage :** Corrections de bugs rapides
 - Fix minimal et ciblé
 - Pas de refactoring

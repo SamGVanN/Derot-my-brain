@@ -5,11 +5,11 @@
 Ce document contient le template principal pour l'implémentation des tâches du projet "Derot My Brain".
 
 **Templates spécialisés disponibles :**
-- [PROMPT-TEMPLATE-Backend.md](./PROMPT-TEMPLATE-Backend.md) - Implémentation backend uniquement
-- [PROMPT-TEMPLATE-Frontend.md](./PROMPT-TEMPLATE-Frontend.md) - Implémentation frontend uniquement
-- [PROMPT-TEMPLATE-Migration.md](./PROMPT-TEMPLATE-Migration.md) - Migrations et refactoring
-- [PROMPT-TEMPLATE-QuickFix.md](./PROMPT-TEMPLATE-QuickFix.md) - Corrections de bugs
-- [PROMPT-TEMPLATE-UI-UX.md](./PROMPT-TEMPLATE-UI-UX.md) - Améliorations UI/UX
+- [Backend.md](./Backend.md) - Implémentation backend uniquement
+- [Frontend.md](./Frontend.md) - Implémentation frontend uniquement
+- [Migration.md](./Migration.md) - Migrations et refactoring
+- [QuickFix.md](./QuickFix.md) - Corrections de bugs
+- [UI-UX.md](./UI-UX.md) - Améliorations UI/UX
 
 ---
 
@@ -43,23 +43,25 @@ Je veux implémenter la tâche [TASK_NUMBER] du projet "Derot My Brain". Commenc
 
 CONTEXTE DU PROJET :
 - Lire Docs/README.md pour comprendre l'organisation de la documentation
-- Lire Docs/Project-Status.md pour voir l'état actuel du projet
-- Lire Docs/TECHNICAL-CONSTRAINTS-Storage.md pour les contraintes de stockage (JSON UNIQUEMENT)
-- Lire Docs/frontend_guidelines.md pour les principes d'architecture frontend (si tâche frontend)
+- Lire Docs/Planning/Project-Status.md pour voir l'état actuel du projet
+- Lire Docs/Technical/Storage-Policy.md pour les contraintes de stockage (JSON UNIQUEMENT)
+- Lire Docs/Technical/Frontend-Architecture.md pour les principes d'architecture frontend (si tâche frontend)
+- Lire Docs/Technical/Backend-Guidelines.md pour les principes d'architecture backend (si tâche backend)
+- Lire Docs/Technical/Testing-Strategy.md pour la méthodologie TDD
 
 TÂCHE À IMPLÉMENTER :
-- Lire la section "[TASK_NUMBER]" dans Docs/Implementation-Roadmap.md
+- Lire la section "[TASK_NUMBER]" dans Docs/Planning/Implementation-Roadmap.md
 - Suivre EXACTEMENT les spécifications, l'objectif et les critères d'acceptation
 - Respecter les dépendances listées
 
 SPÉCIFICATIONS FONCTIONNELLES :
-- Lire la section correspondante dans Docs/Specifications-fonctionnelles.md
+- Lire la section correspondante dans Docs/Planning/Specifications-fonctionnelles.md
 - Comprendre les besoins métier avant de coder
 
 CONTRAINTES TECHNIQUES :
 ⚠️ CRITIQUE : Utiliser UNIQUEMENT des fichiers JSON pour le stockage (pas de SQL Server, PostgreSQL, etc.)
 - Alternatives acceptables SI NÉCESSAIRE : SQLite, LiteDB, RavenDB Embedded
-- Voir Docs/TECHNICAL-CONSTRAINTS-Storage.md pour détails
+- Voir Docs/Technical/Storage-Policy.md pour détails
 
 MÉTHODOLOGIE TDD (CRITICAL) :
 1. ✅ Écrire les tests AVANT le code d'implémentation
@@ -75,7 +77,7 @@ WORKFLOW D'IMPLÉMENTATION :
 5. Implémenter le frontend selon les spécifications
 6. Créer les données mock pour TestUser
 7. Tester selon les critères d'acceptation (back-end + front-end)
-8. Mettre à jour Docs/Project-Status.md :
+8. Mettre à jour Docs/Planning/Project-Status.md :
    - Marquer la tâche comme complétée [x]
    - Mettre à jour le statut de "Not Started" à "Completed"
    - Ajouter la date de complétion
@@ -149,7 +151,7 @@ POINTS SPÉCIFIQUES :
 - Créer /api directory structure (client.ts, endpoints.ts, userApi.ts, categoryApi.ts)
 - Migrer UserService.ts → userApi.ts
 - Éliminer le mélange axios/fetch
-- Lire Docs/frontend_guidelines.md section "Infrastructure Layer"
+- Lire Docs/Technical/Frontend-Architecture.md section "Infrastructure Layer"
 ```
 
 **Task -1.3 - Custom Hooks**
@@ -306,8 +308,8 @@ export const useAuth = () => {
 - [ ] Tests couvrent les edge cases
 
 ### 3. ✅ Architecture
-- [ ] Respect de frontend_guidelines.md (si frontend)
-- [ ] Respect des principes SOLID (si backend)
+- [ ] Respect de Technical/Frontend-Architecture.md (si frontend)
+- [ ] Respect de Technical/Backend-Guidelines.md (si backend)
 - [ ] Pas d'appels API directs dans les composants
 
 ### 4. ✅ Stockage

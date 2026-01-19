@@ -6,9 +6,11 @@
 Je veux effectuer la migration/refactoring [MIGRATION_NAME] du projet "Derot My Brain".
 
 DOCUMENTATION À LIRE :
-- Docs/Implementation-Roadmap.md (tâche correspondante)
-- Docs/frontend_guidelines.md (si frontend)
-- Docs/TECHNICAL-CONSTRAINTS-Storage.md (si backend)
+- Docs/README.md (organisation)
+- Docs/Planning/Implementation-Roadmap.md (tâche spécifique)
+- Docs/Technical/Frontend-Architecture.md (si frontend)
+- Docs/Technical/Backend-Guidelines.md (si backend)
+- Docs/Technical/Storage-Policy.md (si backend)
 
 MIGRATION À EFFECTUER :
 [DESCRIPTION_DÉTAILLÉE]
@@ -48,8 +50,8 @@ Peux-tu analyser le code actuel et proposer un plan de migration ?
 Je veux effectuer la migration vers Zustand (Task -1.2) du projet "Derot My Brain".
 
 DOCUMENTATION À LIRE :
-- Docs/Implementation-Roadmap.md section -1.2
-- Docs/frontend_guidelines.md section "State Management"
+- Docs/Planning/Implementation-Roadmap.md section -1.2
+- Docs/Technical/Frontend-Architecture.md section "State Management"
 
 MIGRATION À EFFECTUER :
 - Remplacer React Context par Zustand

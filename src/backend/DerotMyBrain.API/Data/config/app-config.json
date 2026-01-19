@@ -1,7 +1,7 @@
 {
   "Id": "global",
   "LLM": {
-    "Url": "http://localhost:11434",
+    "Url": "127.0.0.1",
     "Port": 11434,
     "Provider": "ollama",
     "DefaultModel": "llama3:8b",

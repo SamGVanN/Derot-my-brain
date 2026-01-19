@@ -7,9 +7,11 @@ Je veux implémenter le FRONTEND de la tâche [TASK_NUMBER] du projet "Derot My 
 
 DOCUMENTATION À LIRE :
 - ANTIGRAVITY_INSTRUCTIONS.md (workflow général)
-- Docs/Implementation-Roadmap.md section [TASK_NUMBER]
-- Docs/Specifications-fonctionnelles.md (section correspondante)
-- Docs/frontend_guidelines.md (architecture et best practices)
+- Docs/README.md (organisation)
+- Docs/Planning/Project-Status.md (état actuel)
+- Docs/Planning/Implementation-Roadmap.md section [TASK_NUMBER]
+- Docs/Technical/Frontend-Architecture.md (architecture et best practices)
+- Docs/Technical/Testing-Strategy.md (méthodologie TDD)
 
 SCOPE FRONTEND :
 - Composants React
@@ -52,9 +54,9 @@ Je veux implémenter le FRONTEND de la tâche 3.1 (Session Management) du projet
 
 DOCUMENTATION À LIRE :
 - ANTIGRAVITY_INSTRUCTIONS.md
-- Docs/Implementation-Roadmap.md section 3.1
-- Docs/Specifications-fonctionnelles.md section "1.4.5 Gestion des sessions"
-- Docs/frontend_guidelines.md
+- Docs/Planning/Implementation-Roadmap.md section 3.1
+- Docs/Planning/Specifications-fonctionnelles.md section "1.4.5 Gestion des sessions"
+- Docs/Technical/Frontend-Architecture.md
 
 SCOPE FRONTEND :
 - Page SessionPage.tsx (affichage questions/réponses)

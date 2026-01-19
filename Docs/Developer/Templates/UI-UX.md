@@ -6,8 +6,10 @@
 Je veux améliorer l'UI/UX de [COMPONENT_OR_PAGE] du projet "Derot My Brain".
 
 DOCUMENTATION À LIRE :
-- Docs/Specifications-fonctionnelles.md (section correspondante)
-- Docs/frontend_guidelines.md (standards UI)
+- Docs/README.md (organisation)
+- Docs/Planning/Implementation-Roadmap.md (tâche spécifique)
+- Docs/Technical/Frontend-Architecture.md (standards UI)
+- Docs/Reference/Color-Palettes.md (thèmes disponibles)
 
 AMÉLIORATION DEMANDÉE :
 [DESCRIPTION_DÉTAILLÉE]
@@ -49,8 +51,8 @@ Peux-tu analyser l'état actuel et proposer tes améliorations ?
 Je veux améliorer l'UI/UX de la page UserPreferencesPage du projet "Derot My Brain".
 
 DOCUMENTATION À LIRE :
-- Docs/Specifications-fonctionnelles.md section "1.4.2 Préférences utilisateur"
-- Docs/frontend_guidelines.md
+- Docs/Planning/Specifications-fonctionnelles.md section "1.4.2 Préférences utilisateur"
+- Docs/Technical/Frontend-Architecture.md
 
 AMÉLIORATION DEMANDÉE :
 - Améliorer la hiérarchie visuelle des sections
