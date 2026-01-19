@@ -1,4 +1,20 @@
-# Prompt Template pour Ajouter des tâches dans les /Docs selon besoin
+# Prompt Template pour Implémentation de Tâche
+
+## 📋 Vue d'ensemble
+
+Ce document contient le template principal pour l'implémentation des tâches du projet "Derot My Brain".
+
+**Templates spécialisés disponibles :**
+- [PROMPT-TEMPLATE-Backend.md](./PROMPT-TEMPLATE-Backend.md) - Implémentation backend uniquement
+- [PROMPT-TEMPLATE-Frontend.md](./PROMPT-TEMPLATE-Frontend.md) - Implémentation frontend uniquement
+- [PROMPT-TEMPLATE-Migration.md](./PROMPT-TEMPLATE-Migration.md) - Migrations et refactoring
+- [PROMPT-TEMPLATE-QuickFix.md](./PROMPT-TEMPLATE-QuickFix.md) - Corrections de bugs
+- [PROMPT-TEMPLATE-UI-UX.md](./PROMPT-TEMPLATE-UI-UX.md) - Améliorations UI/UX
+
+---
+
+## 📝 Template pour Ajouter des Features dans la Documentation
+
 ```
 Met à jours /Docs (à minima Specifications-fonctionnelles.md, Implementation-Roadmap.md, Project-Status.md) pour la feature ou tâche suivante à implémenter.
 Tu n'implémente rien, tu prépare le terrain et maintiens à jours les instructions pour l'agent développeur.
@@ -16,13 +32,11 @@ IMPORTANT :
 
 Peux-tu commencer par lire la demande de feature et me confirmer que tu as bien compris la tâche avant de commencer ?
 Reformule la demande de feature si nécessaire pour clarifier et organiser le besoin.
-
 ```
 
+---
 
-# Prompt Template pour Implémentation de Tâche
-
-## 📋 Template de Base
+## 🎯 Template de Base pour Implémentation Complète
 
 ```
 Je veux implémenter la tâche [TASK_NUMBER] du projet "Derot My Brain". Commence par prendre connaissance de ANTIGRAVITY_INSTRUCTIONS.md.
@@ -31,6 +45,7 @@ CONTEXTE DU PROJET :
 - Lire Docs/README.md pour comprendre l'organisation de la documentation
 - Lire Docs/Project-Status.md pour voir l'état actuel du projet
 - Lire Docs/TECHNICAL-CONSTRAINTS-Storage.md pour les contraintes de stockage (JSON UNIQUEMENT)
+- Lire Docs/frontend_guidelines.md pour les principes d'architecture frontend (si tâche frontend)
 
 TÂCHE À IMPLÉMENTER :
 - Lire la section "[TASK_NUMBER]" dans Docs/Implementation-Roadmap.md
@@ -46,13 +61,21 @@ CONTRAINTES TECHNIQUES :
 - Alternatives acceptables SI NÉCESSAIRE : SQLite, LiteDB, RavenDB Embedded
 - Voir Docs/TECHNICAL-CONSTRAINTS-Storage.md pour détails
 
+MÉTHODOLOGIE TDD (CRITICAL) :
+1. ✅ Écrire les tests AVANT le code d'implémentation
+2. ✅ Red → Green → Refactor
+3. ✅ Créer les données mock pour TestUser
+4. ✅ Vérifier que la couverture de code ≥ 80%
+
 WORKFLOW D'IMPLÉMENTATION :
 1. Lire et comprendre toute la documentation de la tâche
 2. Vérifier que les dépendances sont complétées
-3. Implémenter le backend selon les spécifications
-4. Implémenter le frontend selon les spécifications
-5. Tester selon les critères d'acceptation (back-end + front-end)
-6. Mettre à jour Docs/Project-Status.md :
+3. Écrire les tests (TDD)
+4. Implémenter le backend selon les spécifications
+5. Implémenter le frontend selon les spécifications
+6. Créer les données mock pour TestUser
+7. Tester selon les critères d'acceptation (back-end + front-end)
+8. Mettre à jour Docs/Project-Status.md :
    - Marquer la tâche comme complétée [x]
    - Mettre à jour le statut de "Not Started" à "Completed"
    - Ajouter la date de complétion
@@ -68,173 +91,297 @@ Peux-tu commencer par lire la documentation et me confirmer que tu as bien compr
 
 ---
 
-## 🎯 Exemples Concrets
+## 🎯 Exemples d'Utilisation
 
-### Exemple 1 : Implémenter Task 0.1 (Foundation)
+### Phase 0 - Foundation
 
+**Task 0.1 - Application Initialization**
 ```
 Je veux implémenter la tâche 0.1 (Application Initialization & Configuration) du projet "Derot My Brain".
 
-CONTEXTE DU PROJET :
-- Lire Docs/README.md pour comprendre l'organisation de la documentation
-- Lire Docs/Project-Status.md pour voir l'état actuel du projet
-- Lire Docs/TECHNICAL-CONSTRAINTS-Storage.md pour les contraintes de stockage (JSON UNIQUEMENT)
-- Lire Docs/CHANGELOG-Phase0-Foundation.md pour comprendre les détails de cette phase
+[Utiliser le template de base ci-dessus]
 
-TÂCHE À IMPLÉMENTER :
-- Lire la section "Task 0.1: Application Initialization & Configuration" dans Docs/Implementation-Roadmap.md
-- Suivre EXACTEMENT les spécifications, l'objectif et les critères d'acceptation
+POINTS SPÉCIFIQUES :
 - Cette tâche n'a AUCUNE dépendance - elle doit être faite EN PREMIER
-
-SPÉCIFICATIONS FONCTIONNELLES :
-- Lire la section "1.4.0 Initialisation de l'application et configuration" dans Docs/Specifications-fonctionnelles.md
-- Comprendre les besoins métier avant de coder
-
-CONTRAINTES TECHNIQUES :
-⚠️ CRITIQUE : Utiliser UNIQUEMENT des fichiers JSON pour le stockage
 - Seed data : /data/seed/categories.json et /data/seed/themes.json
-- Config globale : /data/config/app-config.json
-- Voir Docs/TECHNICAL-CONSTRAINTS-Storage.md pour détails
-
-WORKFLOW D'IMPLÉMENTATION :
-1. Lire et comprendre toute la documentation de la tâche
-2. Créer la structure /data/ avec les sous-dossiers seed/ et config/
-3. Implémenter SeedDataService pour initialiser les 13 catégories Wikipedia et 5 thèmes
-4. Implémenter ConfigurationService pour gérer la config LLM
-5. Créer les endpoints API (GET /api/categories, GET /api/themes, GET/PUT /api/config)
-6. Tester l'initialisation idempotente
-7. Mettre à jour Docs/Project-Status.md :
-   - Marquer "Task 0.1" comme complétée [x]
-   - Mettre à jour le statut de "Not Started" à "Completed"
-   - Ajouter la date de complétion
-
-IMPORTANT :
-- Cette tâche est CRITIQUE - elle doit être faite AVANT toutes les autres
-- Les catégories doivent être les 13 catégories officielles Wikipedia (voir roadmap)
-- L'initialisation doit être idempotente (peut s'exécuter plusieurs fois sans erreur)
-- Ne PAS utiliser de base de données SQL
-
-Peux-tu commencer par lire la documentation et me confirmer que tu as bien compris la tâche avant de commencer l'implémentation ?
+- Les 13 catégories doivent être les catégories officielles Wikipedia
+- L'initialisation doit être idempotente
+- Lire Docs/CHANGELOG-Phase0-Foundation.md pour les détails
 ```
 
----
+### Phase 2 - i18n & Preferences
 
-### Exemple 2 : Implémenter Task 8.1 (i18n)
-
+**Task 8.1 - Internationalization**
 ```
 Je veux implémenter la tâche 8.1 (Internationalization - i18n) du projet "Derot My Brain".
 
-CONTEXTE DU PROJET :
-- Lire Docs/README.md pour comprendre l'organisation de la documentation
-- Lire Docs/Project-Status.md pour voir l'état actuel du projet
-- Lire Docs/CHANGELOG-Phase8-Consolidated.md pour comprendre les détails de cette phase
+[Utiliser le template de base ci-dessus]
 
-TÂCHE À IMPLÉMENTER :
-- Lire la section "Task 8.1: Internationalization (i18n) Implementation" dans Docs/Implementation-Roadmap.md
-- Suivre EXACTEMENT les spécifications, l'objectif et les critères d'acceptation
-- Dépendances : Task 0.1 doit être complétée
-
-SPÉCIFICATIONS FONCTIONNELLES :
-- Lire la section "1.4.2a Internationalisation (i18n)" dans Docs/Specifications-fonctionnelles.md
-- Comprendre les besoins métier avant de coder
-
-PRIORITÉ ABSOLUE :
-⚠️ Cette tâche doit être faite EN PREMIER dans Sprint 1 pour éviter de refactoriser tout le code existant.
-Tous les composants futurs doivent utiliser les traductions dès le départ.
-
-WORKFLOW D'IMPLÉMENTATION :
-1. Lire et comprendre toute la documentation de la tâche
-2. Vérifier que Task 0.1 est complétée
-3. Installer et configurer react-i18next
-4. Créer /src/locales/en.json et /src/locales/fr.json
-5. Configurer la détection automatique de la langue du navigateur
-6. Créer le sélecteur de langue dans les préférences
-7. Traduire TOUS les textes existants (aucun texte en dur)
-8. Tester le changement de langue sans rechargement
-9. Mettre à jour Docs/Project-Status.md :
-   - Marquer "Task 8.1" comme complétée [x]
-   - Mettre à jour le statut de "Not Started" à "Completed"
-   - Ajouter la date de complétion
-
-IMPORTANT :
+POINTS SPÉCIFIQUES :
+⚠️ PRIORITÉ ABSOLUE : Cette tâche doit être faite EN PREMIER dans Sprint 1
 - AUCUN texte ne doit être codé en dur dans les composants
-- Tous les textes doivent être dans les fichiers de traduction
 - Le changement de langue doit être immédiat (pas de rechargement)
-- Utiliser les clés de traduction de manière cohérente
-
-Peux-tu commencer par lire la documentation et me confirmer que tu as bien compris la tâche avant de commencer l'implémentation ?
+- Lire Docs/CHANGELOG-Phase8-Consolidated.md pour les détails
 ```
 
----
-
-### Exemple 3 : Implémenter Task 8.2 (Category Preferences)
-
+**Task 8.2 - Category Preferences**
 ```
 Je veux implémenter la tâche 8.2 (Category Preferences Management) du projet "Derot My Brain".
 
-CONTEXTE DU PROJET :
-- Lire Docs/README.md pour comprendre l'organisation de la documentation
-- Lire Docs/Project-Status.md pour voir l'état actuel du projet
-- Lire Docs/CHANGELOG-Phase8-Consolidated.md pour comprendre la simplification (pas de profils nommés)
+[Utiliser le template de base ci-dessus]
 
-TÂCHE À IMPLÉMENTER :
-- Lire la section "Task 8.2: Category Preferences Management" dans Docs/Implementation-Roadmap.md
-- Suivre EXACTEMENT les spécifications, l'objectif et les critères d'acceptation
-- Dépendances : Task 0.1 (Seed Data), Task 2.1 (User Preferences), Task 8.1 (i18n)
-
-SPÉCIFICATIONS FONCTIONNELLES :
-- Lire la section "1.4.3 Préférences de catégories Wikipedia" dans Docs/Specifications-fonctionnelles.md
-- Comprendre les besoins métier avant de coder
-
-POINTS CLÉS :
-⚠️ VERSION SIMPLIFIÉE : Pas de profils nommés multiples, juste une liste simple de catégories cochables
-- Les 13 catégories proviennent du seed data (Task 0.1)
-- TOUTES les catégories sont cochées par défaut pour les nouveaux utilisateurs
-- Section dans la page Préférences (pas de page dédiée)
-
-WORKFLOW D'IMPLÉMENTATION :
-1. Lire et comprendre toute la documentation de la tâche
-2. Vérifier que les dépendances sont complétées
-3. Charger les catégories depuis GET /api/categories (seed data)
-4. Ajouter section "Wikipedia Categories" dans UserPreferencesPage.tsx
-5. Afficher les 13 catégories avec checkboxes
-6. Implémenter "Select All" / "Deselect All"
-7. Sauvegarder dans UserPreferences.SelectedCategories
-8. Par défaut : toutes les catégories cochées pour nouveaux utilisateurs
-9. Tester la persistance entre sessions
-10. Mettre à jour Docs/Project-Status.md :
-    - Marquer "Task 8.2" comme complétée [x]
-    - Mettre à jour le statut de "Not Started" à "Completed"
-    - Ajouter la date de complétion
-
-IMPORTANT :
-- NE PAS créer de profils nommés (version simplifiée)
-- Charger les catégories depuis l'API (ne pas les hardcoder)
-- Utiliser les traductions (Name ou NameFr selon la langue)
+POINTS SPÉCIFIQUES :
+⚠️ VERSION SIMPLIFIÉE : Pas de profils nommés multiples
+- TOUTES les catégories cochées par défaut pour nouveaux utilisateurs
 - Au moins 1 catégorie doit rester cochée (validation)
+- Charger les catégories depuis l'API (ne pas les hardcoder)
+```
 
-Peux-tu commencer par lire la documentation et me confirmer que tu as bien compris la tâche avant de commencer l'implémentation ?
+### Phase -1 - Frontend Architecture
+
+**Task -1.1 - Infrastructure Layer**
+```
+Je veux implémenter la tâche -1.1 (Infrastructure Layer Setup) du projet "Derot My Brain".
+
+[Utiliser le template de base ci-dessus]
+
+POINTS SPÉCIFIQUES :
+- Créer /api directory structure (client.ts, endpoints.ts, userApi.ts, categoryApi.ts)
+- Migrer UserService.ts → userApi.ts
+- Éliminer le mélange axios/fetch
+- Lire Docs/frontend_guidelines.md section "Infrastructure Layer"
+```
+
+**Task -1.3 - Custom Hooks**
+```
+Je veux implémenter la tâche -1.3 (Custom Hooks Implementation) du projet "Derot My Brain".
+
+[Utiliser le template de base ci-dessus]
+
+POINTS SPÉCIFIQUES :
+⚠️ CRITIQUE : Extraire TOUTE la logique métier des composants vers des custom hooks
+- Créer hooks/useAuth.ts, useUser.ts, usePreferences.ts, useHistory.ts
+- Les composants deviennent "dumb" (présentation uniquement)
+- Dépendances : Task -1.1 et -1.2 doivent être complétées
+```
+
+### Phase 3 - Navigation
+
+**Task 3.1 - Main Navigation Menu**
+```
+Je veux implémenter la tâche 3.1 (Main Navigation Menu) du projet "Derot My Brain".
+
+[Utiliser le template de base ci-dessus]
+
+POINTS SPÉCIFIQUES :
+- Menu : Derot, My Brain (dropdown: History + Tracked Topics), Profile, Preferences, Guide, Logout
+- Utiliser shadcn/ui components (NavigationMenu, DropdownMenu)
+- Composant doit être "dumb" (utiliser useAuth() hook)
+- TERMINOLOGIE : "Backlog" → "Tracked Topics"
 ```
 
 ---
 
-## 🎯 Checklist de Vérification pour l'Agent
+## 🧪 Méthodologie TDD
 
-Après avoir donné le prompt, l'agent devrait confirmer :
+Pour une implémentation stricte TDD, suivre le cycle **Red → Green → Refactor** :
 
-1. ✅ J'ai lu le README.md et compris l'organisation de la documentation
-2. ✅ J'ai lu le Project-Status.md et vérifié l'état actuel
-3. ✅ J'ai lu la tâche spécifique dans Implementation-Roadmap.md
-4. ✅ J'ai lu les spécifications fonctionnelles correspondantes
-5. ✅ J'ai compris les contraintes techniques (JSON uniquement)
-6. ✅ J'ai vérifié que les dépendances sont complétées
-7. ✅ Je sais quoi mettre à jour dans Project-Status.md après implémentation
+### 1. 🔴 RED PHASE - Écrire les tests (qui échouent)
+- Définir les cas de test (nominal, edge cases, erreurs)
+- Écrire les tests unitaires (backend) ou component tests (frontend)
+- Vérifier que les tests échouent
+
+### 2. 🟢 GREEN PHASE - Implémenter le code minimal
+- Écrire le code minimal pour faire passer les tests
+- Ne pas optimiser, juste faire fonctionner
+
+### 3. 🔵 REFACTOR PHASE - Améliorer le code
+- Nettoyer le code (DRY, SOLID)
+- Améliorer la lisibilité
+- Vérifier que les tests passent toujours
+
+### 4. 📊 COVERAGE PHASE - Vérifier la couverture
+- Exécuter l'outil de couverture de code
+- Vérifier que la couverture ≥ 80%
+
+**Exemple Backend (C#):**
+```csharp
+// RED: Test qui échoue
+[Fact]
+public async Task GetUserById_ShouldReturnUser_WhenUserExists()
+{
+    var userId = "test-user-id";
+    var result = await _userService.GetUserById(userId);
+    Assert.NotNull(result);
+    Assert.Equal(userId, result.Id);
+}
+
+// GREEN: Code minimal
+public async Task<User> GetUserById(string userId)
+{
+    return await _repository.GetByIdAsync(userId);
+}
+
+// REFACTOR: Code amélioré
+public async Task<User> GetUserById(string userId)
+{
+    if (string.IsNullOrEmpty(userId))
+        throw new ArgumentException("User ID cannot be null or empty");
+    
+    var user = await _repository.GetByIdAsync(userId);
+    if (user == null)
+        throw new NotFoundException($"User with ID {userId} not found");
+    
+    return user;
+}
+```
+
+**Exemple Frontend (TypeScript):**
+```typescript
+// RED: Test qui échoue
+it('should login user successfully', async () => {
+    const { result } = renderHook(() => useAuth());
+    await act(() => result.current.login('test-user-id'));
+    expect(result.current.isAuthenticated).toBe(true);
+});
+
+// GREEN: Code minimal
+export const useAuth = () => {
+    const login = async (userId: string) => {
+        const user = await userApi.getUserById(userId);
+        useAuthStore.getState().setUser(user);
+    };
+    return { login, /* ... */ };
+};
+
+// REFACTOR: Code amélioré avec gestion d'erreur
+export const useAuth = () => {
+    const login = async (userId: string) => {
+        try {
+            const user = await userApi.getUserById(userId);
+            useAuthStore.getState().setUser(user);
+            usePreferencesStore.getState().loadPreferences(user.preferences);
+        } catch (error) {
+            console.error('Login failed:', error);
+            throw error;
+        }
+    };
+    return { login, /* ... */ };
+};
+```
 
 ---
 
-## 📝 Template de Mise à Jour du Project-Status.md
+## 📦 Mock Data pour TestUser
 
-Après l'implémentation, l'agent doit mettre à jour Project-Status.md comme suit :
+**Structure des données :**
+```
+/data/users/
+  ├── users.json                          # Profil et préférences
+  ├── user-{testuser-id}-history.json     # Historique d'activité
+  └── user-{testuser-id}-tracked.json     # Sujets suivis
+```
+
+**Critères de qualité :**
+- [ ] Données réalistes et cohérentes
+- [ ] Couvre les cas nominaux ET les edge cases
+- [ ] Timestamps valides et cohérents
+- [ ] Références valides (catégories, thèmes, etc.)
+
+**Edge cases à couvrir :**
+- Données vides (nouveau utilisateur)
+- Données au maximum (utilisateur très actif)
+- Données avec valeurs limites (0, 100%, etc.)
+
+---
+
+## 🔍 Checklist de Vérification Post-Implémentation
+
+### 1. ✅ Critères d'Acceptation
+- [ ] Tous les critères de Implementation-Roadmap.md sont remplis
+
+### 2. ✅ Tests
+- [ ] Tous les tests passent (backend + frontend)
+- [ ] Couverture de code ≥ 80%
+- [ ] Tests couvrent les edge cases
+
+### 3. ✅ Architecture
+- [ ] Respect de frontend_guidelines.md (si frontend)
+- [ ] Respect des principes SOLID (si backend)
+- [ ] Pas d'appels API directs dans les composants
+
+### 4. ✅ Stockage
+- [ ] Utilisation de JSON uniquement (pas de SQL)
+- [ ] Pas de hardcoded paths
+
+### 5. ✅ I18N
+- [ ] Tous les textes sont traduits (pas de texte en dur)
+- [ ] Traductions en anglais ET français
+
+### 6. ✅ Qualité de Code
+- [ ] Pas de code dupliqué (DRY)
+- [ ] Nommage clair et cohérent
+- [ ] Pas de console.log oubliés
+
+### 7. ✅ Documentation
+- [ ] Project-Status.md mis à jour
+- [ ] Tâche marquée comme complétée [x]
+- [ ] Date de complétion ajoutée
+
+### 8. ✅ Tests Manuels
+- [ ] Application compile et démarre sans erreur
+- [ ] Feature fonctionne comme attendu
+- [ ] Pas de régression
+
+**Commandes de vérification :**
+```bash
+# Backend
+cd src/backend
+dotnet test
+dotnet build
+
+# Frontend
+cd src/frontend
+npm run test
+npm run build
+npm run lint
+```
+
+---
+
+## 📊 Standards de Qualité de Code
+
+### Backend (C#)
+- **Naming:** PascalCase (classes, méthodes), camelCase (variables)
+- **SOLID:** Respecter les 5 principes
+- **Async/Await:** Pas de .Result ou .Wait()
+- **XML Documentation:** Pour méthodes publiques
+
+### Frontend (React/TypeScript)
+- **Naming:** PascalCase (composants), camelCase (fonctions)
+- **Components:** "Dumb" components (présentation uniquement)
+- **Hooks:** Logique métier dans custom hooks
+- **State:** Zustand pour état global, useState pour local
+- **Performance:** useMemo, useCallback si nécessaire
+- **Accessibility:** Labels, alt text, keyboard navigation
+
+---
+
+## 🎯 Checklist pour l'Agent
+
+Avant de commencer, l'agent doit confirmer :
+
+1. ✅ J'ai lu le README.md et compris l'organisation
+2. ✅ J'ai lu le Project-Status.md et vérifié l'état actuel
+3. ✅ J'ai lu la tâche dans Implementation-Roadmap.md
+4. ✅ J'ai lu les spécifications fonctionnelles
+5. ✅ J'ai compris les contraintes techniques (JSON uniquement)
+6. ✅ J'ai vérifié que les dépendances sont complétées
+7. ✅ Je sais quoi mettre à jour dans Project-Status.md
+
+---
+
+## 📝 Format de Mise à Jour du Project-Status.md
 
 ```markdown
 ### Phase X: [Phase Name]
@@ -243,23 +390,13 @@ Après l'implémentation, l'agent doit mettre à jour Project-Status.md comme su
 - [x] **Task X.Y: [Task Name]**: [Description]
   - [Détails de la tâche]
   - **Status:** Completed ✅
-  - **Completed on:** 2026-01-18
+  - **Completed on:** YYYY-MM-DD
   - **Roadmap Task:** X.Y
 ```
 
 ---
 
-## 🚀 Utilisation Recommandée
-
-### Pour Chaque Tâche :
-
-1. **Copier le template de base**
-2. **Remplacer [TASK_NUMBER]** par le numéro de tâche (ex: 0.1, 8.1, etc.)
-3. **Ajouter les points clés spécifiques** à la tâche
-4. **Mentionner le changelog** pertinent si disponible
-5. **Envoyer le prompt** à l'agent
-
-### Ordre Recommandé :
+## 🚀 Ordre Recommandé d'Implémentation
 
 1. **Task 0.1** (Foundation) - CRITIQUE - À faire EN PREMIER
 2. **Task 8.1** (i18n) - PRIORITÉ ABSOLUE dans Sprint 1
@@ -273,3 +410,6 @@ Après l'implémentation, l'agent doit mettre à jour Project-Status.md comme su
 - ✅ Respecte les contraintes techniques
 - ✅ Met à jour la documentation correctement
 - ✅ Suit les critères d'acceptation
+- ✅ Applique la méthodologie TDD
+- ✅ Crée des données mock réalistes
+- ✅ Vérifie la qualité du code
