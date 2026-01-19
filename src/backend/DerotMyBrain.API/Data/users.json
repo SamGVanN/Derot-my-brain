@@ -28,7 +28,7 @@
       "Id": "d8228733-664e-412d-8d53-140a639a2d92",
       "Name": "FR-KnowledgeCore",
       "CreatedAt": "2026-01-19T00:39:24.1002398Z",
-      "LastConnectionAt": "2026-01-19T00:40:17.0664371Z",
+      "LastConnectionAt": "2026-01-19T00:45:52.8021558Z",
       "Preferences": {
         "QuestionCount": 10,
         "PreferredTheme": "knowledge-core",
@@ -54,7 +54,7 @@
       "Id": "ae8f252a-5d43-46d1-8792-5559d461283b",
       "Name": "EN-CuriosityLoop",
       "CreatedAt": "2026-01-19T00:39:54.9317812Z",
-      "LastConnectionAt": "2026-01-19T00:40:10.1304344Z",
+      "LastConnectionAt": "2026-01-19T00:45:56.0058317Z",
       "Preferences": {
         "QuestionCount": 10,
         "PreferredTheme": "curiosity-loop",
