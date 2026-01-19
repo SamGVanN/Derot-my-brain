@@ -33,5 +33,15 @@ namespace DerotMyBrain.API.Repositories
             var json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
             await File.WriteAllTextAsync(filePath, json);
         }
+
+        public Task DeleteAsync(string fileName)
+        {
+            var filePath = Path.Combine(_dataDirectory, fileName);
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+            return Task.CompletedTask;
+        }
     }
 }

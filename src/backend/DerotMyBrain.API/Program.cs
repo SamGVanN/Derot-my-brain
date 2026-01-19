@@ -24,7 +24,7 @@ try
     builder.Services.AddSwaggerGen();
 
     // Configuration
-    builder.Configuration["DataDirectory"] = Path.Combine(Directory.GetCurrentDirectory(), "data");
+    builder.Configuration["DataDirectory"] = Path.Combine(Directory.GetCurrentDirectory(), "Data");
 
     // Service Registration (DI)
     builder.Services.AddScoped(typeof(DerotMyBrain.API.Repositories.IJsonRepository<>), typeof(DerotMyBrain.API.Repositories.JsonRepository<>));

@@ -16,7 +16,7 @@ namespace DerotMyBrain.API.Services
 
         public SeedDataService(IConfiguration configuration, ILogger<SeedDataService> logger)
         {
-            var dataDirectory = configuration["DataDirectory"] ?? "data";
+            var dataDirectory = configuration["DataDirectory"] ?? "Data";
             _seedDataDirectory = Path.Combine(dataDirectory, "seed");
             _logger = logger;
         }

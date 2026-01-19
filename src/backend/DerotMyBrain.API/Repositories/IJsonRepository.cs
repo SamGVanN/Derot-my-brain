@@ -4,5 +4,6 @@ namespace DerotMyBrain.API.Repositories
     {
         Task<T> GetAsync(string fileName);
         Task SaveAsync(string fileName, T data);
+        Task DeleteAsync(string fileName);
     }
 }

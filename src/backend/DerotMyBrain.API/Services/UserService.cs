@@ -142,6 +142,9 @@ namespace DerotMyBrain.API.Services
                 return false;
             }
 
+            // Phase 3: "Clean" deletion - remove associated data first
+            await _userRepository.DeleteAsync($"user-{userId}-history.json");
+
             data.Users.RemoveAt(existingUserIndex);
             await _userRepository.SaveAsync(UsersFileName, data);
 

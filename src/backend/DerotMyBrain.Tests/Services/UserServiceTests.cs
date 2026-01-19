@@ -471,6 +471,9 @@ namespace DerotMyBrain.Tests.Services
 
             // Verify user was removed from list and saved
             _mockRepository.Verify(repo => repo.SaveAsync("users.json", It.Is<UserList>(ul => ul.Users.Count == 0)), Times.Once);
+
+            // Verify associated data was deleted
+            _mockRepository.Verify(repo => repo.DeleteAsync("user-user-id-history.json"), Times.Once);
         }
 
         [Fact]
@@ -519,6 +522,9 @@ namespace DerotMyBrain.Tests.Services
                 ul.Users.Any(u => u.Id == "user-3") &&
                 !ul.Users.Any(u => u.Id == "user-2")
             )), Times.Once);
+
+            // Verify associated data was deleted for user-2
+            _mockRepository.Verify(repo => repo.DeleteAsync("user-user-2-history.json"), Times.Once);
         }
     }
 }

@@ -5,7 +5,8 @@ Ce guide explique comment compiler et lancer les applications Backend et Fronten
 ## Prérequis
 
 Assurez-vous d'avoir installé les outils suivants :
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (Compatible Windows, Linux, macOS).
+- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (Compatible Windows, Linux, macOS).
+- On Linux open a terminal and run the command (for fedora it is `sudo dnf install dotnet-sdk-9.0`)
 - [Node.js](https://nodejs.org/) (version LTS recommandée)
 
 ## Backend (.NET)

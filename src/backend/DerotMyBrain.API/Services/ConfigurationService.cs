@@ -16,7 +16,7 @@ namespace DerotMyBrain.API.Services
 
         public ConfigurationService(IConfiguration configuration, ILogger<ConfigurationService> logger)
         {
-            var dataDirectory = configuration["DataDirectory"] ?? "data";
+            var dataDirectory = configuration["DataDirectory"] ?? "Data";
             _configDirectory = Path.Combine(dataDirectory, "config");
             _logger = logger;
         }
