@@ -102,7 +102,49 @@ This document explains the reorganized documentation structure for the Derot My 
 
 ### Supporting Documents
 
-#### 4. **[ArchitectureDiagram.md](file:///d:/Repos/Derot-my-brain/Docs/ArchitectureDiagram.md)**
+#### 4. **[frontend_guidelines.md](file:///d:/Repos/Derot-my-brain/Docs/frontend_guidelines.md)**
+**Purpose:** Frontend development best practices and architectural guidelines
+
+**Contents:**
+- Theming and styling rules (semantic colors, shadcn/ui components)
+- Frontend architecture principles (SoC, Component-Driven, Composition, etc.)
+- Custom hooks patterns for business logic
+- Zustand state management guidelines
+- React best practices
+- Clean architecture for frontend
+
+**When to use:**
+- Before creating new frontend components
+- When refactoring existing components
+- Understanding theming system
+- Setting up state management
+- Ensuring architectural compliance
+
+---
+
+#### 5. **[react-router-guidelines.md](file:///d:/Repos/Derot-my-brain/Docs/react-router-guidelines.md)**
+**Purpose:** React Router v7 routing and navigation patterns
+
+**Contents:**
+- Declarative routing patterns
+- Protected routes implementation
+- Navigation links (NavLink vs Link)
+- Programmatic navigation with useNavigate()
+- URL structure best practices
+- Navigation component patterns (Header, NavigationMenu)
+- Responsive navigation (sidebar + hamburger)
+- Testing navigation flows
+
+**When to use:**
+- Implementing new routes
+- Creating navigation components
+- Setting up route protection
+- Understanding navigation patterns
+- Building responsive menus
+
+---
+
+#### 6. **[ArchitectureDiagram.md](file:///d:/Repos/Derot-my-brain/Docs/ArchitectureDiagram.md)**
 **Purpose:** System architecture overview
 
 **Contents:**
@@ -113,7 +155,7 @@ This document explains the reorganized documentation structure for the Derot My 
 
 ---
 
-#### 5. **[Guide-Compilation-Execution.md](file:///d:/Repos/Derot-my-brain/Docs/Guide-Compilation-Execution.md)**
+#### 7. **[Guide-Compilation-Execution.md](file:///d:/Repos/Derot-my-brain/Docs/Guide-Compilation-Execution.md)**
 **Purpose:** How to build and run the project
 
 **Contents:**

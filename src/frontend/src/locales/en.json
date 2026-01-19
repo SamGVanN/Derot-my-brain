@@ -12,6 +12,7 @@
         "delete": "Delete",
         "edit": "Edit",
         "back": "Back",
+        "backToHistory": "Back to History",
         "or": "OR",
         "loading": "Loading...",
         "error": "Error",
@@ -21,11 +22,13 @@
     "nav": {
         "derot": "Derot",
         "history": "History",
+        "trackedTopics": "Tracked Topics",
         "backlog": "Backlog",
         "profile": "Profile",
         "preferences": "Preferences",
         "guide": "Guide",
-        "logout": "Logout"
+        "logout": "Logout",
+        "myAccount": "My Account"
     },
     "layout": {
         "appName": "Derot My Brain",
@@ -96,5 +99,45 @@
             "general": "General Settings",
             "interests": "Interests & Topics"
         }
+    },
+    "profile": {
+        "title": "User Profile",
+        "editMode": "Edit Profile",
+        "name": "Name",
+        "userId": "User ID",
+        "createdAt": "Account Created",
+        "lastConnection": "Last Connection",
+        "statistics": "Statistics",
+        "totalActivities": "Total Activities",
+        "trackedTopicsCount": "Tracked Topics",
+        "dangerZone": "Danger Zone",
+        "deleteAccount": "Delete Account",
+        "deleteAccountWarning": "This action is permanent and cannot be undone.",
+        "deleteAccountDetails": "All your data will be deleted, including:",
+        "deleteAccountList": {
+            "profile": "Profile information",
+            "history": "Activity history",
+            "tracked": "Tracked topics",
+            "preferences": "Preferences"
+        },
+        "deleteAccountConfirm": "Type your username to confirm",
+        "deleteAccountButton": "Delete My Account",
+        "saveSuccess": "Profile updated successfully",
+        "saveError": "Failed to update profile"
+    },
+    "derot": {
+        "title": "Derot Page",
+        "comingSoon": "Coming soon in Phase 6",
+        "description": "This is where you will read Wikipedia articles and take quizzes to test your knowledge."
+    },
+    "trackedTopics": {
+        "title": "Tracked Topics",
+        "comingSoon": "Coming soon in Phase 5",
+        "description": "This is where you will manage your tracked topics and favorite articles to revisit later."
+    },
+    "guide": {
+        "title": "User Guide",
+        "comingSoon": "Coming soon in Phase 8",
+        "description": "This is where you will find helpful guides and tutorials on how to use Derot My Brain."
     }
 }

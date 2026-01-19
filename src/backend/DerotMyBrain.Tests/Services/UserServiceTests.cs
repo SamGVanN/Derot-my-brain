@@ -357,5 +357,168 @@ namespace DerotMyBrain.Tests.Services
             // Verify repository was NOT called to save
             _mockRepository.Verify(repo => repo.SaveAsync("users.json", It.IsAny<UserList>()), Times.Never);
         }
+
+        // ===== NEW TESTS FOR PHASE 3: USER PROFILE MANAGEMENT =====
+
+        [Fact]
+        public async Task UpdateUserNameAsync_UpdatesUserName_WhenUserExists()
+        {
+            // Arrange
+            var user = new User 
+            { 
+                Id = "user-id", 
+                Name = "OldName",
+                Preferences = new UserPreferences()
+            };
+            var userList = new UserList { Users = new List<User> { user } };
+
+            _mockRepository
+                .Setup(repo => repo.GetAsync("users.json"))
+                .ReturnsAsync(userList);
+
+            // Act
+            var result = await _userService.UpdateUserNameAsync("user-id", "NewName");
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.Name.Should().Be("NewName");
+            result.Id.Should().Be("user-id");
+
+            // Verify repository was called to save
+            _mockRepository.Verify(repo => repo.SaveAsync("users.json", It.IsAny<UserList>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateUserNameAsync_ReturnsNull_WhenUserNotFound()
+        {
+            // Arrange
+            var userList = new UserList { Users = new List<User>() };
+
+            _mockRepository
+                .Setup(repo => repo.GetAsync("users.json"))
+                .ReturnsAsync(userList);
+
+            // Act
+            var result = await _userService.UpdateUserNameAsync("non-existent-id", "NewName");
+
+            // Assert
+            result.Should().BeNull();
+
+            // Verify repository was NOT called to save
+            _mockRepository.Verify(repo => repo.SaveAsync("users.json", It.IsAny<UserList>()), Times.Never);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("   ")]
+        [InlineData(null)]
+        public async Task UpdateUserNameAsync_ThrowsArgumentException_WhenNameIsNullOrWhitespace(string invalidName)
+        {
+            // Arrange
+            var user = new User { Id = "user-id", Name = "OldName" };
+            var userList = new UserList { Users = new List<User> { user } };
+
+            _mockRepository
+                .Setup(repo => repo.GetAsync("users.json"))
+                .ReturnsAsync(userList);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(
+                async () => await _userService.UpdateUserNameAsync("user-id", invalidName)
+            );
+
+            // Verify repository was NOT called to save
+            _mockRepository.Verify(repo => repo.SaveAsync("users.json", It.IsAny<UserList>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task UpdateUserNameAsync_ThrowsArgumentException_WhenNameIsTooLong()
+        {
+            // Arrange
+            var user = new User { Id = "user-id", Name = "OldName" };
+            var userList = new UserList { Users = new List<User> { user } };
+            var tooLongName = new string('a', 101); // 101 characters
+
+            _mockRepository
+                .Setup(repo => repo.GetAsync("users.json"))
+                .ReturnsAsync(userList);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(
+                async () => await _userService.UpdateUserNameAsync("user-id", tooLongName)
+            );
+
+            // Verify repository was NOT called to save
+            _mockRepository.Verify(repo => repo.SaveAsync("users.json", It.IsAny<UserList>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task DeleteUserAsync_DeletesUser_WhenUserExists()
+        {
+            // Arrange
+            var user = new User { Id = "user-id", Name = "TestUser" };
+            var userList = new UserList { Users = new List<User> { user } };
+
+            _mockRepository
+                .Setup(repo => repo.GetAsync("users.json"))
+                .ReturnsAsync(userList);
+
+            // Act
+            var result = await _userService.DeleteUserAsync("user-id");
+
+            // Assert
+            result.Should().BeTrue();
+
+            // Verify user was removed from list and saved
+            _mockRepository.Verify(repo => repo.SaveAsync("users.json", It.Is<UserList>(ul => ul.Users.Count == 0)), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteUserAsync_ReturnsFalse_WhenUserNotFound()
+        {
+            // Arrange
+            var userList = new UserList { Users = new List<User>() };
+
+            _mockRepository
+                .Setup(repo => repo.GetAsync("users.json"))
+                .ReturnsAsync(userList);
+
+            // Act
+            var result = await _userService.DeleteUserAsync("non-existent-id");
+
+            // Assert
+            result.Should().BeFalse();
+
+            // Verify repository was NOT called to save
+            _mockRepository.Verify(repo => repo.SaveAsync("users.json", It.IsAny<UserList>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task DeleteUserAsync_DeletesOnlySpecifiedUser_WhenMultipleUsersExist()
+        {
+            // Arrange
+            var user1 = new User { Id = "user-1", Name = "User1" };
+            var user2 = new User { Id = "user-2", Name = "User2" };
+            var user3 = new User { Id = "user-3", Name = "User3" };
+            var userList = new UserList { Users = new List<User> { user1, user2, user3 } };
+
+            _mockRepository
+                .Setup(repo => repo.GetAsync("users.json"))
+                .ReturnsAsync(userList);
+
+            // Act
+            var result = await _userService.DeleteUserAsync("user-2");
+
+            // Assert
+            result.Should().BeTrue();
+
+            // Verify only user-2 was removed
+            _mockRepository.Verify(repo => repo.SaveAsync("users.json", It.Is<UserList>(ul => 
+                ul.Users.Count == 2 &&
+                ul.Users.Any(u => u.Id == "user-1") &&
+                ul.Users.Any(u => u.Id == "user-3") &&
+                !ul.Users.Any(u => u.Id == "user-2")
+            )), Times.Once);
+        }
     }
 }

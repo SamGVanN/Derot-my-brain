@@ -884,18 +884,18 @@ Implement a navigation menu to allow users to move between different pages of th
   - Smooth transitions when auth state changes
 
 #### Acceptance Criteria
-- [ ] Navigation menu accessible from all pages
-- [ ] All pages reachable via navigation
-- [ ] Active page highlighted in menu
-- [ ] Navigation responsive on mobile
-- [ ] Logout functionality works correctly
-- [ ] Header shows language/theme selectors when not authenticated
-- [ ] Header shows user menu + settings + logout when authenticated
-- [ ] User menu dropdown displays all required links
-- [ ] Settings button navigates to preferences
-- [ ] Logo/title clickable and navigates to correct home page
-- [ ] Authenticated home page is history page
-- [ ] Header transitions smoothly on auth state change
+- [x] Navigation menu accessible from all pages
+- [x] All pages reachable via navigation
+- [x] Active page highlighted in menu
+- [x] Navigation responsive on mobile
+- [x] Logout functionality works correctly
+- [x] Header shows language/theme selectors when not authenticated
+- [x] Header shows user menu + settings + logout when authenticated
+- [x] User menu dropdown displays all required links
+- [x] Settings button navigates to preferences
+- [x] Logo/title clickable and navigates to correct home page
+- [x] Authenticated home page is history page
+- [x] Header transitions smoothly on auth state change
 
 ---
 
@@ -945,17 +945,17 @@ Create a user profile page displaying user information with edit capabilities.
   - Add validation for deletion (user must exist)
 
 #### Acceptance Criteria
-- [ ] Profile displays all user information
-- [ ] User can edit their name
-- [ ] Changes save successfully
-- [ ] Validation prevents invalid names
-- [ ] Statistics (activity count, backlog count) accurate
-- [ ] Delete Account button visible in danger zone
-- [ ] Confirmation modal displays all warnings
-- [ ] Username confirmation required before deletion
-- [ ] Account deletion removes all user data
-- [ ] User redirected to login after deletion
-- [ ] Deleted user cannot log back in
+- [x] Profile displays all user information
+- [x] User can edit their name
+- [x] Changes save successfully
+- [x] Validation prevents invalid names
+- [x] Statistics (activity count, backlog count) accurate
+- [x] Delete Account button visible in danger zone
+- [x] Confirmation modal displays all warnings
+- [x] Username confirmation required before deletion
+- [x] Account deletion removes all user data
+- [x] User redirected to login after deletion
+- [x] Deleted user cannot log back in
 
 ---
 

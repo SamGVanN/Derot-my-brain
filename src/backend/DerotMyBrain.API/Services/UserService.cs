@@ -102,5 +102,50 @@ namespace DerotMyBrain.API.Services
             await _userRepository.SaveAsync(UsersFileName, data);
             return user;
         }
+
+        public async Task<User?> UpdateUserNameAsync(string userId, string newName)
+        {
+            // Validation
+            if (string.IsNullOrWhiteSpace(newName))
+            {
+                throw new ArgumentException("Name cannot be null or whitespace.", nameof(newName));
+            }
+
+            if (newName.Length > 100)
+            {
+                throw new ArgumentException("Name cannot exceed 100 characters.", nameof(newName));
+            }
+
+            var data = await _userRepository.GetAsync(UsersFileName);
+            var existingUserIndex = data.Users.FindIndex(u => u.Id == userId);
+
+            if (existingUserIndex == -1)
+            {
+                return null;
+            }
+
+            var user = data.Users[existingUserIndex];
+            user.Name = newName;
+            data.Users[existingUserIndex] = user;
+            await _userRepository.SaveAsync(UsersFileName, data);
+
+            return user;
+        }
+
+        public async Task<bool> DeleteUserAsync(string userId)
+        {
+            var data = await _userRepository.GetAsync(UsersFileName);
+            var existingUserIndex = data.Users.FindIndex(u => u.Id == userId);
+
+            if (existingUserIndex == -1)
+            {
+                return false;
+            }
+
+            data.Users.RemoveAt(existingUserIndex);
+            await _userRepository.SaveAsync(UsersFileName, data);
+
+            return true;
+        }
     }
 }

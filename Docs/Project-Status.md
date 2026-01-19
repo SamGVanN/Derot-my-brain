@@ -137,15 +137,29 @@ This document tracks the implementation status of features defined in the Functi
 ### Phase 3: Application Structure (Sprint A)
 
 #### Navigation & Profile
-- [ ] **Task 3.1: Main Navigation Menu** (Formerly 4.1)
-  - **Status:** Not Started
-  - Links to: Derot, History, Backlog, Profile, Preferences, Guide, Logout
-  - Header authentication state changes
+- [x] **Task 3.1: Main Navigation Menu** (Formerly 4.1)
+  - **Status:** Completed ✅
+  - **Completed Date:** 2026-01-19
+  - **Implementation:**
+    - React Router v7 configured with declarative routing
+    - Header component with authentication-aware states
+    - NavigationMenu component (sidebar desktop + hamburger mobile)
+    - LanguageSelector component for i18n switching
+    - Active page highlighting with NavLink
+    - Protected routes with authentication guards
+    - Routes: /, /history, /profile, /preferences, /derot, /tracked-topics, /guide
 
-- [ ] **Task 3.2: User Profile Page** (Formerly 4.2)
-  - **Status:** Not Started
-  - Edit name, view stats
-  - Account deletion
+- [x] **Task 3.2: User Profile Page** (Formerly 4.2)
+  - **Status:** Completed ✅
+  - **Completed Date:** 2026-01-19
+  - **Implementation:**
+    - UserProfilePage component with edit name functionality
+    - DeleteAccountModal with username confirmation
+    - Backend endpoints: PUT /api/users/{id}, DELETE /api/users/{id}
+    - 8 new backend tests (22/22 passing)
+    - Statistics display (activities, tracked topics)
+    - Danger zone with account deletion
+  - **Roadmap Task:** 3.2
 
 ---
 
@@ -206,21 +220,21 @@ This document tracks the implementation status of features defined in the Functi
 
 ---
 
-### Phase 7: Data Management (Phase 6)
+### Phase 7: Data Management
 
 - [ ] **Task 7.1: User Data Export** (Formerly 6.1)
   - **Status:** Not Started
 
 ---
 
-### Phase 8: User Guidance (Phase 7)
+### Phase 8: User Guidance
 
 - [ ] **Task 8.1: Contextual Help** (Formerly 7.1)
   - **Status:** Not Started
 
 ---
 
-### Phase 9: Deployment (Phase 9)
+### Phase 9: Deployment
 
 - [ ] **Task 9.1: Cross-Platform Packaging**
 - [ ] **Task 9.2: Installer Creation**

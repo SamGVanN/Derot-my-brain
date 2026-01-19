@@ -8,5 +8,7 @@ namespace DerotMyBrain.API.Services
         Task<User> CreateOrGetUserAsync(string name, string? language = null, string? preferredTheme = null);
         Task<User?> GetUserByIdAsync(string id);
         Task<User?> UpdateUserAsync(User user);
+        Task<User?> UpdateUserNameAsync(string userId, string newName);
+        Task<bool> DeleteUserAsync(string userId);
     }
 }

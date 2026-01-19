@@ -102,6 +102,40 @@ namespace DerotMyBrain.API.Controllers
             var updatedUser = await _userService.UpdateUserAsync(user);
             return Ok(updatedUser);
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                return BadRequest("Name is required");
+            }
+
+            try
+            {
+                var updatedUser = await _userService.UpdateUserNameAsync(id, request.Name);
+                if (updatedUser == null)
+                {
+                    return NotFound();
+                }
+                return Ok(updatedUser);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var result = await _userService.DeleteUserAsync(id);
+            if (!result)
+            {
+                return NotFound();
+            }
+            return NoContent();
+        }
     }
 
     public class CreateUserRequest
@@ -109,5 +143,10 @@ namespace DerotMyBrain.API.Controllers
         public string Name { get; set; } = string.Empty;
         public string? Language { get; set; }
         public string? PreferredTheme { get; set; }
+    }
+
+    public class UpdateUserRequest
+    {
+        public string Name { get; set; } = string.Empty;
     }
 }
