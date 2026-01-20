@@ -172,9 +172,73 @@ This document tracks the implementation status of features defined in the Functi
   - Configure LLM URL/Port
   - Connection Testing
 
-- [ ] **Task 4.2: Enhanced Activity Model** (Formerly 3.1)
+- [x] **Task 4.2.1: Backend - SQLite Setup & Models**
+  - **Status:** Completed ✅
+  - **Completed Date:** 2026-01-20
+  - **Implementation:**
+    - Installed EF Core packages (Sqlite 9.0.0, Design 9.0.0, InMemory 9.0.0)
+    - Created comprehensive UserActivity model (13 fields)
+    - Extracted UserPreferences to separate file
+    - Created DerotDbContext with entity configurations
+    - Generated and applied InitialCreate migration
+    - Database created at `bin/Debug/net9.0/Data/derot-my-brain.db`
+    - 3 performance indexes created
+    - 4/4 unit tests passing
+  - **Roadmap Task:** 4.2.1
+
+- [x] **Task 4.2.2: Backend - Repository Layer (SQLite)**
+  - **Status:** Completed ✅
+  - **Completed Date:** 2026-01-20
+  - **Implementation:**
+    - Created IActivityRepository interface (9 methods: 6 CRUD + 3 Dashboard)
+    - Implemented SqliteActivityRepository with EF Core
+    - Created 3 DTOs (UserStatisticsDto, ActivityCalendarDto, TopScoreDto)
+    - Registered repository in DI container (Program.cs)
+    - 13/13 unit tests passing (InMemory database)
+    - AsNoTracking() optimization for read queries
+    - Comprehensive logging and error handling
+  - **Roadmap Task:** 4.2.2
+
+- [ ] **Task 4.2.3: Backend - Activity Service Layer**
   - **Status:** Not Started
-  - 10 sub-tasks in **Roadmap**
+  - Business logic for activity management
+  - BestScore calculation
+  - Read vs Quiz logic
+
+- [ ] **Task 4.2.4: Backend - API Endpoints & DTOs**
+  - **Status:** Not Started
+  - REST endpoints for activities
+  - Dashboard endpoints
+
+- [ ] **Task 4.2.5: Backend - Database Seeding & Mock Data**
+  - **Status:** Not Started
+  - Create DbInitializer
+  - Seed TestUser data
+
+- [ ] **Task 4.2.6: Frontend - TypeScript Interfaces & API Client**
+  - **Status:** Not Started
+  - Create TS interfaces
+  - Implement API calls
+
+- [ ] **Task 4.2.7: Frontend - Custom Hooks**
+  - **Status:** Not Started
+  - useActivities, useTrackedTopics
+  - Dashboard hooks
+
+- [ ] **Task 4.2.8: Frontend - History View Update**
+  - **Status:** Not Started
+  - Display Last/Best scores
+  - Show tracked indicators
+
+- [ ] **Task 4.2.9: Frontend - Tracked Topics Page**
+  - **Status:** Not Started
+  - Dedicated tracked topics page
+  - Track/untrack functionality
+
+- [ ] **Task 4.2.10: Frontend - Dashboard Statistics (Optional V1)**
+  - **Status:** Not Started
+  - Activity graphs
+  - Top scores display
 
 ---
 

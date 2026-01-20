@@ -1,26 +1,47 @@
 // Trigger reload
-namespace DerotMyBrain.API.Models
+namespace DerotMyBrain.API.Models;
+
+/// <summary>
+/// Represents a user of the application.
+/// </summary>
+public class User
 {
-    public class User
-    {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string Name { get; set; } = string.Empty;
+    /// <summary>
+    /// Unique identifier for the user.
+    /// </summary>
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    
+    /// <summary>
+    /// User's display name.
+    /// </summary>
+    public string Name { get; set; } = string.Empty;
 
-        public DateTime CreatedAt { get; set; }
-        public DateTime LastConnectionAt { get; set; }
-        public UserPreferences Preferences { get; set; } = new UserPreferences();
-    }
-
-    public class UserPreferences
-    {
-        public int QuestionCount { get; set; } = 10;
-        public string PreferredTheme { get; set; } = "derot-brain";
-        public string Language { get; set; } = "auto"; // "en", "fr", or "auto"
-        public List<string> SelectedCategories { get; set; } = new();
-    }
-
-    public class UserList
-    {
-        public List<User> Users { get; set; } = [];
-    }
+    /// <summary>
+    /// Date and time when the user account was created.
+    /// </summary>
+    public DateTime CreatedAt { get; set; }
+    
+    /// <summary>
+    /// Date and time of the user's last connection.
+    /// </summary>
+    public DateTime LastConnectionAt { get; set; }
+    
+    /// <summary>
+    /// Navigation property to user preferences (1-to-1 relationship).
+    /// </summary>
+    public UserPreferences? Preferences { get; set; }
+    
+    /// <summary>
+    /// Navigation property to user activities (1-to-many relationship).
+    /// </summary>
+    public ICollection<UserActivity> Activities { get; set; } = new List<UserActivity>();
 }
+
+/// <summary>
+/// Container for a list of users (used for JSON serialization).
+/// </summary>
+public class UserList
+{
+    public List<User> Users { get; set; } = [];
+}
+

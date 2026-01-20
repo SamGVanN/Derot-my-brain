@@ -1,4 +1,5 @@
 using Serilog;
+using Microsoft.EntityFrameworkCore;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -36,6 +37,33 @@ try
     builder.Services.AddSingleton<DerotMyBrain.API.Services.IConfigurationService, DerotMyBrain.API.Services.ConfigurationService>();
     builder.Services.AddSingleton<DerotMyBrain.API.Services.IInitializationService, DerotMyBrain.API.Services.InitializationService>();
     builder.Services.AddHttpClient();
+
+    // Add DbContext for SQLite
+    // Database path strategy:
+    // - Development: Use project's Data folder (gitignored, survives rebuilds)
+    // - Production: Use portable path relative to executable (user can move entire app folder)
+    string dataPath;
+    if (builder.Environment.IsDevelopment())
+    {
+        // Development: Project's Data folder
+        var projectRoot = Directory.GetCurrentDirectory();
+        dataPath = Path.Combine(projectRoot, "Data");
+    }
+    else
+    {
+        // Production: Portable - relative to executable
+        var executablePath = AppDomain.CurrentDomain.BaseDirectory;
+        dataPath = Path.Combine(executablePath, "data");
+    }
+    
+    Directory.CreateDirectory(dataPath); // Ensure directory exists
+
+    builder.Services.AddDbContext<DerotMyBrain.API.Data.DerotDbContext>(options =>
+        options.UseSqlite($"Data Source={dataPath}/derot-my-brain.db"));
+
+    // Add Repository
+    builder.Services.AddScoped<DerotMyBrain.API.Repositories.IActivityRepository, DerotMyBrain.API.Repositories.SqliteActivityRepository>();
+
 
     var app = builder.Build();
 

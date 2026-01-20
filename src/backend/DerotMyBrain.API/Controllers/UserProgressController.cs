@@ -31,9 +31,13 @@ namespace DerotMyBrain.API.Controllers
             {
                 activity.Id = Guid.NewGuid().ToString();
             }
-            if (activity.Timestamp == default)
+            if (activity.FirstAttemptDate == default)
             {
-                activity.Timestamp = DateTime.UtcNow;
+                activity.FirstAttemptDate = DateTime.UtcNow;
+            }
+            if (activity.LastAttemptDate == default)
+            {
+                activity.LastAttemptDate = DateTime.UtcNow;
             }
 
             var history = await _repository.GetAsync($"user-{userId}-history.json");

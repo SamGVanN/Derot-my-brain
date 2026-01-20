@@ -54,3 +54,41 @@ Phase 2: la génération des questions (donc contexte IA = prompt + article wiki
 Phase 3: la correction des réponses (donc contexte IA = prompt + article wikipédia + questions + réponses + validation des réponses)
 
 
+
+---
+
+## User Data Management
+
+### Restore Fresh (V1)
+**Priority:** MEDIUM  
+**Target:** V1
+
+Allow any logged user to "restore fresh" their account:
+- **Keeps:** User profile and preferences
+- **Deletes:** All history, tracked topics, and activity data
+- **Use case:** User wants to start over without creating a new account
+- **UI:** Confirmation modal with warning about data loss
+- **Backend:** DELETE all activities for user, keep user and preferences
+
+### Backup User Data (Post-V1)
+**Priority:** LOW  
+**Target:** Post-V1 (NOT in initial release)
+
+Allow any logged user to backup their data:
+- **Export format:** JSON file containing user, preferences, and all activities
+- **File naming:** `derot-backup-{username}-{timestamp}.json`
+- **UI:** File explorer dialog to choose destination folder
+- **Use case:** User wants to backup before major changes or for archival
+- **Implementation:** Serialize user data to JSON and save to user-selected location
+
+### Import User Data (Post-V1)
+**Priority:** LOW  
+**Target:** Post-V1 (NOT in initial release)
+
+Allow any logged user to import previously backed up data:
+- **Import format:** JSON file (from backup feature)
+- **Strategy:** Add/Update based on IDs, never delete existing data
+- **Conflict resolution:** If ID exists, update; if new, add
+- **UI:** File explorer dialog to select backup file
+- **Use case:** Restore from backup or merge data from another instance
+- **Validation:** Verify JSON structure before import

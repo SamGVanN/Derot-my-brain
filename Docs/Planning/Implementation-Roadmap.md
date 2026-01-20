@@ -1076,13 +1076,13 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
 - Run: `dotnet ef database update`
 
 **Acceptance Criteria:**
-- [ ] SQLite configured with EF Core
-- [ ] DbContext created with DbSets (Users, UserPreferences, Activities)
-- [ ] UserActivity model complete with all fields
-- [ ] Initial migration generated and applied
-- [ ] Database file created at `data/derot-my-brain.db`
-- [ ] Indexes created for performance
-- [ ] No regression on existing features
+- [x] SQLite configured with EF Core
+- [x] DbContext created with DbSets (Users, UserPreferences, Activities)
+- [x] UserActivity model complete with all fields
+- [x] Initial migration generated and applied
+- [x] Database file created at `data/derot-my-brain.db`
+- [x] Indexes created for performance
+- [x] No regression on existing features
 
 ---
 
@@ -1118,12 +1118,12 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
 - Configure dependency injection in `Program.cs`
 
 **Acceptance Criteria:**
-- [ ] IActivityRepository interface defined
-- [ ] SqliteActivityRepository implemented with EF Core
-- [ ] CRUD methods implemented (GetAll, GetById, Create, Update, Delete)
-- [ ] Dashboard query methods implemented
-- [ ] Unit tests with InMemory SQLite database (≥80% coverage)
-- [ ] Dependency injection configured
+- [x] IActivityRepository interface defined
+- [x] SqliteActivityRepository implemented with EF Core
+- [x] CRUD methods implemented (GetAll, GetById, Create, Update, Delete)
+- [x] Dashboard query methods implemented
+- [x] Unit tests with InMemory SQLite database (≥80% coverage)
+- [x] Dependency injection configured
 
 ---
 
