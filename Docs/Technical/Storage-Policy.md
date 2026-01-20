@@ -1,7 +1,7 @@
 # Technical Constraints - Storage Policy
 
 **Date:** 2026-01-20  
-**Version:** Storage Policy V2 - SQLite for V1  
+**Version:** Storage Policy - SQLite
 **Last Updated:** 2026-01-20
 
 ---
@@ -21,13 +21,13 @@ Définir la politique de stockage pour V1 de "Derot My Brain" avec une base de d
 **Décision Architecturale (2026-01-20):**
 - ✅ **SQLite** au lieu de fichiers JSON
 - ✅ **Entity Framework Core** pour l'accès aux données
-- ✅ **Fichier unique** `.db` (comme JSON, portable)
+- ✅ **Fichier unique** `.db` (portable)
 - ✅ **Aucune installation** requise pour l'utilisateur
 - ✅ **Dashboard ready** dès V1 (requêtes SQL natives)
 
 ---
 
-## 📋 Pourquoi SQLite pour V1 ?
+## 📋 Pourquoi SQLite ?
 
 **Décision prise le 2026-01-20 lors de la spécification de Task 4.2 (Enhanced Activity Model)**
 
@@ -61,20 +61,20 @@ Les fichiers JSON ne supportent pas nativement:
 - ✅ **Complexité similaire** à JSON avec EF Core
 - ✅ **Portabilité maintenue** (fichier unique `.db`)
 - ✅ **Performance** (indexation, compression, ACID)
-- ✅ **Maturité** (24 ans, utilisé par milliards d'appareils)
+- ✅ **Maturité** (utilisé par milliards d'appareils)
 
 ---
 
-## ✅ Structure de Stockage V1
+## ✅ Structure de Stockage
 
 ### Fichier SQLite Unique
 
 ```
-/data/
+/Data/
 └── derot-my-brain.db    # Base de données SQLite embarquée
 ```
 
-### Schéma de Base de Données
+### Schéma de Base de Données (exemples pouvant évoluer)
 
 ```sql
 -- Table Users
@@ -118,7 +118,7 @@ CREATE INDEX idx_activities_tracked ON Activities(UserId, IsTracked);
 CREATE INDEX idx_activities_type ON Activities(UserId, Type);
 ```
 
-### Caractéristiques de SQLite pour V1
+### Caractéristiques de SQLite
 
 - ✅ **Portable** : Fichier unique `.db` - copier/coller suffit pour migrer
 - ✅ **Autonome** : Bibliothèque incluse dans .NET, aucune installation externe
@@ -152,7 +152,7 @@ CREATE INDEX idx_activities_type ON Activities(UserId, Type);
 
 **Bases de Données Cloud** ❌
 - Raison : Nécessite connexion internet
-- Alternative : Contraire au principe offline-first
+- Alternative : Contraire au principe offline-database-first
 
 ---
 
@@ -177,7 +177,7 @@ Un agent IA peut proposer une alternative **UNIQUEMENT** si :
 
 **Fichier :**
 ```
-/data/derot-my-brain.db
+/Data/derot-my-brain.db
 ```
 
 **Utilisation :**
@@ -207,7 +207,7 @@ using var connection = new SqliteConnection(connectionString);
 
 **Fichier :**
 ```
-/data/derot-my-brain.litedb
+/Data/derot-my-brain.litedb
 ```
 
 **Utilisation :**
@@ -235,7 +235,7 @@ var users = db.GetCollection<User>("users");
 
 **Fichier :**
 ```
-/data/ravendb/
+/Data/ravendb/
 ```
 
 **Utilisation :**
@@ -269,7 +269,7 @@ EmbeddedServer.Instance.StartServer(new ServerOptions
 ## 🔄 Chemin de Migration
 
 ### Phase 1 : SQLite (V1) ✅ **ACTUEL**
-- Fichier database unique `/data/derot-my-brain.db`
+- Fichier database unique `/Data/derot-my-brain.db`
 - Accès via Entity Framework Core
 - Dashboard ready
 
@@ -286,9 +286,8 @@ EmbeddedServer.Instance.StartServer(new ServerOptions
 
 **Migration :**
 1. Script de migration SQLite → LiteDB
-2. Ou JSON → LiteDB directement
-3. Backup automatique
-4. Basculer sur LiteDB
+2. Backup automatique
+3. Basculer sur LiteDB
 
 ### Phase 4 : RavenDB (V3+) - Optionnel
 **Déclencheurs :**
@@ -339,15 +338,14 @@ Un agent IA peut proposer **LiteDB ou RavenDB** UNIQUEMENT si :
 ### Pour le POC/V1 (Actuel)
 
 **Utiliser :** SQLite (Entity Framework Core)  
-**Stockage :** `/data/derot-my-brain.db`  
+**Stockage :** `/Data/derot-my-brain.db`  
 **Aucune exception**
 
 ### Si Complexité le Nécessite (Futur)
 
 **Alternatives acceptables :**
-1. SQLite (fichier `.db`)
-2. LiteDB (fichier `.litedb`) - **Recommandé**
-3. RavenDB Embedded (dossier)
+1. LiteDB (fichier `.litedb`) - **Recommandé**
+2. RavenDB Embedded (dossier)
 
 **Critères :**
 - ✅ Embedded (pas de serveur externe)

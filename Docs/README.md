@@ -21,7 +21,7 @@ The documentation is organized into four main folders:
 - **[Frontend-Architecture.md](file:///d:/Repos/Derot-my-brain/Docs/Technical/Frontend-Architecture.md)** - Frontend development guidelines (theming, React, Zustand, React Router v7)
 - **[Backend-Guidelines.md](file:///d:/Repos/Derot-my-brain/Docs/Technical/Backend-Guidelines.md)** - Backend architecture patterns (.NET, SOLID, API design, logging)
 - **[Testing-Strategy.md](file:///d:/Repos/Derot-my-brain/Docs/Technical/Testing-Strategy.md)** - TDD methodology, testing standards, coverage requirements
-- **[Storage-Policy.md](file:///d:/Repos/Derot-my-brain/Docs/Technical/Storage-Policy.md)** - Storage constraints (JSON-only policy)
+- **[Storage-Policy.md](file:///d:/Repos/Derot-my-brain/Docs/Technical/Storage-Policy.md)** - Storage constraints
 - **[Architecture.md](file:///d:/Repos/Derot-my-brain/Docs/Technical/Architecture.md)** - System architecture overview and diagrams
 
 ### 👨‍💻 Developer/ - Developer Resources & Guides

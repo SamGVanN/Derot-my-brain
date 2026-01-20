@@ -1181,7 +1181,7 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
 **Acceptance Criteria:**
 - [ ] All endpoints implemented and documented
 - [ ] DTOs validated with Data Annotations
-- [ ] Error handling (404, 400, 500)
+- [ ] Error handling (404, 400, 500, etc.)
 - [ ] Integration tests pass
 - [ ] Swagger documentation updated
 

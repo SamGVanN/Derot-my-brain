@@ -37,7 +37,7 @@ public class ActivitiesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting activities for user {UserId}", userId);
-            return StatusCode(500, "Internal server error");
+            return StatusCode(500, new { message = "Internal server error" });
         }
     }
 
@@ -55,14 +55,15 @@ public class ActivitiesController : ControllerBase
             var activity = await _activityService.GetActivityByIdAsync(userId, activityId);
             if (activity == null)
             {
-                return NotFound();
+                _logger.LogWarning("Activity {ActivityId} not found for user {UserId}", activityId, userId);
+                return NotFound(new { message = $"Activity {activityId} not found" });
             }
             return Ok(MapToDto(activity));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting activity {ActivityId} for user {UserId}", activityId, userId);
-            return StatusCode(500, "Internal server error");
+            return StatusCode(500, new { message = "Internal server error" });
         }
     }
 
@@ -84,12 +85,13 @@ public class ActivitiesController : ControllerBase
         {
             var activity = await _activityService.CreateActivityAsync(userId, dto);
             var resultDto = MapToDto(activity);
+            _logger.LogInformation("Activity created: {ActivityId} for user {UserId}, Topic: {Topic}", activity.Id, userId, activity.Topic);
             return CreatedAtAction(nameof(GetActivity), new { userId, activityId = activity.Id }, resultDto);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating activity for user {UserId}", userId);
-            return StatusCode(500, "Internal server error");
+            return StatusCode(500, new { message = "Internal server error" });
         }
     }
 
@@ -111,16 +113,18 @@ public class ActivitiesController : ControllerBase
         try
         {
             var activity = await _activityService.UpdateActivityAsync(userId, activityId, dto);
+            _logger.LogInformation("Activity updated: {ActivityId} for user {UserId}, LastScore: {LastScore}", activityId, userId, activity.LastScore);
             return Ok(MapToDto(activity));
         }
         catch (KeyNotFoundException)
         {
-            return NotFound();
+            _logger.LogWarning("Activity {ActivityId} not found for update, user {UserId}", activityId, userId);
+            return NotFound(new { message = $"Activity {activityId} not found" });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating activity {ActivityId} for user {UserId}", activityId, userId);
-            return StatusCode(500, "Internal server error");
+            return StatusCode(500, new { message = "Internal server error" });
         }
     }
 
@@ -136,12 +140,18 @@ public class ActivitiesController : ControllerBase
         try
         {
             await _activityService.DeleteActivityAsync(userId, activityId);
+            _logger.LogInformation("Activity deleted: {ActivityId} for user {UserId}", activityId, userId);
             return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            _logger.LogWarning("Activity {ActivityId} not found for deletion, user {UserId}", activityId, userId);
+            return NotFound(new { message = $"Activity {activityId} not found" });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting activity {ActivityId} for user {UserId}", activityId, userId);
-            return StatusCode(500, "Internal server error");
+            return StatusCode(500, new { message = "Internal server error" });
         }
     }
 
