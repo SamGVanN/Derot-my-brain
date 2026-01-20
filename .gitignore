@@ -222,3 +222,7 @@ out/
 *.backup
 *.tmp
 *.temp
+
+# Testing Agent Artifacts
+build_log*.txt
+user-test-*.json
