@@ -1209,12 +1209,12 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
 - Call seeding in `Program.cs` on application startup
 
 **Acceptance Criteria:**
-- [ ] DbInitializer created with SeedAsync method
-- [ ] Seeding called on application startup
-- [ ] Realistic and consistent data
-- [ ] Covers edge cases (score 0, perfect score, etc.)
-- [ ] Scenarios documented
-- [ ] Idempotent (can be called multiple times without duplication)
+- [x] DbInitializer created with SeedAsync method
+- [x] Seeding called on application startup
+- [x] Realistic and consistent data
+- [x] Covers edge cases (score 0, perfect score, etc.)
+- [x] Scenarios documented
+- [x] Idempotent (can be called multiple times without duplication)
 
 ---
 

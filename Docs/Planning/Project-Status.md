@@ -222,10 +222,15 @@ This document tracks the implementation status of features defined in the Functi
     - Implemented Integration Tests with WebApplicationFactory
   - **Roadmap Task:** 4.2.4
 
-- [ ] **Task 4.2.5: Backend - Database Seeding & Mock Data**
-  - **Status:** Not Started
-  - Create DbInitializer
-  - Seed TestUser data
+- [x] **Task 4.2.5: Backend - Database Seeding & Mock Data**
+  - **Status:** Completed ✅
+  - **Completed Date:** 2026-01-20
+  - **Implementation:**
+    - Created `DbInitializer` class
+    - Seeded `Test User` data if database is empty
+    - Seeded sample `UserActivity` data
+    - Wired up in `Program.cs` to run at startup
+  - **Roadmap Task:** 4.2.5
 
 - [ ] **Task 4.2.6: Frontend - TypeScript Interfaces & API Client**
   - **Status:** Not Started

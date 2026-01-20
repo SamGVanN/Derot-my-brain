@@ -28,7 +28,7 @@ try
     builder.Configuration["DataDirectory"] = Path.Combine(Directory.GetCurrentDirectory(), "Data");
 
     // Service Registration (DI)
-    builder.Services.AddScoped(typeof(DerotMyBrain.API.Repositories.IJsonRepository<>), typeof(DerotMyBrain.API.Repositories.JsonRepository<>));
+    // builder.Services.AddScoped(typeof(DerotMyBrain.API.Repositories.IJsonRepository<>), typeof(DerotMyBrain.API.Repositories.JsonRepository<>)); // REMOVED
     builder.Services.AddScoped<DerotMyBrain.API.Services.ICategoryService, DerotMyBrain.API.Services.CategoryService>();
     builder.Services.AddScoped<DerotMyBrain.API.Services.IUserService, DerotMyBrain.API.Services.UserService>();
 
@@ -61,8 +61,12 @@ try
     builder.Services.AddDbContext<DerotMyBrain.API.Data.DerotDbContext>(options =>
         options.UseSqlite($"Data Source={dataPath}/derot-my-brain.db"));
 
-    // Add Repository
+    // Add Repositories
     builder.Services.AddScoped<DerotMyBrain.API.Repositories.IActivityRepository, DerotMyBrain.API.Repositories.SqliteActivityRepository>();
+    builder.Services.AddScoped<DerotMyBrain.API.Repositories.IUserRepository, DerotMyBrain.API.Repositories.SqliteUserRepository>();
+
+    // Add Service
+    builder.Services.AddScoped<DerotMyBrain.API.Services.IActivityService, DerotMyBrain.API.Services.ActivityService>();
 
 
     var app = builder.Build();
@@ -70,7 +74,16 @@ try
     // Initialize application (seed data and configuration)
     using (var scope = app.Services.CreateScope())
     {
-        var initService = scope.ServiceProvider.GetRequiredService<DerotMyBrain.API.Services.IInitializationService>();
+        var services = scope.ServiceProvider;
+        var context = services.GetRequiredService<DerotMyBrain.API.Data.DerotDbContext>();
+        
+        // Auto-migration / creation
+        context.Database.EnsureCreated();
+        
+        // Seed Data
+        await DerotMyBrain.API.Data.DbInitializer.InitializeAsync(context, services.GetRequiredService<DerotMyBrain.API.Services.ICategoryService>());
+
+        var initService = services.GetRequiredService<DerotMyBrain.API.Services.IInitializationService>();
         await initService.InitializeAsync();
     }
 

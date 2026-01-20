@@ -5,11 +5,10 @@ namespace DerotMyBrain.API.Services
 {
     public class UserService : IUserService
     {
-        private readonly IJsonRepository<UserList> _userRepository;
+        private readonly IUserRepository _userRepository;
         private readonly ICategoryService _categoryService;
-        private const string UsersFileName = "users.json";
 
-        public UserService(IJsonRepository<UserList> userRepository, ICategoryService categoryService)
+        public UserService(IUserRepository userRepository, ICategoryService categoryService)
         {
             _userRepository = userRepository;
             _categoryService = categoryService;
@@ -17,21 +16,18 @@ namespace DerotMyBrain.API.Services
 
         public async Task<List<User>> GetAllUsersAsync()
         {
-            var data = await _userRepository.GetAsync(UsersFileName);
-            return data.Users;
+            var users = await _userRepository.GetAllAsync();
+            return users.ToList();
         }
 
         public async Task<User> CreateOrGetUserAsync(string name, string? language = null, string? preferredTheme = null)
         {
-            var data = await _userRepository.GetAsync(UsersFileName);
-            
-            var existingUserIndex = data.Users.FindIndex(u => u.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            if (existingUserIndex != -1)
+            // Check if user exists
+            var existingUser = await _userRepository.GetByNameAsync(name);
+            if (existingUser != null)
             {
-                var existingUser = data.Users[existingUserIndex];
                 existingUser.LastConnectionAt = DateTime.UtcNow;
-                data.Users[existingUserIndex] = existingUser;
-                await _userRepository.SaveAsync(UsersFileName, data);
+                await _userRepository.UpdateAsync(existingUser);
                 return existingUser;
             }
 
@@ -43,64 +39,55 @@ namespace DerotMyBrain.API.Services
                 Id = Guid.NewGuid().ToString(),
                 Name = name,
                 CreatedAt = DateTime.UtcNow,
-                LastConnectionAt = DateTime.UtcNow
+                LastConnectionAt = DateTime.UtcNow,
+                Preferences = new UserPreferences
+                {
+                    UserId = Guid.NewGuid().ToString(), // Will be overwritten by EF Core FK fixup or should be same as User.Id
+                    // Actually, UserPreferences.UserId is the FK to User.Id. So it should be the same.
+                    QuestionCount = 10,
+                    PreferredTheme = preferredTheme ?? "derot-brain",
+                    Language = language ?? "auto",
+                    SelectedCategories = allCategories.Select(c => c.Id).ToList()
+                }
             };
-            
-            // Default: All categories selected
-            newUser.Preferences.SelectedCategories = allCategories.Select(c => c.Id).ToList();
+            newUser.Preferences.UserId = newUser.Id;
 
-            // Set initial preferences if provided
-            if (!string.IsNullOrEmpty(language))
-            {
-                newUser.Preferences.Language = language;
-            }
-
-            if (!string.IsNullOrEmpty(preferredTheme))
-            {
-                newUser.Preferences.PreferredTheme = preferredTheme;
-            }
-
-
-            data.Users.Add(newUser);
-            await _userRepository.SaveAsync(UsersFileName, data);
-
-            return newUser;
+            return await _userRepository.CreateAsync(newUser);
         }
 
         public async Task<User?> GetUserByIdAsync(string id)
         {
-            var data = await _userRepository.GetAsync(UsersFileName);
-            return data.Users.FirstOrDefault(u => u.Id == id);
+            return await _userRepository.GetByIdAsync(id);
         }
 
         public async Task<User?> UpdateUserAsync(User user)
         {
-            var data = await _userRepository.GetAsync(UsersFileName);
-            var existingUserIndex = data.Users.FindIndex(u => u.Id == user.Id);
+            var existingUser = await _userRepository.GetByIdAsync(user.Id);
 
-            if (existingUserIndex == -1)
+            if (existingUser == null)
             {
                 return null;
             }
 
-            // Validation
+            // Validation logic is preserved
             var allowedQuestionCounts = new[] { 5, 10, 15, 20 };
-            if (!allowedQuestionCounts.Contains(user.Preferences.QuestionCount))
+            if (user.Preferences != null)
             {
-                // Fallback to default if invalid
-                user.Preferences.QuestionCount = 10;
+                if (!allowedQuestionCounts.Contains(user.Preferences.QuestionCount))
+                {
+                    user.Preferences.QuestionCount = 10;
+                }
+
+                var allowedLanguages = new[] { "en", "fr", "auto" };
+                if (!string.IsNullOrEmpty(user.Preferences.Language) && 
+                    !allowedLanguages.Contains(user.Preferences.Language))
+                {
+                    user.Preferences.Language = "auto";
+                }
             }
 
-            var allowedLanguages = new[] { "en", "fr", "auto" };
-            if (!string.IsNullOrEmpty(user.Preferences.Language) && 
-                !allowedLanguages.Contains(user.Preferences.Language))
-            {
-                user.Preferences.Language = "auto";
-            }
-
-            data.Users[existingUserIndex] = user;
-            await _userRepository.SaveAsync(UsersFileName, data);
-            return user;
+            // The Repository UpdateAsync handles mapping values from the input user to the tracked entity
+            return await _userRepository.UpdateAsync(user);
         }
 
         public async Task<User?> UpdateUserNameAsync(string userId, string newName)
@@ -116,39 +103,19 @@ namespace DerotMyBrain.API.Services
                 throw new ArgumentException("Name cannot exceed 100 characters.", nameof(newName));
             }
 
-            var data = await _userRepository.GetAsync(UsersFileName);
-            var existingUserIndex = data.Users.FindIndex(u => u.Id == userId);
-
-            if (existingUserIndex == -1)
+            var existingUser = await _userRepository.GetByIdAsync(userId);
+            if (existingUser == null)
             {
                 return null;
             }
 
-            var user = data.Users[existingUserIndex];
-            user.Name = newName;
-            data.Users[existingUserIndex] = user;
-            await _userRepository.SaveAsync(UsersFileName, data);
-
-            return user;
+            existingUser.Name = newName;
+            return await _userRepository.UpdateAsync(existingUser);
         }
 
         public async Task<bool> DeleteUserAsync(string userId)
         {
-            var data = await _userRepository.GetAsync(UsersFileName);
-            var existingUserIndex = data.Users.FindIndex(u => u.Id == userId);
-
-            if (existingUserIndex == -1)
-            {
-                return false;
-            }
-
-            // Phase 3: "Clean" deletion - remove associated data first
-            await _userRepository.DeleteAsync($"user-{userId}-history.json");
-
-            data.Users.RemoveAt(existingUserIndex);
-            await _userRepository.SaveAsync(UsersFileName, data);
-
-            return true;
+            return await _userRepository.DeleteAsync(userId);
         }
     }
 }
