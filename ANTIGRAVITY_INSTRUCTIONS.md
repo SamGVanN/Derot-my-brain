@@ -5,7 +5,7 @@
 
 **Key Goals:**
 - **Local hosting**: Run entirely on the user's machine (Windows/Linux/Homelab).
-- **No SQL**: Data persistence handled via local JSON files.
+- **SQLite**: Local embedded database for data persistence (No external SQL Server).
 - **Local AI**: Use Ollama (llama3, mistral, etc.) for generating questions and evaluating answers.
 - **Active Learning**: Read -> Quiz -> History/Backlog loop.
 
@@ -27,50 +27,46 @@
 - **Backend**: ASP.NET Core Web API.
   - **MUST respect SOLID principles**.
 - **AI**: Ollama exposing a local HTTP API.
-- **Data**: JSON text files.
+- **Data**: SQLite (.db).
 
-## Data Structures (JSON)
+## Data Structures (SQLite Schema)
 
-### Users (`users.json`)
-```json
-{
-  "users": [
-    {
-      "name": "Alex",
-      "createdAt": "2026-01-10T14:22:00Z"
-    }
-  ]
-}
-```
+### Database Schema
+```sql
+-- Table Users
+CREATE TABLE Users (
+    Id TEXT PRIMARY KEY,
+    Name TEXT NOT NULL,
+    CreatedAt TEXT NOT NULL,
+    LastConnectionAt TEXT NOT NULL
+);
 
-### History (`history_{username}.json`)
-```json
-{
-  "user": "Alex",
-  "history": [
-    {
-      "topic": "Révolution française",
-      "wikiPageId": "Révolution_française",
-      "firstSeenAt": "2026-01-10T15:10:00Z",
-      "lastScore": 4,
-      "lastAttemptAt": "2026-01-10T15:25:00Z"
-    }
-  ]
-}
-```
+-- Table UserPreferences
+CREATE TABLE UserPreferences (
+    UserId TEXT PRIMARY KEY,
+    QuestionCount INTEGER DEFAULT 10,
+    PreferredTheme TEXT DEFAULT 'derot-brain',
+    Language TEXT DEFAULT 'auto',
+    FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+);
 
-### Backlog (`backlog_{username}.json`)
-```json
-{
-  "user": "Alex",
-  "topics": [
-    {
-      "topic": "Physique quantique",
-      "wikiPageId": "Physique_quantique",
-      "addedAt": "2026-01-10T16:00:00Z"
-    }
-  ]
-}
+-- Table Activities
+CREATE TABLE Activities (
+    Id TEXT PRIMARY KEY,
+    UserId TEXT NOT NULL,
+    Topic TEXT NOT NULL,
+    WikipediaUrl TEXT NOT NULL,
+    FirstAttemptDate TEXT NOT NULL,
+    LastAttemptDate TEXT NOT NULL,
+    LastScore INTEGER NOT NULL,
+    BestScore INTEGER NOT NULL,
+    TotalQuestions INTEGER NOT NULL,
+    LlmModelName TEXT,
+    LlmVersion TEXT,
+    IsTracked INTEGER DEFAULT 0,
+    Type TEXT NOT NULL,
+    FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+);
 ```
 
 ## API Endpoints

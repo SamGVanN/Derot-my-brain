@@ -26,7 +26,7 @@ Application web locale destinée à stimuler la curiosité et l'apprentissage ac
 **Contraintes clés**
 
 - Hébergement **local** (PC utilisateur ou homelab)
-- **Pas de base de données SQL**
+- **SQLite (Embedded)**
 - **IA locale** ou auto-hébergée
 - Identification utilisateur **simple**
 - Architecture simple, maintenable, évolutive
@@ -36,24 +36,24 @@ Application web locale destinée à stimuler la curiosité et l'apprentissage ac
 - **Backend** : ASP.NET Core Web API, C# 13
 - **Frontend** : React 18 + TypeScript, Vite, shadcn/ui, Tailwind CSS
 - **LLM** : Ollama (local) ou AnythingLLM
-- **Stockage** : Fichiers JSON locaux
-- **Pas de base de données SQL**
+- **Stockage** : SQLite (.db) non chiffré (pour debug facile)
+- **ORM** : Entity Framework Core
 
 ---
 
 ## 1.2.1 Contraintes Techniques de Stockage ⚠️
 
-### Règle Fondamentale : JSON Uniquement pour le POC/V1
+### Règle Fondamentale : SQLite pour V1
 
 **Obligatoire :**
-- ✅ Fichiers JSON stockés localement dans `/data/`
+- ✅ Fichier database unique stocké localement dans `/data/`
 - ✅ Application autonome, déployable localement
 - ✅ Fonctionne hors ligne sans dépendances externes
 
 **Interdit :**
 - ❌ SQL Server, PostgreSQL, MySQL (nécessitent installation/serveur externe)
 - ❌ Bases de données cloud (nécessitent connexion internet)
-- ❌ Toute dépendance nécessitant configuration utilisateur (connection string, etc.)
+- ❌ Toute dépendance nécessitant configuration utilisateur (connection string complexe, etc.)
 
 ### Alternatives Acceptables (Si Complexité le Nécessite)
 
@@ -529,55 +529,36 @@ Page dédiée listant les sujets que l'utilisateur souhaite retravailler ultéri
 
 ### 1.3.9 Persistance des données
 
+### 1.3.9 Persistance des données
+
 **Contraintes**
 
-- Pas de SQL
-- Fichiers locaux (JSON)
-- Un fichier par utilisateur pour l'historique
+- **SQLite** : Base de données locale unique
+- **Entity Framework Core** : Code-First approach
+- **Pas de SQL Server** ou base externe
 
-**Structure complète**
+**Structure (Schéma Simplifié)**
 
-**Fichier utilisateurs** (`users.json`):
-```json
-{
-  "users": [
-    {
-      "id": "unique-guid",
-      "name": "Alex",
-      "createdAt": "2026-01-10",
-      "lastConnectionAt": "2026-01-18",
-      "preferences": {
-        "questionCount": 10,
-        "preferredTheme": "derot-brain"
-      }
-    }
-  ]
-}
-```
+**Table Users**
+- `Id` (PK, Text)
+- `Name` (Text)
+- `CreatedAt` (Text)
 
-**Fichier historique utilisateur** (`user-{id}-history.json`):
-```json
-{
-  "userId": "unique-guid",
-  "activities": [
-    {
-      "id": "activity-guid",
-      "topic": "Révolution française",
-      "wikipediaUrl": "https://fr.wikipedia.org/wiki/Révolution_française",
-      "firstAttemptDate": "2026-01-10",
-      "lastAttemptDate": "2026-01-15",
-      "lastScore": 7,
-      "bestScore": 9,
-      "totalQuestions": 10,
-      "llmUsed": {
-        "modelName": "llama3:8b",
-        "version": "v1.0"
-      },
-      "isInBacklog": true
-    }
-  ]
-}
-```
+**Table UserPreferences**
+- `UserId` (PK/FK, Text)
+- `QuestionCount` (Integer)
+- `PreferredTheme` (Text)
+- `Language` (Text)
+
+**Table Activities**
+- `Id` (PK, Text)
+- `UserId` (FK, Text)
+- `Topic` (Text)
+- `WikipediaUrl` (Text)
+- `LastScore` (Integer)
+- `BestScore` (Integer)
+- ... (autres champs)
+
 
 ### 1.3.10 Navigation et structure des pages
 

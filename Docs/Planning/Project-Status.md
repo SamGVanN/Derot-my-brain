@@ -199,16 +199,28 @@ This document tracks the implementation status of features defined in the Functi
     - Comprehensive logging and error handling
   - **Roadmap Task:** 4.2.2
 
-- [ ] **Task 4.2.3: Backend - Activity Service Layer**
-  - **Status:** Not Started
-  - Business logic for activity management
-  - BestScore calculation
-  - Read vs Quiz logic
+- [x] **Task 4.2.3: Backend - Activity Service Layer**
+  - **Status:** Completed ✅
+  - **Completed Date:** 2026-01-20
+  - **Implementation:**
+    - Created `IActivityService` and `ActivityService` implementation
+    - Implemented business logic for BestScore calculation
+    - Implemented logic for distinguishing "Read" vs "Quiz" activities
+    - Implemented proxy methods for dashboard statistics
+    - Created DTOs (`CreateActivityDto`, `UpdateActivityDto`)
+    - 10 comprehensive unit tests passing
+    - Registered in DI container
+  - **Roadmap Task:** 4.2.3
 
-- [ ] **Task 4.2.4: Backend - API Endpoints & DTOs**
-  - **Status:** Not Started
-  - REST endpoints for activities
-  - Dashboard endpoints
+- [x] **Task 4.2.4: Backend - API Endpoints & DTOs**
+  - **Status:** Completed ✅
+  - **Completed Date:** 2026-01-20
+  - **Implementation:**
+    - Created `UserActivityDto`
+    - Implemented `ActivitiesController` with all CRUD and dashboard endpoints
+    - Implemented Unit Tests with Moq
+    - Implemented Integration Tests with WebApplicationFactory
+  - **Roadmap Task:** 4.2.4
 
 - [ ] **Task 4.2.5: Backend - Database Seeding & Mock Data**
   - **Status:** Not Started
@@ -349,7 +361,7 @@ All features from the bucket list have been broken down into specific tasks in t
 ### Backend
 - **Framework:** ASP.NET Core 9.0 Web API
 - **Language:** C# 13
-- **Storage:** JSON files (no SQL database)
+- **Storage:** SQLite (Entity Framework Core)
 - **Architecture:** Repository pattern, Service layer
 
 ### AI/LLM (Planned)

@@ -10,7 +10,7 @@ DOCUMENTATION À LIRE :
 - Docs/README.md (organisation)
 - Docs/Planning/Project-Status.md (état actuel)
 - Docs/Planning/Implementation-Roadmap.md (tâche spécifique)
-- Docs/Technical/Storage-Policy.md (JSON UNIQUEMENT)
+- Docs/Technical/Storage-Policy.md (SQLite V1)
 - Docs/Technical/Backend-Guidelines.md (architecture backend)
 - Docs/Technical/Testing-Strategy.md (méthodologie TDD)
 
@@ -18,11 +18,10 @@ SCOPE BACKEND :
 - Services et logique métier
 - Controllers et endpoints API
 - Modèles et DTOs
-- Gestion du stockage JSON
+- Gestion du stockage SQLite (EF Core)
 - Tests unitaires backend
 
 ⚠️ CONTRAINTES :
-- Stockage JSON uniquement (pas de SQL Server/PostgreSQL)
 - Respecter l'architecture existante
 - Suivre les conventions de nommage du projet
 
@@ -37,7 +36,7 @@ WORKFLOW :
 NE PAS :
 - Implémenter le frontend
 - Modifier les autres tâches dans Project-Status.md
-- Utiliser une base de données SQL
+- Utiliser SQL Server ou une DB externe
 
 Peux-tu lire la documentation et confirmer ta compréhension avant de commencer ?
 ```

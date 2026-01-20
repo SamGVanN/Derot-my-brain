@@ -41,12 +41,12 @@
        │
        ▼
 ┌──────────────────────────┐
-│   Stockage fichiers      │
-│        JSON              │
+│     SQLite Database      │
+│     derot-my-brain.db    │
 │                          │
-│ - users.json             │
-│ - history_<user>.json    │
-│ - backlog_<user>.json    │
+│ - Users Table            │
+│ - Activities Table       │
+│ - Preferences Table      │
 └──────────────────────────┘
 
 ## Agent Interaction Guidelines

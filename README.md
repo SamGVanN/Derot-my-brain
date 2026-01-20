@@ -73,7 +73,7 @@ Modern social media platforms are engineered to keep us hooked with short bursts
 ### Backend
 - **ASP.NET Core 9.0** - Robust Web API
 - **C# 13** - Latest language features
-- **JSON Storage** - Simple, portable data persistence (no SQL required)
+- **SQLite** - Embedded database for V1 (Entity Framework Core)
 
 ### AI/LLM (Planned)
 - **Ollama** - Local LLM for quiz generation

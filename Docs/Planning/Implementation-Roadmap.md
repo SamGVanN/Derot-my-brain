@@ -8,15 +8,17 @@ This document breaks down the feature bucket list into delegatable implementatio
 
 ### Storage Requirements (CRITICAL)
 
-**For POC/V1: JSON Files ONLY - No SQL Database**
+**For POC/V1: SQLite (Embedded) - No External SQL Server**
 
-- ✅ **Allowed:** JSON files stored locally
+- ✅ **Allowed:** SQLite database stored locally in `/data/`
 - ❌ **Not Allowed:** SQL Server, PostgreSQL, MySQL, or any external database requiring installation/connection string
 - ✅ **Reason:** Application must be self-contained, deployable locally, and work offline without external dependencies
 
 ### Data Storage Structure
 
-All data must be stored as JSON files in the `/data/` directory:
+All data must be stored in the SQLite database at `/data/derot-my-brain.db`.
+
+Configuration and immutable seed data remain in JSON files:
 
 ```
 /data/
@@ -35,25 +37,20 @@ All data must be stored as JSON files in the `/data/` directory:
 
 If an AI agent detects that JSON files become insufficient, the following alternatives are acceptable:
 
-1. **SQLite** ✅
-   - Embedded database (single file)
-   - No installation required
-   - Works offline
-   - Managed by application autonomously
-   - File: `/data/derot-my-brain.db`
-
-2. **LiteDB** ✅ (Recommended for .NET)
+1. **LiteDB** ✅ (Alternative to SQLite if needed)
    - NoSQL embedded database
    - Single DLL, no installation
    - Works offline
    - .NET native
    - File: `/data/derot-my-brain.litedb`
 
-3. **RavenDB Embedded** ✅
+2. **RavenDB Embedded** ✅
    - NoSQL embedded database
    - No installation required
    - Works offline
    - File-based storage
+
+ 
 
 ### Not Acceptable Alternatives
 
@@ -73,7 +70,7 @@ If migration from JSON to embedded DB is needed:
 
 ### For All Tasks
 
-**Default assumption:** Use JSON files unless explicitly stated otherwise.
+**Default assumption:** Use SQLite via Entity Framework Core.
 
 **When proposing alternatives:** Only suggest SQLite, LiteDB, or RavenDB Embedded.
 
@@ -1147,12 +1144,12 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
 - Add dashboard methods: GetStatistics, GetActivityCalendar, GetTopScores
 
 **Acceptance Criteria:**
-- [ ] Service implements all interface methods
-- [ ] BestScore updated correctly (max of all scores)
-- [ ] "Read" vs "Quiz" logic implemented
-- [ ] Dashboard methods implemented
-- [ ] Unit tests with Moq (≥80% coverage)
-- [ ] Error handling (NotFoundException, ValidationException)
+- [x] Service implements all interface methods
+- [x] BestScore updated correctly (max of all scores)
+- [x] "Read" vs "Quiz" logic implemented
+- [x] Dashboard methods implemented
+- [x] Unit tests with Moq (≥80% coverage)
+- [x] Error handling (NotFoundException, ValidationException)
 
 ---
 

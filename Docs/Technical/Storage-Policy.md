@@ -268,22 +268,15 @@ EmbeddedServer.Instance.StartServer(new ServerOptions
 
 ## 🔄 Chemin de Migration
 
-### Phase 1 : JSON Files (POC/V1) ✅ **ACTUEL**
-- Fichiers JSON dans `/data/`
-- Simple, rapide à implémenter
-- Suffisant pour POC
+### Phase 1 : SQLite (V1) ✅ **ACTUEL**
+- Fichier database unique `/data/derot-my-brain.db`
+- Accès via Entity Framework Core
+- Dashboard ready
 
-### Phase 2 : SQLite (V1.5) - Si Nécessaire
+### Phase 2 : LiteDB (V2) - Optionnel
 **Déclencheurs :**
-- Fichiers JSON > 50MB
-- Plus de 1000 utilisateurs
-- Performances dégradées
-
-**Migration :**
-1. Créer script de migration JSON → SQLite
-2. Exécuter au démarrage si JSON détecté
-3. Backup automatique des JSON
-4. Basculer sur SQLite
+- Besoin de schémas flexibles (NoSQL)
+- Performance extrême nécessaire
 
 ### Phase 3 : LiteDB (V2) - Si Nécessaire
 **Déclencheurs :**
@@ -307,36 +300,29 @@ EmbeddedServer.Instance.StartServer(new ServerOptions
 
 ## 📝 Instructions pour Agents IA
 
-### Règle par Défaut
+**TOUJOURS utiliser SQLite (EF Core) pour la persistance des données.**
 
-**TOUJOURS utiliser JSON files sauf indication contraire explicite.**
+### Quand Proposer une Alternative (V2+)
 
-### Quand Proposer une Alternative
-
-Un agent IA peut proposer SQLite/LiteDB **UNIQUEMENT** si :
-1. Il détecte un problème de performance concret
-2. Il identifie une limitation technique des JSON
+Un agent IA peut proposer **LiteDB ou RavenDB** UNIQUEMENT si :
+1. Il détecte un problème de performance concret avec SQLite
+2. Il identifie une limitation technique majeure
 3. Il justifie clairement le besoin
 
 ### Comment Proposer
 
 ```markdown
-⚠️ **Recommandation : Migration vers [SQLite/LiteDB]**
+⚠️ **Recommandation : Migration vers LiteDB**
 
 **Problème détecté :**
 - [Description du problème]
 
 **Justification :**
-- [Pourquoi JSON n'est plus suffisant]
+- [Pourquoi SQLite n'est plus suffisant]
 
 **Solution proposée :**
-- [SQLite ou LiteDB]
+- [LiteDB]
 - [Script de migration fourni]
-- [Backward compatibility assurée]
-
-**Impact utilisateur :**
-- Aucune action requise (migration automatique)
-- Backup automatique des données JSON
 ```
 
 ### Ce Qu'il NE FAUT PAS Proposer
@@ -352,8 +338,8 @@ Un agent IA peut proposer SQLite/LiteDB **UNIQUEMENT** si :
 
 ### Pour le POC/V1 (Actuel)
 
-**Utiliser :** JSON Files uniquement  
-**Stockage :** `/data/` directory  
+**Utiliser :** SQLite (Entity Framework Core)  
+**Stockage :** `/data/derot-my-brain.db`  
 **Aucune exception**
 
 ### Si Complexité le Nécessite (Futur)

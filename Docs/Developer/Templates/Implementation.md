@@ -59,8 +59,6 @@ SPÉCIFICATIONS FONCTIONNELLES :
 - Comprendre les besoins métier avant de coder
 
 CONTRAINTES TECHNIQUES :
-⚠️ CRITIQUE : Utiliser UNIQUEMENT des fichiers JSON pour le stockage (pas de SQL Server, PostgreSQL, etc.)
-- Alternatives acceptables SI NÉCESSAIRE : SQLite, LiteDB, RavenDB Embedded
 - Voir Docs/Technical/Storage-Policy.md pour détails
 
 MÉTHODOLOGIE TDD (CRITICAL) :
