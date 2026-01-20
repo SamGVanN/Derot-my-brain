@@ -1,117 +1,49 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using DerotMyBrain.API.Data;
 using DerotMyBrain.API.DTOs;
-using DerotMyBrain.API.Models;
-using DerotMyBrain.API.Repositories;
-using DerotMyBrain.API.Services;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
+using DerotMyBrain.Tests.Fixtures;
 
 namespace DerotMyBrain.Tests.Integration;
 
 /// <summary>
-/// Integration tests for ActivitiesController using TestServer.
-/// These tests verify the full HTTP request/response cycle with a real database (InMemory).
+/// Integration tests for ActivitiesController using WebApplicationFactory.
+/// These tests verify the full HTTP request/response cycle with InMemory database.
+/// Uses IAsyncLifetime for proper async initialization and cleanup.
 /// </summary>
-public class ActivitiesControllerIntegrationTests : IDisposable
+public class ActivitiesControllerIntegrationTests : 
+    IClassFixture<CustomWebApplicationFactory>, 
+    IAsyncLifetime
 {
-    private readonly TestServer _server;
     private readonly HttpClient _client;
-    private readonly IServiceScope _scope;
+    private readonly CustomWebApplicationFactory _factory;
+    private readonly DatabaseFixture _dbFixture;
 
-    public ActivitiesControllerIntegrationTests()
+    public ActivitiesControllerIntegrationTests(CustomWebApplicationFactory factory)
     {
-        var builder = new WebHostBuilder()
-            .ConfigureServices(services =>
-            {
-                // Add DbContext with InMemory database
-                services.AddDbContext<DerotDbContext>(options =>
-                {
-                    options.UseInMemoryDatabase("IntegrationTestDb_" + Guid.NewGuid());
-                });
-
-                // Register repositories
-                services.AddScoped<IActivityRepository, SqliteActivityRepository>();
-                services.AddScoped<IUserRepository, SqliteUserRepository>();
-
-                // Register services
-                services.AddScoped<IActivityService, ActivityService>();
-                services.AddLogging();
-
-                // Add controllers
-                services.AddControllers();
-            })
-            .Configure(app =>
-            {
-                app.UseRouting();
-                app.UseEndpoints(endpoints =>
-                {
-                    endpoints.MapControllers();
-                });
-            });
-
-        _server = new TestServer(builder);
-        _client = _server.CreateClient();
-
-        // Get DbContext and seed data
-        _scope = _server.Services.CreateScope();
-        var context = _scope.ServiceProvider.GetRequiredService<DerotDbContext>();
-        SeedTestData(context);
+        _factory = factory;
+        _client = _factory.CreateClient();
+        _dbFixture = new DatabaseFixture(_factory);
     }
 
-    private static void SeedTestData(DerotDbContext context)
+    /// <summary>
+    /// Initialize test data before each test.
+    /// </summary>
+    public async Task InitializeAsync()
     {
-        var testUser = new User
-        {
-            Id = "test-user-integration",
-            Name = "Integration Test User",
-            CreatedAt = DateTime.UtcNow,
-            LastConnectionAt = DateTime.UtcNow,
-            Preferences = new UserPreferences
-            {
-                UserId = "test-user-integration",
-                QuestionCount = 10,
-                PreferredTheme = "derot-brain",
-                Language = "en"
-            }
-        };
+        await _dbFixture.SeedDefaultTestDataAsync();
+    }
 
-        context.Users.Add(testUser);
-
-        var activity1 = new UserActivity
-        {
-            Id = "activity-1",
-            UserId = "test-user-integration",
-            Topic = "Physics",
-            WikipediaUrl = "https://en.wikipedia.org/wiki/Physics",
-            Type = "Quiz",
-            FirstAttemptDate = DateTime.UtcNow.AddDays(-5),
-            LastAttemptDate = DateTime.UtcNow.AddDays(-5),
-            LastScore = 8,
-            BestScore = 8,
-            TotalQuestions = 10,
-            IsTracked = true
-        };
-
-        var activity2 = new UserActivity
-        {
-            Id = "activity-2",
-            UserId = "test-user-integration",
-            Topic = "History",
-            WikipediaUrl = "https://en.wikipedia.org/wiki/History",
-            Type = "Read",
-            FirstAttemptDate = DateTime.UtcNow.AddDays(-2),
-            LastAttemptDate = DateTime.UtcNow.AddDays(-2),
-            IsTracked = false
-        };
-
-        context.Activities.AddRange(activity1, activity2);
-        context.SaveChanges();
+    /// <summary>
+    /// Cleanup after each test (optional with InMemory DB, but good practice).
+    /// </summary>
+    public async Task DisposeAsync()
+    {
+        // Cleanup is optional since each test class gets a unique InMemory database
+        // But we'll keep it for consistency and future-proofing
+        await Task.CompletedTask;
     }
 
     [Fact]
@@ -196,7 +128,16 @@ public class ActivitiesControllerIntegrationTests : IDisposable
     [Fact]
     public async Task UpdateActivity_ShouldReturn200_WithValidUpdate()
     {
-        // Arrange
+        // Arrange - Create a dedicated activity for this test
+        var testActivity = new Helpers.ActivityBuilder()
+            .WithId("update-test-activity")
+            .WithUserId("test-user-integration")
+            .WithTopic("Mathematics")
+            .AsQuiz(lastScore: 7, totalQuestions: 10)
+            .Build();
+        
+        await _dbFixture.SeedActivityAsync(testActivity);
+        
         var dto = new UpdateActivityDto
         {
             LastScore = 10,
@@ -204,7 +145,7 @@ public class ActivitiesControllerIntegrationTests : IDisposable
         };
 
         // Act
-        var response = await _client.PutAsJsonAsync("/api/users/test-user-integration/activities/activity-1", dto);
+        var response = await _client.PutAsJsonAsync("/api/users/test-user-integration/activities/update-test-activity", dto);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -246,14 +187,25 @@ public class ActivitiesControllerIntegrationTests : IDisposable
     [Fact]
     public async Task TrackActivity_ShouldReturn204()
     {
+        // Arrange - Create a dedicated untracked activity for this test
+        var testActivity = new Helpers.ActivityBuilder()
+            .WithId("track-test-activity")
+            .WithUserId("test-user-integration")
+            .WithTopic("Biology")
+            .AsRead()
+            .Tracked(false)  // Start untracked
+            .Build();
+        
+        await _dbFixture.SeedActivityAsync(testActivity);
+        
         // Act
-        var response = await _client.PostAsync("/api/users/test-user-integration/activities/activity-2/track", null);
+        var response = await _client.PostAsync("/api/users/test-user-integration/activities/track-test-activity/track", null);
 
         // Assert
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
         // Verify tracking
-        var getResponse = await _client.GetAsync("/api/users/test-user-integration/activities/activity-2");
+        var getResponse = await _client.GetAsync("/api/users/test-user-integration/activities/track-test-activity");
         var activity = await getResponse.Content.ReadFromJsonAsync<UserActivityDto>();
         Assert.NotNull(activity);
         Assert.True(activity.IsTracked);
@@ -262,14 +214,25 @@ public class ActivitiesControllerIntegrationTests : IDisposable
     [Fact]
     public async Task UntrackActivity_ShouldReturn204()
     {
+        // Arrange - Create a dedicated tracked activity for this test
+        var testActivity = new Helpers.ActivityBuilder()
+            .WithId("untrack-test-activity")
+            .WithUserId("test-user-integration")
+            .WithTopic("Chemistry")
+            .AsQuiz(lastScore: 9, totalQuestions: 10)
+            .Tracked(true)  // Start tracked
+            .Build();
+        
+        await _dbFixture.SeedActivityAsync(testActivity);
+        
         // Act
-        var response = await _client.DeleteAsync("/api/users/test-user-integration/activities/activity-1/track");
+        var response = await _client.DeleteAsync("/api/users/test-user-integration/activities/untrack-test-activity/track");
 
         // Assert
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
         // Verify untracking
-        var getResponse = await _client.GetAsync("/api/users/test-user-integration/activities/activity-1");
+        var getResponse = await _client.GetAsync("/api/users/test-user-integration/activities/untrack-test-activity");
         var activity = await getResponse.Content.ReadFromJsonAsync<UserActivityDto>();
         Assert.NotNull(activity);
         Assert.False(activity.IsTracked);
@@ -312,12 +275,5 @@ public class ActivitiesControllerIntegrationTests : IDisposable
         var topScores = await response.Content.ReadFromJsonAsync<List<TopScoreDto>>();
         Assert.NotNull(topScores);
         Assert.Single(topScores); // Only one quiz activity with score
-    }
-
-    public void Dispose()
-    {
-        _scope?.Dispose();
-        _client?.Dispose();
-        _server?.Dispose();
     }
 }

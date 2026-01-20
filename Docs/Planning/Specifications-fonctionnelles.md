@@ -25,16 +25,16 @@ Application web locale destinée à stimuler la curiosité et l'apprentissage ac
 
 **Contraintes clés**
 
-- Hébergement **local** (PC utilisateur ou homelab)
+- Hébergement **local**
 - **SQLite (Embedded)**
 - **IA locale** ou auto-hébergée
 - Identification utilisateur **simple**
-- Architecture simple, maintenable, évolutive
+- Architecture maintenable, évolutive
 
 ## 1.2 Stack technique
 
 - **Backend** : ASP.NET Core Web API, C# 13
-- **Frontend** : React 18 + TypeScript, Vite, shadcn/ui, Tailwind CSS
+- **Frontend** : React 18 + TypeScript, Vite, shadcn/ui, Tailwind CSS, Lucide icons
 - **LLM** : Ollama (local) ou AnythingLLM
 - **Stockage** : SQLite (.db) non chiffré (pour debug facile)
 - **ORM** : Entity Framework Core
@@ -46,7 +46,7 @@ Application web locale destinée à stimuler la curiosité et l'apprentissage ac
 ### Règle Fondamentale : SQLite pour V1
 
 **Obligatoire :**
-- ✅ Fichier database unique stocké localement dans `/data/`
+- ✅ Fichier database unique stocké localement dans `/Data/`
 - ✅ Application autonome, déployable localement
 - ✅ Fonctionne hors ligne sans dépendances externes
 
@@ -57,7 +57,7 @@ Application web locale destinée à stimuler la curiosité et l'apprentissage ac
 
 ### Alternatives Acceptables (Si Complexité le Nécessite)
 
-Si un agent IA détecte que les fichiers JSON deviennent insuffisants, **UNIQUEMENT** les alternatives suivantes sont acceptables :
+Si un agent IA détecte que SQLite devient insuffisant pour des besoins spécifiques, **UNIQUEMENT** les alternatives suivantes sont acceptables :
 
 1. **SQLite** ✅
    - Base de données embarquée (fichier unique)
@@ -87,16 +87,16 @@ L'application "Derot My Brain" doit être :
 ### Structure de Stockage
 
 ```
-/data/
+/Data/
+├── derot-my-brain.db              # Base de données SQLite principale
+│   ├── Users                      # Table utilisateurs
+│   ├── UserPreferences            # Table préférences
+│   └── Activities                 # Table activités
 ├── seed/                          # Données de référence immuables
 │   ├── categories.json            # 13 catégories Wikipedia
 │   └── themes.json                # 5 thèmes de couleurs
-├── config/                        # Configuration globale
-│   └── app-config.json            # URL LLM, paramètres globaux
-└── users/                         # Données utilisateurs
-    ├── users.json                 # Profils et préférences
-    ├── user-{id}-history.json     # Historique complet par utilisateur
-    └── user-{id}-tracked.json     # Sujets suivis (Tracked Topics) par utilisateur
+└── config/                        # Configuration globale
+    └── app-config.json            # URL LLM, paramètres globaux
 ```
 
 ---
@@ -124,7 +124,7 @@ Système d'initialisation de l'application au premier démarrage, incluant les d
 Données immuables déployées avec l'application :
 
 1. **Catégories Wikipedia** (13 catégories officielles)
-   - Stockées dans `/data/seed/categories.json`
+   - Stockées dans `/Data/seed/categories.json`
    - Chaque catégorie contient :
      - ID unique (ex: "culture-arts")
      - Nom en anglais (ex: "Culture and the arts")
@@ -134,7 +134,7 @@ Données immuables déployées avec l'application :
    - Immuables (ne peuvent pas être modifiées par les utilisateurs)
 
 2. **Thèmes** (5 palettes de couleurs)
-   - Stockées dans `/data/seed/themes.json`
+   - Stockées dans `/Data/seed/themes.json`
    - Chaque thème contient :
      - ID unique (ex: "derot-brain")
      - Nom (ex: "Derot Brain")
@@ -166,7 +166,7 @@ Configuration partagée entre tous les utilisateurs :
   - Provider (Ollama, AnythingLLM, OpenAI)
   - Modèle par défaut (ex: "llama3:8b")
   - Timeout en secondes
-- Stockée dans `/data/config/app-config.json`
+- Stockée dans `/Data/config/app-config.json` pour la valeur de SeedData
 - Modifiable via API (endpoints admin)
 - Valeurs par défaut créées au premier démarrage
 
@@ -236,6 +236,7 @@ Permet d'identifier l'utilisateur sans authentification lourde.
 **Description**
 
 Page affichée lors de la première visite d'un utilisateur pour expliquer le fonctionnement de l'application.
+Elle peut être ré-affichée si l'utilisateur le souhaite depuis sa page de paramètres.
 
 **Fonctionnement**
 
@@ -319,7 +320,7 @@ Système de traduction complet permettant l'utilisation de l'application en angl
 **Règles**
 
 - Aucun texte codé en dur dans les composants
-- Format de date/heure adapté à la langue sélectionnée
+- Format de date/heure d'affichage adapté à la langue sélectionnée
 - Langue par défaut : détection automatique ou français
 - Changement de langue immédiat (pas de rechargement de page)
 
@@ -351,7 +352,7 @@ Liste des **13 catégories officielles Wikipedia** :
 
 Pour les nouveaux utilisateurs, **TOUTES les 13 catégories sont cochées** par défaut.
 - L'utilisateur peut décocher les catégories qui ne l'intéressent pas
-- Au moins une catégorie doit rester cochée
+- Au moins une catégorie doit rester cochée pour pouvoir soumettre le formulaire
 - Les préférences sont sauvegardées dans les données utilisateur
 
 **Gestion des catégories**
@@ -360,12 +361,13 @@ Pour les nouveaux utilisateurs, **TOUTES les 13 catégories sont cochées** par 
 - Section dédiée : "Catégories Wikipedia"
 - Interface :
   - 13 cases à cocher (une par catégorie)
+  - Chaque case à cocher est accompagnée d'un libellé traduit
   - Compteur : "X/13 catégories sélectionnées"
   - Boutons "Tout sélectionner" / "Tout désélectionner"
   - Bouton "Enregistrer" pour sauvegarder
 - Validation :
-  - Au moins une catégorie doit être cochée
-  - Message d'erreur si tentative de tout décocher
+  - Au moins une catégorie doit être cochée pour soumettre le formulaire
+  - Message d'information quand aucune catégorie n'est cochée
 
 **Utilisation sur la page Derot**
 

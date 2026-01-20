@@ -43,7 +43,7 @@ The documentation is organized into four main folders:
 **Purpose:** Quick reference for APIs, schemas, themes, and prompts
 
 - **[API-Endpoints.md](file:///d:/Repos/Derot-my-brain/Docs/Reference/API-Endpoints.md)** - API endpoint documentation
-- **[JSON-Schemas.md](file:///d:/Repos/Derot-my-brain/Docs/Reference/JSON-Schemas.md)** - JSON file structure schemas
+- **[JSON-Schemas.md](file:///d:/Repos/Derot-my-brain/Docs/Reference/JSON-Schemas.md)** - **DEPRECATED** - Old JSON file storage schemas (historical reference only)
 - **[Color-Palettes.md](file:///d:/Repos/Derot-my-brain/Docs/Reference/Color-Palettes.md)** - Available theme color palettes (5 themes)
 - **[LLM-Prompts.md](file:///d:/Repos/Derot-my-brain/Docs/Reference/LLM-Prompts.md)** - LLM prompt templates
 

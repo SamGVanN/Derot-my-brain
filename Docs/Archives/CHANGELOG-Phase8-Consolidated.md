@@ -160,7 +160,7 @@ newUser.Preferences.SelectedCategories = allCategories.Select(c => c.Id).ToList(
 
 **Structure :**
 ```
-/data/seed/categories.json
+/Data/seed/categories.json
 ```
 
 **Modèle :**

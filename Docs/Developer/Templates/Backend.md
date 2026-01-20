@@ -10,7 +10,7 @@ DOCUMENTATION À LIRE :
 - Docs/README.md (organisation)
 - Docs/Planning/Project-Status.md (état actuel)
 - Docs/Planning/Implementation-Roadmap.md (tâche spécifique)
-- Docs/Technical/Storage-Policy.md (SQLite V1)
+- Docs/Technical/Storage-Policy.md (SQLite)
 - Docs/Technical/Backend-Guidelines.md (architecture backend)
 - Docs/Technical/Testing-Strategy.md (méthodologie TDD)
 
@@ -28,15 +28,13 @@ SCOPE BACKEND :
 WORKFLOW :
 1. Lire la documentation de la tâche
 2. Vérifier les dépendances
-3. Implémenter les services et controllers
-4. Créer/mettre à jour les fichiers JSON
-5. Tester les endpoints
-6. Mettre à jour Project-Status.md
+3. Implémenter en TDD avec WebApplicationFactory
+4. Tester les endpoints
+5. Mettre à jour Project-Status.md
 
 NE PAS :
 - Implémenter le frontend
 - Modifier les autres tâches dans Project-Status.md
-- Utiliser SQL Server ou une DB externe
 
 Peux-tu lire la documentation et confirmer ta compréhension avant de commencer ?
 ```
@@ -58,21 +56,21 @@ SCOPE BACKEND :
 - SessionService pour créer/gérer les sessions
 - SessionController avec endpoints CRUD
 - Modèles Session, Question, Answer
-- Stockage dans /data/users/{userId}/sessions/
+- Stockage SQLite
 - Tests unitaires pour SessionService
 
 ⚠️ CONTRAINTES :
-- Fichiers JSON : session-{sessionId}.json
-- Génération de questions via LLM (config dans app-config.json)
+- Stockage SQLite via Entity Framework Core
+- Génération de questions via LLM
 - Calcul des scores selon les règles métier
 
 WORKFLOW :
 1. Lire la documentation de la tâche
 2. Vérifier que Task 0.1 et 2.1 sont complétées
-3. Créer SessionService et SessionController
+3. Créer SessionService et SessionController en TDD
 4. Implémenter la génération de questions
 5. Implémenter le calcul des scores
-6. Tester les endpoints API
+6. Tester les endpoints API avec WebApplicationFactory
 7. Mettre à jour Project-Status.md
 
 Peux-tu lire la documentation et confirmer ta compréhension avant de commencer ?

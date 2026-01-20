@@ -218,16 +218,35 @@ public class UserServiceTests
 
 ### 2. Integration Tests
 
-**Test API endpoints with real dependencies:**
+**Test API endpoints with WebApplicationFactory and in-memory database:**
 
 ```csharp
 public class UsersControllerIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
+    private readonly WebApplicationFactory<Program> _factory;
     
     public UsersControllerIntegrationTests(WebApplicationFactory<Program> factory)
     {
-        _client = factory.CreateClient();
+        _factory = factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                // Remove the real DbContext
+                var descriptor = services.SingleOrDefault(
+                    d => d.ServiceType == typeof(DbContextOptions<DerotDbContext>));
+                if (descriptor != null)
+                    services.Remove(descriptor);
+                
+                // Add in-memory database for testing
+                services.AddDbContext<DerotDbContext>(options =>
+                {
+                    options.UseInMemoryDatabase("TestDatabase");
+                });
+            });
+        });
+        
+        _client = _factory.CreateClient();
     }
     
     [Fact]
@@ -250,26 +269,28 @@ public class UsersControllerIntegrationTests : IClassFixture<WebApplicationFacto
 
 ### 3. Repository Tests
 
-**Test data access with JSON files:**
+**Test data access with SQLite and EF Core InMemory provider:**
 
 ```csharp
-public class JsonUserRepositoryTests : IDisposable
+public class SqliteUserRepositoryTests : IDisposable
 {
-    private readonly string _testDataPath;
-    private readonly JsonUserRepository _repository;
+    private readonly DerotDbContext _context;
+    private readonly SqliteUserRepository _repository;
     
-    public JsonUserRepositoryTests()
+    public SqliteUserRepositoryTests()
     {
-        _testDataPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(_testDataPath);
+        // Setup in-memory database for testing
+        var options = new DbContextOptionsBuilder<DerotDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
         
-        var storage = new JsonFileStorageProvider(_testDataPath);
-        var logger = new Mock<ILogger<JsonUserRepository>>().Object;
-        _repository = new JsonUserRepository(storage, logger);
+        _context = new DerotDbContext(options);
+        var logger = new Mock<ILogger<SqliteUserRepository>>().Object;
+        _repository = new SqliteUserRepository(_context, logger);
     }
     
     [Fact]
-    public async Task SaveAsync_ShouldPersistUser_ToJsonFile()
+    public async Task SaveAsync_ShouldPersistUser_ToDatabase()
     {
         // Arrange
         var user = new User { Id = "test-001", Name = "Test User" };
@@ -285,7 +306,7 @@ public class JsonUserRepositoryTests : IDisposable
     
     public void Dispose()
     {
-        Directory.Delete(_testDataPath, true);
+        _context.Dispose();
     }
 }
 ```
@@ -301,7 +322,7 @@ MethodName_Should[ExpectedBehavior]_When[Condition]
 Examples:
 - `CreateUser_ShouldReturnUser_WhenValidDto`
 - `GetUserById_ShouldThrowNotFoundException_WhenUserDoesNotExist`
-- `SaveAsync_ShouldPersistUser_ToJsonFile`
+- `SaveAsync_ShouldPersistUser_ToDatabase`
 
 ---
 
@@ -469,10 +490,11 @@ Examples:
 ### Mock Data Structure
 
 ```
-/data/users/
-  ├── users.json                          # Contains TestUser profile
-  ├── user-test-user-id-001-history.json  # TestUser history
-  └── user-test-user-id-001-backlog.json  # TestUser backlog
+/Data/
+  └── derot-my-brain.db                   # SQLite database with test data
+      ├── Users                           # TestUser profile
+      ├── UserPreferences                 # TestUser preferences
+      └── Activities                      # TestUser activity history
 ```
 
 ### Mock Data Quality Criteria

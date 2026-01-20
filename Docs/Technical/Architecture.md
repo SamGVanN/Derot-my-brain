@@ -11,6 +11,7 @@
 │   React + TypeScript     │
 │                          │
 │ - Identification         │
+│ - Dashboard              │
 │ - Lecture Wikipédia      │
 │ - Quiz UI                │
 │ - Historique / Backlog   │
@@ -32,7 +33,7 @@
        │         ▼
        │   ┌───────────────────┐
        │   │    Ollama API     │
-       │   │  (localhost:11434)│
+       │   │  (127.0.0.1:11434)│
        │   │                   │
        │   │ - mistral:7b      │
        │   │ - génération Q/R  │
@@ -56,6 +57,6 @@ To ensure consistency and prevent data pollution during development and testing,
 1.  **Test User**: Always use the designated test account for mock data creation and automated testing.
     - **Name**: `TestUser`
     - **ID**: `test-user-id-001`
-2.  **Data Storage**: Mock history records should be written to `history_test-user-id-001.json`.
+2.  **Data Storage**: Mock data should be seeded in the SQLite database (`derot-my-brain.db`).
 3.  **Logical Consistency**: Ensure that any mock data created is logically consistent with the `TestUser` profile.
 

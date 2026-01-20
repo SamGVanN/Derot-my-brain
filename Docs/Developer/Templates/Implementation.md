@@ -44,7 +44,7 @@ Je veux implémenter la tâche [TASK_NUMBER] du projet "Derot My Brain". Commenc
 CONTEXTE DU PROJET :
 - Lire Docs/README.md pour comprendre l'organisation de la documentation
 - Lire Docs/Planning/Project-Status.md pour voir l'état actuel du projet
-- Lire Docs/Technical/Storage-Policy.md pour les contraintes de stockage (JSON UNIQUEMENT)
+- Lire Docs/Technical/Storage-Policy.md pour les contraintes de stockage (SQLite avec EF Core)
 - Lire Docs/Technical/Frontend-Architecture.md pour les principes d'architecture frontend (si tâche frontend)
 - Lire Docs/Technical/Backend-Guidelines.md pour les principes d'architecture backend (si tâche backend)
 - Lire Docs/Technical/Testing-Strategy.md pour la méthodologie TDD
@@ -59,6 +59,7 @@ SPÉCIFICATIONS FONCTIONNELLES :
 - Comprendre les besoins métier avant de coder
 
 CONTRAINTES TECHNIQUES :
+- SQLite avec Entity Framework Core pour la persistance
 - Voir Docs/Technical/Storage-Policy.md pour détails
 
 MÉTHODOLOGIE TDD (CRITICAL) :
@@ -103,7 +104,7 @@ Je veux implémenter la tâche 0.1 (Application Initialization & Configuration) 
 
 POINTS SPÉCIFIQUES :
 - Cette tâche n'a AUCUNE dépendance - elle doit être faite EN PREMIER
-- Seed data : /data/seed/categories.json et /data/seed/themes.json
+- Seed data : /Data/seed/categories.json et /Data/seed/themes.json
 - Les 13 catégories doivent être les catégories officielles Wikipedia
 - L'initialisation doit être idempotente
 - Lire Docs/CHANGELOG-Phase0-Foundation.md pour les détails
@@ -276,10 +277,11 @@ export const useAuth = () => {
 
 **Structure des données :**
 ```
-/data/users/
-  ├── users.json                          # Profil et préférences
-  ├── user-{testuser-id}-history.json     # Historique d'activité
-  └── user-{testuser-id}-tracked.json     # Sujets suivis
+/Data/
+  └── derot-my-brain.db                   # Base de données SQLite
+      ├── Users                           # Table utilisateurs
+      ├── UserPreferences                 # Table préférences
+      └── Activities                      # Table activités
 ```
 
 **Critères de qualité :**
@@ -311,8 +313,9 @@ export const useAuth = () => {
 - [ ] Pas d'appels API directs dans les composants
 
 ### 4. ✅ Stockage
-- [ ] Utilisation de JSON uniquement (pas de SQL)
+- [ ] Utilisation de SQLite avec Entity Framework Core
 - [ ] Pas de hardcoded paths
+- [ ] Migrations EF Core appliquées correctement
 
 ### 5. ✅ I18N
 - [ ] Tous les textes sont traduits (pas de texte en dur)
@@ -375,7 +378,7 @@ Avant de commencer, l'agent doit confirmer :
 2. ✅ J'ai lu le Project-Status.md et vérifié l'état actuel
 3. ✅ J'ai lu la tâche dans Implementation-Roadmap.md
 4. ✅ J'ai lu les spécifications fonctionnelles
-5. ✅ J'ai compris les contraintes techniques (JSON uniquement)
+5. ✅ J'ai compris les contraintes techniques (SQLite avec EF Core)
 6. ✅ J'ai vérifié que les dépendances sont complétées
 7. ✅ Je sais quoi mettre à jour dans Project-Status.md
 

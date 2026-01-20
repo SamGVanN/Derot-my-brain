@@ -10,28 +10,15 @@ This document breaks down the feature bucket list into delegatable implementatio
 
 **For POC/V1: SQLite (Embedded) - No External SQL Server**
 
-- ✅ **Allowed:** SQLite database stored locally in `/data/`
+- ✅ **Allowed:** SQLite database stored locally in `/Data/`
 - ❌ **Not Allowed:** SQL Server, PostgreSQL, MySQL, or any external database requiring installation/connection string
 - ✅ **Reason:** Application must be self-contained, deployable locally, and work offline without external dependencies
 
 ### Data Storage Structure
 
-All data must be stored in the SQLite database at `/data/derot-my-brain.db`.
+All data must be stored in the SQLite database at `/Data/derot-my-brain.db`.
 
-Configuration and immutable seed data remain in JSON files:
-
-```
-/data/
-├── seed/                    # Immutable reference data
-│   ├── categories.json      # Wikipedia categories
-│   └── themes.json          # Color themes
-├── config/                  # Global configuration
-│   └── app-config.json      # LLM URL, global settings
-└── users/                   # User-specific data
-    ├── users.json           # User profiles and preferences
-    ├── user-{id}-history.json    # Activity history per user
-    └── user-{id}-tracked.json    # Tracked topics (favorites) per user
-```
+Configuration and immutable seed data must be stored in the SQLite database at `/Data/derot-my-brain.db`. (adapt for Test project)
 
 ### Acceptable Alternatives (If Complexity Requires)
 
@@ -42,7 +29,7 @@ If an AI agent detects that JSON files become insufficient, the following altern
    - Single DLL, no installation
    - Works offline
    - .NET native
-   - File: `/data/derot-my-brain.litedb`
+   - File: `/Data/derot-my-brain.litedb`
 
 2. **RavenDB Embedded** ✅
    - NoSQL embedded database
@@ -107,7 +94,7 @@ If migration from JSON to embedded DB is needed:
 
 **Every new feature MUST include mock data for the user "TestUser":**
 
-- **User ID:** Use existing TestUser ID from `/data/users/users.json`
+- **User ID:** Use existing TestUser ID from `/Data/users/users.json`
 - **Purpose:** Automated testing, demonstrations, and development
 - **Requirements:**
   - Create realistic, representative mock data
@@ -135,9 +122,9 @@ If migration from JSON to embedded DB is needed:
 ```
 
 **TestUser Data Location:**
-- User profile: `/data/users/users.json`
-- Activity history: `/data/users/user-{testuser-id}-history.json`
-- Tracked Topics: `/data/users/user-{testuser-id}-tracked.json`
+- User profile: `/Data/users/users.json`
+- Activity history: `/Data/users/user-{testuser-id}-history.json`
+- Tracked Topics: `/Data/users/user-{testuser-id}-tracked.json`
 
 ### For All Tasks
 
@@ -343,7 +330,7 @@ Set up application initialization with seed data (categories, themes) and global
     - Create `SeedDataService` to initialize:
       - **Wikipedia Categories** (13 official categories)
       - **Themes** (5 color palettes)
-    - Store as JSON files in `/data/seed/`
+    - Store as JSON files in `/Data/seed/`
     - Run initialization on first application startup
     - Idempotent: can run multiple times without duplicating data
   
@@ -413,7 +400,7 @@ Set up application initialization with seed data (categories, themes) and global
       }
       ```
     
-    - Store as JSON file in `/data/config/app-config.json`
+    - Store as JSON file in `/Data/config/app-config.json`
     - Default configuration created on first startup
     - Add endpoints:
       - `GET /api/config` - Get global configuration
@@ -435,9 +422,9 @@ Set up application initialization with seed data (categories, themes) and global
   - Handle LLM connection errors gracefully
 
 - **Data Storage:**
-  - Seed data: `/data/seed/categories.json` and `/data/seed/themes.json`
-  - Global config: `/data/config/app-config.json`
-  - User data: `/data/users/` (see Technical Constraints section for structure)
+  - Seed data: `/Data/seed/categories.json` and `/Data/seed/themes.json`
+  - Global config: `/Data/config/app-config.json`
+  - User data: `/Data/users/` (see Technical Constraints section for structure)
 
 #### Acceptance Criteria
 - [x] Seed data (categories + themes) initialized on first startup
@@ -2631,7 +2618,7 @@ Package the application for Windows, macOS, and Linux as self-contained, distrib
     - Flatpak (optional)
 
 - **Configuration:**
-  - Data directory: `~/DerotMyBrain/data/` or `%APPDATA%/DerotMyBrain/data/`
+  - Data directory: `~/DerotMyBrain/Data/` or `%APPDATA%/DerotMyBrain/Data/`
   - Logs directory: `~/DerotMyBrain/logs/` or `%APPDATA%/DerotMyBrain/logs/`
   - Auto-create directories on first run
   - Portable mode option (data in app directory)
@@ -2869,7 +2856,7 @@ Create comprehensive, non-technical documentation for end users and set up distr
    - Minimum 80% code coverage
 3. **Create TestUser Mock Data (CRITICAL)**:
    - Every feature MUST include mock data for "TestUser"
-   - Use existing TestUser ID from `/data/users/users.json`
+   - Use existing TestUser ID from `/Data/users/users.json`
    - Cover edge cases and realistic scenarios
    - Document mock data structure
 4. **Follow SOLID Principles**: Especially in backend code
@@ -2910,7 +2897,7 @@ Create comprehensive, non-technical documentation for end users and set up distr
 - **CI/CD:** All tests must pass in pipeline before merge
 
 ### TestUser Mock Data Requirements:
-- **Location:** `/data/users/` directory
+- **Location:** `/Data/users/` directory
 - **Files:**
   - `users.json` - TestUser profile and preferences
   - `user-{testuser-id}-history.json` - Activity history

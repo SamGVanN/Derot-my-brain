@@ -5,7 +5,7 @@ namespace DerotMyBrain.API.Services
 {
     /// <summary>
     /// Service responsible for managing global application configuration.
-    /// Configuration is shared across all users and stored in /data/config/
+    /// Configuration is shared across all users and stored in /Data/config/
     /// </summary>
     public class ConfigurationService : IConfigurationService
     {

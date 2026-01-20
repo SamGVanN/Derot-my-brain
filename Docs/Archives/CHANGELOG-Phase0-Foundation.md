@@ -48,7 +48,7 @@ L'application nécessite des données qui doivent être :
 ### Seed Data (Données Immuables)
 
 ```
-/data/seed/
+/Data/seed/
 ├── categories.json    # 13 catégories Wikipedia
 └── themes.json        # 5 thèmes de couleurs
 ```
@@ -62,7 +62,7 @@ L'application nécessite des données qui doivent être :
 ### Configuration Globale (Modifiable)
 
 ```
-/data/config/
+/Data/config/
 └── app-config.json    # Configuration globale (LLM, etc.)
 ```
 
@@ -140,9 +140,9 @@ public class AppConfiguration
 
 public class LLMConfiguration
 {
-    public string Url { get; set; }           // "http://localhost:11434"
-    public int Port { get; set; }             // 11434
-    public string Provider { get; set; }      // "ollama", "anythingllm", "openai"
+    public string Url { get; set; }          // "http://localhost:11434"
+    public int Port { get; }                 // Url.GetPort()
+    public string Provider { get; set; }     // "ollama", "anythingllm", "openai"
     public string DefaultModel { get; set; } // "llama3:8b"
     public int TimeoutSeconds { get; set; }  // 30
 }
@@ -150,7 +150,6 @@ public class LLMConfiguration
 
 **Valeurs par Défaut :**
 - URL: `http://localhost:11434`
-- Port: `11434`
 - Provider: `ollama`
 - Model: `llama3:8b`
 - Timeout: `30` secondes
@@ -194,15 +193,15 @@ PUT /api/config/llm
 ```
 1. Application démarre
    ↓
-2. Vérifier si /data/seed/categories.json existe
+2. Vérifier si /Data/seed/categories.json existe
    ↓ Non
 3. Créer et initialiser categories.json (13 catégories)
    ↓
-4. Vérifier si /data/seed/themes.json existe
+4. Vérifier si /Data/seed/themes.json existe
    ↓ Non
 5. Créer et initialiser themes.json (5 thèmes)
    ↓
-6. Vérifier si /data/config/app-config.json existe
+6. Vérifier si /Data/config/app-config.json existe
    ↓ Non
 7. Créer app-config.json avec valeurs par défaut
    ↓
@@ -284,7 +283,7 @@ PUT /api/config/llm
 ### Backend
 
 #### Seed Data
-- [ ] Créer `/data/seed/` directory
+- [ ] Créer `/Data/seed/` directory
 - [ ] Créer `categories.json` avec 13 catégories
 - [ ] Créer `themes.json` avec 5 thèmes
 - [ ] Créer `SeedDataService.cs`
@@ -292,7 +291,7 @@ PUT /api/config/llm
 - [ ] Ajouter endpoints GET pour categories et themes
 
 #### Configuration Globale
-- [ ] Créer `/data/config/` directory
+- [ ] Créer `/Data/config/` directory
 - [ ] Créer modèles `AppConfiguration` et `LLMConfiguration`
 - [ ] Créer `ConfigurationService.cs`
 - [ ] Implémenter création config par défaut

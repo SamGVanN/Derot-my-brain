@@ -63,14 +63,14 @@ Software entities should be open for extension, but closed for modification.
 
 ```csharp
 // ✅ GOOD: Use interfaces for extensibility
-public interface IStorageProvider
+public interface IActivityRepository
 {
-    Task<T> ReadAsync<T>(string path);
-    Task WriteAsync<T>(string path, T data);
+    Task<IEnumerable<UserActivity>> GetAllAsync(string userId);
+    Task<UserActivity> CreateAsync(UserActivity activity);
 }
 
-public class JsonFileStorageProvider : IStorageProvider { ... }
-// Future: Can add SQLiteStorageProvider without modifying existing code
+public class SqliteActivityRepository : IActivityRepository { ... }
+// Future: Can add different implementations without modifying existing code
 ```
 
 #### Liskov Substitution Principle (LSP)
@@ -122,14 +122,14 @@ public interface IUserRepository
     Task<bool> ExistsAsync(string id);
 }
 
-public class JsonUserRepository : IUserRepository
+public class SqliteUserRepository : IUserRepository
 {
-    private readonly IStorageProvider _storage;
-    private readonly ILogger<JsonUserRepository> _logger;
+    private readonly DerotDbContext _context;
+    private readonly ILogger<SqliteUserRepository> _logger;
     
-    public JsonUserRepository(IStorageProvider storage, ILogger<JsonUserRepository> logger)
+    public SqliteUserRepository(DerotDbContext context, ILogger<SqliteUserRepository> logger)
     {
-        _storage = storage;
+        _context = context;
         _logger = logger;
     }
     
@@ -137,8 +137,9 @@ public class JsonUserRepository : IUserRepository
     {
         try
         {
-            var users = await _storage.ReadAsync<List<User>>("users/users.json");
-            return users?.FirstOrDefault(u => u.Id == id);
+            return await _context.Users
+                .Include(u => u.Preferences)
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
         catch (Exception ex)
         {
@@ -151,9 +152,10 @@ public class JsonUserRepository : IUserRepository
 
 **Key Points:**
 - Repositories handle data persistence logic
-- Use dependency injection for storage providers
+- Use dependency injection for DbContext
 - Log all data access operations
 - Handle exceptions appropriately
+- Use async/await with EF Core methods
 
 ### 3. Entity Framework Core (V1)
 
@@ -605,9 +607,14 @@ public async Task<User?> GetUserByIdAsync(string id)
 **Register services in `Program.cs`:**
 
 ```csharp
-builder.Services.AddScoped<IUserRepository, JsonUserRepository>();
+// Register DbContext with SQLite
+builder.Services.AddDbContext<DerotDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register repositories and services
+builder.Services.AddScoped<IUserRepository, SqliteUserRepository>();
+builder.Services.AddScoped<IActivityRepository, SqliteActivityRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddSingleton<IStorageProvider, JsonFileStorageProvider>();
 ```
 
 **Lifetimes:**

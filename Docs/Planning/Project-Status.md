@@ -435,7 +435,7 @@ All features from the bucket list have been broken down into specific tasks in t
    - Minimum 80% code coverage
 3. **Create TestUser Mock Data (CRITICAL)**:
    - Every feature MUST include mock data for "TestUser"
-   - Use existing TestUser ID from `/data/users/users.json`
+   - Use existing TestUser ID from `/Data/users/users.json`
    - Cover edge cases and realistic scenarios
    - Document mock data structure
 4. **Follow SOLID Principles**: Especially in backend code
@@ -473,7 +473,7 @@ All features from the bucket list have been broken down into specific tasks in t
 - **CI/CD:** All tests must pass in pipeline before merge
 
 ### TestUser Mock Data Requirements:
-- **Location:** `/data/users/` directory
+- **Location:** `/Data/users/` directory
 - **Files:**
   - `users.json` - TestUser profile and preferences
   - `user-{testuser-id}-history.json` - Activity history

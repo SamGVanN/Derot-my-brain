@@ -376,8 +376,8 @@ Un agent IA peut proposer **LiteDB ou RavenDB** UNIQUEMENT si :
 **Pour tous les agents IA travaillant sur ce projet :**
 
 1. ✅ Lire cette politique de stockage
-2. ✅ Utiliser JSON files par défaut
-3. ✅ Ne proposer SQLite/LiteDB que si justifié
+2. ✅ Utiliser SQLite (EF Core) par défaut
+3. ✅ Ne proposer LiteDB que si justifié par des besoins spécifiques
 4. ✅ Ne JAMAIS proposer SQL Server, PostgreSQL, etc.
 5. ✅ Documenter toute proposition d'alternative
 
