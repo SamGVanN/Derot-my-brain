@@ -3,7 +3,7 @@
 ## Overview
 This document tracks the implementation status of features defined in the Functional Specifications and the feature bucket list. It provides a high-level view of what's completed, in progress, and planned.
 
-**Last Updated:** 2026-01-19
+**Last Updated:** 2026-01-21
 
 ---
 
@@ -27,15 +27,17 @@ This document tracks the implementation status of features defined in the Functi
 - [x] **ASP.NET Core Web API**: Backend initialized
 - [x] **JSON File Storage**: Repository pattern for user data
 - [x] **User Service**: CRUD operations for users
-- [x] **User Activity Model**: Basic activity tracking structure
+- [x] **User Activity Model**: High-performance hybrid architecture (Full session tracking + Aggregated cache) implemented
+- [x] **Tracked Topics**: Decoupled topic tracking with history rebuilding logic
 - [x] **CORS Configuration**: Frontend-backend communication enabled
 - [x] **Logging**: Serilog integrated
 
 #### 4. Testing & Quality Assurance
 - [x] **Backend Test Infrastructure**: xUnit + Moq project created (`DerotMyBrain.Tests`)
 - [x] **Frontend Test Infrastructure**: Vitest + React Testing Library configured
-- [x] **Unit Tests**: Core services (UserService, ConfigurationService) covered >80%
-- [x] **Mock Data**: Comprehensive TestUser data created (Backlog, Enhanced History)
+- [x] **Unit Tests**: Core services (UserService, ConfigurationService, ActivityService, TrackedTopicService) covered >80%
+- [x] **Integration Tests**: Full API suite for Activities and TrackedTopics using WebApplicationFactory (24 tests)
+- [x] **Mock Data**: Comprehensive seed data in SQLite demonstrating topic evolution and improvement
 
 
 ---

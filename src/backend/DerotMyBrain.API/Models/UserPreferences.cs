@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace DerotMyBrain.API.Models;
 
 /// <summary>
@@ -33,5 +35,6 @@ public class UserPreferences
     /// <summary>
     /// Navigation property to the associated user.
     /// </summary>
+    [JsonIgnore]
     public User? User { get; set; }
 }
