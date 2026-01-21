@@ -10,12 +10,13 @@ public interface IActivityService
     Task<UserActivity> UpdateActivityAsync(string userId, string activityId, UpdateActivityDto dto);
     Task<UserActivity?> GetActivityByIdAsync(string userId, string activityId);
     Task<IEnumerable<UserActivity>> GetAllActivitiesAsync(string userId);
-    Task<IEnumerable<UserActivity>> GetTrackedActivitiesAsync(string userId);
     Task DeleteActivityAsync(string userId, string activityId);
     
     // Tracking Operations
-    Task TrackActivityAsync(string userId, string activityId);
-    Task UntrackActivityAsync(string userId, string activityId);
+    /// <summary>
+    /// Checks if a topic is tracked by the user.
+    /// </summary>
+    Task<bool> IsTopicTrackedAsync(string userId, string topic);
     
     // Dashboard Operations
     Task<UserStatisticsDto> GetStatisticsAsync(string userId);

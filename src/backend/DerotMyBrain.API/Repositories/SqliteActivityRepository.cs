@@ -37,7 +37,7 @@ public class SqliteActivityRepository : IActivityRepository
             return await _context.Activities
                 .AsNoTracking()
                 .Where(a => a.UserId == userId)
-                .OrderByDescending(a => a.LastAttemptDate)
+                .OrderByDescending(a => a.SessionDate)
                 .ToListAsync();
         }
         catch (Exception ex)
@@ -48,21 +48,21 @@ public class SqliteActivityRepository : IActivityRepository
     }
     
     /// <inheritdoc/>
-    public async Task<IEnumerable<UserActivity>> GetTrackedAsync(string userId)
+    public async Task<IEnumerable<UserActivity>> GetAllForTopicAsync(string userId, string topic)
     {
         try
         {
-            _logger.LogInformation("Getting tracked activities for user {UserId}", userId);
+            _logger.LogInformation("Getting all activities for user {UserId}, topic {Topic}", userId, topic);
             
             return await _context.Activities
                 .AsNoTracking()
-                .Where(a => a.UserId == userId && a.IsTracked)
-                .OrderByDescending(a => a.LastAttemptDate)
+                .Where(a => a.UserId == userId && a.Topic == topic)
+                .OrderBy(a => a.SessionDate)
                 .ToListAsync();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting tracked activities for user {UserId}", userId);
+            _logger.LogError(ex, "Error getting all activities for user {UserId}, topic {Topic}", userId, topic);
             throw;
         }
     }
@@ -174,12 +174,12 @@ public class SqliteActivityRepository : IActivityRepository
                 TotalActivities = activities.Count,
                 TotalQuizzes = activities.Count(a => a.Type == "Quiz"),
                 TotalReads = activities.Count(a => a.Type == "Read"),
-                TrackedTopicsCount = activities.Count(a => a.IsTracked)
+                TrackedTopicsCount = await _context.TrackedTopics.CountAsync(t => t.UserId == userId)
             };
             
             // Get last activity
             var lastActivity = activities
-                .OrderByDescending(a => a.LastAttemptDate)
+                .OrderByDescending(a => a.SessionDate)
                 .FirstOrDefault();
             
             if (lastActivity != null)
@@ -188,15 +188,15 @@ public class SqliteActivityRepository : IActivityRepository
                 {
                     ActivityId = lastActivity.Id,
                     Topic = lastActivity.Topic,
-                    Date = lastActivity.LastAttemptDate,
+                    Date = lastActivity.SessionDate,
                     Type = lastActivity.Type
                 };
             }
             
             // Get best score (highest percentage)
             var bestScoreActivity = activities
-                .Where(a => a.TotalQuestions > 0)
-                .OrderByDescending(a => (double)a.BestScore / a.TotalQuestions)
+                .Where(a => a.Type == "Quiz" && a.TotalQuestions > 0 && a.Score.HasValue)
+                .OrderByDescending(a => (double)a.Score! / a.TotalQuestions!)
                 .FirstOrDefault();
             
             if (bestScoreActivity != null)
@@ -205,10 +205,10 @@ public class SqliteActivityRepository : IActivityRepository
                 {
                     ActivityId = bestScoreActivity.Id,
                     Topic = bestScoreActivity.Topic,
-                    Score = bestScoreActivity.BestScore,
-                    TotalQuestions = bestScoreActivity.TotalQuestions,
-                    Percentage = Math.Round((double)bestScoreActivity.BestScore / bestScoreActivity.TotalQuestions * 100, 1),
-                    Date = bestScoreActivity.LastAttemptDate
+                    Score = bestScoreActivity.Score ?? 0,
+                    TotalQuestions = bestScoreActivity.TotalQuestions ?? 0,
+                    Percentage = Math.Round((double)(bestScoreActivity.Score ?? 0) / (bestScoreActivity.TotalQuestions ?? 1) * 100, 1),
+                    Date = bestScoreActivity.SessionDate
                 };
             }
             
@@ -233,8 +233,8 @@ public class SqliteActivityRepository : IActivityRepository
             
             var calendar = await _context.Activities
                 .AsNoTracking()
-                .Where(a => a.UserId == userId && a.LastAttemptDate >= startDate)
-                .GroupBy(a => a.LastAttemptDate.Date)
+                .Where(a => a.UserId == userId && a.SessionDate >= startDate)
+                .GroupBy(a => a.SessionDate.Date)
                 .Select(g => new ActivityCalendarDto
                 {
                     Date = g.Key,
@@ -262,18 +262,18 @@ public class SqliteActivityRepository : IActivityRepository
             
             var topScores = await _context.Activities
                 .AsNoTracking()
-                .Where(a => a.UserId == userId && a.TotalQuestions > 0)
-                .OrderByDescending(a => (double)a.BestScore / a.TotalQuestions)
-                .ThenByDescending(a => a.LastAttemptDate)
+                .Where(a => a.UserId == userId && a.Type == "Quiz" && a.TotalQuestions > 0 && a.Score.HasValue)
+                .OrderByDescending(a => (double)a.Score! / a.TotalQuestions!)
+                .ThenByDescending(a => a.SessionDate)
                 .Take(limit)
                 .Select(a => new TopScoreDto
                 {
                     ActivityId = a.Id,
                     Topic = a.Topic,
-                    Score = a.BestScore,
-                    TotalQuestions = a.TotalQuestions,
-                    Percentage = Math.Round((double)a.BestScore / a.TotalQuestions * 100, 1),
-                    Date = a.LastAttemptDate
+                    Score = a.Score ?? 0,
+                    TotalQuestions = a.TotalQuestions ?? 0,
+                    Percentage = Math.Round((double)(a.Score ?? 0) / (a.TotalQuestions ?? 1) * 100, 1),
+                    Date = a.SessionDate
                 })
                 .ToListAsync();
             

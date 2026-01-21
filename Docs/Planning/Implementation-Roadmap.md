@@ -1038,21 +1038,19 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
 - Create `Data/DerotDbContext.cs` with DbSets for Users, UserPreferences, Activities
 - Create `Models/UserActivity.cs`:
   ```csharp
-  public class UserActivity
+    public class UserActivity
   {
-      public string Id { get; set; }
-      public string UserId { get; set; }
-      public string Topic { get; set; }
-      public string WikipediaUrl { get; set; }
-      public DateTime FirstAttemptDate { get; set; }
-      public DateTime LastAttemptDate { get; set; }
-      public int LastScore { get; set; }
-      public int BestScore { get; set; }
-      public int TotalQuestions { get; set; }
-      public string? LlmModelName { get; set; }
-      public string? LlmVersion { get; set; }
-      public bool IsTracked { get; set; }
-      public string Type { get; set; } // "Read" or "Quiz"
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string UserId { get; set; } = string.Empty;
+    public string Topic { get; set; } = string.Empty;
+    public string WikipediaUrl { get; set; } = string.Empty;
+    public string Type { get; set; } = "Read";
+    public DateTime SessionDate { get; set; } = DateTime.UtcNow;
+    public int? Score { get; set; }
+    public int? TotalQuestions { get; set; }
+    public string? LlmModelName { get; set; }
+    public string? LlmVersion { get; set; }
+    public User? User { get; set; }
   }
   ```
 - Create indexes for performance (UserId+LastAttemptDate, UserId+IsTracked, UserId+Type)

@@ -35,6 +35,11 @@ public class User
     /// Navigation property to user activities (1-to-many relationship).
     /// </summary>
     public ICollection<UserActivity> Activities { get; set; } = new List<UserActivity>();
+
+    /// <summary>
+    /// Navigation property to user tracked topics (1-to-many relationship).
+    /// </summary>
+    public List<TrackedTopic> TrackedTopics { get; set; } = new();
 }
 
 /// <summary>

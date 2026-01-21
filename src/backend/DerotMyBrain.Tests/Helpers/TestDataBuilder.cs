@@ -120,12 +120,11 @@ public class ActivityBuilder
     private string _topic = "Test Topic";
     private string _wikipediaUrl = "https://en.wikipedia.org/wiki/Test";
     private string _type = "Quiz";
-    private DateTime _firstAttemptDate = DateTime.UtcNow;
-    private DateTime _lastAttemptDate = DateTime.UtcNow;
-    private int _lastScore = 0;
-    private int _bestScore = 0;
-    private int _totalQuestions = 10;
-    private bool _isTracked = false;
+    private DateTime _sessionDate = DateTime.UtcNow;
+    private int? _score = 0;
+    private int? _totalQuestions = 10;
+    private string? _llmModelName;
+    private string? _llmVersion;
 
     public ActivityBuilder WithId(string id)
     {
@@ -157,46 +156,38 @@ public class ActivityBuilder
         return this;
     }
 
-    public ActivityBuilder AsQuiz(int lastScore, int totalQuestions)
+    public ActivityBuilder AsQuiz(int score, int totalQuestions)
     {
         _type = "Quiz";
-        _lastScore = lastScore;
+        _score = score;
         _totalQuestions = totalQuestions;
-        _bestScore = lastScore; // Default best score to last score
         return this;
     }
 
     public ActivityBuilder AsRead()
     {
         _type = "Read";
-        _lastScore = 0;
-        _bestScore = 0;
-        _totalQuestions = 0;
+        _score = null;
+        _totalQuestions = null;
         return this;
     }
 
-    public ActivityBuilder WithScore(int lastScore, int? bestScore = null)
+    public ActivityBuilder WithScore(int? score)
     {
-        _lastScore = lastScore;
-        _bestScore = bestScore ?? lastScore;
+        _score = score;
         return this;
     }
 
-    public ActivityBuilder WithFirstAttemptDate(DateTime date)
+    public ActivityBuilder WithSessionDate(DateTime date)
     {
-        _firstAttemptDate = date;
+        _sessionDate = date;
         return this;
     }
 
-    public ActivityBuilder WithLastAttemptDate(DateTime date)
+    public ActivityBuilder WithLlm(string model, string version)
     {
-        _lastAttemptDate = date;
-        return this;
-    }
-
-    public ActivityBuilder Tracked(bool isTracked = true)
-    {
-        _isTracked = isTracked;
+        _llmModelName = model;
+        _llmVersion = version;
         return this;
     }
 
@@ -209,12 +200,11 @@ public class ActivityBuilder
             Topic = _topic,
             WikipediaUrl = _wikipediaUrl,
             Type = _type,
-            FirstAttemptDate = _firstAttemptDate,
-            LastAttemptDate = _lastAttemptDate,
-            LastScore = _lastScore,
-            BestScore = _bestScore,
+            SessionDate = _sessionDate,
+            Score = _score,
             TotalQuestions = _totalQuestions,
-            IsTracked = _isTracked
+            LlmModelName = _llmModelName,
+            LlmVersion = _llmVersion
         };
     }
 }

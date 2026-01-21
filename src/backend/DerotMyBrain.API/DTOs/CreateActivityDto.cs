@@ -12,10 +12,10 @@ public class CreateActivityDto
     public string WikipediaUrl { get; set; } = string.Empty;
     
     [Range(0, int.MaxValue)]
-    public int LastScore { get; set; }
+    public int? Score { get; set; }
     
     [Range(1, int.MaxValue)]
-    public int TotalQuestions { get; set; }
+    public int? TotalQuestions { get; set; }
     
     public string? LlmModelName { get; set; }
     public string? LlmVersion { get; set; }

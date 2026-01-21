@@ -42,7 +42,7 @@ public static class DbInitializer
         var baseDate = DateTime.UtcNow;
         var activities = new List<UserActivity>
         {
-            // ===== TRACKED QUIZ ACTIVITIES (5) =====
+            // ===== TRACKED TOPIC SESSIONS (Quantum Mechanics) =====
             new UserActivity
             {
                 Id = Guid.NewGuid().ToString(),
@@ -50,15 +50,25 @@ public static class DbInitializer
                 Topic = "Quantum Mechanics",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
                 Type = "Quiz",
-                FirstAttemptDate = baseDate.AddDays(-180),
-                LastAttemptDate = baseDate.AddDays(-15),
-                LastScore = 18,
-                BestScore = 18,
+                SessionDate = baseDate.AddDays(-15),
+                Score = 18,
                 TotalQuestions = 20,
                 LlmModelName = "llama3:8b",
-                LlmVersion = "1.0",
-                IsTracked = true
+                LlmVersion = "1.0"
             },
+            new UserActivity
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = "test-user-id",
+                Topic = "Quantum Mechanics",
+                WikipediaUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
+                Type = "Read",
+                SessionDate = baseDate.AddDays(-180),
+                LlmModelName = null,
+                LlmVersion = null
+            },
+            
+            // ===== TRACKED TOPIC SESSIONS (Artificial Intelligence) =====
             new UserActivity
             {
                 Id = Guid.NewGuid().ToString(),
@@ -66,14 +76,26 @@ public static class DbInitializer
                 Topic = "Artificial Intelligence",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Artificial_intelligence",
                 Type = "Quiz",
-                FirstAttemptDate = baseDate.AddDays(-120),
-                LastAttemptDate = baseDate.AddDays(-30),
-                LastScore = 9,
-                BestScore = 9,
+                SessionDate = baseDate.AddDays(-30),
+                Score = 9,
                 TotalQuestions = 10,
                 LlmModelName = "mistral:7b",
-                LlmVersion = "1.0",
-                IsTracked = true
+                LlmVersion = "1.0"
+            },
+            
+            // ===== TRACKED TOPIC SESSIONS (Theory of Relativity) =====
+            new UserActivity
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = "test-user-id",
+                Topic = "Theory of Relativity",
+                WikipediaUrl = "https://en.wikipedia.org/wiki/Theory_of_relativity",
+                Type = "Quiz",
+                SessionDate = baseDate.AddDays(-10),
+                Score = 14,
+                TotalQuestions = 20,
+                LlmModelName = "qwen2.5:7b",
+                LlmVersion = "1.0"
             },
             new UserActivity
             {
@@ -82,80 +104,11 @@ public static class DbInitializer
                 Topic = "Theory of Relativity",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Theory_of_relativity",
                 Type = "Quiz",
-                FirstAttemptDate = baseDate.AddDays(-90),
-                LastAttemptDate = baseDate.AddDays(-10),
-                LastScore = 14,
-                BestScore = 16,
+                SessionDate = baseDate.AddDays(-90),
+                Score = 16,
                 TotalQuestions = 20,
                 LlmModelName = "qwen2.5:7b",
-                LlmVersion = "1.0",
-                IsTracked = true
-            },
-            new UserActivity
-            {
-                Id = Guid.NewGuid().ToString(),
-                UserId = "test-user-id",
-                Topic = "DNA",
-                WikipediaUrl = "https://en.wikipedia.org/wiki/DNA",
-                Type = "Quiz",
-                FirstAttemptDate = baseDate.AddDays(-60),
-                LastAttemptDate = baseDate.AddDays(-5),
-                LastScore = 10,
-                BestScore = 10,
-                TotalQuestions = 10,
-                LlmModelName = "llama3:8b",
-                LlmVersion = "1.0",
-                IsTracked = true
-            },
-            new UserActivity
-            {
-                Id = Guid.NewGuid().ToString(),
-                UserId = "test-user-id",
-                Topic = "Renaissance Art",
-                WikipediaUrl = "https://en.wikipedia.org/wiki/Renaissance_art",
-                Type = "Quiz",
-                FirstAttemptDate = baseDate.AddDays(-45),
-                LastAttemptDate = baseDate.AddDays(-2),
-                LastScore = 13,
-                BestScore = 15,
-                TotalQuestions = 15,
-                LlmModelName = "mistral:7b",
-                LlmVersion = "1.0",
-                IsTracked = true
-            },
-
-            // ===== TRACKED READ ACTIVITIES (2) =====
-            new UserActivity
-            {
-                Id = Guid.NewGuid().ToString(),
-                UserId = "test-user-id",
-                Topic = "Blockchain",
-                WikipediaUrl = "https://en.wikipedia.org/wiki/Blockchain",
-                Type = "Read",
-                FirstAttemptDate = baseDate.AddDays(-100),
-                LastAttemptDate = baseDate.AddDays(-100),
-                LastScore = 0,
-                BestScore = 0,
-                TotalQuestions = 0,
-                LlmModelName = null,
-                LlmVersion = null,
-                IsTracked = true
-            },
-            new UserActivity
-            {
-                Id = Guid.NewGuid().ToString(),
-                UserId = "test-user-id",
-                Topic = "Evolution",
-                WikipediaUrl = "https://en.wikipedia.org/wiki/Evolution",
-                Type = "Read",
-                FirstAttemptDate = baseDate.AddDays(-70),
-                LastAttemptDate = baseDate.AddDays(-70),
-                LastScore = 0,
-                BestScore = 0,
-                TotalQuestions = 0,
-                LlmModelName = null,
-                LlmVersion = null,
-                IsTracked = true
+                LlmVersion = "1.0"
             },
 
             // ===== NON-TRACKED QUIZ ACTIVITIES (9) =====
@@ -166,14 +119,11 @@ public static class DbInitializer
                 Topic = "World War II",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/World_War_II",
                 Type = "Quiz",
-                FirstAttemptDate = baseDate.AddDays(-150),
-                LastAttemptDate = baseDate.AddDays(-150),
-                LastScore = 7,
-                BestScore = 7,
+                SessionDate = baseDate.AddDays(-150),
+                Score = 7,
                 TotalQuestions = 10,
                 LlmModelName = "llama3:8b",
-                LlmVersion = "1.0",
-                IsTracked = false
+                LlmVersion = "1.0"
             },
             new UserActivity
             {
@@ -182,14 +132,11 @@ public static class DbInitializer
                 Topic = "Ancient Rome",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Ancient_Rome",
                 Type = "Quiz",
-                FirstAttemptDate = baseDate.AddDays(-140),
-                LastAttemptDate = baseDate.AddDays(-140),
-                LastScore = 0,
-                BestScore = 0,
+                SessionDate = baseDate.AddDays(-140),
+                Score = 0,
                 TotalQuestions = 10,
                 LlmModelName = "mistral:7b",
-                LlmVersion = "1.0",
-                IsTracked = false
+                LlmVersion = "1.0"
             },
             new UserActivity
             {
@@ -198,14 +145,11 @@ public static class DbInitializer
                 Topic = "French Revolution",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/French_Revolution",
                 Type = "Quiz",
-                FirstAttemptDate = baseDate.AddDays(-110),
-                LastAttemptDate = baseDate.AddDays(-110),
-                LastScore = 5,
-                BestScore = 5,
+                SessionDate = baseDate.AddDays(-110),
+                Score = 5,
                 TotalQuestions = 10,
                 LlmModelName = "qwen2.5:7b",
-                LlmVersion = "1.0",
-                IsTracked = false
+                LlmVersion = "1.0"
             },
             new UserActivity
             {
@@ -214,14 +158,11 @@ public static class DbInitializer
                 Topic = "Mount Everest",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Mount_Everest",
                 Type = "Quiz",
-                FirstAttemptDate = baseDate.AddDays(-95),
-                LastAttemptDate = baseDate.AddDays(-95),
-                LastScore = 8,
-                BestScore = 8,
+                SessionDate = baseDate.AddDays(-95),
+                Score = 8,
                 TotalQuestions = 10,
                 LlmModelName = "llama3:8b",
-                LlmVersion = "1.0",
-                IsTracked = false
+                LlmVersion = "1.0"
             },
             new UserActivity
             {
@@ -230,14 +171,11 @@ public static class DbInitializer
                 Topic = "Sahara Desert",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Sahara",
                 Type = "Quiz",
-                FirstAttemptDate = baseDate.AddDays(-80),
-                LastAttemptDate = baseDate.AddDays(-80),
-                LastScore = 20,
-                BestScore = 20,
+                SessionDate = baseDate.AddDays(-80),
+                Score = 20,
                 TotalQuestions = 20,
                 LlmModelName = "mistral:7b",
-                LlmVersion = "1.0",
-                IsTracked = false
+                LlmVersion = "1.0"
             },
             new UserActivity
             {
@@ -246,14 +184,11 @@ public static class DbInitializer
                 Topic = "Amazon Rainforest",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Amazon_rainforest",
                 Type = "Quiz",
-                FirstAttemptDate = baseDate.AddDays(-50),
-                LastAttemptDate = baseDate.AddDays(-50),
-                LastScore = 6,
-                BestScore = 6,
+                SessionDate = baseDate.AddDays(-50),
+                Score = 6,
                 TotalQuestions = 10,
                 LlmModelName = "qwen2.5:7b",
-                LlmVersion = "1.0",
-                IsTracked = false
+                LlmVersion = "1.0"
             },
             new UserActivity
             {
@@ -262,14 +197,11 @@ public static class DbInitializer
                 Topic = "Quantum Computing",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Quantum_computing",
                 Type = "Quiz",
-                FirstAttemptDate = baseDate.AddDays(-35),
-                LastAttemptDate = baseDate.AddDays(-35),
-                LastScore = 12,
-                BestScore = 12,
+                SessionDate = baseDate.AddDays(-35),
+                Score = 12,
                 TotalQuestions = 15,
                 LlmModelName = "llama3:8b",
-                LlmVersion = "1.0",
-                IsTracked = false
+                LlmVersion = "1.0"
             },
             new UserActivity
             {
@@ -278,14 +210,11 @@ public static class DbInitializer
                 Topic = "Classical Music",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Classical_music",
                 Type = "Quiz",
-                FirstAttemptDate = baseDate.AddDays(-25),
-                LastAttemptDate = baseDate.AddDays(-25),
-                LastScore = 4,
-                BestScore = 4,
+                SessionDate = baseDate.AddDays(-25),
+                Score = 4,
                 TotalQuestions = 10,
                 LlmModelName = "mistral:7b",
-                LlmVersion = "1.0",
-                IsTracked = false
+                LlmVersion = "1.0"
             },
             new UserActivity
             {
@@ -294,14 +223,11 @@ public static class DbInitializer
                 Topic = "Modern Architecture",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Modern_architecture",
                 Type = "Quiz",
-                FirstAttemptDate = baseDate.AddDays(-7),
-                LastAttemptDate = baseDate.AddDays(-7),
-                LastScore = 9,
-                BestScore = 9,
+                SessionDate = baseDate.AddDays(-7),
+                Score = 9,
                 TotalQuestions = 10,
                 LlmModelName = "qwen2.5:7b",
-                LlmVersion = "1.0",
-                IsTracked = false
+                LlmVersion = "1.0"
             },
 
             // ===== NON-TRACKED READ ACTIVITIES (4) =====
@@ -312,14 +238,7 @@ public static class DbInitializer
                 Topic = "Photosynthesis",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Photosynthesis",
                 Type = "Read",
-                FirstAttemptDate = baseDate.AddDays(-130),
-                LastAttemptDate = baseDate.AddDays(-130),
-                LastScore = 0,
-                BestScore = 0,
-                TotalQuestions = 0,
-                LlmModelName = null,
-                LlmVersion = null,
-                IsTracked = false
+                SessionDate = baseDate.AddDays(-130)
             },
             new UserActivity
             {
@@ -328,14 +247,7 @@ public static class DbInitializer
                 Topic = "Genetics",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Genetics",
                 Type = "Read",
-                FirstAttemptDate = baseDate.AddDays(-85),
-                LastAttemptDate = baseDate.AddDays(-85),
-                LastScore = 0,
-                BestScore = 0,
-                TotalQuestions = 0,
-                LlmModelName = null,
-                LlmVersion = null,
-                IsTracked = false
+                SessionDate = baseDate.AddDays(-85)
             },
             new UserActivity
             {
@@ -344,14 +256,7 @@ public static class DbInitializer
                 Topic = "Prime Numbers",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Prime_number",
                 Type = "Read",
-                FirstAttemptDate = baseDate.AddDays(-55),
-                LastAttemptDate = baseDate.AddDays(-55),
-                LastScore = 0,
-                BestScore = 0,
-                TotalQuestions = 0,
-                LlmModelName = null,
-                LlmVersion = null,
-                IsTracked = false
+                SessionDate = baseDate.AddDays(-55)
             },
             new UserActivity
             {
@@ -360,14 +265,7 @@ public static class DbInitializer
                 Topic = "Calculus",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Calculus",
                 Type = "Read",
-                FirstAttemptDate = baseDate.AddDays(-20),
-                LastAttemptDate = baseDate.AddDays(-20),
-                LastScore = 0,
-                BestScore = 0,
-                TotalQuestions = 0,
-                LlmModelName = null,
-                LlmVersion = null,
-                IsTracked = false
+                SessionDate = baseDate.AddDays(-20)
             },
             new UserActivity
             {
@@ -376,19 +274,64 @@ public static class DbInitializer
                 Topic = "Probability Theory",
                 WikipediaUrl = "https://en.wikipedia.org/wiki/Probability_theory",
                 Type = "Read",
-                FirstAttemptDate = baseDate.AddDays(-3),
-                LastAttemptDate = baseDate.AddDays(-3),
-                LastScore = 0,
-                BestScore = 0,
-                TotalQuestions = 0,
-                LlmModelName = null,
-                LlmVersion = null,
-                IsTracked = false
+                SessionDate = baseDate.AddDays(-3)
             }
         };
 
         context.Activities.AddRange(activities);
 
+        // Seed Tracked Topics
+        var trackedTopics = new List<TrackedTopic>
+        {
+            new TrackedTopic
+            {
+                UserId = "test-user-id",
+                Topic = "Quantum Mechanics",
+                WikipediaUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
+                TrackedDate = baseDate.AddMonths(-2),
+                TotalReadSessions = 1,
+                TotalQuizAttempts = 1,
+                FirstReadDate = baseDate.AddDays(-180),
+                LastReadDate = baseDate.AddDays(-180),
+                FirstAttemptDate = baseDate.AddDays(-15),
+                LastAttemptDate = baseDate.AddDays(-15),
+                BestScore = 18,
+                TotalQuestions = 20,
+                BestScoreDate = baseDate.AddDays(-15)
+            },
+            new TrackedTopic
+            {
+                UserId = "test-user-id",
+                Topic = "Artificial Intelligence",
+                WikipediaUrl = "https://en.wikipedia.org/wiki/Artificial_intelligence",
+                TrackedDate = baseDate.AddMonths(-1),
+                TotalReadSessions = 0,
+                TotalQuizAttempts = 1,
+                FirstAttemptDate = baseDate.AddDays(-30),
+                LastAttemptDate = baseDate.AddDays(-30),
+                BestScore = 9,
+                TotalQuestions = 10,
+                BestScoreDate = baseDate.AddDays(-30)
+            },
+            new TrackedTopic
+            {
+                UserId = "test-user-id",
+                Topic = "Theory of Relativity",
+                WikipediaUrl = "https://en.wikipedia.org/wiki/Theory_of_relativity",
+                TrackedDate = baseDate.AddDays(-10),
+                TotalReadSessions = 0,
+                TotalQuizAttempts = 2,
+                FirstAttemptDate = baseDate.AddDays(-90),
+                LastAttemptDate = baseDate.AddDays(-10),
+                BestScore = 16,
+                TotalQuestions = 20,
+                BestScoreDate = baseDate.AddDays(-90)
+            }
+        };
+
+        context.TrackedTopics.AddRange(trackedTopics);
+
         await context.SaveChangesAsync();
+
     }
 }

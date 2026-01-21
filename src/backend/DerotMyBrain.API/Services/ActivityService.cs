@@ -8,36 +8,47 @@ namespace DerotMyBrain.API.Services;
 public class ActivityService : IActivityService
 {
     private readonly IActivityRepository _repository;
+    private readonly ITrackedTopicRepository _trackedTopicRepository;
     private readonly ILogger<ActivityService> _logger;
 
-    public ActivityService(IActivityRepository repository, ILogger<ActivityService> logger)
+    public ActivityService(
+        IActivityRepository repository, 
+        ITrackedTopicRepository trackedTopicRepository,
+        ILogger<ActivityService> logger)
     {
         _repository = repository;
+        _trackedTopicRepository = trackedTopicRepository;
         _logger = logger;
     }
 
     public async Task<UserActivity> CreateActivityAsync(string userId, CreateActivityDto dto)
     {
-        _logger.LogInformation("Creating activity for user {UserId} on topic {Topic}", userId, dto.Topic);
+        _logger.LogInformation("Creating {Type} activity for user {UserId}, topic {Topic}", 
+            dto.Type, userId, dto.Topic);
 
         var activity = new UserActivity
         {
-            Id = Guid.NewGuid().ToString(),
             UserId = userId,
             Topic = dto.Topic,
             WikipediaUrl = dto.WikipediaUrl,
-            FirstAttemptDate = DateTime.UtcNow,
-            LastAttemptDate = DateTime.UtcNow,
-            LastScore = dto.LastScore,
-            BestScore = dto.LastScore, // Initial best score is the first score
+            Type = dto.Type,
+            SessionDate = DateTime.UtcNow,
+            Score = dto.Score,
             TotalQuestions = dto.TotalQuestions,
             LlmModelName = dto.LlmModelName,
-            LlmVersion = dto.LlmVersion,
-            IsTracked = false,
-            Type = dto.Type
+            LlmVersion = dto.LlmVersion
         };
 
-        return await _repository.CreateAsync(activity);
+        await _repository.CreateAsync(activity);
+
+        // Update TrackedTopic if this topic is tracked
+        if (await IsTopicTrackedAsync(userId, dto.Topic))
+        {
+            await UpdateTrackedTopicCacheAsync(userId, dto.Topic, activity);
+        }
+
+        _logger.LogInformation("Activity created: {ActivityId}", activity.Id);
+        return activity;
     }
 
     public async Task<UserActivity> UpdateActivityAsync(string userId, string activityId, UpdateActivityDto dto)
@@ -51,16 +62,25 @@ public class ActivityService : IActivityService
             throw new KeyNotFoundException($"Activity {activityId} not found");
         }
 
-        activity.LastScore = dto.LastScore;
+        activity.Score = dto.Score;
         activity.TotalQuestions = dto.TotalQuestions;
-        activity.LastAttemptDate = DateTime.UtcNow;
         activity.LlmModelName = dto.LlmModelName ?? activity.LlmModelName;
         activity.LlmVersion = dto.LlmVersion ?? activity.LlmVersion;
 
-        // Logic: BestScore is the max of current BestScore and new LastScore
-        activity.BestScore = Math.Max(activity.BestScore, dto.LastScore);
+        await _repository.UpdateAsync(activity);
 
-        return await _repository.UpdateAsync(activity);
+        // Update TrackedTopic cache if needed
+        if (await IsTopicTrackedAsync(userId, activity.Topic))
+        {
+            // Re-syncing cache for update is tricky if we don't know if this was the "Best"
+            // For now, let's just trigger a potential update if it's a quiz
+            if (activity.Type == "Quiz")
+            {
+                await UpdateTrackedTopicCacheAsync(userId, activity.Topic, activity);
+            }
+        }
+
+        return activity;
     }
 
     public async Task<UserActivity?> GetActivityByIdAsync(string userId, string activityId)
@@ -73,40 +93,53 @@ public class ActivityService : IActivityService
         return await _repository.GetAllAsync(userId);
     }
 
-    public async Task<IEnumerable<UserActivity>> GetTrackedActivitiesAsync(string userId)
-    {
-        return await _repository.GetTrackedAsync(userId);
-    }
-
     public async Task DeleteActivityAsync(string userId, string activityId)
     {
         _logger.LogInformation("Deleting activity {ActivityId} for user {UserId}", activityId, userId);
         await _repository.DeleteAsync(userId, activityId);
     }
 
-    public async Task TrackActivityAsync(string userId, string activityId)
+    public async Task<bool> IsTopicTrackedAsync(string userId, string topic)
     {
-        _logger.LogInformation("Tracking activity {ActivityId} for user {UserId}", activityId, userId);
-        var activity = await _repository.GetByIdAsync(userId, activityId);
-        if (activity != null)
-        {
-            activity.IsTracked = true;
-            await _repository.UpdateAsync(activity);
-        }
+        return await _trackedTopicRepository.ExistsAsync(userId, topic);
     }
 
-    public async Task UntrackActivityAsync(string userId, string activityId)
+    private async Task UpdateTrackedTopicCacheAsync(string userId, string topic, UserActivity newSession)
     {
-        _logger.LogInformation("Untracking activity {ActivityId} for user {UserId}", activityId, userId);
-        var activity = await _repository.GetByIdAsync(userId, activityId);
-        if (activity != null)
+        var tracked = await _trackedTopicRepository.GetByTopicAsync(userId, topic);
+        if (tracked == null) return;
+        
+        if (newSession.Type == "Read")
         {
-            activity.IsTracked = false;
-            await _repository.UpdateAsync(activity);
+            tracked.TotalReadSessions++;
+            tracked.LastReadDate = newSession.SessionDate;
+            if (tracked.FirstReadDate == null)
+                tracked.FirstReadDate = newSession.SessionDate;
         }
+        else if (newSession.Type == "Quiz")
+        {
+            tracked.TotalQuizAttempts++;
+            tracked.LastAttemptDate = newSession.SessionDate;
+            if (tracked.FirstAttemptDate == null)
+                tracked.FirstAttemptDate = newSession.SessionDate;
+            
+            // Update best score if this is a new record
+            if (tracked.BestScore == null || (newSession.Score.HasValue && newSession.Score > tracked.BestScore))
+            {
+                tracked.BestScore = newSession.Score;
+                tracked.TotalQuestions = newSession.TotalQuestions;
+                tracked.BestScoreDate = newSession.SessionDate;
+                
+                _logger.LogInformation("🎉 New best score for topic {Topic}: {Score}/{Total}", 
+                    topic, tracked.BestScore, tracked.TotalQuestions);
+            }
+        }
+        
+        await _trackedTopicRepository.UpdateAsync(tracked);
     }
 
     public async Task<UserStatisticsDto> GetStatisticsAsync(string userId)
+
     {
         return await _repository.GetStatisticsAsync(userId);
     }

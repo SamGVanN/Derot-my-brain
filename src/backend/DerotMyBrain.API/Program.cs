@@ -74,9 +74,11 @@ else
 // Add Repositories
 builder.Services.AddScoped<DerotMyBrain.API.Repositories.IActivityRepository, DerotMyBrain.API.Repositories.SqliteActivityRepository>();
 builder.Services.AddScoped<DerotMyBrain.API.Repositories.IUserRepository, DerotMyBrain.API.Repositories.SqliteUserRepository>();
+builder.Services.AddScoped<DerotMyBrain.API.Repositories.ITrackedTopicRepository, DerotMyBrain.API.Repositories.SqliteTrackedTopicRepository>();
 
-// Add Service
+// Add Services
 builder.Services.AddScoped<DerotMyBrain.API.Services.IActivityService, DerotMyBrain.API.Services.ActivityService>();
+builder.Services.AddScoped<DerotMyBrain.API.Services.ITrackedTopicService, DerotMyBrain.API.Services.TrackedTopicService>();
 
 
 var app = builder.Build();

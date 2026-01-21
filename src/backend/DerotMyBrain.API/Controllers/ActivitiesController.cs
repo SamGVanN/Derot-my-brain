@@ -113,7 +113,7 @@ public class ActivitiesController : ControllerBase
         try
         {
             var activity = await _activityService.UpdateActivityAsync(userId, activityId, dto);
-            _logger.LogInformation("Activity updated: {ActivityId} for user {UserId}, LastScore: {LastScore}", activityId, userId, activity.LastScore);
+            _logger.LogInformation("Activity updated: {ActivityId} for user {UserId}, Score: {Score}", activityId, userId, activity.Score);
             return Ok(MapToDto(activity));
         }
         catch (KeyNotFoundException)
@@ -162,19 +162,10 @@ public class ActivitiesController : ControllerBase
     /// </summary>
     /// <param name="userId">The user ID.</param>
     /// <returns>List of tracked activities.</returns>
-    [HttpGet("~/api/users/{userId}/tracked-topics")]
-    public async Task<ActionResult<IEnumerable<UserActivityDto>>> GetTrackedTopics(string userId)
+    [HttpGet("~/api/users/{userId}/tracked-topics-obsolete")]
+    public IActionResult GetTrackedTopicsObsolete(string userId)
     {
-        try
-        {
-            var activities = await _activityService.GetTrackedActivitiesAsync(userId);
-            return Ok(activities.Select(MapToDto));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting tracked topics for user {UserId}", userId);
-            return StatusCode(500, "Internal server error");
-        }
+        return Ok(new List<UserActivityDto>());
     }
 
     /// <summary>
@@ -183,40 +174,16 @@ public class ActivitiesController : ControllerBase
     /// <param name="userId">The user ID.</param>
     /// <param name="activityId">The activity ID.</param>
     /// <returns>No content.</returns>
-    [HttpPost("{activityId}/track")]
-    public async Task<IActionResult> TrackActivity(string userId, string activityId)
+    [HttpPost("{activityId}/track-obsolete")]
+    public IActionResult TrackActivityObsolete(string userId, string activityId)
     {
-        try
-        {
-            await _activityService.TrackActivityAsync(userId, activityId);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error tracking activity {ActivityId} for user {UserId}", activityId, userId);
-            return StatusCode(500, "Internal server error");
-        }
+        return NoContent();
     }
 
-    /// <summary>
-    /// Removes a topic from tracked topics.
-    /// </summary>
-    /// <param name="userId">The user ID.</param>
-    /// <param name="activityId">The activity ID.</param>
-    /// <returns>No content.</returns>
-    [HttpDelete("{activityId}/track")]
-    public async Task<IActionResult> UntrackActivity(string userId, string activityId)
+    [HttpDelete("{activityId}/track-obsolete")]
+    public IActionResult UntrackActivityObsolete(string userId, string activityId)
     {
-        try
-        {
-            await _activityService.UntrackActivityAsync(userId, activityId);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error untracking activity {ActivityId} for user {UserId}", activityId, userId);
-            return StatusCode(500, "Internal server error");
-        }
+        return NoContent();
     }
 
     // --- Dashboard Endpoints ---
@@ -291,15 +258,12 @@ public class ActivitiesController : ControllerBase
             UserId = activity.UserId,
             Topic = activity.Topic,
             WikipediaUrl = activity.WikipediaUrl,
-            FirstAttemptDate = activity.FirstAttemptDate,
-            LastAttemptDate = activity.LastAttemptDate,
-            LastScore = activity.LastScore,
-            BestScore = activity.BestScore,
+            Type = activity.Type,
+            SessionDate = activity.SessionDate,
+            Score = activity.Score,
             TotalQuestions = activity.TotalQuestions,
             LlmModelName = activity.LlmModelName,
-            LlmVersion = activity.LlmVersion,
-            IsTracked = activity.IsTracked,
-            Type = activity.Type
+            LlmVersion = activity.LlmVersion
         };
     }
 }

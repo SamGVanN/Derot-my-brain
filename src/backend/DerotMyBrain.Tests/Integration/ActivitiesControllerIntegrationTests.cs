@@ -33,6 +33,7 @@ public class ActivitiesControllerIntegrationTests :
     /// </summary>
     public async Task InitializeAsync()
     {
+        await _dbFixture.CleanupAsync();
         await _dbFixture.SeedDefaultTestDataAsync();
     }
 
@@ -70,7 +71,7 @@ public class ActivitiesControllerIntegrationTests :
         var activity = await response.Content.ReadFromJsonAsync<UserActivityDto>();
         Assert.NotNull(activity);
         Assert.Equal("Physics", activity.Topic);
-        Assert.Equal(8, activity.LastScore);
+        Assert.Equal(8, activity.Score);
     }
 
     [Fact]
@@ -92,7 +93,7 @@ public class ActivitiesControllerIntegrationTests :
             Topic = "Mathematics",
             WikipediaUrl = "https://en.wikipedia.org/wiki/Mathematics",
             Type = "Quiz",
-            LastScore = 9,
+            Score = 9,
             TotalQuestions = 10
         };
 
@@ -133,14 +134,14 @@ public class ActivitiesControllerIntegrationTests :
             .WithId("update-test-activity")
             .WithUserId("test-user-integration")
             .WithTopic("Mathematics")
-            .AsQuiz(lastScore: 7, totalQuestions: 10)
+            .AsQuiz(score: 7, totalQuestions: 10)
             .Build();
         
         await _dbFixture.SeedActivityAsync(testActivity);
         
         var dto = new UpdateActivityDto
         {
-            LastScore = 10,
+            Score = 10,
             TotalQuestions = 10
         };
 
@@ -148,11 +149,12 @@ public class ActivitiesControllerIntegrationTests :
         var response = await _client.PutAsJsonAsync("/api/users/test-user-integration/activities/update-test-activity", dto);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var content = await response.Content.ReadAsStringAsync();
+        Assert.True(response.StatusCode == HttpStatusCode.OK, $"Expected OK, but got {response.StatusCode}. Content: {content}");
+        
         var updated = await response.Content.ReadFromJsonAsync<UserActivityDto>();
         Assert.NotNull(updated);
-        Assert.Equal(10, updated.LastScore);
-        Assert.Equal(10, updated.BestScore); // Should update BestScore too
+        Assert.Equal(10, updated.Score);
     }
 
     [Fact]
@@ -167,75 +169,6 @@ public class ActivitiesControllerIntegrationTests :
         // Verify deletion
         var getResponse = await _client.GetAsync("/api/users/test-user-integration/activities/activity-2");
         Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
-    }
-
-    [Fact]
-    public async Task GetTrackedTopics_ShouldReturn200_WithOnlyTrackedActivities()
-    {
-        // Act
-        var response = await _client.GetAsync("/api/users/test-user-integration/tracked-topics");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var tracked = await response.Content.ReadFromJsonAsync<List<UserActivityDto>>();
-        Assert.NotNull(tracked);
-        Assert.Single(tracked);
-        Assert.Equal("Physics", tracked[0].Topic);
-        Assert.True(tracked[0].IsTracked);
-    }
-
-    [Fact]
-    public async Task TrackActivity_ShouldReturn204()
-    {
-        // Arrange - Create a dedicated untracked activity for this test
-        var testActivity = new Helpers.ActivityBuilder()
-            .WithId("track-test-activity")
-            .WithUserId("test-user-integration")
-            .WithTopic("Biology")
-            .AsRead()
-            .Tracked(false)  // Start untracked
-            .Build();
-        
-        await _dbFixture.SeedActivityAsync(testActivity);
-        
-        // Act
-        var response = await _client.PostAsync("/api/users/test-user-integration/activities/track-test-activity/track", null);
-
-        // Assert
-        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-
-        // Verify tracking
-        var getResponse = await _client.GetAsync("/api/users/test-user-integration/activities/track-test-activity");
-        var activity = await getResponse.Content.ReadFromJsonAsync<UserActivityDto>();
-        Assert.NotNull(activity);
-        Assert.True(activity.IsTracked);
-    }
-
-    [Fact]
-    public async Task UntrackActivity_ShouldReturn204()
-    {
-        // Arrange - Create a dedicated tracked activity for this test
-        var testActivity = new Helpers.ActivityBuilder()
-            .WithId("untrack-test-activity")
-            .WithUserId("test-user-integration")
-            .WithTopic("Chemistry")
-            .AsQuiz(lastScore: 9, totalQuestions: 10)
-            .Tracked(true)  // Start tracked
-            .Build();
-        
-        await _dbFixture.SeedActivityAsync(testActivity);
-        
-        // Act
-        var response = await _client.DeleteAsync("/api/users/test-user-integration/activities/untrack-test-activity/track");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-
-        // Verify untracking
-        var getResponse = await _client.GetAsync("/api/users/test-user-integration/activities/untrack-test-activity");
-        var activity = await getResponse.Content.ReadFromJsonAsync<UserActivityDto>();
-        Assert.NotNull(activity);
-        Assert.False(activity.IsTracked);
     }
 
     [Fact]

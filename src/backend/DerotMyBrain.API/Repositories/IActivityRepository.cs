@@ -12,18 +12,19 @@ public interface IActivityRepository
     // CRUD Operations
     
     /// <summary>
-    /// Gets all activities for a user, ordered by last attempt date descending.
+    /// Gets all activities for a user, ordered by session date descending.
     /// </summary>
     /// <param name="userId">User identifier.</param>
     /// <returns>Collection of user activities.</returns>
     Task<IEnumerable<UserActivity>> GetAllAsync(string userId);
     
     /// <summary>
-    /// Gets only tracked activities for a user, ordered by last attempt date descending.
+    /// Gets all activities for a specific topic (for evolution tracking and rebuilding cache).
     /// </summary>
     /// <param name="userId">User identifier.</param>
-    /// <returns>Collection of tracked user activities.</returns>
-    Task<IEnumerable<UserActivity>> GetTrackedAsync(string userId);
+    /// <param name="topic">Topic name.</param>
+    /// <returns>Collection of activities for the topic, ordered by session date ascending.</returns>
+    Task<IEnumerable<UserActivity>> GetAllForTopicAsync(string userId, string topic);
     
     /// <summary>
     /// Gets a specific activity by ID for a user.

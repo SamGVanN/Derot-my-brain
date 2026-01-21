@@ -27,45 +27,23 @@ namespace DerotMyBrain.API.Controllers
         {
             // Ensure the activity is linked to the user
             activity.UserId = userId;
-            if (string.IsNullOrEmpty(activity.Id))
+            if (activity.SessionDate == default)
             {
-                activity.Id = Guid.NewGuid().ToString();
-            }
-            if (activity.FirstAttemptDate == default)
-            {
-                activity.FirstAttemptDate = DateTime.UtcNow;
-            }
-            if (activity.LastAttemptDate == default)
-            {
-                activity.LastAttemptDate = DateTime.UtcNow;
+                activity.SessionDate = DateTime.UtcNow;
             }
 
-            // In SQLite/EF Core, we should check if it exists or just add. 
-            // The JSON logic was "Add", implying a new entry or appending to list.
-            // If ID exists, we might need Update, but typically AddActivity implies creation.
-            // However, the client might be sending updates this way? 
-            // The JSON code was plain "history.Add(activity)", which would create duplicates if ID existed in list but JSON list just appends.
-            // But EF Core will throw if PK exists.
-            
-            // Let's check if it exists to be safe, or just try Create.
-            // Standardizing on Create.
-            
             try 
             {
                 await _repository.CreateAsync(activity);
             }
-            catch (InvalidOperationException) 
+            catch (Exception ex) 
             {
-                // Fallback for duplicates if client sends same ID twice unintentionally, 
-                // or update availability.
-                // But for now, let's assume it's a new activity.
-                // If it crashes on PK, we return 409 or 500.
-                // To be safe and mimic 'Add' to log, we usually expect new IDs.
-                throw;
+                return StatusCode(500, new { message = "Error creating activity", details = ex.Message });
             }
 
             return CreatedAtAction(nameof(GetHistory), new { userId }, activity);
         }
+
 
     }
 }

@@ -13,6 +13,8 @@ namespace DerotMyBrain.Tests.Integration;
 /// </summary>
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
+    private readonly string _dbName = "IntegrationTestDb_" + Guid.NewGuid();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         // Set environment to Testing to skip initialization in Program.cs
@@ -25,7 +27,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             var descriptorsToRemove = services
                 .Where(d => d.ServiceType == typeof(DbContextOptions<DerotDbContext>) ||
                            d.ServiceType == typeof(DbContextOptions) ||
-                           d.ImplementationType == typeof(DerotDbContext))
+                           d.ServiceType == typeof(DerotDbContext))
                 .ToList();
 
             foreach (var descriptor in descriptorsToRemove)
@@ -33,9 +35,9 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 services.Remove(descriptor);
             }
             
-            // Add InMemory database for testing
+            // Add InMemory database for testing with a stable name
             services.AddDbContext<DerotDbContext>(options =>
-                options.UseInMemoryDatabase("IntegrationTestDb_" + Guid.NewGuid()));
+                options.UseInMemoryDatabase(_dbName));
         });
     }
 }

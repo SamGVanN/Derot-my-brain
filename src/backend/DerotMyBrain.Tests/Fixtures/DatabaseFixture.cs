@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using DerotMyBrain.API.Data;
 using DerotMyBrain.API.Models;
 using DerotMyBrain.Tests.Integration;
@@ -61,12 +62,9 @@ public class DatabaseFixture
             Topic = "Physics",
             WikipediaUrl = "https://en.wikipedia.org/wiki/Physics",
             Type = "Quiz",
-            FirstAttemptDate = DateTime.UtcNow.AddDays(-5),
-            LastAttemptDate = DateTime.UtcNow.AddDays(-5),
-            LastScore = 8,
-            BestScore = 8,
-            TotalQuestions = 10,
-            IsTracked = true
+            SessionDate = DateTime.UtcNow.AddDays(-5),
+            Score = 8,
+            TotalQuestions = 10
         };
 
         var activity2 = new UserActivity
@@ -76,20 +74,32 @@ public class DatabaseFixture
             Topic = "History",
             WikipediaUrl = "https://en.wikipedia.org/wiki/History",
             Type = "Read",
-            FirstAttemptDate = DateTime.UtcNow.AddDays(-2),
-            LastAttemptDate = DateTime.UtcNow.AddDays(-2),
-            LastScore = 0,
-            BestScore = 0,
-            TotalQuestions = 0,
-            IsTracked = false
+            SessionDate = DateTime.UtcNow.AddDays(-2),
+            Score = null,
+            TotalQuestions = null
+        };
+
+        // Create tracked topics
+        var trackedTopic1 = new TrackedTopic
+        {
+            UserId = userId,
+            Topic = "Physics",
+            WikipediaUrl = "https://en.wikipedia.org/wiki/Physics",
+            TrackedDate = DateTime.UtcNow.AddDays(-10),
+            LastAttemptDate = DateTime.UtcNow.AddDays(-5),
+            BestScore = 8,
+            TotalQuestions = 10,
+            BestScoreDate = DateTime.UtcNow.AddDays(-5)
         };
 
         // Add all entities
         context.Users.Add(testUser);
         context.Activities.AddRange(activity1, activity2);
+        context.TrackedTopics.Add(trackedTopic1);
         
         // Save all in one transaction
         await context.SaveChangesAsync();
+
     }
 
     /// <summary>
@@ -133,12 +143,9 @@ public class DatabaseFixture
             Topic = "Physics",
             WikipediaUrl = "https://en.wikipedia.org/wiki/Physics",
             Type = "Quiz",
-            FirstAttemptDate = DateTime.UtcNow.AddDays(-5),
-            LastAttemptDate = DateTime.UtcNow.AddDays(-5),
-            LastScore = 8,
-            BestScore = 8,
-            TotalQuestions = 10,
-            IsTracked = true
+            SessionDate = DateTime.UtcNow.AddDays(-5),
+            Score = 8,
+            TotalQuestions = 10
         };
 
         var activity2 = new UserActivity
@@ -148,12 +155,9 @@ public class DatabaseFixture
             Topic = "History",
             WikipediaUrl = "https://en.wikipedia.org/wiki/History",
             Type = "Read",
-            FirstAttemptDate = DateTime.UtcNow.AddDays(-2),
-            LastAttemptDate = DateTime.UtcNow.AddDays(-2),
-            LastScore = 0,  // Default for Read type
-            BestScore = 0,  // Default for Read type
-            TotalQuestions = 0,  // Default for Read type
-            IsTracked = false
+            SessionDate = DateTime.UtcNow.AddDays(-2),
+            Score = null,
+            TotalQuestions = null
         };
 
         context.Activities.AddRange(activity1, activity2);
@@ -184,6 +188,7 @@ public class DatabaseFixture
         
         // Remove all data
         context.Activities.RemoveRange(context.Activities);
+        context.TrackedTopics.RemoveRange(context.TrackedTopics);
         context.UserPreferences.RemoveRange(context.UserPreferences);
         context.Users.RemoveRange(context.Users);
         

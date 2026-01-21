@@ -26,29 +26,26 @@ public class UserActivityDto
     public string WikipediaUrl { get; set; } = string.Empty;
 
     /// <summary>
-    /// Date and time of the first attempt on this topic.
+    /// Type of this session: "Read" or "Quiz".
     /// </summary>
-    public DateTime FirstAttemptDate { get; set; }
+    public string Type { get; set; } = "Read";
 
     /// <summary>
-    /// Date and time of the most recent attempt on this topic.
+    /// When this session occurred.
     /// </summary>
-    public DateTime LastAttemptDate { get; set; }
+    public DateTime SessionDate { get; set; } = DateTime.UtcNow;
 
     /// <summary>
-    /// Score from the most recent quiz attempt.
+    /// Score from this quiz session.
+    /// Only set when Type = "Quiz", null for Type = "Read".
     /// </summary>
-    public int LastScore { get; set; }
+    public int? Score { get; set; }
 
     /// <summary>
-    /// Best score achieved across all attempts on this topic.
+    /// Total number of questions in this quiz session.
+    /// Only set when Type = "Quiz", null for Type = "Read".
     /// </summary>
-    public int BestScore { get; set; }
-
-    /// <summary>
-    /// Total number of questions in the quiz.
-    /// </summary>
-    public int TotalQuestions { get; set; }
+    public int? TotalQuestions { get; set; }
 
     /// <summary>
     /// Name of the LLM model used to generate the quiz.
@@ -59,14 +56,5 @@ public class UserActivityDto
     /// Version of the LLM model used.
     /// </summary>
     public string? LlmVersion { get; set; }
-
-    /// <summary>
-    /// Indicates whether this topic is tracked/favorited by the user.
-    /// </summary>
-    public bool IsTracked { get; set; }
-
-    /// <summary>
-    /// Type of activity: "Read" or "Quiz".
-    /// </summary>
-    public string Type { get; set; } = string.Empty;
 }
+

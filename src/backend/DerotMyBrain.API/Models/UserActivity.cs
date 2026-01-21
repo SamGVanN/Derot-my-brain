@@ -1,7 +1,8 @@
 namespace DerotMyBrain.API.Models;
 
 /// <summary>
-/// Represents a user's activity (reading or quiz) on a Wikipedia topic.
+/// Represents a single user session on a Wikipedia topic.
+/// Each row is one discrete session (Read or Quiz).
 /// </summary>
 public class UserActivity
 {
@@ -26,29 +27,27 @@ public class UserActivity
     public string WikipediaUrl { get; set; } = string.Empty;
     
     /// <summary>
-    /// Date and time of the first attempt on this topic.
+    /// Type of this session: "Read" or "Quiz".
+    /// Default is "Read" as reading happens before quizzing.
     /// </summary>
-    public DateTime FirstAttemptDate { get; set; }
+    public string Type { get; set; } = "Read";
     
     /// <summary>
-    /// Date and time of the most recent attempt on this topic.
+    /// When this session occurred.
     /// </summary>
-    public DateTime LastAttemptDate { get; set; }
+    public DateTime SessionDate { get; set; } = DateTime.UtcNow;
     
     /// <summary>
-    /// Score from the most recent quiz attempt.
+    /// Score from this quiz session.
+    /// Only set when Type = "Quiz", null for Type = "Read".
     /// </summary>
-    public int LastScore { get; set; }
+    public int? Score { get; set; }
     
     /// <summary>
-    /// Best score achieved across all attempts on this topic.
+    /// Total number of questions in this quiz session.
+    /// Only set when Type = "Quiz", null for Type = "Read".
     /// </summary>
-    public int BestScore { get; set; }
-    
-    /// <summary>
-    /// Total number of questions in the quiz.
-    /// </summary>
-    public int TotalQuestions { get; set; }
+    public int? TotalQuestions { get; set; }
     
     /// <summary>
     /// Name of the LLM model used to generate the quiz (e.g., "llama3:8b").
@@ -61,17 +60,8 @@ public class UserActivity
     public string? LlmVersion { get; set; }
     
     /// <summary>
-    /// Indicates whether this topic is tracked/favorited by the user.
-    /// </summary>
-    public bool IsTracked { get; set; }
-    
-    /// <summary>
-    /// Type of activity: "Read" (article read) or "Quiz" (quiz completed).
-    /// </summary>
-    public string Type { get; set; } = "Quiz";
-    
-    /// <summary>
     /// Navigation property to the associated user.
     /// </summary>
     public User? User { get; set; }
 }
+
