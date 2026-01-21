@@ -91,11 +91,11 @@ public class CreateActivityDto : IValidatableObject
 ```
 
 **Checklist:**
-- [ ] `Type` default changed to `"Read"`
-- [ ] `Score` made nullable (int?)
-- [ ] `TotalQuestions` made nullable (int?)
-- [ ] Custom validation implemented
-- [ ] DTO implements IValidatableObject
+- [x] `Type` default changed to `"Read"`
+- [x] `Score` made nullable (int?)
+- [x] `TotalQuestions` made nullable (int?)
+- [x] Custom validation implemented
+- [x] DTO implements IValidatableObject
 
 ---
 
@@ -138,13 +138,13 @@ public class UserActivityDto
 ```
 
 **Checklist:**
-- [ ] `FirstAttemptDate` removed
-- [ ] `LastAttemptDate` removed
-- [ ] `BestScore` removed
-- [ ] `IsTracked` removed
-- [ ] `SessionDate` added
-- [ ] `LastScore` renamed to `Score`
-- [ ] `Score` and `TotalQuestions` nullable
+- [x] `FirstAttemptDate` removed
+- [x] `LastAttemptDate` removed
+- [x] `BestScore` removed
+- [x] `IsTracked` removed
+- [x] `SessionDate` added
+- [x] `LastScore` renamed to `Score`
+- [x] `Score` and `TotalQuestions` nullable
 
 ---
 
@@ -187,9 +187,9 @@ public class TrackedTopicDto
 ```
 
 **Checklist:**
-- [ ] File created
-- [ ] All properties implemented
-- [ ] XML documentation added
+- [x] File created
+- [x] All properties implemented
+- [x] XML documentation added
 
 ---
 
@@ -202,7 +202,7 @@ public class TrackedTopicDto
 - Make `TotalQuestions` nullable (int → int?)
 
 **Checklist:**
-- [ ] Properties made nullable (if file exists)
+- [x] Properties made nullable (if file exists)
 
 ---
 
@@ -311,10 +311,10 @@ public async Task<ActionResult<UserActivityDto>> CreateActivity(
 ```
 
 **Checklist:**
-- [ ] All mapping updated (LastScore → Score, SessionDate added)
-- [ ] GET endpoint supports `?topic=X` query for evolution
-- [ ] POST endpoint validates dto properly
-- [ ] No references to removed properties (FirstAttemptDate, BestScore, IsTracked)
+- [x] All mapping updated (LastScore → Score, SessionDate added)
+- [x] GET endpoint supports `?topic=X` query for evolution
+- [x] POST endpoint validates dto properly
+- [x] No references to removed properties (FirstAttemptDate, BestScore, IsTracked)
 
 ---
 
@@ -494,15 +494,15 @@ public class TrackTopicDto
 ```
 
 **Checklist:**
-- [ ] Controller created
-- [ ] GET all tracked topics endpoint
-- [ ] GET specific tracked topic endpoint
-- [ ] POST track topic endpoint
-- [ ] DELETE untrack topic endpoint
-- [ ] GET topic evolution endpoint
-- [ ] Structured logging on all endpoints
-- [ ] Proper error handling (try-catch)
-- [ ] TrackTopicDto defined
+- [x] Controller created
+- [x] GET all tracked topics endpoint
+- [x] GET specific tracked topic endpoint
+- [x] POST track topic endpoint
+- [x] DELETE untrack topic endpoint
+- [x] GET topic evolution endpoint
+- [x] Structured logging on all endpoints
+- [x] Proper error handling (try-catch)
+- [x] TrackTopicDto defined
 
 ---
 
@@ -524,9 +524,9 @@ builder.Services.AddScoped<ITrackedTopicService, TrackedTopicService>(); // NEW
 ```
 
 **Checklist:**
-- [ ] ITrackedTopicRepository and SqliteTrackedTopicRepository registered
-- [ ] ITrackedTopicService and TrackedTopicService registered
-- [ ] Both use `Scoped` lifetime
+- [x] ITrackedTopicRepository and SqliteTrackedTopicRepository registered
+- [x] ITrackedTopicService and TrackedTopicService registered
+- [x] Both use `Scoped` lifetime
 
 ---
 
@@ -535,22 +535,22 @@ builder.Services.AddScoped<ITrackedTopicService, TrackedTopicService>(); // NEW
 Before proceeding to Part 3, verify:
 
 ### Code Compilation
-- [ ] Solution builds without errors
-- [ ] No compilation warnings
+- [x] Solution builds without errors
+- [x] No compilation warnings
 
 ### DTOs
-- [ ] CreateActivityDto updated (Type default, nullable fields, validation)
-- [ ] UserActivityDto updated (SessionDate, Score, no removed properties)
-- [ ] TrackedTopicDto created
-- [ ] UpdateActivityDto updated (if exists)
+- [x] CreateActivityDto updated (Type default, nullable fields, validation)
+- [x] UserActivityDto updated (SessionDate, Score, no removed properties)
+- [x] TrackedTopicDto created
+- [x] UpdateActivityDto updated (if exists)
 
 ### Controllers
-- [ ] ActivitiesController updated (mapping, endpoints)
-- [ ] TrackedTopicsController created with all 5 endpoints
-- [ ] All endpoints have proper error handling
+- [x] ActivitiesController updated (mapping, endpoints)
+- [x] TrackedTopicsController created with all 5 endpoints
+- [x] All endpoints have proper error handling
 
 ### Dependency Injection
-- [ ] All new services registered in Program.cs
+- [x] All new services registered in Program.cs
 
 ### Quick API Test (Optional)
 Test endpoints manually or with Swagger:

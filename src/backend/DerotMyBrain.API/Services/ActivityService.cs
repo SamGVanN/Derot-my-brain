@@ -93,6 +93,11 @@ public class ActivityService : IActivityService
         return await _repository.GetAllAsync(userId);
     }
 
+    public async Task<IEnumerable<UserActivity>> GetAllForTopicAsync(string userId, string topic)
+    {
+        return await _repository.GetAllForTopicAsync(userId, topic);
+    }
+
     public async Task DeleteActivityAsync(string userId, string activityId)
     {
         _logger.LogInformation("Deleting activity {ActivityId} for user {UserId}", activityId, userId);

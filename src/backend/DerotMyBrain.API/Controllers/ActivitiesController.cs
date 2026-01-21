@@ -13,30 +13,53 @@ namespace DerotMyBrain.API.Controllers;
 public class ActivitiesController : ControllerBase
 {
     private readonly IActivityService _activityService;
+    private readonly ITrackedTopicService _trackedTopicService;
     private readonly ILogger<ActivitiesController> _logger;
 
-    public ActivitiesController(IActivityService activityService, ILogger<ActivitiesController> logger)
+    public ActivitiesController(
+        IActivityService activityService, 
+        ITrackedTopicService trackedTopicService,
+        ILogger<ActivitiesController> logger)
     {
         _activityService = activityService;
+        _trackedTopicService = trackedTopicService;
         _logger = logger;
     }
 
     /// <summary>
-    /// Gets all activities for a specific user.
+    /// Gets all activities for a specific user, optionally filtered by topic.
     /// </summary>
     /// <param name="userId">The user ID.</param>
+    /// <param name="topic">Optional topic filter.</param>
     /// <returns>List of activities.</returns>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserActivityDto>>> GetActivities(string userId)
+    public async Task<ActionResult<IEnumerable<UserActivityDto>>> GetActivities(
+        string userId,
+        [FromQuery] string? topic = null)
     {
         try
         {
-            var activities = await _activityService.GetAllActivitiesAsync(userId);
-            return Ok(activities.Select(MapToDto));
+            IEnumerable<UserActivity> activities;
+            if (!string.IsNullOrEmpty(topic))
+            {
+                activities = await _activityService.GetAllForTopicAsync(userId, topic);
+            }
+            else
+            {
+                activities = await _activityService.GetAllActivitiesAsync(userId);
+            }
+
+            // Efficiently fetch all tracked topic names for the user to avoid N+1 queries
+            var trackedTopicNames = (await _trackedTopicService.GetAllTrackedTopicsAsync(userId))
+                .Select(t => t.Topic)
+                .ToHashSet();
+
+            var dtos = activities.Select(a => MapToDto(a, trackedTopicNames.Contains(a.Topic)));
+            return Ok(dtos);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting activities for user {UserId}", userId);
+            _logger.LogError(ex, "Error getting activities for user {UserId}, Topic: {Topic}", userId, topic);
             return StatusCode(500, new { message = "Internal server error" });
         }
     }
@@ -58,7 +81,9 @@ public class ActivitiesController : ControllerBase
                 _logger.LogWarning("Activity {ActivityId} not found for user {UserId}", activityId, userId);
                 return NotFound(new { message = $"Activity {activityId} not found" });
             }
-            return Ok(MapToDto(activity));
+
+            var isTracked = await _activityService.IsTopicTrackedAsync(userId, activity.Topic);
+            return Ok(MapToDto(activity, isTracked));
         }
         catch (Exception ex)
         {
@@ -84,7 +109,8 @@ public class ActivitiesController : ControllerBase
         try
         {
             var activity = await _activityService.CreateActivityAsync(userId, dto);
-            var resultDto = MapToDto(activity);
+            var isTracked = await _activityService.IsTopicTrackedAsync(userId, activity.Topic);
+            var resultDto = MapToDto(activity, isTracked);
             _logger.LogInformation("Activity created: {ActivityId} for user {UserId}, Topic: {Topic}", activity.Id, userId, activity.Topic);
             return CreatedAtAction(nameof(GetActivity), new { userId, activityId = activity.Id }, resultDto);
         }
@@ -113,8 +139,9 @@ public class ActivitiesController : ControllerBase
         try
         {
             var activity = await _activityService.UpdateActivityAsync(userId, activityId, dto);
+            var isTracked = await _activityService.IsTopicTrackedAsync(userId, activity.Topic);
             _logger.LogInformation("Activity updated: {ActivityId} for user {UserId}, Score: {Score}", activityId, userId, activity.Score);
-            return Ok(MapToDto(activity));
+            return Ok(MapToDto(activity, isTracked));
         }
         catch (KeyNotFoundException)
         {
@@ -153,37 +180,6 @@ public class ActivitiesController : ControllerBase
             _logger.LogError(ex, "Error deleting activity {ActivityId} for user {UserId}", activityId, userId);
             return StatusCode(500, new { message = "Internal server error" });
         }
-    }
-
-    // --- Tracking Endpoints ---
-
-    /// <summary>
-    /// Gets all tracked topics (favorites) for a user.
-    /// </summary>
-    /// <param name="userId">The user ID.</param>
-    /// <returns>List of tracked activities.</returns>
-    [HttpGet("~/api/users/{userId}/tracked-topics-obsolete")]
-    public IActionResult GetTrackedTopicsObsolete(string userId)
-    {
-        return Ok(new List<UserActivityDto>());
-    }
-
-    /// <summary>
-    /// Adds a topic to tracked topics (favorites).
-    /// </summary>
-    /// <param name="userId">The user ID.</param>
-    /// <param name="activityId">The activity ID.</param>
-    /// <returns>No content.</returns>
-    [HttpPost("{activityId}/track-obsolete")]
-    public IActionResult TrackActivityObsolete(string userId, string activityId)
-    {
-        return NoContent();
-    }
-
-    [HttpDelete("{activityId}/track-obsolete")]
-    public IActionResult UntrackActivityObsolete(string userId, string activityId)
-    {
-        return NoContent();
     }
 
     // --- Dashboard Endpoints ---
@@ -250,7 +246,7 @@ public class ActivitiesController : ControllerBase
         }
     }
 
-    private static UserActivityDto MapToDto(UserActivity activity)
+    private static UserActivityDto MapToDto(UserActivity activity, bool isTracked = false)
     {
         return new UserActivityDto
         {
@@ -263,7 +259,8 @@ public class ActivitiesController : ControllerBase
             Score = activity.Score,
             TotalQuestions = activity.TotalQuestions,
             LlmModelName = activity.LlmModelName,
-            LlmVersion = activity.LlmVersion
+            LlmVersion = activity.LlmVersion,
+            IsTracked = isTracked
         };
     }
 }

@@ -1,7 +1,7 @@
 namespace DerotMyBrain.API.DTOs;
 
 /// <summary>
-/// Data transfer object for user activity details.
+/// DTO for user activity session details.
 /// </summary>
 public class UserActivityDto
 {
@@ -28,27 +28,25 @@ public class UserActivityDto
     /// <summary>
     /// Type of this session: "Read" or "Quiz".
     /// </summary>
-    public string Type { get; set; } = "Read";
-
+    public string Type { get; set; } = string.Empty;
+    
     /// <summary>
     /// When this session occurred.
     /// </summary>
-    public DateTime SessionDate { get; set; } = DateTime.UtcNow;
-
+    public DateTime SessionDate { get; set; }
+    
     /// <summary>
-    /// Score from this quiz session.
-    /// Only set when Type = "Quiz", null for Type = "Read".
+    /// Score from this quiz session. Null for Type = "Read".
     /// </summary>
     public int? Score { get; set; }
 
     /// <summary>
-    /// Total number of questions in this quiz session.
-    /// Only set when Type = "Quiz", null for Type = "Read".
+    /// Total questions in this session. Null for Type = "Read".
     /// </summary>
     public int? TotalQuestions { get; set; }
 
     /// <summary>
-    /// Name of the LLM model used to generate the quiz.
+    /// Name of the LLM model used.
     /// </summary>
     public string? LlmModelName { get; set; }
 
@@ -56,5 +54,10 @@ public class UserActivityDto
     /// Version of the LLM model used.
     /// </summary>
     public string? LlmVersion { get; set; }
+
+    /// <summary>
+    /// Indicator if the topic is currently tracked by the user.
+    /// </summary>
+    public bool IsTracked { get; set; }
 }
 
