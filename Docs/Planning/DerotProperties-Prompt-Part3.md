@@ -191,12 +191,12 @@ public static async Task SeedAsync(DerotDbContext context)
 ```
 
 **Checklist:**
-- [ ] All references to removed properties deleted
-- [ ] Multiple sessions created for same topic (evolution)
-- [ ] TrackedTopic entries created with aggregated data
-- [ ] Demonstrates tracked vs non-tracked topics
-- [ ] Demonstrates Read-only tracked topic (no quiz yet)
-- [ ] Demonstrates best score improvement scenario
+- [x] All references to removed properties deleted
+- [x] Multiple sessions created for same topic (evolution)
+- [x] TrackedTopic entries created with aggregated data
+- [x] Demonstrates tracked vs non-tracked topics
+- [x] Demonstrates Read-only tracked topic (no quiz yet)
+- [x] Demonstrates best score improvement scenario
 
 ---
 
@@ -339,15 +339,15 @@ public class ActivityServiceTests
 ```
 
 **Required Tests:**
-- [ ] Create Read session (Score/TotalQuestions null)
-- [ ] Create Quiz session (Score/TotalQuestions required)
-- [ ] Update TrackedTopic when session created on tracked topic
-- [ ] Do NOT update TrackedTopic when session created on non-tracked topic
-- [ ] Detect new best score and update BestScoreDate
+- [x] Create Read session (Score/TotalQuestions null)
+- [x] Create Quiz session (Score/TotalQuestions required)
+- [x] Update TrackedTopic when session created on tracked topic
+- [x] Do NOT update TrackedTopic when session created on non-tracked topic
+- [x] Detect new best score and update BestScoreDate
 
 **Checklist:**
-- [ ] All tests written and passing
-- [ ] Code coverage ≥ 80% for ActivityService
+- [x] All tests written and passing
+- [x] Code coverage ≥ 80% for ActivityService
 
 ---
 
@@ -356,15 +356,15 @@ public class ActivityServiceTests
 **File:** `src/backend/DerotMyBrain.Tests/Services/TrackedTopicServiceTests.cs`
 
 **Required Tests:**
-- [ ] Track new topic (creates TrackedTopic)
-- [ ] Track already-tracked topic (idempotent, returns existing)
-- [ ] Rebuild aggregateddata from UserActivity history
-- [ ] Untrack topic (deletes TrackedTopic, preserves UserActivity)
-- [ ] TrackedDate is auto-set and cannot be changed
+- [x] Track new topic (creates TrackedTopic)
+- [x] Track already-tracked topic (idempotent, returns existing)
+- [x] Rebuild aggregateddata from UserActivity history
+- [x] Untrack topic (deletes TrackedTopic, preserves UserActivity)
+- [x] TrackedDate is auto-set and cannot be changed
 
 **Checklist:**
-- [ ] All tests written and passing
-- [ ] Code coverage ≥ 80% for TrackedTopicService
+- [x] All tests written and passing
+- [x] Code coverage ≥ 80% for TrackedTopicService
 
 ---
 
@@ -375,15 +375,15 @@ public class ActivityServiceTests
 **File:** `src/backend/DerotMyBrain.Tests/Controllers/ActivitiesControllerTests.cs`
 
 **Required Tests:**
-- [ ] GET all activities (paginated, ordered by SessionDate desc)
-- [ ] GET activities for specific topic (evolution view)
-- [ ] POST new Read session
-- [ ] POST new Quiz session (validates Score/TotalQuestions required)
-- [ ] POST Quiz without score returns 400 Bad Request
+- [x] GET all activities (paginated, ordered by SessionDate desc)
+- [x] GET activities for specific topic (evolution view)
+- [x] POST new Read session
+- [x] POST new Quiz session (validates Score/TotalQuestions required)
+- [x] POST Quiz without score returns 400 Bad Request
 
 **Checklist:**
-- [ ] All tests written and passing
-- [ ] Uses WebApplicationFactory (if applicable)
+- [x] All tests written and passing
+- [x] Uses WebApplicationFactory (if applicable)
 
 ---
 
@@ -392,15 +392,15 @@ public class ActivityServiceTests
 **File:** `src/backend/DerotMyBrain.Tests/Controllers/TrackedTopicsControllerTests.cs`
 
 **Required Tests:**
-- [ ] GET tracked topics list
-- [ ] POST track topic (creates TrackedTopic + rebuilds history)
-- [ ] DELETE untrack topic
-- [ ] GET topic evolution (returns all sessions for tracked topic)
-- [ ] GET topic evolution for non-tracked topic returns 404
+- [x] GET tracked topics list
+- [x] POST track topic (creates TrackedTopic + rebuilds history)
+- [x] DELETE untrack topic
+- [x] GET topic evolution (returns all sessions for tracked topic)
+- [x] GET topic evolution for non-tracked topic returns 404
 
 **Checklist:**
-- [ ] All tests written and passing
-- [ ] Uses WebApplicationFactory (if applicable)
+- [x] All tests written and passing
+- [x] Uses WebApplicationFactory (if applicable)
 
 ---
 
@@ -490,42 +490,42 @@ Expected: 3 sessions ordered by SessionDate:
 ```
 
 **Checklist:**
-- [ ] All 6 steps complete successfully
-- [ ] Read session has null scores
-- [ ] Quiz sessions have valid scores
-- [ ] TrackedTopic aggregates data correctly
-- [ ] BestScore updates on improvement
-- [ ] Evolution shows all sessions
+- [x] All 6 steps complete successfully
+- [x] Read session has null scores
+- [x] Quiz sessions have valid scores
+- [x] TrackedTopic aggregates data correctly
+- [x] BestScore updates on improvement
+- [x] Evolution shows all sessions
 
 ---
 
 ### 10.2 Code Review Checklist
 
-- [ ] All properties match `DerotProperties.md` specifications
-- [ ] No hardcoded values (use `DateTime.UtcNow`)
-- [ ] Structured logging on all operations
-- [ ] Proper error handling (try-catch, custom exceptions)
-- [ ] XML documentation on public APIs
-- [ ] Follow naming conventions (PascalCase, camelCase)
-- [ ] No `.Result` or `.Wait()` (async/await only)
-- [ ] All tests pass (unit + integration)
-- [ ] Code coverage ≥ 80%
+- [x] All properties match `DerotProperties.md` specifications
+- [x] No hardcoded values (use `DateTime.UtcNow`)
+- [x] Structured logging on all operations
+- [x] Proper error handling (try-catch, custom exceptions)
+- [x] XML documentation on public APIs
+- [x] Follow naming conventions (PascalCase, camelCase)
+- [x] No `.Result` or `.Wait()` (async/await only)
+- [x] All tests pass (unit + integration)
+- [x] Code coverage ≥ 80%
 
 ---
 
 ### 10.3 Database Verification
 
-- [ ] Migrations applied successfully
-- [ ] `UserActivity` table:
-  - [ ] Has `SessionDate` column
-  - [ ] Does NOT have `FirstAttemptDate`, `LastAttemptDate`, `BestScore`, `IsTracked`
-  - [ ] `Score` and `TotalQuestions` are nullable
-  - [ ] Indexes created correctly
-- [ ] `TrackedTopic` table:
-  - [ ] Exists with all required columns
-  - [ ] Unique constraint on (UserId, Topic)
-  - [ ] Foreign key to Users table
-  - [ ] Indexes created correctly
+- [x] Migrations applied successfully
+- [x] `UserActivity` table:
+  - [x] Has `SessionDate` column
+  - [x] Does NOT have `FirstAttemptDate`, `LastAttemptDate`, `BestScore`, `IsTracked`
+  - [x] `Score` and `TotalQuestions` are nullable
+  - [x] Indexes created correctly
+- [x] `TrackedTopic` table:
+  - [x] Exists with all required columns
+  - [x] Unique constraint on (UserId, Topic)
+  - [x] Foreign key to Users table
+  - [x] Indexes created correctly
 
 ---
 

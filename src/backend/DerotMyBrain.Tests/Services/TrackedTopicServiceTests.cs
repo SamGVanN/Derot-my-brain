@@ -70,4 +70,22 @@ public class TrackedTopicServiceTests
         // Assert
         _trackedTopicRepoMock.Verify(r => r.DeleteAsync("tracked1"), Times.Once);
     }
+
+    [Fact]
+    public async Task TrackTopicAsync_AlreadyTracked_ShouldReturnExisting()
+    {
+        // Arrange
+        var userId = "user1";
+        var topic = "Quantum";
+        var tracked = new TrackedTopic { Id = "tracked1", UserId = userId, Topic = topic };
+        
+        _trackedTopicRepoMock.Setup(r => r.GetByTopicAsync(userId, topic)).ReturnsAsync(tracked);
+        
+        // Act
+        var result = await _service.TrackTopicAsync(userId, topic, "https://test.com");
+        
+        // Assert
+        Assert.Equal("tracked1", result.Id);
+        _trackedTopicRepoMock.Verify(r => r.CreateAsync(It.IsAny<TrackedTopic>()), Times.Never);
+    }
 }

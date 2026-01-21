@@ -127,4 +127,46 @@ public class ActivityServiceTests
             t.TotalQuizAttempts == 2
         )), Times.Once);
     }
+
+    [Fact]
+    public async Task CreateActivityAsync_NonTrackedTopic_ShouldNotUpdateCache()
+    {
+        // Arrange
+        var userId = "user1";
+        var dto = new CreateActivityDto { Topic = "NewTopic", Type = "Quiz", Score = 10, TotalQuestions = 10 };
+        
+        _activityRepoMock.Setup(r => r.CreateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
+        _trackedTopicRepoMock.Setup(r => r.ExistsAsync(userId, "NewTopic")).ReturnsAsync(false);
+        
+        // Act
+        await _service.CreateActivityAsync(userId, dto);
+        
+        // Assert
+        _trackedTopicRepoMock.Verify(r => r.GetByTopicAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _trackedTopicRepoMock.Verify(r => r.UpdateAsync(It.IsAny<TrackedTopic>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateActivityAsync_NewBestScore_ShouldUpdateBestScoreDate()
+    {
+        // Arrange
+        var userId = "user1";
+        var dto = new CreateActivityDto { Topic = "Test", Type = "Quiz", Score = 10, TotalQuestions = 10 };
+        var trackedTopic = new TrackedTopic { UserId = userId, Topic = "Test", BestScore = 5, BestScoreDate = DateTime.UtcNow.AddDays(-1) };
+        
+        _activityRepoMock.Setup(r => r.CreateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
+        _trackedTopicRepoMock.Setup(r => r.ExistsAsync(userId, "Test")).ReturnsAsync(true);
+        _trackedTopicRepoMock.Setup(r => r.GetByTopicAsync(userId, "Test")).ReturnsAsync(trackedTopic);
+        
+        var beforeUpdate = DateTime.UtcNow;
+        
+        // Act
+        await _service.CreateActivityAsync(userId, dto);
+        
+        // Assert
+        _trackedTopicRepoMock.Verify(r => r.UpdateAsync(It.Is<TrackedTopic>(t => 
+            t.BestScore == 10 && 
+            t.BestScoreDate >= beforeUpdate
+        )), Times.Once);
+    }
 }

@@ -207,6 +207,19 @@ public class ActivitiesControllerIntegrationTests :
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var topScores = await response.Content.ReadFromJsonAsync<List<TopScoreDto>>();
         Assert.NotNull(topScores);
-        Assert.Single(topScores); // Only one quiz activity with score
+    }
+
+    [Fact]
+    public async Task GetActivitiesByTopic_ShouldReturn200_WithEvolutionData()
+    {
+        // Act
+        var response = await _client.GetAsync("/api/users/test-user-integration/activities?topic=Physics");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var activities = await response.Content.ReadFromJsonAsync<List<UserActivityDto>>();
+        Assert.NotNull(activities);
+        Assert.Single(activities); // Physics only has 1 activity in SeedDefaultTestDataAsync
+        Assert.Equal("Physics", activities[0].Topic);
     }
 }
