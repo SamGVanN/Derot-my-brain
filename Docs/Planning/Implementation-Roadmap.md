@@ -1166,9 +1166,9 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
   - `GET /api/users/{userId}/statistics/top-scores?limit=10`
 
 **Acceptance Criteria:**
-- [ ] All endpoints implemented and documented
-- [ ] DTOs validated with Data Annotations
-- [ ] Error handling (404, 400, 500, etc.)
+- [x] All endpoints implemented and documented
+- [x] DTOs validated with Data Annotations
+- [x] Error handling (404, 400, 500, etc.)
 - [ ] Integration tests pass
 - [ ] Swagger documentation updated
 
