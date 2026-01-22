@@ -8,16 +8,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { AlertTriangle, Edit, Save, X } from 'lucide-react';
+import { userApi } from '@/api/userApi';
 import { useAuth } from '@/hooks/useAuth';
 import { DeleteAccountModal } from '@/components/profile/DeleteAccountModal';
 
 export function UserProfilePage() {
     const { t } = useTranslation();
-    const { user, logout } = useAuth();
+    const { user, logout, updateUser } = useAuth();
     const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
     const [editedName, setEditedName] = useState(user?.name || '');
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     if (!user) {
         navigate('/');
@@ -25,9 +27,19 @@ export function UserProfilePage() {
     }
 
     const handleSave = async () => {
-        // TODO: Call API to update user name
-        console.log('Saving user name:', editedName);
-        setIsEditing(false);
+        if (!editedName.trim()) return;
+
+        try {
+            setIsLoading(true);
+            const updatedUser = await userApi.updateUser(user.id, { name: editedName });
+            updateUser(updatedUser);
+            setIsEditing(false);
+        } catch (error) {
+            console.error('Failed to update user name:', error);
+            // Ideally show a toast here
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleCancel = () => {
@@ -87,7 +99,7 @@ export function UserProfilePage() {
                                         onChange={(e) => setEditedName(e.target.value)}
                                         placeholder={t('profile.name')}
                                     />
-                                    <Button size="icon" variant="default" onClick={handleSave}>
+                                    <Button size="icon" variant="default" onClick={handleSave} disabled={isLoading}>
                                         <Save className="h-4 w-4" />
                                     </Button>
                                     <Button size="icon" variant="ghost" onClick={handleCancel}>

@@ -93,35 +93,39 @@
             "interestsDescription": "Select the topics you want to learn about.",
             "ai": "AI Engine Configuration"
         },
-        "profile": {
-            "title": "User Profile",
-            "editMode": "Edit Profile",
-            "name": "Name",
-            "userId": "User ID",
-            "createdAt": "Account Created",
-            "lastConnection": "Last Connection",
-            "statistics": "Statistics",
-            "totalActivities": "Total Activities",
-            "trackedTopicsCount": "Tracked Topics",
-            "dangerZone": "Danger Zone",
-            "deleteAccount": "Delete Account",
-            "deleteAccountWarning": "This action is permanent and cannot be undone.",
-            "deleteAccountDetails": "All your data will be deleted, including:",
-            "deleteAccountList": {
-                "profile": "Profile information",
-                "history": "Activity history",
-                "tracked": "Tracked topics",
-                "preferences": "Preferences"
-            },
-            "deleteAccountConfirm": "Type your username to confirm",
-            "deleteAccountButton": "Delete My Account",
-            "saveSuccess": "Profile updated successfully",
-            "saveError": "Failed to update profile"
-        },
         "quiz": {
             "questionCount": "Questions per Quiz",
             "questionCountDescription": "Choose how many questions to include in each quiz session."
         }
+    },
+    "profile": {
+        "title": "User Profile",
+        "subtitle": "Manage your account information",
+        "description": "Your personal information",
+        "editMode": "Edit Profile",
+        "name": "Name",
+        "userId": "User ID",
+        "createdAt": "Account Created",
+        "lastConnection": "Last Connection",
+        "statistics": "Statistics",
+        "statsDescription": "Your learning progress",
+        "totalActivities": "Total Activities",
+        "trackedTopicsCount": "Tracked Topics",
+        "dangerZone": "Danger Zone",
+        "dangerZoneDescription": "Irreversible actions",
+        "deleteAccount": "Delete Account",
+        "deleteAccountWarning": "This action is permanent and cannot be undone.",
+        "deleteAccountDetails": "All your data will be deleted, including:",
+        "deleteAccountList": {
+            "profile": "Profile information",
+            "history": "Activity history",
+            "tracked": "Tracked topics",
+            "preferences": "Preferences"
+        },
+        "deleteAccountConfirm": "Type your username to confirm",
+        "deleteAccountButton": "Delete My Account",
+        "saveSuccess": "Profile updated successfully",
+        "saveError": "Failed to update profile"
     },
     "derot": {
         "title": "Derot Page",

@@ -96,5 +96,56 @@
             "general": "Paramètres Généraux",
             "interests": "Centres d'Intérêt & Sujets"
         }
+    },
+    "profile": {
+        "title": "Profil Utilisateur",
+        "subtitle": "Gérez les informations de votre compte",
+        "description": "Vos informations personnelles",
+        "editMode": "Modifier le profil",
+        "name": "Nom",
+        "userId": "ID Utilisateur",
+        "createdAt": "Compte créé le",
+        "lastConnection": "Dernière connexion",
+        "statistics": "Statistiques",
+        "statsDescription": "Votre progression d'apprentissage",
+        "totalActivities": "Activités totales",
+        "trackedTopicsCount": "Sujets suivis",
+        "dangerZone": "Zone de danger",
+        "dangerZoneDescription": "Actions irréversibles",
+        "deleteAccount": "Supprimer le compte",
+        "deleteAccountWarning": "Cette action est irréversible et ne peut pas être annulée.",
+        "deleteAccountDetails": "Toutes vos données seront supprimées, incluant :",
+        "deleteAccountList": {
+            "profile": "Informations de profil",
+            "history": "Historique d'activité",
+            "tracked": "Sujets suivis",
+            "preferences": "Préférences"
+        },
+        "deleteAccountConfirm": "Tapez votre nom d'utilisateur pour confirmer",
+        "deleteAccountButton": "Supprimer mon compte",
+        "saveSuccess": "Profil mis à jour avec succès",
+        "saveError": "Échec de la mise à jour du profil"
+    },
+    "derot": {
+        "title": "Page Derot",
+        "comingSoon": "Bientôt disponible dans la Phase 6",
+        "description": "C'est ici que vous lirez des articles Wikipédia et passerez des quiz pour tester vos connaissances."
+    },
+    "trackedTopics": {
+        "title": "Sujets Suivis",
+        "comingSoon": "Bientôt disponible dans la Phase 5",
+        "description": "C'est ici que vous gérerez vos sujets suivis et articles favoris pour les revisiter plus tard."
+    },
+    "guide": {
+        "title": "Guide Utilisateur",
+        "comingSoon": "Bientôt disponible dans la Phase 8",
+        "description": "C'est ici que vous trouverez des guides utiles et des tutoriels sur l'utilisation de Derot My Brain."
+    },
+    "configuration": {
+        "title": "Configuration",
+        "subtitle": "Configuration globale",
+        "ai": {
+            "valid_api_key_required": "Une clé API valide est requise pour le bon fonctionnement de l'application. Veuillez vérifier que votre fournisseur LLM est joignable."
+        }
     }
 }

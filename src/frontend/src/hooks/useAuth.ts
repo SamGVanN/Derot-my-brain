@@ -67,6 +67,7 @@ export function useAuth() {
         isInitializing,
         login,
         logout,
-        validateSession
+        validateSession,
+        updateUser
     };
 }
