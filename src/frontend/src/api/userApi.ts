@@ -50,5 +50,10 @@ export const userApi = {
     updateCategoryPreferences: async (userId: string, selectedCategories: string[]): Promise<User> => {
         const response = await client.patch<User>(`/users/${userId}/preferences/categories`, { selectedCategories });
         return response.data;
+    },
+
+    updateDerotZonePreferences: async (userId: string, preferences: { questionCount: number; selectedCategories: string[] }): Promise<User> => {
+        const response = await client.patch<User>(`/users/${userId}/preferences/derot-zone`, preferences);
+        return response.data;
     }
 };

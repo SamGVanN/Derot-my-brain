@@ -1259,21 +1259,25 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
 
 **Objective:**
 - Update history display
-- Show Last Score, Best Score, LLM info, Tracked indicator
+- Show Scores, LLM info, Tracked indicator
 
 **Specifications:**
 - Update `components/history-view.tsx`
-- Display Last Score (X/Y) and Best Score (X/Y)
-- Show ⭐ icon for Tracked Topics
+- Display Score
+- Best Score if Topic is tracked (with icon)
+- Show book-marked icon if Topic is in user's Tracked Topics
 - Show LLM info on hover
+- Show Add to tracked topics button if topic is not tracked
+- Show Remove from tracked topics button if topic is tracked
 
 **Acceptance Criteria:**
-- [ ] Last Score displayed (X/Y)
-- [ ] Best Score displayed (X/Y)
-- [ ] ⭐ icon for Tracked Topics
+- [ ] Score displayed (X/Y)
+- [ ] Best Score displayed (X/Y) - only if activity Topic is a tracked topic
+- [ ] icon for Tracked Topics
 - [ ] LLM info on hover
 - [ ] Render tests pass
 - [ ] Responsive design
+- [ ] Add/Remove from tracked topics
 
 ---
 

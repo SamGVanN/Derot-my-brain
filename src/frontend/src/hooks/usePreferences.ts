@@ -82,14 +82,26 @@ export function usePreferences() {
         }
     }, [setStoreSessionWelcomeDismissed]);
 
-    // Generic update for other preferences (like question count)
+    // Generic update for other preferences
     const updateGenericPreferences = useCallback(async (prefs: any) => {
         // Update local store if applicable (store handles partial updates)
         setStorePreferences(prefs);
 
         if (user?.id) {
             try {
-                await userApi.updatePreferences(user.id, prefs);
+                // Check if this is a "Derot Zone" update (Question Count + Categories)
+                if ('questionCount' in prefs && 'selectedCategories' in prefs) {
+                    await userApi.updateDerotZonePreferences(user.id, {
+                        questionCount: prefs.questionCount,
+                        selectedCategories: prefs.selectedCategories
+                    });
+                }
+                // Fallback to full update (existing behavior) if not strictly matching the new dedicated patch
+                // or if it contains other fields. Ideally we could split logic but this ensures backward compatibility
+                else {
+                    await userApi.updatePreferences(user.id, prefs);
+                }
+
                 updateUser({
                     ...user,
                     preferences: {

@@ -117,5 +117,36 @@ namespace DerotMyBrain.API.Services
         {
             return await _userRepository.DeleteAsync(userId);
         }
+
+        public async Task<User?> UpdateDerotZonePreferencesAsync(string userId, int questionCount, List<string> selectedCategories)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return null;
+            }
+
+            // Validation logic moved here from general UpdateUserAsync if needed, or repeated
+            var allowedQuestionCounts = new[] { 5, 10, 15, 20 };
+            user.Preferences.QuestionCount = allowedQuestionCounts.Contains(questionCount) ? questionCount : 10;
+            user.Preferences.SelectedCategories = selectedCategories ?? new List<string>();
+
+            return await _userRepository.UpdateAsync(user);
+        }
+
+        public async Task<User?> UpdateGeneralPreferencesAsync(string userId, string language, string preferredTheme)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                return null;
+            }
+
+            var allowedLanguages = new[] { "en", "fr", "auto" };
+            user.Preferences.Language = allowedLanguages.Contains(language) ? language : "auto";
+            user.Preferences.PreferredTheme = preferredTheme; // Theme validation could be stricter here if we had the list
+
+            return await _userRepository.UpdateAsync(user);
+        }
     }
 }

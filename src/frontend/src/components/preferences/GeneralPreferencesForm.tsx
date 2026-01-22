@@ -2,10 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/components/theme-provider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { Loader2, Palette, Save, Languages, HelpCircle, AlertTriangle } from 'lucide-react';
+import { Loader2, Palette, Save, Languages, AlertTriangle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { UserPreferences } from '@/models/User';
 import { ThemeDropdown } from '@/components/ThemeDropdown';
@@ -24,11 +23,9 @@ export function GeneralPreferencesForm({ preferences, onSave, isSaving }: Genera
     const [localPrefs, setLocalPrefs] = useState<{
         language: string;
         preferredTheme: string;
-        questionCount: number;
     }>({
         language: preferences.language,
-        preferredTheme: preferences.preferredTheme,
-        questionCount: preferences.questionCount
+        preferredTheme: preferences.preferredTheme
     });
 
     const [hasChanges, setHasChanges] = useState(false);
@@ -47,8 +44,7 @@ export function GeneralPreferencesForm({ preferences, onSave, isSaving }: Genera
     useEffect(() => {
         setLocalPrefs({
             language: preferences.language,
-            preferredTheme: preferences.preferredTheme,
-            questionCount: preferences.questionCount
+            preferredTheme: preferences.preferredTheme
         });
         setHasChanges(false);
     }, [preferences]);
@@ -58,8 +54,7 @@ export function GeneralPreferencesForm({ preferences, onSave, isSaving }: Genera
             const next = { ...prev, [key]: value };
             setHasChanges(
                 next.language !== preferences.language ||
-                next.preferredTheme !== preferences.preferredTheme ||
-                next.questionCount !== preferences.questionCount
+                next.preferredTheme !== preferences.preferredTheme
             );
             return next;
         });
@@ -88,8 +83,7 @@ export function GeneralPreferencesForm({ preferences, onSave, isSaving }: Genera
         // Reset state
         setLocalPrefs({
             language: preferences.language,
-            preferredTheme: preferences.preferredTheme,
-            questionCount: preferences.questionCount
+            preferredTheme: preferences.preferredTheme
         });
         setHasChanges(false);
     };
@@ -102,12 +96,13 @@ export function GeneralPreferencesForm({ preferences, onSave, isSaving }: Genera
                     {t('preferences.general.title', 'General Settings')}
                 </CardTitle>
                 <CardDescription>
-                    {t('preferences.general.description', 'Customize your local experience.')}
+                    {t('preferences.general.description', 'Customize your UI experience and language.')}
                 </CardDescription>
                 <p className="text-xs text-muted-foreground mt-1">
                     {t('preferences.general.note', 'Note: Unsaved changes (applied immediately) are valid only for the current session.')}
                 </p>
             </CardHeader>
+            <Separator className="mb-6" />
             <CardContent className="space-y-6">
                 {/* Language */}
                 <div className="space-y-2">
@@ -151,28 +146,6 @@ export function GeneralPreferencesForm({ preferences, onSave, isSaving }: Genera
                             </span>
                         </div>
                     )}
-                </div>
-
-                <Separator />
-
-                {/* Question Count */}
-                <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                        <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                        <Label>{t('preferences.quiz.questionCount', 'Questions per Quiz')}</Label>
-                    </div>
-                    <RadioGroup
-                        value={localPrefs.questionCount.toString()}
-                        onValueChange={(val) => handleChange('questionCount', parseInt(val))}
-                        className="flex gap-4"
-                    >
-                        {[5, 10, 15, 20].map((count) => (
-                            <div key={count} className="flex items-center space-x-2">
-                                <RadioGroupItem value={count.toString()} id={`q-${count}`} />
-                                <Label htmlFor={`q-${count}`}>{count}</Label>
-                            </div>
-                        ))}
-                    </RadioGroup>
                 </div>
 
                 <div className="pt-4 flex justify-end gap-2">

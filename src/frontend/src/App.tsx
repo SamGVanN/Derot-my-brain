@@ -4,10 +4,12 @@ import { Routes, Route, Navigate, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { ThemeProvider } from './components/theme-provider';
 import UserSelectionPage from './pages/UserSelectionPage';
-import UserPreferencesPage from './pages/UserPreferencesPage';
+import LLMConfigurationPage from './pages/LLMConfigurationPage';
+import { PreferencesPage } from './pages/PreferencesPage';
 import { UserProfilePage } from './pages/UserProfilePage';
 import { HistoryPage } from './pages/HistoryPage';
 import { DerotPage } from './pages/DerotPage';
+import { ActivityPage } from './pages/ActivityPage';
 import { TrackedTopicsPage } from './pages/TrackedTopicsPage';
 import { GuidePage } from './pages/GuidePage';
 import { WelcomePage } from './features/welcome/WelcomePage';
@@ -120,11 +122,11 @@ function AppContent() {
       />
 
       <Route
-        path="/preferences"
+        path="/configuration"
         element={
           <ProtectedRoute>
             <div className="min-h-screen bg-background text-foreground animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <UserPreferencesPage
+              <LLMConfigurationPage
                 user={user!}
                 onUserUpdated={login}
                 onCancel={() => window.history.back()}
@@ -135,10 +137,31 @@ function AppContent() {
       />
 
       <Route
+        path="/preferences"
+        element={
+          <ProtectedRoute>
+            <PreferencesPage
+              user={user!}
+              onUserUpdated={login}
+            />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/derot"
         element={
           <ProtectedRoute>
             <DerotPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/activity"
+        element={
+          <ProtectedRoute>
+            <ActivityPage />
           </ProtectedRoute>
         }
       />

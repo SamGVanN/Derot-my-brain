@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { Settings, LogOut, User, History, Star } from 'lucide-react';
+import { Settings, LogOut, User, History, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -51,12 +51,12 @@ export function Header() {
                     ) : (
                         // Authenticated State: Settings + User Menu + Logout
                         <>
-                            {/* Settings Button */}
+                            {/* Settings Button (Configuration) */}
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => navigate('/preferences')}
-                                title={t('nav.preferences', 'Preferences')}
+                                onClick={() => navigate('/configuration')}
+                                title={t('nav.configuration', 'Configuration')}
                             >
                                 <Settings className="h-5 w-5" />
                             </Button>
@@ -81,7 +81,7 @@ export function Header() {
                                         {t('nav.history', 'History')}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => navigate('/tracked-topics')}>
-                                        <Star className="mr-2 h-4 w-4" />
+                                        <Brain className="mr-2 h-4 w-4" />
                                         {t('nav.trackedTopics', 'Tracked Topics')}
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
@@ -98,7 +98,7 @@ export function Header() {
                                 size="icon"
                                 onClick={handleLogout}
                                 title={t('nav.logout', 'Logout')}
-                                className="text-muted-foreground hover:text-destructive"
+                                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                             >
                                 <LogOut className="h-5 w-5" />
                             </Button>

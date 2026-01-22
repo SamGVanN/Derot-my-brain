@@ -1,28 +1,52 @@
 import { NavLink } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import {
-    Home,
-    Sparkles,
-    Star,
+    BrainCircuit,
+    Brain,
     User,
     Settings,
     BookOpen,
     LogOut,
     Menu,
-    X
+    X,
+    History,
+    Home
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
-const navigationItems = [
-    { path: '/history', icon: Home, labelKey: 'nav.history', label: 'History' },
-    { path: '/derot', icon: Sparkles, labelKey: 'nav.derot', label: 'Derot' },
-    { path: '/tracked-topics', icon: Star, labelKey: 'nav.trackedTopics', label: 'Tracked Topics' },
-    { path: '/profile', icon: User, labelKey: 'nav.profile', label: 'Profile' },
-    { path: '/preferences', icon: Settings, labelKey: 'nav.preferences', label: 'Preferences' },
-    { path: '/guide', icon: BookOpen, labelKey: 'nav.guide', label: 'Guide' },
+type NavigationItem = {
+    path: string;
+    icon: React.ElementType;
+    labelKey: string;
+    label: string;
+    disabled?: boolean;
+};
+
+type NavigationGroup = {
+    title?: string;
+    items: NavigationItem[];
+};
+
+const navigationGroups: NavigationGroup[] = [
+    {
+        title: 'Derot my brain',
+        items: [
+            { path: '/home', icon: Home, labelKey: 'nav.home', label: 'Homepage', disabled: true },
+            { path: '/activity', icon: BrainCircuit, labelKey: 'nav.activity', label: 'Derot zone' },
+            { path: '/tracked-topics', icon: Brain, labelKey: 'nav.trackedTopics', label: 'Tracked Topics' },
+            { path: '/history', icon: History, labelKey: 'nav.history', label: 'History' },
+        ]
+    },
+    {
+        items: [
+            { path: '/profile', icon: User, labelKey: 'nav.profile', label: 'Profile' },
+            { path: '/preferences', icon: Settings, labelKey: 'nav.preferences', label: 'Preferences' },
+            { path: '/guide', icon: BookOpen, labelKey: 'nav.guide', label: 'Guide' },
+        ]
+    }
 ];
 
 export function NavigationMenu() {
@@ -68,29 +92,47 @@ export function NavigationMenu() {
                 )}
             >
                 <div className="flex flex-col h-full p-4">
-                    {/* Navigation Links */}
-                    <div className="flex-1 space-y-1">
-                        {navigationItems.map((item) => (
-                            <NavLink
-                                key={item.path}
-                                to={item.path}
-                                onClick={closeMobileMenu}
-                                className={({ isActive }) =>
-                                    cn(
-                                        "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
-                                        "hover:bg-accent hover:text-accent-foreground",
-                                        isActive && "bg-accent text-accent-foreground font-medium"
-                                    )
-                                }
-                            >
-                                <item.icon className="h-5 w-5" />
-                                <span>{t(item.labelKey, item.label)}</span>
-                            </NavLink>
+                    {/* Navigation Groups */}
+                    <div className="flex-1 space-y-6 overflow-y-auto">
+                        {navigationGroups.map((group, groupIndex) => (
+                            <div key={groupIndex} className="space-y-2">
+                                {group.title && (
+                                    <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                        {group.title}
+                                    </h3>
+                                )}
+                                <div className="space-y-1">
+                                    {group.items.map((item) => (
+                                        <NavLink
+                                            key={item.path}
+                                            to={item.disabled ? '#' : item.path}
+                                            onClick={(e) => {
+                                                if (item.disabled) {
+                                                    e.preventDefault();
+                                                    return;
+                                                }
+                                                closeMobileMenu();
+                                            }}
+                                            className={({ isActive }) =>
+                                                cn(
+                                                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
+                                                    item.disabled && "opacity-50 cursor-not-allowed",
+                                                    !item.disabled && "hover:bg-accent hover:text-accent-foreground",
+                                                    !item.disabled && isActive && "bg-accent text-accent-foreground font-medium"
+                                                )
+                                            }
+                                        >
+                                            <item.icon className="h-5 w-5" />
+                                            <span>{t(item.labelKey, item.label)}</span>
+                                        </NavLink>
+                                    ))}
+                                </div>
+                            </div>
                         ))}
                     </div>
 
                     {/* Logout Button */}
-                    <div className="border-t pt-4">
+                    <div className="border-t pt-4 mt-auto">
                         <Button
                             variant="ghost"
                             className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"

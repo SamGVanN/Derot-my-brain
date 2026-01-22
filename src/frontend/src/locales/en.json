@@ -17,7 +17,8 @@
         "loading": "Loading...",
         "error": "Error",
         "selectAll": "Select All",
-        "deselectAll": "Deselect All"
+        "deselectAll": "Deselect All",
+        "global": "Global/System"
     },
     "nav": {
         "derot": "Derot",
@@ -84,46 +85,43 @@
             "label": "Appearance Theme",
             "mismatch": "The theme currently active ({{themeName}}) is different from your saved profile theme."
         },
-        "quiz": {
-            "questionCount": "Questions per Quiz"
-        },
-        "categories": {
-            "title": "Knowledge Areas",
-            "description": "Select the topics you want to explore."
-        },
-        "about": {
-            "title": "About Settings",
-            "description": "Customize your experience. These settings will be automatically loaded every time you log in."
-        },
         "section": {
             "general": "General Settings",
-            "interests": "Interests & Topics"
-        }
-    },
-    "profile": {
-        "title": "User Profile",
-        "editMode": "Edit Profile",
-        "name": "Name",
-        "userId": "User ID",
-        "createdAt": "Account Created",
-        "lastConnection": "Last Connection",
-        "statistics": "Statistics",
-        "totalActivities": "Total Activities",
-        "trackedTopicsCount": "Tracked Topics",
-        "dangerZone": "Danger Zone",
-        "deleteAccount": "Delete Account",
-        "deleteAccountWarning": "This action is permanent and cannot be undone.",
-        "deleteAccountDetails": "All your data will be deleted, including:",
-        "deleteAccountList": {
-            "profile": "Profile information",
-            "history": "Activity history",
-            "tracked": "Tracked topics",
-            "preferences": "Preferences"
+            "generalDescription": "Customize your UI experience and language.",
+            "derotZone": "Derot Zone Settings",
+            "interests": "Interests & Topics",
+            "interestsDescription": "Select the topics you want to learn about.",
+            "ai": "AI Engine Configuration"
         },
-        "deleteAccountConfirm": "Type your username to confirm",
-        "deleteAccountButton": "Delete My Account",
-        "saveSuccess": "Profile updated successfully",
-        "saveError": "Failed to update profile"
+        "profile": {
+            "title": "User Profile",
+            "editMode": "Edit Profile",
+            "name": "Name",
+            "userId": "User ID",
+            "createdAt": "Account Created",
+            "lastConnection": "Last Connection",
+            "statistics": "Statistics",
+            "totalActivities": "Total Activities",
+            "trackedTopicsCount": "Tracked Topics",
+            "dangerZone": "Danger Zone",
+            "deleteAccount": "Delete Account",
+            "deleteAccountWarning": "This action is permanent and cannot be undone.",
+            "deleteAccountDetails": "All your data will be deleted, including:",
+            "deleteAccountList": {
+                "profile": "Profile information",
+                "history": "Activity history",
+                "tracked": "Tracked topics",
+                "preferences": "Preferences"
+            },
+            "deleteAccountConfirm": "Type your username to confirm",
+            "deleteAccountButton": "Delete My Account",
+            "saveSuccess": "Profile updated successfully",
+            "saveError": "Failed to update profile"
+        },
+        "quiz": {
+            "questionCount": "Questions per Quiz",
+            "questionCountDescription": "Choose how many questions to include in each quiz session."
+        }
     },
     "derot": {
         "title": "Derot Page",
@@ -139,5 +137,12 @@
         "title": "User Guide",
         "comingSoon": "Coming soon in Phase 8",
         "description": "This is where you will find helpful guides and tutorials on how to use Derot My Brain."
+    },
+    "configuration": {
+        "title": "Configuration",
+        "subtitle": "Global configuration",
+        "ai": {
+            "valid_api_key_required": "A valid API key is required for the application to function correctly. Please ensure your LLM provider is reachable."
+        }
     }
 }

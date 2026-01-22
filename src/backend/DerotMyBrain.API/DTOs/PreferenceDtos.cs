@@ -11,4 +11,10 @@ namespace DerotMyBrain.API.DTOs
     {
         public List<string> SelectedCategories { get; set; } = new List<string>();
     }
+
+    public class DerotZonePreferencesDto
+    {
+        public int QuestionCount { get; set; }
+        public List<string> SelectedCategories { get; set; } = new List<string>();
+    }
 }

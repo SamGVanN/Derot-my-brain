@@ -9,13 +9,13 @@ namespace DerotMyBrain.API.Controllers
     /// Configuration is shared across all users.
     /// </summary>
     [ApiController]
-    [Route("api/config")]
-    public class ConfigurationController : ControllerBase
+    [Route("api/global-config")]
+    public class GlobalConfigurationController : ControllerBase
     {
         private readonly IConfigurationService _configurationService;
-        private readonly ILogger<ConfigurationController> _logger;
+        private readonly ILogger<GlobalConfigurationController> _logger;
 
-        public ConfigurationController(IConfigurationService configurationService, ILogger<ConfigurationController> logger)
+        public GlobalConfigurationController(IConfigurationService configurationService, ILogger<GlobalConfigurationController> logger)
         {
             _configurationService = configurationService;
             _logger = logger;

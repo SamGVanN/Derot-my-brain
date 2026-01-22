@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Star } from 'lucide-react';
+import { ArrowLeft, Brain } from 'lucide-react';
 
 export function TrackedTopicsPage() {
     const { t } = useTranslation();
@@ -12,7 +12,7 @@ export function TrackedTopicsPage() {
             <div className="container max-w-4xl mx-auto py-12 px-4">
                 <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 text-center">
                     <div className="relative">
-                        <Star className="h-24 w-24 text-primary animate-pulse" />
+                        <Brain className="h-24 w-24 text-primary animate-pulse" />
                         <div className="absolute inset-0 h-24 w-24 bg-primary/20 rounded-full blur-xl animate-pulse" />
                     </div>
 

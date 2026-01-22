@@ -74,32 +74,26 @@ namespace DerotMyBrain.API.Controllers
         [HttpPatch("{id}/preferences/general")]
         public async Task<IActionResult> UpdateGeneralPreferences(string id, [FromBody] DTOs.GeneralPreferencesDto dto)
         {
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null)
+            var updatedUser = await _userService.UpdateGeneralPreferencesAsync(id, dto.Language, dto.PreferredTheme);
+            
+            if (updatedUser == null)
             {
                 return NotFound();
             }
 
-            user.Preferences.Language = dto.Language;
-            user.Preferences.PreferredTheme = dto.PreferredTheme;
-            user.Preferences.QuestionCount = dto.QuestionCount;
-
-            var updatedUser = await _userService.UpdateUserAsync(user);
             return Ok(updatedUser);
         }
 
-        [HttpPatch("{id}/preferences/categories")]
-        public async Task<IActionResult> UpdateCategoryPreferences(string id, [FromBody] DTOs.CategoryPreferencesDto dto)
+        [HttpPatch("{id}/preferences/derot-zone")]
+        public async Task<IActionResult> UpdateDerotZonePreferences(string id, [FromBody] DTOs.DerotZonePreferencesDto dto)
         {
-            var user = await _userService.GetUserByIdAsync(id);
-            if (user == null)
+            var updatedUser = await _userService.UpdateDerotZonePreferencesAsync(id, dto.QuestionCount, dto.SelectedCategories);
+
+            if (updatedUser == null)
             {
                 return NotFound();
             }
 
-            user.Preferences.SelectedCategories = dto.SelectedCategories;
-
-            var updatedUser = await _userService.UpdateUserAsync(user);
             return Ok(updatedUser);
         }
 

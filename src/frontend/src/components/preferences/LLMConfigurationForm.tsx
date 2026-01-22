@@ -137,6 +137,15 @@ export function LLMConfigurationForm({ config, onSave, onTestConnection, isLoadi
                     </div>
                 )}
 
+                {/* API Key Warning for OpenAI Compatible - Hidden if successful test */}
+                {localConfig.provider === 'openai' && !testResult?.success && (
+                    <div className="rounded-lg bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-900/50 p-4">
+                        <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                            {t('configuration.ai.valid_api_key_required')}
+                        </p>
+                    </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Provider & Model */}
                     <div className="space-y-4">
