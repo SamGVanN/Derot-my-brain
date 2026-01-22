@@ -20,7 +20,7 @@ export function useAppConfig() {
             setLoading(true);
             setError(null);
 
-            const response = await axios.get<AppConfiguration>(`${API_URL}/config`);
+            const response = await axios.get<AppConfiguration>(`${API_URL}/global-config`);
             setConfig(response.data);
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to fetch configuration';
@@ -37,7 +37,7 @@ export function useAppConfig() {
             setUpdating(true);
             setError(null);
 
-            const response = await axios.put<AppConfiguration>(`${API_URL}/config`, newConfig);
+            const response = await axios.put<AppConfiguration>(`${API_URL}/global-config`, newConfig);
             setConfig(response.data);
             return true;
         } catch (err) {
@@ -56,7 +56,7 @@ export function useAppConfig() {
             setUpdating(true);
             setError(null);
 
-            const response = await axios.put<LLMConfiguration>(`${API_URL}/config/llm`, llmConfig);
+            const response = await axios.put<LLMConfiguration>(`${API_URL}/global-config/llm`, llmConfig);
 
             // Update local state
             if (config) {
@@ -82,7 +82,7 @@ export function useAppConfig() {
     const testLLMConnection = useCallback(async (llmConfig: LLMConfiguration): Promise<{ success: boolean; message: string }> => {
         try {
             // We use POST here as per backend implementation
-            const response = await axios.post<{ success: boolean; message: string }>(`${API_URL}/config/llm/test`, llmConfig);
+            const response = await axios.post<{ success: boolean; message: string }>(`${API_URL}/global-config/llm/test`, llmConfig);
             return response.data;
         } catch (err: any) {
             console.error('Error testing LLM connection:', err);
