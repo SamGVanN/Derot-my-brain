@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using DerotMyBrain.API.DTOs;
-using DerotMyBrain.API.Services;
+using DerotMyBrain.Core.DTOs;
+using DerotMyBrain.Core.Entities;
+using DerotMyBrain.Core.Interfaces.Services;
 using System.ComponentModel.DataAnnotations;
 
 namespace DerotMyBrain.API.Controllers;
@@ -30,16 +31,11 @@ public class TrackedTopicsController : ControllerBase
     /// Gets all tracked topics for a user.
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TrackedTopicDto>>> GetTrackedTopics(string userId)
+    public async Task<ActionResult<IEnumerable<TrackedTopic>>> GetTrackedTopics(string userId)
     {
         try
         {
             var trackedTopics = await _trackedTopicService.GetAllTrackedTopicsAsync(userId);
-            // Assuming the service returns TrackedTopic models or similar that need mapping to TrackedTopicDto
-            // For now, let's assume it returns correctly mapped DTOs or we map them here if needed.
-            // Based on prompt Part 1, the service should handle this or we handle it here.
-            // Let's implement mapping to be safe if it returns models.
-            // But usually services in this project seem to return DTOs or models are mapped.
             return Ok(trackedTopics);
         }
         catch (Exception ex)
@@ -53,7 +49,7 @@ public class TrackedTopicsController : ControllerBase
     /// Gets a specific tracked topic.
     /// </summary>
     [HttpGet("{topic}")]
-    public async Task<ActionResult<TrackedTopicDto>> GetTrackedTopic(string userId, string topic)
+    public async Task<ActionResult<TrackedTopic>> GetTrackedTopic(string userId, string topic)
     {
         try
         {
@@ -75,9 +71,9 @@ public class TrackedTopicsController : ControllerBase
     /// Tracks a topic for the user.
     /// </summary>
     [HttpPost]
-    public async Task<ActionResult<TrackedTopicDto>> TrackTopic(
+    public async Task<ActionResult<TrackedTopic>> TrackTopic(
         string userId,
-        [FromBody] TrackTopicDto dto)
+        [FromBody] TrackTopicRequest request)
     {
         try
         {
@@ -85,16 +81,16 @@ public class TrackedTopicsController : ControllerBase
                 return BadRequest(ModelState);
             
             var trackedTopic = await _trackedTopicService.TrackTopicAsync(
-                userId, dto.Topic, dto.WikipediaUrl);
+                userId, request.Topic, request.WikipediaUrl);
             
             return CreatedAtAction(
                 nameof(GetTrackedTopic),
-                new { userId, topic = dto.Topic },
+                new { userId, topic = request.Topic },
                 trackedTopic);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error tracking topic {Topic} for user {UserId}", dto.Topic, userId);
+            _logger.LogError(ex, "Error tracking topic {Topic} for user {UserId}", request.Topic, userId);
             return StatusCode(500, new { message = "Internal server error" });
         }
     }
@@ -121,40 +117,32 @@ public class TrackedTopicsController : ControllerBase
     /// Gets the evolution/history of a tracked topic (all sessions).
     /// </summary>
     [HttpGet("{topic}/evolution")]
-    public async Task<ActionResult<IEnumerable<UserActivityDto>>> GetTopicEvolution(
+    public async Task<ActionResult<IEnumerable<UserActivity>>> GetTopicEvolution(
         string userId, 
         string topic)
     {
         try
         {
-            // Verify topic is tracked
-            var isTracked = await _activityService.IsTopicTrackedAsync(userId, topic);
-            if (!isTracked)
+            // Verify topic is tracked (implied logic, or we check)
+            var tracked = await _trackedTopicService.GetTrackedTopicAsync(userId, topic);
+            if (tracked == null)
                 return NotFound(new { message = $"Topic '{topic}' is not tracked" });
             
             // Get all sessions for this topic
             var activities = await _activityService.GetAllForTopicAsync(userId, topic);
-            
-            var activityDtos = activities.Select(a => new UserActivityDto
-            {
-                Id = a.Id,
-                UserId = a.UserId,
-                Topic = a.Topic,
-                WikipediaUrl = a.WikipediaUrl,
-                Type = a.Type,
-                SessionDate = a.SessionDate,
-                Score = a.Score,
-                TotalQuestions = a.TotalQuestions,
-                LlmModelName = a.LlmModelName,
-                LlmVersion = a.LlmVersion
-            });
-            
-            return Ok(activityDtos);
+            return Ok(activities);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting evolution for topic {Topic}, user {UserId}", topic, userId);
             return StatusCode(500, new { message = "Internal server error" });
         }
+    }
+    
+    public class TrackTopicRequest 
+    {
+        [Required]
+        public string Topic { get; set; } = string.Empty;
+        public string WikipediaUrl { get; set; } = string.Empty;
     }
 }

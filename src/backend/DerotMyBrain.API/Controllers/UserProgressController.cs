@@ -1,5 +1,5 @@
-using DerotMyBrain.API.Models;
-using DerotMyBrain.API.Repositories;
+using DerotMyBrain.Core.Entities;
+using DerotMyBrain.Core.Interfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DerotMyBrain.API.Controllers
@@ -27,9 +27,9 @@ namespace DerotMyBrain.API.Controllers
         {
             // Ensure the activity is linked to the user
             activity.UserId = userId;
-            if (activity.SessionDate == default)
+            if (activity.LastAttemptDate == default)
             {
-                activity.SessionDate = DateTime.UtcNow;
+                activity.LastAttemptDate = DateTime.UtcNow;
             }
 
             try 

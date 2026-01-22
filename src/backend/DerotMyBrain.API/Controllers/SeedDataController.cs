@@ -1,4 +1,4 @@
-using DerotMyBrain.API.Models;
+using DerotMyBrain.Core.Entities;
 using DerotMyBrain.API.Services;
 using Microsoft.AspNetCore.Mvc;
 

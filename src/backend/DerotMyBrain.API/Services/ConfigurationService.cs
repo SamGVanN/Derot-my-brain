@@ -1,5 +1,6 @@
-using DerotMyBrain.API.Models;
+using DerotMyBrain.Core.Entities;
 using System.Text.Json;
+using DerotMyBrain.API.Services; // Ensure Interface is found
 
 namespace DerotMyBrain.API.Services
 {

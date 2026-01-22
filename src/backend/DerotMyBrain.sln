@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DerotMyBrain.API", "DerotMy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DerotMyBrain.Tests", "DerotMyBrain.Tests\DerotMyBrain.Tests.csproj", "{2024F01E-51E1-4A2E-A3AF-277DE9E63E3F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DerotMyBrain.Core", "DerotMyBrain.Core\DerotMyBrain.Core.csproj", "{EE28EE3D-E476-483C-92F2-D35408CEFC7A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DerotMyBrain.Infrastructure", "DerotMyBrain.Infrastructure\DerotMyBrain.Infrastructure.csproj", "{83A0F2D3-E7D0-4770-9C22-C2859FA5E104}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +45,30 @@ Global
 		{2024F01E-51E1-4A2E-A3AF-277DE9E63E3F}.Release|x64.Build.0 = Release|Any CPU
 		{2024F01E-51E1-4A2E-A3AF-277DE9E63E3F}.Release|x86.ActiveCfg = Release|Any CPU
 		{2024F01E-51E1-4A2E-A3AF-277DE9E63E3F}.Release|x86.Build.0 = Release|Any CPU
+		{EE28EE3D-E476-483C-92F2-D35408CEFC7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE28EE3D-E476-483C-92F2-D35408CEFC7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE28EE3D-E476-483C-92F2-D35408CEFC7A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EE28EE3D-E476-483C-92F2-D35408CEFC7A}.Debug|x64.Build.0 = Debug|Any CPU
+		{EE28EE3D-E476-483C-92F2-D35408CEFC7A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EE28EE3D-E476-483C-92F2-D35408CEFC7A}.Debug|x86.Build.0 = Debug|Any CPU
+		{EE28EE3D-E476-483C-92F2-D35408CEFC7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE28EE3D-E476-483C-92F2-D35408CEFC7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE28EE3D-E476-483C-92F2-D35408CEFC7A}.Release|x64.ActiveCfg = Release|Any CPU
+		{EE28EE3D-E476-483C-92F2-D35408CEFC7A}.Release|x64.Build.0 = Release|Any CPU
+		{EE28EE3D-E476-483C-92F2-D35408CEFC7A}.Release|x86.ActiveCfg = Release|Any CPU
+		{EE28EE3D-E476-483C-92F2-D35408CEFC7A}.Release|x86.Build.0 = Release|Any CPU
+		{83A0F2D3-E7D0-4770-9C22-C2859FA5E104}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83A0F2D3-E7D0-4770-9C22-C2859FA5E104}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83A0F2D3-E7D0-4770-9C22-C2859FA5E104}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{83A0F2D3-E7D0-4770-9C22-C2859FA5E104}.Debug|x64.Build.0 = Debug|Any CPU
+		{83A0F2D3-E7D0-4770-9C22-C2859FA5E104}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{83A0F2D3-E7D0-4770-9C22-C2859FA5E104}.Debug|x86.Build.0 = Debug|Any CPU
+		{83A0F2D3-E7D0-4770-9C22-C2859FA5E104}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83A0F2D3-E7D0-4770-9C22-C2859FA5E104}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83A0F2D3-E7D0-4770-9C22-C2859FA5E104}.Release|x64.ActiveCfg = Release|Any CPU
+		{83A0F2D3-E7D0-4770-9C22-C2859FA5E104}.Release|x64.Build.0 = Release|Any CPU
+		{83A0F2D3-E7D0-4770-9C22-C2859FA5E104}.Release|x86.ActiveCfg = Release|Any CPU
+		{83A0F2D3-E7D0-4770-9C22-C2859FA5E104}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

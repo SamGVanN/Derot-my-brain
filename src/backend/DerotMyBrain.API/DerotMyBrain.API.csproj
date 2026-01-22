@@ -19,4 +19,14 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Migrations\**" />
+    <Compile Remove="Migrations_Old\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DerotMyBrain.Core\DerotMyBrain.Core.csproj" />
+    <ProjectReference Include="..\DerotMyBrain.Infrastructure\DerotMyBrain.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

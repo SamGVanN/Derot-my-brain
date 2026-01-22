@@ -1,5 +1,7 @@
-using DerotMyBrain.API.Models;
-using DerotMyBrain.API.Services;
+using DerotMyBrain.Infrastructure.Data;
+using DerotMyBrain.Core.Entities;
+using DerotMyBrain.Core.Interfaces.Services;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 
 namespace DerotMyBrain.API.Data;
@@ -29,10 +31,10 @@ public static class DbInitializer
             Preferences = new UserPreferences
             {
                 UserId = "test-user-id",
-                QuestionCount = 10,
-                PreferredTheme = "derot-brain",
+                QuestionsPerQuiz = 10,
+                Theme = "derot-brain",
                 Language = "en",
-                SelectedCategories = allCategories.Select(c => c.Id).ToList()
+                FavoriteCategories = allCategories.Take(5).ToList()
             }
         };
 
@@ -48,40 +50,39 @@ public static class DbInitializer
             {
                 Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
-                Topic = "Quantum Mechanics",
-                WikipediaUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
-                Type = "Read",
-                SessionDate = baseDate.AddDays(-5),
-                Score = null,
-                TotalQuestions = null
+                Title = "Quantum Mechanics",
+                SourceUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
+                Type = "Reading",
+                LastAttemptDate = baseDate.AddDays(-5),
+                Score = 0,
+                MaxScore = 0,
+                IsTracked = true
             },
             // Session 2: First quiz (3 days ago, 6/10)
             new UserActivity
             {
                 Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
-                Topic = "Quantum Mechanics",
-                WikipediaUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
+                Title = "Quantum Mechanics",
+                SourceUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
                 Type = "Quiz",
-                SessionDate = baseDate.AddDays(-3),
+                LastAttemptDate = baseDate.AddDays(-3),
                 Score = 6,
-                TotalQuestions = 10,
-                LlmModelName = "llama3:8b",
-                LlmVersion = "1.0"
+                MaxScore = 10,
+                IsTracked = true
             },
             // Session 3: Second quiz (today, 9/10 - improvement!)
             new UserActivity
             {
                 Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
-                Topic = "Quantum Mechanics",
-                WikipediaUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
+                Title = "Quantum Mechanics",
+                SourceUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
                 Type = "Quiz",
-                SessionDate = baseDate,
+                LastAttemptDate = baseDate,
                 Score = 9,
-                TotalQuestions = 10,
-                LlmModelName = "llama3:8b",
-                LlmVersion = "1.0"
+                MaxScore = 10,
+                IsTracked = true
             },
 
             // ===== Non-Tracked Topic: Theory of Relativity =====
@@ -90,26 +91,26 @@ public static class DbInitializer
             {
                 Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
-                Topic = "Theory of Relativity",
-                WikipediaUrl = "https://en.wikipedia.org/wiki/Theory_of_relativity",
-                Type = "Read",
-                SessionDate = baseDate.AddDays(-2),
-                Score = null,
-                TotalQuestions = null
+                Title = "Theory of Relativity",
+                SourceUrl = "https://en.wikipedia.org/wiki/Theory_of_relativity",
+                Type = "Reading",
+                LastAttemptDate = baseDate.AddDays(-2),
+                Score = 0,
+                MaxScore = 0,
+                IsTracked = false
             },
             // Session 2: Quiz (1 day ago, 7/10)
             new UserActivity
             {
                 Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
-                Topic = "Theory of Relativity",
-                WikipediaUrl = "https://en.wikipedia.org/wiki/Theory_of_relativity",
+                Title = "Theory of Relativity",
+                SourceUrl = "https://en.wikipedia.org/wiki/Theory_of_relativity",
                 Type = "Quiz",
-                SessionDate = baseDate.AddDays(-1),
+                LastAttemptDate = baseDate.AddDays(-1),
                 Score = 7,
-                TotalQuestions = 10,
-                LlmModelName = "qwen2.5:7b",
-                LlmVersion = "1.0"
+                MaxScore = 10,
+                IsTracked = false
             },
 
             // ===== Tracked Topic with only reads: Artificial Intelligence =====
@@ -117,26 +118,13 @@ public static class DbInitializer
             {
                 Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
-                Topic = "Artificial Intelligence",
-                WikipediaUrl = "https://en.wikipedia.org/wiki/Artificial_intelligence",
-                Type = "Read",
-                SessionDate = baseDate.AddDays(-7),
-                Score = null,
-                TotalQuestions = null
-            },
-
-            // ===== More activities to show history paginated =====
-            new UserActivity
-            {
-                Id = Guid.NewGuid().ToString(),
-                UserId = "test-user-id",
-                Topic = "World War II",
-                WikipediaUrl = "https://en.wikipedia.org/wiki/World_War_II",
-                Type = "Quiz",
-                SessionDate = baseDate.AddDays(-10),
-                Score = 8,
-                TotalQuestions = 10,
-                LlmModelName = "mistral:7b"
+                Title = "Artificial Intelligence",
+                SourceUrl = "https://en.wikipedia.org/wiki/Artificial_intelligence",
+                Type = "Reading",
+                LastAttemptDate = baseDate.AddDays(-7),
+                Score = 0,
+                MaxScore = 0,
+                IsTracked = true
             }
         };
 
@@ -149,35 +137,19 @@ public static class DbInitializer
             new TrackedTopic
             {
                 UserId = "test-user-id",
-                Topic = "Quantum Mechanics",
-                WikipediaUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
-                TrackedDate = baseDate.AddDays(-4),
-                TotalReadSessions = 1,
-                TotalQuizAttempts = 2,
-                FirstReadDate = baseDate.AddDays(-5),
-                LastReadDate = baseDate.AddDays(-5),
-                FirstAttemptDate = baseDate.AddDays(-3),
-                LastAttemptDate = baseDate,
-                BestScore = 9,
-                TotalQuestions = 10,
-                BestScoreDate = baseDate
+                Name = "Quantum Mechanics",
+                LastInteraction = baseDate,
+                InteractionCount = 3,
+                MasteryLevel = 75 // Mock mastery
             },
             // Artificial Intelligence (Tracked 7 days ago)
             new TrackedTopic
             {
                 UserId = "test-user-id",
-                Topic = "Artificial Intelligence",
-                WikipediaUrl = "https://en.wikipedia.org/wiki/Artificial_intelligence",
-                TrackedDate = baseDate.AddDays(-7),
-                TotalReadSessions = 1,
-                TotalQuizAttempts = 0,
-                FirstReadDate = baseDate.AddDays(-7),
-                LastReadDate = baseDate.AddDays(-7),
-                FirstAttemptDate = null,
-                LastAttemptDate = null,
-                BestScore = null,
-                TotalQuestions = null,
-                BestScoreDate = null
+                Name = "Artificial Intelligence",
+                LastInteraction = baseDate.AddDays(-7),
+                InteractionCount = 1,
+                MasteryLevel = 10 
             }
         };
 

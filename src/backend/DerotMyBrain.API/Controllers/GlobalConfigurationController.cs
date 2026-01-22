@@ -1,5 +1,5 @@
-using DerotMyBrain.API.Models;
-using DerotMyBrain.API.Services;
+using DerotMyBrain.Core.Entities;
+using DerotMyBrain.API.Services; // Keep for IConfigurationService if it's still in API
 using Microsoft.AspNetCore.Mvc;
 
 namespace DerotMyBrain.API.Controllers
