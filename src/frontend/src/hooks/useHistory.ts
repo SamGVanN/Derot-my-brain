@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { userApi } from '../api/userApi';
+import { activityApi } from '../api/activityApi';
 import { useAuthStore } from '../stores/useAuthStore';
 import type { UserActivity } from '../models/UserActivity';
 
@@ -20,7 +20,7 @@ export function useHistory() {
         setLoading(true);
         setError(null);
         try {
-            return await userApi.getHistory(user.id);
+            return await activityApi.getActivities(user.id);
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to fetch history';
             setError(errorMessage);
@@ -38,7 +38,7 @@ export function useHistory() {
         setLoading(true);
         setError(null);
         try {
-            return await userApi.addActivity(user.id, activity);
+            return await activityApi.createActivity(user.id, activity);
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to add activity';
             setError(errorMessage);

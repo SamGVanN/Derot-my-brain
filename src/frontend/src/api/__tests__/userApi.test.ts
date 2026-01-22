@@ -53,15 +53,7 @@ describe('userApi', () => {
         expect(result).toEqual(mockUser);
     });
 
-    it('getHistory calls GET /users/:id/history', async () => {
-        const mockHistory = [{ id: 'act-1', activityType: 'read' }];
-        mocks.get.mockResolvedValueOnce({ data: mockHistory });
 
-        const result = await userApi.getHistory('1');
-
-        expect(mocks.get).toHaveBeenCalledWith('/users/1/history');
-        expect(result).toEqual(mockHistory);
-    });
 
     it('updatePreferences calls PUT /users/:id/preferences', async () => {
         const mockUser = { id: '1', preferences: { questionCount: 20 } };

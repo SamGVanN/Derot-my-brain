@@ -1220,11 +1220,11 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
 - Implement error handling
 
 **Acceptance Criteria:**
-- [ ] TypeScript interfaces match backend DTOs
-- [ ] API client uses centralized axios
-- [ ] Dashboard endpoints implemented
-- [ ] Error handling implemented
-- [ ] Unit tests with mocks
+- [x] TypeScript interfaces match backend DTOs
+- [x] API client uses centralized axios
+- [x] Dashboard endpoints implemented
+- [x] Error handling implemented
+- [x] Unit tests with mocks
 
 ---
 
@@ -1244,11 +1244,11 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
 - Handle loading/error states
 
 **Acceptance Criteria:**
-- [ ] Hooks encapsulate all business logic
-- [ ] No direct API calls in components
-- [ ] Loading/error states managed
-- [ ] Tests with React Testing Library
-- [ ] Dashboard hooks functional
+- [x] Hooks encapsulate all business logic
+- [x] No direct API calls in components
+- [x] Loading/error states managed
+- [x] Tests with React Testing Library
+- [x] Dashboard hooks functional
 
 ---
 
@@ -1271,13 +1271,13 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
 - Show Remove from tracked topics button if topic is tracked
 
 **Acceptance Criteria:**
-- [ ] Score displayed (X/Y)
-- [ ] Best Score displayed (X/Y) - only if activity Topic is a tracked topic
-- [ ] icon for Tracked Topics
-- [ ] LLM info on hover
-- [ ] Render tests pass
-- [ ] Responsive design
-- [ ] Add/Remove from tracked topics
+- [x] Score displayed (X/Y)
+- [x] Best Score displayed (X/Y) - only if activity Topic is a tracked topic
+- [x] icon for Tracked Topics
+- [x] LLM info on hover
+- [x] Render tests pass
+- [x] Responsive design
+- [x] Add/Remove from tracked topics
 
 ---
 
@@ -1288,11 +1288,11 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
 
 **Objective:**
 - Create dedicated Tracked Topics page
-- Allow track/untrack from history
+- Allow track/untrack (use same logic as in history page)
 
 **Specifications:**
 - Create `pages/TrackedTopicsPage.tsx`
-- Add track/untrack buttons in history
+- Add track/untrack buttons
 - Handle empty state
 
 **Acceptance Criteria:**

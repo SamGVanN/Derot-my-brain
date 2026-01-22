@@ -3,7 +3,14 @@
         "title": "Your Learning Journey",
         "loading": "Loading history...",
         "error": "Could not load history.",
-        "empty": "No activities recorded yet. Start exploring!"
+        "empty": "No activities recorded yet. Start exploring!",
+        "motivational": {
+            "tier1": "Good effort! Keep learning.",
+            "tier2": "Great job! You're doing well.",
+            "tier3": "Excellent! Impressive knowledge.",
+            "tier4": "Outstanding! Almost perfect.",
+            "perfect": "Perfect! 🎉"
+        }
     },
     "common": {
         "save": "Save",

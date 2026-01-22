@@ -31,7 +31,7 @@ export function Layout({ children }: LayoutProps) {
                 <div className="container mx-auto px-4 py-6 max-w-5xl flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
                     <p>© 2026 Derot My Brain. Local Learning.</p>
                     <div className="flex gap-4">
-                        <span>v0.2.0</span>
+                        <span>v0.4.0</span>
                     </div>
                 </div>
             </footer>

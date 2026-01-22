@@ -1,6 +1,6 @@
 import { client } from './client';
 import type { User } from '../models/User';
-import type { UserActivity } from '../models/UserActivity';
+
 
 export const userApi = {
     getAllUsers: async (): Promise<User[]> => {
@@ -18,15 +18,7 @@ export const userApi = {
         return response.data;
     },
 
-    getHistory: async (userId: string): Promise<UserActivity[]> => {
-        const response = await client.get<UserActivity[]>(`/users/${userId}/history`);
-        return response.data;
-    },
 
-    addActivity: async (userId: string, activity: Partial<UserActivity>): Promise<UserActivity> => {
-        const response = await client.post<UserActivity>(`/users/${userId}/history`, activity);
-        return response.data;
-    },
 
     updatePreferences: async (userId: string, preferences: Partial<User['preferences']>): Promise<User> => {
         const response = await client.put<User>(`/users/${userId}/preferences`, preferences);

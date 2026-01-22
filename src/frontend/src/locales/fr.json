@@ -3,7 +3,14 @@
         "title": "Votre Parcours d'Apprentissage",
         "loading": "Chargement de l'historique...",
         "error": "Impossible de charger l'historique.",
-        "empty": "Aucune activité enregistrée. Commencez à explorer !"
+        "empty": "Aucune activité enregistrée. Commencez à explorer !",
+        "motivational": {
+            "tier1": "Bel effort ! Continuez d'apprendre.",
+            "tier2": "Bon travail ! Vous progressez bien.",
+            "tier3": "Excellent ! Des connaissances impressionnantes.",
+            "tier4": "Remarquable ! Presque parfait.",
+            "perfect": "Parfait ! 🎉"
+        }
     },
     "common": {
         "save": "Enregistrer",

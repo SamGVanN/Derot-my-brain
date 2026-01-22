@@ -283,45 +283,6 @@ sequenceDiagram
 
 ---
 
-## Current Limitations
-
-### Known Issues
-
-1. **Test Pass Rate: 6/13 (46%)**
-   - 6 tests passing consistently
-   - 7 tests failing intermittently
-   - Likely related to InMemory database data persistence across scopes
-
-2. **InMemory Database Persistence**
-   - Data seeded in one scope may not be visible in subsequent HTTP requests
-   - Root cause under investigation
-   - Workaround: Use shared test data that doesn't require modification
-
-3. **Test Isolation**
-   - Some tests modify shared data (UpdateActivity, TrackActivity, UntrackActivity)
-   - Can cause test pollution if tests run in specific orders
-   - Mitigation: Tests create dedicated test entities where possible
-
-### Passing Tests (✅ 6/13)
-
-1. ✅ `GetActivities_ShouldReturn200_WithActivities`
-2. ✅ `GetActivity_ShouldReturn200_WhenActivityExists`
-3. ✅ `GetActivity_ShouldReturn404_WhenActivityDoesNotExist`
-4. ✅ `CreateActivity_ShouldReturn201_WithValidDto`
-5. ✅ `CreateActivity_ShouldReturn400_WithInvalidDto`
-6. ✅ `DeleteActivity_ShouldReturn204`
-
-### Failing Tests (❌ 7/13)
-
-1. ❌ `UpdateActivity_ShouldReturn200_WithValidUpdate`
-2. ❌ `GetTrackedTopics_ShouldReturn200_WithOnlyTrackedActivities`
-3. ❌ `TrackActivity_ShouldReturn204`
-4. ❌ `UntrackActivity_ShouldReturn204`
-5. ❌ `GetStatistics_ShouldReturn200_WithCorrectStats`
-6. ❌ `GetActivityCalendar_ShouldReturn200`
-7. ❌ `GetTopScores_ShouldReturn200`
-
----
 
 ## Future Improvements
 
