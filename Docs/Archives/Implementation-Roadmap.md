@@ -2780,39 +2780,39 @@ Create comprehensive, non-technical documentation for end users and set up distr
 6. **Task 0.1: Application Initialization & Configuration** - CRITICAL
 
 ### Sprint 1: Core Infrastructure (Week 1)
-7. Task 8.1: Internationalization (i18n) - **DO THIS FIRST** to avoid refactoring
-8. Task 1.1: Session Persistence
-9. Task 2.1: Extend User Model
-10. Task 4.1: Main Navigation Menu (including header auth state)
+7. Task : Internationalization (i18n) - **DO THIS FIRST** to avoid refactoring
+8. Task : Session Persistence
+9. Task : Extend User Model
+10. Task : Main Navigation Menu (including header auth state)
 
 ### Sprint 2: User Experience (Week 2)
-11. Task 1.2: Welcome Page
-12. Task 2.2: User Preferences Page
-13. Task 2.3: LLM Configuration UI
-14. Task 4.2: User Profile Page (including account deletion)
-15. Task 8.2: Category Preferences Management
+11. Task : Welcome Page
+12. Task : User Preferences Page
+13. Task : LLM Configuration UI
+14. Task : User Profile Page (including account deletion)
+15. Task : Category Preferences Management
 
 ### Sprint 3: Activity Enhancements (Week 3)
-16. Task 3.1: Enhanced Activity History Model
-17. Task 3.2: Enhanced History View UI
-18. Task 3.3: Activity Statistics & Calendar View
-19. Task 4.3: Backlog Page
-20. Task 8.4: Enhanced History and Backlog Actions
+16. Task : Enhanced Activity History Model
+17. Task : Enhanced History View UI
+18. Task : Activity Statistics & Calendar View
+19. Task : Backlog Page
+20. Task : Enhanced History and Backlog Actions
 
 ### Sprint 4: Core Functionality (Week 4-5)
-21. Task 5.1: Derot Page - Wikipedia Integration
-22. Task 5.2: Derot Page - Quiz Generation
-23. Task 5.3: LLM Resource Estimation & Monitoring
-24. Task 8.3: Category Filtering on Derot Page
+21. Task : Derot Page - Wikipedia Integration
+22. Task : Derot Page - Quiz Generation
+23. Task : LLM Resource Estimation & Monitoring
+24. Task : Category Filtering on Derot Page
 
 ### Sprint 5: Polish & Export (Week 6)
-25. Task 6.1: User Data Export
-26. Task 7.1: Contextual Help & Tooltips
-27. Task 8.5: Date Format Preferences
+25. Task : User Data Export
+26. Task : Contextual Help & Tooltips
+27. Task : Date Format Preferences
 
 ### Sprint 6: Deployment (Week 7-8)
-28. Task 9.1: Cross-Platform Packaging
-29. Task 9.2: Installer Creation
+28. Task : Cross-Platform Packaging
+29. Task : Installer Creation
 30. Task 9.3: User Documentation & Distribution
 
 ---

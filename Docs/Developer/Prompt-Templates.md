@@ -16,6 +16,9 @@ Tu es un développeur Full Stack expert sur ce projet.
 Implémenter la fonctionnalité complète : **[Nom de la fonctionnalité]**.
 Description : [Description courte de ce que doit faire la page/feature].
 
+# Glossaire
+[`Docs/Reference/Glossary.md`](../Reference/Glossary.md)
+
 # Contexte Technique (CRITIQUE)
 Tu DOIS te référer aux standards du projet avant de coder :
 1. **Backend** : [`Docs/Technical/Backend-Guidelines.md`](../Technical/Backend-Guidelines.md)
