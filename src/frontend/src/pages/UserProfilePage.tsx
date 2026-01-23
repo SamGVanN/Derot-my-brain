@@ -48,10 +48,14 @@ export function UserProfilePage() {
     };
 
     const handleDeleteAccount = async () => {
-        // TODO: Call API to delete user
-        console.log('Deleting account for user:', user.id);
-        logout();
-        navigate('/');
+        try {
+            await userApi.deleteUser(user.id);
+            logout();
+            navigate('/');
+        } catch (error) {
+            console.error('Failed to delete account:', error);
+            // Ideally show a toast here
+        }
     };
 
     const formatDate = (date: string) => {

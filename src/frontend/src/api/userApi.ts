@@ -52,5 +52,9 @@ export const userApi = {
     updateUser: async (userId: string, data: { name: string }): Promise<User> => {
         const response = await client.put<User>(`/users/${userId}`, data);
         return response.data;
+    },
+
+    deleteUser: async (userId: string): Promise<void> => {
+        await client.delete(`/users/${userId}`);
     }
 };

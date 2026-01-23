@@ -37,6 +37,14 @@ public class UsersController : ControllerBase
         var user = await _userService.CreateOrGetUserAsync(request.Name, request.Language, request.PreferredTheme);
         return Ok(user);
     }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteUser(string id)
+    {
+        var result = await _userService.DeleteUserAsync(id);
+        if (!result) return NotFound();
+        return NoContent();
+    }
     
     // Helper Class for Request
     public class CreateUserRequest {
