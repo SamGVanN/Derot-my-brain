@@ -2,6 +2,38 @@
 
 Ce dossier contient des templates de prompts spécialisés pour différents types de tâches de développement.
 
+Le plus simple et maintenant fiable grâce à l'architecture mise en place est d'utiliser directement les 2 fichiers back/front, comme indiqué par l'agent :
+`You can now use Docs/Technical/Backend-Guidelines.md and Docs/Technical/Frontend-Guidelines.md as the primary context for future tasks to ensure strict adherence to the project standards.`
+
+## Template générique (fiable)
+Si vous demandez une tâche qui doit modifier back ET front :
+
+```markdown
+# Rôle
+Tu es un développeur Full Stack expert sur ce projet.
+
+# Objectif
+Implémenter la fonctionnalité complète : **[Nom de la fonctionnalité]**.
+Description : [Description courte de ce que doit faire la page/feature].
+
+# Contexte Technique (CRITIQUE)
+Tu DOIS te référer aux standards du projet avant de coder :
+1. **Backend** : [`Docs/Technical/Backend-Guidelines.md`](../Technical/Backend-Guidelines.md)
+   - Architecture : Clean Architecture (Core > Infra > API).
+   - TDD : Obligatoire (xUnit + Moq).
+   - Database : SQLite uniquement (Entity Framework).
+2. **Frontend** : [`Docs/Technical/Frontend-Guidelines.md`](../Technical/Frontend-Guidelines.md)
+   - UI : Composants "Dumb" (pas de logique métier).
+   - Logic : Custom Hooks obligatoires pour l'état et l'API.
+   - Style : Tailwind + Shadcn/ui (pas de CSS hardcodé).
+
+# Workflow Attendu
+1. **Plan** : Analyse et crée un `implementation_plan.md` couvrant les couches Back et Front.
+2. **Backend** : Implémente le Core, l'Infra et l'API (Controller + DTOs).
+3. **Frontend** : Implémente le Client API, le Hook (Logique) et la Vue (Composants).
+4. **Vérification** : Vérifie que tout compile et que les tests passent.
+```
+
 ## 📚 Templates Disponibles
 
 ### 🔧 [Implementation.md](./Templates/Implementation.md)

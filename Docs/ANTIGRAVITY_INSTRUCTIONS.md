@@ -15,7 +15,7 @@
   - *Styling*: **shadcn/ui** + Tailwind CSS (Selected).
   - **State Management**: **Zustand** (recommended over Redux).
   - **Constraint**: **FOSS (Free and Open Source) or Free resources ONLY**.
-  - **MUST respect Frontend Architecture Principles** (see `Docs/frontend_guidelines.md`):
+  - **MUST respect Frontend Architecture Principles** (see `Docs/Technical/Frontend-Guidelines.md`):
     - Separation of Concerns
     - Component-driven architecture (one component = one responsibility)
     - Composition over inheritance
@@ -25,7 +25,7 @@
     - Keep UI components "dumb" (presentation only)
     - Dependency injection via props/context
 - **Backend**: .NET Core
-  - **MUST respect Clean Architecture in N-Layer + SOLID principles + DRY + KISS**.
+  - **MUST respect Clean Architecture Regulations** (see `Docs/Technical/Backend-Guidelines.md`).
   - **Data**: SQLite (.db).
 - **AI**: Ollama exposing a local HTTP API.
 
