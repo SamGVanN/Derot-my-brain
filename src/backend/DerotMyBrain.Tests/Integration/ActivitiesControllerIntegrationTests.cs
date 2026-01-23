@@ -36,6 +36,17 @@ public class ActivitiesControllerIntegrationTests :
     {
         await _dbFixture.CleanupAsync();
         await _dbFixture.SeedDefaultTestDataAsync();
+        
+        // Authenticate
+        var loginDto = new LoginDto { Name = "test-user-integration" }; // Matches seeded user
+        var response = await _client.PostAsJsonAsync("/api/users", loginDto);
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
+        
+        if (result != null && !string.IsNullOrEmpty(result.Token))
+        {
+            _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", result.Token);
+        }
     }
 
     /// <summary>

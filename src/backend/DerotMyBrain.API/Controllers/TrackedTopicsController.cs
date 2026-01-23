@@ -3,6 +3,7 @@ using DerotMyBrain.Core.DTOs;
 using DerotMyBrain.Core.Entities;
 using DerotMyBrain.Core.Interfaces.Services;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DerotMyBrain.API.Controllers;
 
@@ -10,6 +11,7 @@ namespace DerotMyBrain.API.Controllers;
 /// Controller for managing tracked topics.
 /// </summary>
 [ApiController]
+[Authorize]
 [Route("api/users/{userId}/tracked-topics")]
 public class TrackedTopicsController : ControllerBase
 {

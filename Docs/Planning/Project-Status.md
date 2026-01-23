@@ -40,10 +40,6 @@ This document tracks the implementation status of features defined in the Functi
 - [x] **Mock Data**: Comprehensive seed data in SQLite demonstrating topic evolution and improvement
 
 
----
-
-## 🚧 In Progress / Planned Features
-
 ### Phase -1: Frontend Architecture Migration (Priority: CRITICAL)
 
 > [!CAUTION]
@@ -165,6 +161,10 @@ This document tracks the implementation status of features defined in the Functi
 
 ---
 
+---
+
+## 🚧 In Progress / Planned Features
+
 ### Phase 4: Data Infrastructure & LLM (Sprint B)
 
 #### Core Data & Configuration
@@ -259,21 +259,29 @@ This document tracks the implementation status of features defined in the Functi
   - Activity graphs
   - Top scores display
 
+#### Security & Quality (Phase 4.3)
+- [x] **Task 4.3.1: Backend Security Infrastructure**
+  - **Status:** Completed ✅
+  - **Completed Date:** 2026-01-23
+  - **Implementation:**
+    - **Authentication**: JWT-based Auth system (`AuthService`, `IdentityServiceExtensions`)
+    - **Protection**: `[Authorize]` attributes on Controllers
+    - **Rate Limiting**: Global + LLM policies (Token Bucket)
+    - **Security Headers**: HSTS, NoSniff, FrameOptions
+    - **Refactoring**: Extensions-based architecture for Program.cs
+    - **Testing**: 27 Integration Tests covering Auth, Perms, and Security flows
+  - **Roadmap Task:** 4.3.1
+
 ---
 
-### Phase 5: Data Views - History & Backlog (Sprint C)
+### Phase 5: Data Views - History & Tracked Topics Page (Sprint C)
 
 #### Visualization
-- [ ] **Task 5.1: Backlog Page** (Formerly 4.3)
+- [ ] **Task 5.1: Tracked Topics Page** (Formerly 4.3)
   - **Status:** Not Started
   - View and manage saved topics
 
-- [ ] **Task 5.2: Enhanced History View** (Formerly 3.2 + 8.4)
-  - **Status:** Not Started
-  - Split cards, Last vs Best score
-  - Helper actions (Track/Untrack)
-
-- [ ] **Task 5.3: Activity Statistics** (Formerly 3.3)
+- [ ] **Task 5.2: Activity Statistics in Homepage** (Formerly 3.3)
   - **Status:** Not Started
   - Calendar view, global stats
 
@@ -282,21 +290,21 @@ This document tracks the implementation status of features defined in the Functi
 ### Phase 6: Core Functionality - Derot Page (Sprint D)
 
 #### The Main Loop
-- [ ] **Task 6.1: Wikipedia Integration** (Formerly 5.1)
+- [ ] **Task 6.1: Wikipedia Integration**
   - **Status:** Not Started
-  - Fetch articles, display content
+  - Fetch articles, display content (backend responsibility to call Wikipedia API, extract article text and format it for ActivityContentDto. if React allows it easily, display real wikipedia article from url passed by backend)
 
-- [ ] **Task 6.2: Quiz Generation & Evaluation** (Formerly 5.2)
+- [ ] **Task 6.2: Quiz Generation & Evaluation**
   - **Status:** Not Started
   - LLM Question generation
   - Answer evaluation
 
-- [ ] **Task 6.3: Category Filtering on Derot Page** (Formerly 8.3)
+- [ ] **Task 6.3: Category Filtering on Derot Page**
   - **Status:** Not Started
   - Filter by preferences
   - Temporary logic
 
-- [ ] **Task 6.4: LLM Resource Estimation** (Formerly 5.3)
+- [ ] **Task 6.4: LLM Resource Estimation** (Optional)
   - **Status:** Not Started
   - Perf monitoring
 
@@ -304,14 +312,17 @@ This document tracks the implementation status of features defined in the Functi
 
 ### Phase 7: Data Management
 
-- [ ] **Task 7.1: User Data Export** (Formerly 6.1)
+- [ ] **Task 7.1: User Data Export**
+  - **Status:** Not Started
+  
+- [ ] **Task 7.2: User Data Import**
   - **Status:** Not Started
 
 ---
 
 ### Phase 8: User Guidance
 
-- [ ] **Task 8.1: Contextual Help** (Formerly 7.1)
+- [ ] **Task 8.1: Contextual Help**
   - **Status:** Not Started
 
 ---

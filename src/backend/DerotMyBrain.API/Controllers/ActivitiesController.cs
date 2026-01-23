@@ -1,11 +1,14 @@
 using DerotMyBrain.Core.DTOs;
 using DerotMyBrain.Core.Entities;
 using DerotMyBrain.Core.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace DerotMyBrain.API.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/users/{userId}")]
 public class ActivitiesController : ControllerBase
 {
@@ -155,6 +158,7 @@ public class ActivitiesController : ControllerBase
     }
 
     [HttpPost("activities/{activityId}/quiz")]
+    // [EnableRateLimiting("LlmPolicy")] // Disabled for local LLM usage
     public async Task<ActionResult<QuizDto>> GenerateQuiz(string userId, string activityId)
     {
         try

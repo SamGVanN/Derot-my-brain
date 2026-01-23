@@ -1,11 +1,14 @@
 using Serilog;
-using Microsoft.EntityFrameworkCore;
 using DerotMyBrain.Infrastructure.Data;
-using DerotMyBrain.Core.Interfaces.Repositories;
+using DerotMyBrain.Core.Interfaces.Services;
+using DerotMyBrain.Core.Services;
+using DerotMyBrain.Infrastructure.Services;
+using DerotMyBrain.API.Extensions;
 using DerotMyBrain.Infrastructure.Repositories;
 using DerotMyBrain.Core.Interfaces.Services;
 using DerotMyBrain.Core.Services;
 using DerotMyBrain.Infrastructure.Services;
+using DerotMyBrain.API.Extensions; // Add Extensions Namespace
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -24,61 +27,25 @@ builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
-// Configuration
-builder.Configuration["DataDirectory"] = Path.Combine(Directory.GetCurrentDirectory(), "Data");
+// 5. Documentation
+builder.Services.AddDocumentationServices();
+
+// --- Security Configuration ---
 
 // --- Clean Architecture Registration ---
 
 // 1. Data Access (Infrastructure)
-if (!builder.Environment.IsEnvironment("Testing"))
-{
-    string dataPath;
-    if (builder.Environment.IsDevelopment())
-    {
-        var projectRoot = Directory.GetCurrentDirectory();
-        dataPath = Path.Combine(projectRoot, "Data");
-    }
-    else
-    {
-        var executablePath = AppDomain.CurrentDomain.BaseDirectory;
-        dataPath = Path.Combine(executablePath, "data");
-    }
+builder.Services.AddDataServices(builder.Configuration, builder.Environment);
 
-    Directory.CreateDirectory(dataPath);
+// 2. Identity & Security
+builder.Services.AddIdentityServices(builder.Configuration);
 
-    builder.Services.AddDbContext<DerotDbContext>(options =>
-        options.UseSqlite($"Data Source={dataPath}/derot-my-brain.db"));
-    
-    Log.Information("Configured SQLite database at {DataPath}", dataPath);
-}
+// 3. Infrastructure (External Services)
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
-builder.Services.AddScoped<IUserRepository, SqliteUserRepository>();
-builder.Services.AddScoped<IActivityRepository, SqliteActivityRepository>();
-builder.Services.AddScoped<ITrackedTopicRepository, SqliteTrackedTopicRepository>();
-
-// 2. External Services (Infrastructure)
-builder.Services.AddHttpClient();
-builder.Services.AddScoped<ICategoryService, DerotMyBrain.Infrastructure.Services.CategoryService>();
-
-// Register Content Sources as a collection
-builder.Services.AddScoped<IContentSource, WikipediaContentSource>();
-builder.Services.AddScoped<IContentSource, FileContentSource>();
-
-// Register LLM Service
-builder.Services.AddScoped<ILlmService, OllamaLlmService>();
-
-// 3. Domain Services (Core)
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IActivityService, ActivityService>();
-builder.Services.AddScoped<ITrackedTopicService, TrackedTopicService>();
-
-// Legacy / Helper Services (Now in Infrastructure/Core)
-builder.Services.AddSingleton<ISeedDataService, SeedDataService>();
-builder.Services.AddSingleton<IConfigurationService, ConfigurationService>();
-builder.Services.AddSingleton<IInitializationService, InitializationService>();
+// 4. Application (Core Domain)
+builder.Services.AddApplicationServices(builder.Configuration);
 
 
 var app = builder.Build();
@@ -113,6 +80,19 @@ app.UseCors(policy => policy
     .WithOrigins("http://localhost:5173") 
     .AllowAnyMethod()
     .AllowAnyHeader());
+
+app.UseRateLimiter(); // Add Rate Limiting Middleware
+app.UseAuthentication(); // Add Auth Middleware
+app.UseAuthorization(); // Add Authorization Middleware
+
+// Security Headers Middleware
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+    await next();
+});
 
 app.UseHttpsRedirection();
 
