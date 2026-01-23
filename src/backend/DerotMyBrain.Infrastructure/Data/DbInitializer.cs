@@ -4,7 +4,7 @@ using DerotMyBrain.Core.Interfaces.Services;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 
-namespace DerotMyBrain.API.Data;
+namespace DerotMyBrain.Infrastructure.Data;
 
 /// <summary>
 /// Initializes the database with seed data for development.
@@ -50,9 +50,10 @@ public static class DbInitializer
             {
                 Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
-                Title = "Quantum Mechanics",
-                SourceUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
                 Type = "Reading",
+                Title = "Quantum Mechanics",
+                Description = "Study session",
+                SourceUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
                 LastAttemptDate = baseDate.AddDays(-5),
                 Score = 0,
                 MaxScore = 0,
@@ -64,6 +65,7 @@ public static class DbInitializer
                 Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
                 Title = "Quantum Mechanics",
+                Description = "Quiz on Quantum Mechanics",
                 SourceUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
                 Type = "Quiz",
                 LastAttemptDate = baseDate.AddDays(-3),
@@ -77,6 +79,7 @@ public static class DbInitializer
                 Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
                 Title = "Quantum Mechanics",
+                Description = "Quiz on Quantum Mechanics",
                 SourceUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
                 Type = "Quiz",
                 LastAttemptDate = baseDate,
@@ -92,6 +95,7 @@ public static class DbInitializer
                 Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
                 Title = "Theory of Relativity",
+                Description = "Reading session",
                 SourceUrl = "https://en.wikipedia.org/wiki/Theory_of_relativity",
                 Type = "Reading",
                 LastAttemptDate = baseDate.AddDays(-2),
@@ -105,6 +109,7 @@ public static class DbInitializer
                 Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
                 Title = "Theory of Relativity",
+                Description = "Quiz on Theory of Relativity",
                 SourceUrl = "https://en.wikipedia.org/wiki/Theory_of_relativity",
                 Type = "Quiz",
                 LastAttemptDate = baseDate.AddDays(-1),
@@ -119,6 +124,7 @@ public static class DbInitializer
                 Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
                 Title = "Artificial Intelligence",
+                Description = "Reading session",
                 SourceUrl = "https://en.wikipedia.org/wiki/Artificial_intelligence",
                 Type = "Reading",
                 LastAttemptDate = baseDate.AddDays(-7),
@@ -137,19 +143,19 @@ public static class DbInitializer
             new TrackedTopic
             {
                 UserId = "test-user-id",
-                Name = "Quantum Mechanics",
+                Topic = "Quantum Mechanics",
                 LastInteraction = baseDate,
-                InteractionCount = 3,
-                MasteryLevel = 75 // Mock mastery
+                TotalReadSessions = 3,
+                BestScore = 8 // Mock score
             },
             // Artificial Intelligence (Tracked 7 days ago)
             new TrackedTopic
             {
                 UserId = "test-user-id",
-                Name = "Artificial Intelligence",
+                Topic = "Artificial Intelligence",
                 LastInteraction = baseDate.AddDays(-7),
-                InteractionCount = 1,
-                MasteryLevel = 10 
+                TotalReadSessions = 1,
+                BestScore = 2 
             }
         };
 

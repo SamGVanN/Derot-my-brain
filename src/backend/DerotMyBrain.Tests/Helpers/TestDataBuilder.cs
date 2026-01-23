@@ -1,4 +1,4 @@
-using DerotMyBrain.API.Models;
+using DerotMyBrain.Core.Entities;
 
 namespace DerotMyBrain.Tests.Helpers;
 

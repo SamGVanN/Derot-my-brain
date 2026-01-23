@@ -2,8 +2,8 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using DerotMyBrain.API.Data;
-using DerotMyBrain.API.DTOs;
+using DerotMyBrain.Infrastructure.Data;
+using DerotMyBrain.Core.DTOs;
 using DerotMyBrain.Tests.Fixtures;
 
 namespace DerotMyBrain.Tests.Integration;

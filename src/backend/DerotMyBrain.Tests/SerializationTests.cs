@@ -1,5 +1,5 @@
 using System.Text.Json;
-using DerotMyBrain.API.Models;
+using DerotMyBrain.Core.Entities;
 using Xunit;
 
 namespace DerotMyBrain.Tests

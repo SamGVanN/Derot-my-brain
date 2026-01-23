@@ -26,6 +26,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DerotMyBrain.API\DerotMyBrain.API.csproj" />
+    <ProjectReference Include="..\DerotMyBrain.Core\DerotMyBrain.Core.csproj" />
+    <ProjectReference Include="..\DerotMyBrain.Infrastructure\DerotMyBrain.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

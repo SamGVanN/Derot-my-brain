@@ -16,4 +16,5 @@ public interface IActivityService
     Task<UserActivity?> GetActivityByIdAsync(string userId, string activityId);
     Task DeleteActivityAsync(string userId, string activityId);
     Task<IEnumerable<UserActivity>> GetAllActivitiesAsync(string userId);
+    Task<IEnumerable<UserActivity>> GetAllForTopicAsync(string userId, string topic);
 }

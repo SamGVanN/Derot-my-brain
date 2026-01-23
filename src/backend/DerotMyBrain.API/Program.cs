@@ -75,13 +75,10 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddScoped<ITrackedTopicService, TrackedTopicService>();
 
-// Legacy / Helper Services (Keep API bound for now if they are purely API concern, e.g. SeedData)
-// Need to verify if SeedDataService exists in API. Yes it does.
-// Assuming SeedDataService needs to be refactored or stays in API calling Core services.
-// I'll assume we keep it for now.
-builder.Services.AddSingleton<DerotMyBrain.API.Services.ISeedDataService, DerotMyBrain.API.Services.SeedDataService>();
-builder.Services.AddSingleton<DerotMyBrain.API.Services.IConfigurationService, DerotMyBrain.API.Services.ConfigurationService>();
-builder.Services.AddSingleton<DerotMyBrain.API.Services.IInitializationService, DerotMyBrain.API.Services.InitializationService>();
+// Legacy / Helper Services (Now in Infrastructure/Core)
+builder.Services.AddSingleton<ISeedDataService, SeedDataService>();
+builder.Services.AddSingleton<IConfigurationService, ConfigurationService>();
+builder.Services.AddSingleton<IInitializationService, InitializationService>();
 
 
 var app = builder.Build();
@@ -98,9 +95,9 @@ if (!app.Environment.IsEnvironment("Testing"))
         context.Database.EnsureCreated();
         
         // Seed Data
-        await DerotMyBrain.API.Data.DbInitializer.InitializeAsync(context, services.GetRequiredService<ICategoryService>());
+        await DerotMyBrain.Infrastructure.Data.DbInitializer.InitializeAsync(context, services.GetRequiredService<ICategoryService>());
 
-        var initService = services.GetRequiredService<DerotMyBrain.API.Services.IInitializationService>();
+        var initService = services.GetRequiredService<IInitializationService>();
         await initService.InitializeAsync();
     }
 }

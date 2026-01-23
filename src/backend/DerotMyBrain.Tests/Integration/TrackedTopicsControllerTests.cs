@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using DerotMyBrain.API.DTOs;
+using DerotMyBrain.Core.DTOs;
 using DerotMyBrain.Tests.Fixtures;
 using Xunit;
 

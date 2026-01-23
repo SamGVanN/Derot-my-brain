@@ -7,15 +7,15 @@ public class UserActivity
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
     
-    public string UserId { get; set; }
+    public required string UserId { get; set; }
     
     [JsonIgnore]
     public User User { get; set; } = null!;
     
     // Activity Details
-    public string Type { get; set; } // "Quiz", "Reading", etc.
-    public string Title { get; set; }
-    public string Description { get; set; }
+    public required string Type { get; set; } // "Quiz", "Reading", etc.
+    public required string Title { get; set; }
+    public required string Description { get; set; }
     
     // Content Tracking
     public string? SourceUrl { get; set; }

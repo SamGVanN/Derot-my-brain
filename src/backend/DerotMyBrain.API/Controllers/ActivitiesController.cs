@@ -18,7 +18,7 @@ public class ActivitiesController : ControllerBase
     }
 
     [HttpPost("start")]
-    public async Task<ActionResult<ContentResult>> StartReading([FromQuery] string userId, [FromBody] StartActivityRequest request)
+    public async Task<ActionResult<DerotMyBrain.Core.DTOs.ContentResult>> StartReading([FromQuery] string userId, [FromBody] StartActivityRequest request)
     {
         // Ideally ID comes from Auth token, but using query param as per existing pattern or simplicity
         try

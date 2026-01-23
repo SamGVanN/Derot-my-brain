@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using DerotMyBrain.API.Data;
-using DerotMyBrain.API.Models;
+using DerotMyBrain.Infrastructure.Data;
+using DerotMyBrain.Core.Entities;
 using DerotMyBrain.Tests.Integration;
 
 namespace DerotMyBrain.Tests.Fixtures;

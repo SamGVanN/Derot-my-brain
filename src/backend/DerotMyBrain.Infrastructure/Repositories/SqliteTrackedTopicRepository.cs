@@ -24,7 +24,7 @@ public class SqliteTrackedTopicRepository : ITrackedTopicRepository
     
     public async Task<TrackedTopic?> GetByTopicAsync(string userId, string topic)
     {
-        return await _context.TrackedTopics.FirstOrDefaultAsync(t => t.UserId == userId && t.Name == topic);
+        return await _context.TrackedTopics.FirstOrDefaultAsync(t => t.UserId == userId && t.Topic == topic);
     }
     
     public async Task<IEnumerable<TrackedTopic>> GetAllAsync(string userId)
@@ -60,6 +60,6 @@ public class SqliteTrackedTopicRepository : ITrackedTopicRepository
     
     public async Task<bool> ExistsAsync(string userId, string topic)
     {
-        return await _context.TrackedTopics.AnyAsync(t => t.UserId == userId && t.Name == topic);
+        return await _context.TrackedTopics.AnyAsync(t => t.UserId == userId && t.Topic == topic);
     }
 }

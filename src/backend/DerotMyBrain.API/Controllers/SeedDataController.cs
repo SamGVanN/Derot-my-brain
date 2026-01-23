@@ -1,5 +1,5 @@
 using DerotMyBrain.Core.Entities;
-using DerotMyBrain.API.Services;
+using DerotMyBrain.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DerotMyBrain.API.Controllers
@@ -34,7 +34,7 @@ namespace DerotMyBrain.API.Controllers
         {
             try
             {
-                var categories = await _categoryService.GetAllCategoriesAsync();
+                var categories = (await _categoryService.GetAllCategoriesAsync()).ToList();
                 _logger.LogInformation("Retrieved {Count} Wikipedia categories", categories.Count);
                 return Ok(categories);
             }

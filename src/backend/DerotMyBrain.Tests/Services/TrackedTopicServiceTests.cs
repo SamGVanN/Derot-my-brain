@@ -1,10 +1,10 @@
-using Xunit;
-using Moq;
-using DerotMyBrain.API.Services;
-using DerotMyBrain.API.Repositories;
-using DerotMyBrain.API.DTOs;
-using DerotMyBrain.API.Models;
+using DerotMyBrain.Core.Entities;
+using DerotMyBrain.Core.Interfaces.Repositories;
+using DerotMyBrain.Core.Services;
+using DerotMyBrain.Core.DTOs;
 using Microsoft.Extensions.Logging;
+using Moq;
+using Xunit;
 
 namespace DerotMyBrain.Tests.Services;
 

@@ -97,6 +97,7 @@ public class ActivityService : IActivityService
             UserId = userId,
             Type = "Quiz_Pending", // Or just Quiz, but mark Incomplete
             Title = "Quiz: " + activity.Title,
+            Description = "Generated quiz for " + activity.Title,
             SourceUrl = activity.SourceUrl,
             ArticleContent = textToProcess, // Keep content context
             Payload = questionsJson, // Store generated questions
@@ -128,5 +129,8 @@ public class ActivityService : IActivityService
 
     public async Task<IEnumerable<UserActivity>> GetAllActivitiesAsync(string userId) 
         => await _repository.GetAllAsync(userId);
+
+    public async Task<IEnumerable<UserActivity>> GetAllForTopicAsync(string userId, string topic)
+        => await _repository.GetAllForTopicAsync(userId, topic);
 
 }

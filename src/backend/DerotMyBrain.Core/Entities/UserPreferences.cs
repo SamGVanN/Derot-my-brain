@@ -7,7 +7,7 @@ public class UserPreferences
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    public string UserId { get; set; }
+    public required string UserId { get; set; }
     
     [JsonIgnore]
     public User User { get; set; } = null!;
@@ -21,8 +21,9 @@ public class UserPreferences
     public int QuestionsPerQuiz { get; set; } = 5;
     public string DefaultDifficulty { get; set; } = "Medium";
     
-    public static UserPreferences Default() => new()
+    public static UserPreferences Default(string userId) => new()
     {
+        UserId = userId,
         Language = "en",
         Theme = "system",
         QuestionsPerQuiz = 5,
