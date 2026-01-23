@@ -47,10 +47,10 @@ public class DatabaseFixture
             Preferences = new UserPreferences
             {
                 UserId = userId,
-                QuestionCount = 10,
-                PreferredTheme = "derot-brain",
+                QuestionsPerQuiz = 10,
+                Theme = "derot-brain",
                 Language = "en",
-                SelectedCategories = new List<string>()
+                FavoriteCategories = new List<WikipediaCategory>()
             }
         };
 
@@ -59,24 +59,28 @@ public class DatabaseFixture
         {
             Id = "activity-1",
             UserId = userId,
-            Topic = "Physics",
-            WikipediaUrl = "https://en.wikipedia.org/wiki/Physics",
+            Title = "Physics",
+            Description = "Quiz on Physics",
+            SourceUrl = "https://en.wikipedia.org/wiki/Physics",
             Type = "Quiz",
-            SessionDate = DateTime.UtcNow.AddDays(-5),
+            LastAttemptDate = DateTime.UtcNow.AddDays(-5),
             Score = 8,
-            TotalQuestions = 10
+            MaxScore = 10,
+            IsTracked = true
         };
 
         var activity2 = new UserActivity
         {
             Id = "activity-2",
             UserId = userId,
-            Topic = "History",
-            WikipediaUrl = "https://en.wikipedia.org/wiki/History",
+            Title = "History",
+            Description = "Reading History",
+            SourceUrl = "https://en.wikipedia.org/wiki/History",
             Type = "Read",
-            SessionDate = DateTime.UtcNow.AddDays(-2),
-            Score = null,
-            TotalQuestions = null
+            LastAttemptDate = DateTime.UtcNow.AddDays(-2),
+            Score = 0,
+            MaxScore = 0,
+            IsTracked = false
         };
 
         // Create tracked topics
@@ -84,12 +88,15 @@ public class DatabaseFixture
         {
             UserId = userId,
             Topic = "Physics",
-            WikipediaUrl = "https://en.wikipedia.org/wiki/Physics",
-            TrackedDate = DateTime.UtcNow.AddDays(-10),
-            LastAttemptDate = DateTime.UtcNow.AddDays(-5),
+            // WikipediaUrl removed from TrackedTopic
+            // TrackedDate removed
+            LastInteraction = DateTime.UtcNow.AddDays(-5),
             BestScore = 8,
-            TotalQuestions = 10,
-            BestScoreDate = DateTime.UtcNow.AddDays(-5)
+            // TotalQuestions removed? No, TrackedTopic has stats but usually aggregated.
+            // Entity has: BestScore, BestScoreDate, TotalQuizAttempts, TotalReadSessions
+            BestScoreDate = DateTime.UtcNow.AddDays(-5),
+            TotalQuizAttempts = 1,
+            TotalReadSessions = 0
         };
 
         // Add all entities
@@ -120,10 +127,10 @@ public class DatabaseFixture
             Preferences = new UserPreferences
             {
                 UserId = userId,
-                QuestionCount = 10,
-                PreferredTheme = "derot-brain",
+                QuestionsPerQuiz = 10,
+                Theme = "derot-brain",
                 Language = "en",
-                SelectedCategories = new List<string>()
+                FavoriteCategories = new List<WikipediaCategory>()
             }
         };
 
@@ -140,24 +147,26 @@ public class DatabaseFixture
         {
             Id = "activity-1",
             UserId = userId,
-            Topic = "Physics",
-            WikipediaUrl = "https://en.wikipedia.org/wiki/Physics",
+            Title = "Physics",
+            Description = "Quiz on Physics",
+            SourceUrl = "https://en.wikipedia.org/wiki/Physics",
             Type = "Quiz",
-            SessionDate = DateTime.UtcNow.AddDays(-5),
+            LastAttemptDate = DateTime.UtcNow.AddDays(-5),
             Score = 8,
-            TotalQuestions = 10
+            MaxScore = 10
         };
 
         var activity2 = new UserActivity
         {
             Id = "activity-2",
             UserId = userId,
-            Topic = "History",
-            WikipediaUrl = "https://en.wikipedia.org/wiki/History",
+            Title = "History",
+            Description = "Reading History",
+            SourceUrl = "https://en.wikipedia.org/wiki/History",
             Type = "Read",
-            SessionDate = DateTime.UtcNow.AddDays(-2),
-            Score = null,
-            TotalQuestions = null
+            LastAttemptDate = DateTime.UtcNow.AddDays(-2),
+            Score = 0,
+            MaxScore = 0
         };
 
         context.Activities.AddRange(activity1, activity2);
@@ -172,14 +181,15 @@ public class DatabaseFixture
         using var scope = _factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<DerotDbContext>();
         
+        // Make sure required props are set if passed by builder somewhat incompletely
+        // But builder should handle it.
+        
         context.Activities.Add(activity);
         await context.SaveChangesAsync();
     }
 
     /// <summary>
     /// Cleans up the database (for test isolation).
-    /// Note: With InMemory database and unique DB names per test class,
-    /// this is less critical but still good practice.
     /// </summary>
     public async Task CleanupAsync()
     {

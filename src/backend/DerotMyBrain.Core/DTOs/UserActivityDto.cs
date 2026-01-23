@@ -1,4 +1,4 @@
-namespace DerotMyBrain.API.DTOs;
+namespace DerotMyBrain.Core.DTOs;
 
 /// <summary>
 /// DTO for user activity session details.

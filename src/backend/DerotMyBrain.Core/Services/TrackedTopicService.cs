@@ -78,4 +78,29 @@ public class TrackedTopicService : ITrackedTopicService
     {
         return await _repository.GetByTopicAsync(userId, topic);
     }
+
+    public async Task UpdateStatsAsync(string userId, string topic, UserActivity activity)
+    {
+        var tracked = await _repository.GetByTopicAsync(userId, topic);
+        if (tracked == null) return; // Only update if tracked
+
+        if (activity.LastAttemptDate > tracked.LastInteraction)
+            tracked.LastInteraction = activity.LastAttemptDate;
+
+        if (activity.Type == "Quiz")
+        {
+            tracked.TotalQuizAttempts++;
+            if (activity.Score > tracked.BestScore)
+            {
+                tracked.BestScore = activity.Score;
+                tracked.BestScoreDate = activity.LastAttemptDate;
+            }
+        }
+        else if (activity.Type == "Read" || activity.Type == "Reading")
+        {
+            tracked.TotalReadSessions++;
+        }
+
+        await _repository.UpdateAsync(tracked);
+    }
 }

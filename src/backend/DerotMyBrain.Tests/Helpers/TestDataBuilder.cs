@@ -99,13 +99,19 @@ public class PreferencesBuilder
 
     public UserPreferences Build()
     {
+        // Mapping string categories to WikipediaCategory objects logic would go here
+        // For now, assume empty list or simple mapping if WikipediaCategory has matching constructor
+        // UserPreferences.FavoriteCategories is List<WikipediaCategory>
+        
+        var categoryObjects = _selectedCategories.Select(c => new WikipediaCategory { Name = c }).ToList();
+
         return new UserPreferences
         {
             UserId = _userId,
-            QuestionCount = _questionCount,
-            PreferredTheme = _preferredTheme,
+            QuestionsPerQuiz = _questionCount,
+            Theme = _preferredTheme,
             Language = _language,
-            SelectedCategories = _selectedCategories
+            FavoriteCategories = categoryObjects
         };
     }
 }
@@ -124,7 +130,7 @@ public class ActivityBuilder
     private int? _score = 0;
     private int? _totalQuestions = 10;
     private string? _llmModelName;
-    private string? _llmVersion;
+    private string? _llmVersion; // Ignored as invalid property
 
     public ActivityBuilder WithId(string id)
     {
@@ -197,14 +203,15 @@ public class ActivityBuilder
         {
             Id = _id,
             UserId = _userId,
-            Topic = _topic,
-            WikipediaUrl = _wikipediaUrl,
+            Title = _topic, // Map Topic -> Title
+            Description = $"{_type} on {_topic}",
+            SourceUrl = _wikipediaUrl,
             Type = _type,
-            SessionDate = _sessionDate,
-            Score = _score,
-            TotalQuestions = _totalQuestions,
+            LastAttemptDate = _sessionDate,
+            Score = _score ?? 0,
+            MaxScore = _totalQuestions ?? 0,
             LlmModelName = _llmModelName,
-            LlmVersion = _llmVersion
+            IsTracked = true
         };
     }
 }

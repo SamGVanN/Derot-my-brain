@@ -1,5 +1,6 @@
 using DerotMyBrain.Core.Entities;
 using DerotMyBrain.Core.Interfaces.Repositories;
+using DerotMyBrain.Core.Interfaces.Services;
 using DerotMyBrain.Core.Services;
 using DerotMyBrain.Core.DTOs;
 using Microsoft.Extensions.Logging;
@@ -11,20 +12,24 @@ namespace DerotMyBrain.Tests.Services;
 public class ActivityServiceTests
 {
     private readonly Mock<IActivityRepository> _activityRepoMock;
-    private readonly Mock<ITrackedTopicRepository> _trackedTopicRepoMock;
-    private readonly Mock<ILogger<ActivityService>> _loggerMock;
+    private readonly Mock<ITrackedTopicService> _trackedTopicServiceMock;
+    private readonly Mock<ILlmService> _llmServiceMock;
     private readonly ActivityService _service;
     
     public ActivityServiceTests()
     {
         _activityRepoMock = new Mock<IActivityRepository>();
-        _trackedTopicRepoMock = new Mock<ITrackedTopicRepository>();
-        _loggerMock = new Mock<ILogger<ActivityService>>();
+        _trackedTopicServiceMock = new Mock<ITrackedTopicService>();
+        _llmServiceMock = new Mock<ILlmService>();
         
+        // Pass empty list for content sources as we are testing CreateActivityAsync mainly
+        var contentSources = new List<IContentSource>();
+
         _service = new ActivityService(
             _activityRepoMock.Object,
-            _trackedTopicRepoMock.Object,
-            _loggerMock.Object);
+            _trackedTopicServiceMock.Object,
+            contentSources,
+            _llmServiceMock.Object);
     }
     
     [Fact]
@@ -44,17 +49,14 @@ public class ActivityServiceTests
         _activityRepoMock.Setup(r => r.CreateAsync(It.IsAny<UserActivity>()))
             .ReturnsAsync((UserActivity a) => a);
         
-        _trackedTopicRepoMock.Setup(r => r.ExistsAsync(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(false);
-        
         // Act
         var result = await _service.CreateActivityAsync(userId, dto);
         
         // Assert
         Assert.Equal("Read", result.Type);
-        Assert.Null(result.Score);
-        Assert.Null(result.TotalQuestions);
-        Assert.NotEqual(default(DateTime), result.SessionDate);
+        Assert.Equal(0, result.Score); // Service defaults to 0
+        Assert.Equal(0, result.MaxScore);
+        Assert.NotEqual(default(DateTime), result.LastAttemptDate);
     }
     
     [Fact]
@@ -74,20 +76,17 @@ public class ActivityServiceTests
         _activityRepoMock.Setup(r => r.CreateAsync(It.IsAny<UserActivity>()))
             .ReturnsAsync((UserActivity a) => a);
         
-        _trackedTopicRepoMock.Setup(r => r.ExistsAsync(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(false);
-        
         // Act
         var result = await _service.CreateActivityAsync(userId, dto);
         
         // Assert
         Assert.Equal("Quiz", result.Type);
         Assert.Equal(8, result.Score);
-        Assert.Equal(10, result.TotalQuestions);
+        Assert.Equal(10, result.MaxScore);
     }
     
     [Fact]
-    public async Task CreateActivityAsync_TrackedTopic_ShouldUpdateCache()
+    public async Task CreateActivityAsync_TrackedTopic_ShouldUpdateStats()
     {
         // Arrange
         var userId = "user1";
@@ -100,73 +99,31 @@ public class ActivityServiceTests
             TotalQuestions = 10
         };
         
-        var trackedTopic = new TrackedTopic
-        {
-            Id = "tracked1",
-            UserId = userId,
-            Topic = "Test",
-            BestScore = 6,
-            TotalQuizAttempts = 1
-        };
-        
         _activityRepoMock.Setup(r => r.CreateAsync(It.IsAny<UserActivity>()))
             .ReturnsAsync((UserActivity a) => a);
         
-        _trackedTopicRepoMock.Setup(r => r.ExistsAsync(userId, "Test"))
-            .ReturnsAsync(true);
-        
-        _trackedTopicRepoMock.Setup(r => r.GetByTopicAsync(userId, "Test"))
-            .ReturnsAsync(trackedTopic);
-        
         // Act
-        var result = await _service.CreateActivityAsync(userId, dto);
+        await _service.CreateActivityAsync(userId, dto);
         
-        // Assert - TrackedTopic should be updated
-        _trackedTopicRepoMock.Verify(r => r.UpdateAsync(It.Is<TrackedTopic>(t =>
-            t.BestScore == 9 && // New best score
-            t.TotalQuizAttempts == 2
+        // Assert - Verify call to TrackedTopicService
+        _trackedTopicServiceMock.Verify(s => s.UpdateStatsAsync(userId, "Test", It.Is<UserActivity>(a => 
+            a.Score == 9 && a.MaxScore == 10
         )), Times.Once);
     }
 
     [Fact]
-    public async Task CreateActivityAsync_NonTrackedTopic_ShouldNotUpdateCache()
+    public async Task CreateActivityAsync_NonTrackedTopic_ShouldStillCallUpdateButServiceHandlesIt()
     {
         // Arrange
         var userId = "user1";
         var dto = new CreateActivityDto { Topic = "NewTopic", Type = "Quiz", Score = 10, TotalQuestions = 10 };
         
         _activityRepoMock.Setup(r => r.CreateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
-        _trackedTopicRepoMock.Setup(r => r.ExistsAsync(userId, "NewTopic")).ReturnsAsync(false);
         
         // Act
         await _service.CreateActivityAsync(userId, dto);
         
         // Assert
-        _trackedTopicRepoMock.Verify(r => r.GetByTopicAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        _trackedTopicRepoMock.Verify(r => r.UpdateAsync(It.IsAny<TrackedTopic>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task CreateActivityAsync_NewBestScore_ShouldUpdateBestScoreDate()
-    {
-        // Arrange
-        var userId = "user1";
-        var dto = new CreateActivityDto { Topic = "Test", Type = "Quiz", Score = 10, TotalQuestions = 10 };
-        var trackedTopic = new TrackedTopic { UserId = userId, Topic = "Test", BestScore = 5, BestScoreDate = DateTime.UtcNow.AddDays(-1) };
-        
-        _activityRepoMock.Setup(r => r.CreateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
-        _trackedTopicRepoMock.Setup(r => r.ExistsAsync(userId, "Test")).ReturnsAsync(true);
-        _trackedTopicRepoMock.Setup(r => r.GetByTopicAsync(userId, "Test")).ReturnsAsync(trackedTopic);
-        
-        var beforeUpdate = DateTime.UtcNow;
-        
-        // Act
-        await _service.CreateActivityAsync(userId, dto);
-        
-        // Assert
-        _trackedTopicRepoMock.Verify(r => r.UpdateAsync(It.Is<TrackedTopic>(t => 
-            t.BestScore == 10 && 
-            t.BestScoreDate >= beforeUpdate
-        )), Times.Once);
+        _trackedTopicServiceMock.Verify(s => s.UpdateStatsAsync(userId, "NewTopic", It.IsAny<UserActivity>()), Times.Once);
     }
 }

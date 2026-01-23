@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace DerotMyBrain.API.DTOs;
+namespace DerotMyBrain.Core.DTOs;
 
 /// <summary>
 /// DTO for creating a new user activity session.

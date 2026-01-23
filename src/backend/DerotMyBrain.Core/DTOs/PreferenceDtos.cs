@@ -1,5 +1,4 @@
-namespace DerotMyBrain.API.DTOs
-{
+namespace DerotMyBrain.Core.DTOs;
     public class GeneralPreferencesDto
     {
         public string Language { get; set; } = string.Empty;
@@ -17,4 +16,3 @@ namespace DerotMyBrain.API.DTOs
         public int QuestionCount { get; set; }
         public List<string> SelectedCategories { get; set; } = new List<string>();
     }
-}

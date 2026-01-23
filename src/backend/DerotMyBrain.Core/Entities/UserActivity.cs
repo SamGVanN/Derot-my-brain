@@ -21,6 +21,8 @@ public class UserActivity
     public string? SourceUrl { get; set; }
     public string? ContentSourceType { get; set; } // "Wikipedia", "File", "Url"
     public string? ArticleContent { get; set; } // Cached content for the two-phase flow
+    public string? LlmModelName { get; set; } // Model used for generation
+    public string? LlmVersion { get; set; }
     
     // Quiz Specifics
     public int Score { get; set; }

@@ -5,6 +5,7 @@ using Xunit;
 using DerotMyBrain.Infrastructure.Data;
 using DerotMyBrain.Core.DTOs;
 using DerotMyBrain.Tests.Fixtures;
+using DerotMyBrain.Tests.Helpers;
 
 namespace DerotMyBrain.Tests.Integration;
 

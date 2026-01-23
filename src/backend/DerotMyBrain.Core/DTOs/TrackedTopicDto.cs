@@ -1,4 +1,4 @@
-namespace DerotMyBrain.API.DTOs;
+namespace DerotMyBrain.Core.DTOs;
 
 /// <summary>
 /// DTO for tracked topic summary with aggregated statistics.

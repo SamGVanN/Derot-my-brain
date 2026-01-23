@@ -28,21 +28,17 @@ public class ActivityService : IActivityService
     public async Task<ContentResult> StartReadingAsync(string userId, StartActivityRequest request)
     {
         // 1. Resolve Strategy
-        var source = _contentSources.FirstOrDefault(s => s.CanHandle(request.Type)); // Or Filter depending on logic
-        // If Type is "RandomWiki", pass "Random" to source?
-        // Let's assume request.Type maps to source capabilities
+        var source = _contentSources.FirstOrDefault(s => s.CanHandle(request.Type));
         
         if (source == null)
         {
-             // Fallback or Specific logic. 
-             // For "RandomWiki", maybe WikipediaContentSource handles "RandomWiki" type string
              source = _contentSources.FirstOrDefault(s => s.CanHandle("Wikipedia")); 
         }
         
         if (source == null) throw new InvalidOperationException("No suitable content source found.");
 
         // 2. Fetch Content
-        var content = await source.GetContentAsync(request.Filter); // Filter contains URL or Random params
+        var content = await source.GetContentAsync(request.Filter); 
 
         // 3. Create Activity
         var activity = new UserActivity
@@ -53,7 +49,7 @@ public class ActivityService : IActivityService
             Description = "Reading article: " + content.Title,
             SourceUrl = content.SourceUrl,
             ContentSourceType = content.SourceType,
-            ArticleContent = content.TextContent, // Cache content
+            ArticleContent = content.TextContent, 
             LastAttemptDate = DateTime.UtcNow,
             IsTracked = false
         };
@@ -71,12 +67,6 @@ public class ActivityService : IActivityService
 
         // 2. Get Content
         string textToProcess = activity.ArticleContent;
-        if (string.IsNullOrEmpty(textToProcess) && !string.IsNullOrEmpty(activity.SourceUrl))
-        {
-            // Re-fetch logic if not cached (implement if needed)
-            // For now assume cached
-        }
-
         if (string.IsNullOrEmpty(textToProcess)) throw new InvalidOperationException("No content available to generate quiz.");
 
         // 3. Generate Questions via LLM
@@ -86,21 +76,16 @@ public class ActivityService : IActivityService
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var questions = JsonSerializer.Deserialize<List<QuestionDto>>(questionsJson, options) ?? new List<QuestionDto>();
 
-        // 4. Create separate Quiz Activity (or just return questions?)
-        // Let's create a *Pending* Quiz Activity so we can link the result later?
-        // Or simpler: Just return questions. The frontend submits the result to CreateActivity (Type=Quiz).
-        // BUT, we want to ensure the quiz matches the questions generated.
-        // Storing questions in a new Activity allows us to validate answers securely later.
-        
+        // 4. Create separate Quiz Activity
         var quizActivity = new UserActivity
         {
             UserId = userId,
-            Type = "Quiz_Pending", // Or just Quiz, but mark Incomplete
+            Type = "Quiz_Pending", 
             Title = "Quiz: " + activity.Title,
             Description = "Generated quiz for " + activity.Title,
             SourceUrl = activity.SourceUrl,
-            ArticleContent = textToProcess, // Keep content context
-            Payload = questionsJson, // Store generated questions
+            ArticleContent = textToProcess, 
+            Payload = questionsJson, 
             LastAttemptDate = DateTime.UtcNow
         };
         
@@ -112,7 +97,6 @@ public class ActivityService : IActivityService
         };
     }
 
-    // Existing / Passthrough
     public async Task<UserStatisticsDto> GetStatisticsAsync(string userId) => await _repository.GetStatisticsAsync(userId);
     
     public async Task<IEnumerable<ActivityCalendarDto>> GetActivityCalendarAsync(string userId, int days = 365) 
@@ -130,7 +114,52 @@ public class ActivityService : IActivityService
     public async Task<IEnumerable<UserActivity>> GetAllActivitiesAsync(string userId) 
         => await _repository.GetAllAsync(userId);
 
+    public async Task<UserActivity> CreateActivityAsync(string userId, CreateActivityDto dto)
+    {
+        var activity = new UserActivity
+        {
+            UserId = userId,
+            Type = dto.Type, // "Quiz", "Read"
+            Title = dto.Topic,
+            Description = $"Activity on {dto.Topic}",
+            SourceUrl = dto.WikipediaUrl,
+            IsTracked = true, // Default to tracked
+            LastAttemptDate = DateTime.UtcNow,
+            Score = dto.Score ?? 0,
+            MaxScore = dto.TotalQuestions ?? 0
+        };
+
+        await _repository.CreateAsync(activity);
+
+        // Update topic stats if relevant. Fixed: passing activity.
+        await _trackedTopicService.UpdateStatsAsync(userId, dto.Topic, activity);
+
+        return activity;
+    }
+
+    public async Task<UserActivity> UpdateActivityAsync(string userId, string activityId, UpdateActivityDto dto)
+    {
+        var activity = await _repository.GetByIdAsync(userId, activityId);
+        if (activity == null)
+            throw new KeyNotFoundException($"Activity {activityId} not found");
+
+        if (dto.Score.HasValue) activity.Score = dto.Score.Value;
+        if (dto.TotalQuestions.HasValue) activity.MaxScore = dto.TotalQuestions.Value;
+        if (!string.IsNullOrEmpty(dto.LlmModelName)) activity.LlmModelName = dto.LlmModelName;
+        if (!string.IsNullOrEmpty(dto.LlmVersion)) activity.LlmVersion = dto.LlmVersion;
+
+        await _repository.UpdateAsync(activity);
+        
+        // Update tracked topic stats if applicable
+        if (activity.IsTracked)
+        {
+            // Fixed: passing activity
+            await _trackedTopicService.UpdateStatsAsync(userId, activity.Title, activity);
+        }
+
+        return activity;
+    }
+
     public async Task<IEnumerable<UserActivity>> GetAllForTopicAsync(string userId, string topic)
         => await _repository.GetAllForTopicAsync(userId, topic);
-
 }
