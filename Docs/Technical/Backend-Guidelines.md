@@ -169,6 +169,7 @@ public class DerotDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<UserPreferences> UserPreferences { get; set; }
     public DbSet<UserActivity> Activities { get; set; }
+    public DbSet<TrackedTopic> TrackedTopics { get; set; }
     
     public DerotDbContext(DbContextOptions<DerotDbContext> options) : base(options)
     {

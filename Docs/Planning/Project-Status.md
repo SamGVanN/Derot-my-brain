@@ -234,17 +234,17 @@ This document tracks the implementation status of features defined in the Functi
     - Wired up in `Program.cs` to run at startup
   - **Roadmap Task:** 4.2.5
 
-- [ ] **Task 4.2.6: Frontend - TypeScript Interfaces & API Client**
+- [x] **Task 4.2.6: Frontend - TypeScript Interfaces & API Client**
   - **Status:** Not Started
   - Create TS interfaces
   - Implement API calls
 
-- [ ] **Task 4.2.7: Frontend - Custom Hooks**
+- [x] **Task 4.2.7: Frontend - Custom Hooks**
   - **Status:** Not Started
   - useActivities, useTrackedTopics
   - Dashboard hooks
 
-- [ ] **Task 4.2.8: Frontend - History View Update**
+- [x] **Task 4.2.8: Frontend - History View Update**
   - **Status:** Not Started
   - Display Last/Best scores
   - Show tracked indicators

@@ -48,19 +48,20 @@ The system follows **Clean Architecture** principles involving N-Tier separation
 **Role**: The "Inner Circle". It resembles the Domain and Application layers.
 **Dependencies**: NONE (Pure C#).
 **Responsibilities**:
-- **Entities**: Represent the domain state (e.g., `User`, `UserActivity`, `Quiz`, `Question`).
+- **Entities**: Represent the domain state (e.g., `User`, `UserActivity`, `TrackedTopic`, `AppConfiguration`).
 - **Interfaces**: Define contracts for external services (e.g., `IRepository`, `ILlmService`, `IContentSource`).
-- **Domain Services**: Business logic that orchestrates entities (e.g., `QuizService`, `ActivityService`).
+- **Domain Services**: Business logic that orchestrates entities (e.g., `ActivityService`, `TrackedTopicService`, `SeedDataService`).
 
 ### **2. DerotMyBrain.Infrastructure** (Class Library)
 **Role**: The "Outer Circle". Implements interfaces defined in Core.
 **Dependencies**: `DerotMyBrain.Core`, `EntityFrameworkCore`, HTTP Clients.
 **Responsibilities**:
-- **Data Persistence**: `DerotDbContext` (SQLite), Repositories implementation (`SqliteUserRepository`).
+- **Data Persistence**: `DerotDbContext` (SQLite), Repositories implementation.
 - **External API Clients**:
     - **WikipediaContentSource**: Fetches and parses Wikipedia articles.
-    - **OpenAiLlmService**: Communicates with the LLM for quiz generation.
+    - **OllamaLlmService**: Communicates with the local LLM for quiz generation.
     - **FileContentSource**: Reads uploaded documents.
+    - **ConfigurationService**: Manages app settings.
 
 ### **3. DerotMyBrain.API** (ASP.NET Core Web API)
 **Role**: The "Presentation Layer". Entry point for the frontend.

@@ -1,13 +1,13 @@
 # Antigravity Instructions - Derot My Brain
 
 ## Project Overview
-"Derot My Brain" is a local web application designed to stimulate curiosity and active learning using Wikipedia content. It alternates between free reading and dynamically generated quizzes.
+"Derot My Brain" is a local web application designed to stimulate curiosity and active learning using Wikipedia content or any other text source. It alternates between free reading and dynamically generated quizzes.
 
 **Key Goals:**
 - **Local hosting**: Run entirely on the user's machine (Windows/Linux/Homelab).
 - **SQLite**: Local embedded database for data persistence (No external SQL Server).
 - **Local AI**: Use Ollama (llama3, mistral, etc.) for generating questions and evaluating answers.
-- **Active Learning**: Read -> Quiz -> History/Backlog loop.
+- **Active Learning**: Read -> Quiz -> History/TrackedTopics loop.
 
 ## Technology Stack
 - **Frontend**: React + TypeScript (using Vite).
@@ -24,10 +24,10 @@
     - Clean Architecture / Hexagonal (adapted for frontend)
     - Keep UI components "dumb" (presentation only)
     - Dependency injection via props/context
-- **Backend**: ASP.NET Core Web API.
-  - **MUST respect SOLID principles**.
+- **Backend**: .NET Core
+  - **MUST respect Clean Architecture in N-Layer + SOLID principles + DRY + KISS**.
+  - **Data**: SQLite (.db).
 - **AI**: Ollama exposing a local HTTP API.
-- **Data**: SQLite (.db).
 
 ## Data Structures (SQLite Schema)
 
@@ -47,52 +47,78 @@ CREATE TABLE UserPreferences (
     QuestionCount INTEGER DEFAULT 10,
     PreferredTheme TEXT DEFAULT 'derot-brain',
     Language TEXT DEFAULT 'auto',
+    FavoriteCategories TEXT, -- JSON Array of categories
     FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
 );
 
--- Table Activities
+-- Table Activities (UserActivity)
 CREATE TABLE Activities (
     Id TEXT PRIMARY KEY,
     UserId TEXT NOT NULL,
-    Topic TEXT NOT NULL,
-    WikipediaUrl TEXT NOT NULL,
-    FirstAttemptDate TEXT NOT NULL,
-    LastAttemptDate TEXT NOT NULL,
-    LastScore INTEGER NOT NULL,
-    BestScore INTEGER NOT NULL,
-    TotalQuestions INTEGER NOT NULL,
+    Type TEXT NOT NULL, -- 'Read', 'Quiz'
+    Title TEXT NOT NULL, -- Topic/Article Title
+    Description TEXT,
+    SourceUrl TEXT,
+    ContentSourceType TEXT, -- 'Wikipedia', 'File', 'Url'
+    ArticleContent TEXT,
     LlmModelName TEXT,
     LlmVersion TEXT,
+    
+    -- Quiz Stats
+    Score INTEGER NOT NULL DEFAULT 0,
+    MaxScore INTEGER NOT NULL DEFAULT 0,
+    
+    LastAttemptDate TEXT NOT NULL,
+    IsCompleted INTEGER DEFAULT 0,
     IsTracked INTEGER DEFAULT 0,
-    Type TEXT NOT NULL,
+    Payload TEXT, -- JSON blob for questions/answers
+    
     FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+);
+
+-- Table TrackedTopics
+CREATE TABLE TrackedTopics (
+    Id TEXT PRIMARY KEY,
+    UserId TEXT NOT NULL,
+    Topic TEXT NOT NULL,
+    BestScore INTEGER DEFAULT 0,
+    BestScoreDate TEXT,
+    TotalQuizAttempts INTEGER DEFAULT 0,
+    TotalReadSessions INTEGER DEFAULT 0,
+    LastInteraction TEXT NOT NULL,
+    
+    FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE,
+    UNIQUE(UserId, Topic)
 );
 ```
 
 ## API Endpoints
 
 ### Auth / User
-- `POST /api/users` - Create or select a user.
-- `GET /api/users` - Retrieve list of users.
+- `POST /api/users` - Create or login user.
+- `GET /api/users/{id}` - Get user details.
 
-### Wikipedia
-- `GET /api/wiki/random?categories=history,science` - Fetch random page metadata.
-- `GET /api/wiki/page/{wikiPageId}` - Fetch specific page content.
+### Activity Management
+- `GET /api/users/{userId}/activities` - List activities (supports ?topic= filter).
+- `GET /api/users/{userId}/activities/{activityId}` - Get specific activity.
+- `POST /api/users/{userId}/activities` - Create activity manually.
+- `PUT /api/users/{userId}/activities/{activityId}` - Update activity.
+- `DELETE /api/users/{userId}/activities/{activityId}` - Delete activity.
 
-### Quiz
-- `POST /api/quiz/generate` - Generate questions from content.
-  - Payload: `{ "wikiPageId": "...", "articleText": "..." }`
-- `POST /api/quiz/evaluate` - Evaluate a single answer.
-  - Payload: `{ "expectedAnswer": "...", "userAnswer": "..." }`
+### Active Learning Flow
+- `POST /api/users/{userId}/activities/start` - Start a new reading session (fetches content).
+  - Payload: `{ "url": "...", "sourceType": "Wikipedia" }`
+- `POST /api/users/{userId}/activities/{activityId}/quiz` - Generate quiz for an activity.
+- `POST /api/quiz/evaluate` - Evaluate answer (if not handled by frontend/local logic).
 
-### History
-- `GET /api/history/{username}`
-- `POST /api/history/{username}` - Add entry after quiz.
+### Statistics & Tracking
+- `GET /api/users/{userId}/statistics` - Get dashboard stats.
+- `GET /api/users/{userId}/statistics/activity-calendar` - Get heatmap data.
+- `GET /api/users/{userId}/statistics/top-scores` - Get leaderboard/top scores.
 
-### Backlog
-- `GET /api/backlog/{username}`
-- `POST /api/backlog/{username}` - Add topic to backlog.
-- `DELETE /api/backlog/{username}/{wikiPageId}` - Remove from backlog.
+### Tracked Topics
+- `GET /api/users/{userId}/compendium` - Get all tracked topics.
+- `POST /api/users/{userId}/compendium/import` - Import tracked topics from history.
 
 ## AI Prompts
 
