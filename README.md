@@ -24,9 +24,9 @@ Modern social media platforms are engineered to keep us hooked with short bursts
 
 ### The Solution
 **Derot My Brain** offers a different approach:
-- 📚 **Read freely** - Explore random Wikipedia articles at your own pace
+- 📚 **Read freely** - Explore Wikipedia articles at your own pace, or even your own documents !
 - 🧩 **Test yourself** - Answer AI-generated questions to reinforce what you've learned
-- 📊 **Track progress** - See your improvement over time with detailed history
+- 📊 **Track progress** - See your improvement over time with tracked topics and detailed history
 - 🎯 **Stay focused** - Build a backlog of topics you want to revisit
 - 🎨 **Enjoy the journey** - Beautiful themes and smooth UX make learning pleasant
 
@@ -38,7 +38,7 @@ Modern social media platforms are engineered to keep us hooked with short bursts
 - **Simple User Identification** - No complex authentication, just pick a name and start
 - **Beautiful Theme System** - Choose from 5 carefully crafted color palettes
 - **User History & Progress** - Track your learning journey with detailed activity logs
-- **Responsive Design** - Works beautifully on desktop and mobile
+- **Responsive Design** - Works beautifully on any screen size
 
 ### Coming Soon 🚧
 - **Wikipedia Integration** - Random article selection with category filtering
@@ -47,7 +47,11 @@ Modern social media platforms are engineered to keep us hooked with short bursts
 - **Detailed Analytics** - Track scores, see your best performances, and monitor progress
 - **Multilingual Support** - Full internationalization (English & French)
 - **Category Preferences** - Filter articles by your interests (13 Wikipedia categories)
-- **Data Export** - Download all your data anytime
+- **Data Export/Import** - Download all your data anytime and impot it later or into another machine
+
+### Under investigation 🚧
+- **Online mode** - Compatibility with distant LLM (ChatGPT API etc.)
+- **Android and iOS deployment** - This would onbly be possible by using an online LLM, for now Derot-my-brain is focusing on being a local and private app.
 
 ---
 
