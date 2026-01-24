@@ -16,21 +16,21 @@ public class TrackedTopicService : ITrackedTopicService
         _activityRepository = activityRepository;
     }
 
-    public async Task<TrackedTopic> TrackTopicAsync(string userId, string topic, string wikipediaUrl)
+    public async Task<TrackedTopic> TrackTopicAsync(string userId, string title, string wikipediaUrl)
     {
-        var existing = await _repository.GetByTopicAsync(userId, topic);
+        var existing = await _repository.GetByTitleAsync(userId, title);
         if (existing != null) return existing;
 
         var tracked = new TrackedTopic
         {
             UserId = userId,
-            Topic = topic,
+            Title = title,
             LastInteraction = DateTime.UtcNow,
             TotalReadSessions = 1 // Initial read session
         };
 
         // Rebuild history
-        var activities = await _activityRepository.GetAllForTopicAsync(userId, topic);
+        var activities = await _activityRepository.GetAllForTopicAsync(userId, title);
         foreach (var activity in activities)
         {
             if (activity.LastAttemptDate > tracked.LastInteraction)
@@ -60,9 +60,9 @@ public class TrackedTopicService : ITrackedTopicService
         return await _repository.CreateAsync(tracked);
     }
 
-    public async Task UntrackTopicAsync(string userId, string topic)
+    public async Task UntrackTopicAsync(string userId, string title)
     {
-        var existing = await _repository.GetByTopicAsync(userId, topic);
+        var existing = await _repository.GetByTitleAsync(userId, title);
         if (existing != null)
         {
             await _repository.DeleteAsync(existing.Id);
@@ -74,14 +74,14 @@ public class TrackedTopicService : ITrackedTopicService
         return await _repository.GetAllAsync(userId);
     }
 
-    public async Task<TrackedTopic?> GetTrackedTopicAsync(string userId, string topic)
+    public async Task<TrackedTopic?> GetTrackedTopicAsync(string userId, string title)
     {
-        return await _repository.GetByTopicAsync(userId, topic);
+        return await _repository.GetByTitleAsync(userId, title);
     }
 
-    public async Task UpdateStatsAsync(string userId, string topic, UserActivity activity)
+    public async Task UpdateStatsAsync(string userId, string title, UserActivity activity)
     {
-        var tracked = await _repository.GetByTopicAsync(userId, topic);
+        var tracked = await _repository.GetByTitleAsync(userId, title);
         if (tracked == null) return; // Only update if tracked
 
         if (activity.LastAttemptDate > tracked.LastInteraction)

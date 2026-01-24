@@ -13,7 +13,7 @@ public class TopScoreDto
     /// <summary>
     /// Wikipedia topic/article title.
     /// </summary>
-    public string Topic { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
     
     /// <summary>
     /// Score achieved.

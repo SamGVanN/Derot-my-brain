@@ -18,7 +18,7 @@ public class UserActivityDto
     /// <summary>
     /// Wikipedia topic/article title.
     /// </summary>
-    public string Topic { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
 
     /// <summary>
     /// Full Wikipedia URL for the article.

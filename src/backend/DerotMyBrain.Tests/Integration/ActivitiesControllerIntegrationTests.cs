@@ -82,7 +82,7 @@ public class ActivitiesControllerIntegrationTests :
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var activity = await response.Content.ReadFromJsonAsync<UserActivityDto>();
         Assert.NotNull(activity);
-        Assert.Equal("Physics", activity.Topic);
+        Assert.Equal("Physics", activity.Title);
         Assert.Equal(8, activity.Score);
     }
 
@@ -102,7 +102,7 @@ public class ActivitiesControllerIntegrationTests :
         // Arrange
         var dto = new CreateActivityDto
         {
-            Topic = "Mathematics",
+            Title = "Mathematics",
             WikipediaUrl = "https://en.wikipedia.org/wiki/Mathematics",
             Type = "Quiz",
             Score = 9,
@@ -116,7 +116,7 @@ public class ActivitiesControllerIntegrationTests :
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var created = await response.Content.ReadFromJsonAsync<UserActivityDto>();
         Assert.NotNull(created);
-        Assert.Equal("Mathematics", created.Topic);
+        Assert.Equal("Mathematics", created.Title);
         Assert.NotNull(response.Headers.Location);
     }
 
@@ -126,7 +126,7 @@ public class ActivitiesControllerIntegrationTests :
         // Arrange
         var dto = new CreateActivityDto
         {
-            Topic = "", // Invalid - required
+            Title = "", // Invalid - required
             WikipediaUrl = "not-a-url", // Invalid URL
             Type = "InvalidType" // Invalid type
         };
@@ -232,6 +232,6 @@ public class ActivitiesControllerIntegrationTests :
         var activities = await response.Content.ReadFromJsonAsync<List<UserActivityDto>>();
         Assert.NotNull(activities);
         Assert.Single(activities); // Physics only has 1 activity in SeedDefaultTestDataAsync
-        Assert.Equal("Physics", activities[0].Topic);
+        Assert.Equal("Physics", activities[0].Title);
     }
 }

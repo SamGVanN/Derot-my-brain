@@ -50,7 +50,7 @@ public class TrackedTopicsControllerTests :
         var userId = "test-user-integration";
         var dto = new 
         { 
-            Topic = "C# Programming", 
+            Title = "C# Programming", 
             WikipediaUrl = "https://en.wikipedia.org/wiki/C_Sharp_(programming_language)" 
         };
 
@@ -61,7 +61,7 @@ public class TrackedTopicsControllerTests :
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var result = await response.Content.ReadFromJsonAsync<TrackedTopicDto>();
         Assert.NotNull(result);
-        Assert.Equal(dto.Topic, result.Topic);
+        Assert.Equal(dto.Title, result.Title);
     }
 
     [Fact]
@@ -127,6 +127,6 @@ public class TrackedTopicsControllerTests :
         // Verify it's gone
         var getResponse = await _client.GetAsync($"/api/users/{userId}/tracked-topics");
         var result = await getResponse.Content.ReadFromJsonAsync<List<TrackedTopicDto>>();
-        Assert.DoesNotContain(result, t => t.Topic == topic);
+        Assert.DoesNotContain(result, t => t.Title == topic);
     }
 }

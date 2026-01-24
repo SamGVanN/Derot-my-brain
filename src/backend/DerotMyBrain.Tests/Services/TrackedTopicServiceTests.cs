@@ -58,7 +58,7 @@ public class TrackedTopicServiceTests
             }
         };
         
-        _trackedTopicRepoMock.Setup(r => r.GetByTopicAsync(userId, topic)).ReturnsAsync((TrackedTopic)null);
+        _trackedTopicRepoMock.Setup(r => r.GetByTitleAsync(userId, topic)).ReturnsAsync((TrackedTopic)null);
         _activityRepoMock.Setup(r => r.GetAllForTopicAsync(userId, topic)).ReturnsAsync(activities);
         
         // Act
@@ -86,9 +86,9 @@ public class TrackedTopicServiceTests
         // Arrange
         var userId = "user1";
         var topic = "Quantum";
-        var tracked = new TrackedTopic { Id = "tracked1", UserId = userId, Topic = topic };
+        var tracked = new TrackedTopic { Id = "tracked1", UserId = userId, Title = topic };
         
-        _trackedTopicRepoMock.Setup(r => r.GetByTopicAsync(userId, topic)).ReturnsAsync(tracked);
+        _trackedTopicRepoMock.Setup(r => r.GetByTitleAsync(userId, topic)).ReturnsAsync(tracked);
         
         // Act
         await _service.UntrackTopicAsync(userId, topic);
@@ -103,9 +103,9 @@ public class TrackedTopicServiceTests
         // Arrange
         var userId = "user1";
         var topic = "Quantum";
-        var tracked = new TrackedTopic { Id = "tracked1", UserId = userId, Topic = topic };
+        var tracked = new TrackedTopic { Id = "tracked1", UserId = userId, Title = topic };
         
-        _trackedTopicRepoMock.Setup(r => r.GetByTopicAsync(userId, topic)).ReturnsAsync(tracked);
+        _trackedTopicRepoMock.Setup(r => r.GetByTitleAsync(userId, topic)).ReturnsAsync(tracked);
         
         // Act
         var result = await _service.TrackTopicAsync(userId, topic, "https://test.com");

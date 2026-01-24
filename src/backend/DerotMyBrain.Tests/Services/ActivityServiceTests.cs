@@ -39,7 +39,7 @@ public class ActivityServiceTests
         var userId = "user1";
         var dto = new CreateActivityDto
         {
-            Topic = "Test",
+            Title = "Test",
             WikipediaUrl = "https://test.com",
             Type = "Read",
             Score = null,
@@ -66,7 +66,7 @@ public class ActivityServiceTests
         var userId = "user1";
         var dto = new CreateActivityDto
         {
-            Topic = "Test",
+            Title = "Test",
             WikipediaUrl = "https://test.com",
             Type = "Quiz",
             Score = 8,
@@ -92,7 +92,7 @@ public class ActivityServiceTests
         var userId = "user1";
         var dto = new CreateActivityDto
         {
-            Topic = "Test",
+            Title = "Test",
             WikipediaUrl = "https://test.com",
             Type = "Quiz",
             Score = 9,
@@ -116,7 +116,7 @@ public class ActivityServiceTests
     {
         // Arrange
         var userId = "user1";
-        var dto = new CreateActivityDto { Topic = "NewTopic", Type = "Quiz", Score = 10, TotalQuestions = 10 };
+        var dto = new CreateActivityDto { Title = "NewTopic", Type = "Quiz", Score = 10, TotalQuestions = 10 };
         
         _activityRepoMock.Setup(r => r.CreateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
         

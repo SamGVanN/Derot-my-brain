@@ -4,11 +4,7 @@ using DerotMyBrain.Core.Interfaces.Services;
 using DerotMyBrain.Core.Services;
 using DerotMyBrain.Infrastructure.Services;
 using DerotMyBrain.API.Extensions;
-using DerotMyBrain.Infrastructure.Repositories;
-using DerotMyBrain.Core.Interfaces.Services;
-using DerotMyBrain.Core.Services;
-using DerotMyBrain.Infrastructure.Services;
-using DerotMyBrain.API.Extensions; // Add Extensions Namespace
+using Microsoft.EntityFrameworkCore; // Added for Migrate()
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -59,7 +55,7 @@ if (!app.Environment.IsEnvironment("Testing"))
         var context = services.GetRequiredService<DerotDbContext>();
         
         // Auto-migration / creation
-        context.Database.EnsureCreated();
+        context.Database.Migrate();
         
         // Seed Data
         await DerotMyBrain.Infrastructure.Data.DbInitializer.InitializeAsync(context, services.GetRequiredService<ICategoryService>());

@@ -2,7 +2,7 @@ export interface UserActivity {
     id: string;
     userId: string;
     type: string;
-    topic: string;
+    title: string;
     wikipediaUrl: string;
     sessionDate: string;
     score?: number;

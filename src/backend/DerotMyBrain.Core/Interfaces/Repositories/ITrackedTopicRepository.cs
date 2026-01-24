@@ -15,7 +15,7 @@ public interface ITrackedTopicRepository
     /// <summary>
     /// Gets a tracked topic by user ID and topic name.
     /// </summary>
-    Task<TrackedTopic?> GetByTopicAsync(string userId, string topic);
+    Task<TrackedTopic?> GetByTitleAsync(string userId, string title);
     
     /// <summary>
     /// Gets all tracked topics for a user.
@@ -40,5 +40,5 @@ public interface ITrackedTopicRepository
     /// <summary>
     /// Checks if a topic is tracked by the user.
     /// </summary>
-    Task<bool> ExistsAsync(string userId, string topic);
+    Task<bool> ExistsAsync(string userId, string title);
 }

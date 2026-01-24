@@ -7,7 +7,7 @@ public class TrackedTopicDto
 {
     public string Id { get; set; } = string.Empty;
     public string UserId { get; set; } = string.Empty;
-    public string Topic { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
     public string WikipediaUrl { get; set; } = string.Empty;
     
     /// <summary>

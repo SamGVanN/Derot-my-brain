@@ -1,7 +1,7 @@
 export interface UserStatisticsDto {
     lastActivity?: {
         date: string;
-        topic: string;
+        title: string;
         activityId: string;
     };
     totalActivities: number;
@@ -9,7 +9,7 @@ export interface UserStatisticsDto {
         score: number;
         totalQuestions: number;
         percentage: number;
-        topic: string;
+        title: string;
         activityId: string;
         date: string;
     };
@@ -25,13 +25,13 @@ export interface TopScoreDto {
     score: number;
     totalQuestions: number;
     percentage: number;
-    topic: string;
+    title: string;
     activityId: string;
     date: string;
 }
 
 export interface TrackedTopicDto {
-    topic: string;
+    title: string;
     wikipediaUrl: string;
     addedAt: string;
     lastActivityAt?: string;
@@ -42,6 +42,6 @@ export interface TrackedTopicDto {
 }
 
 export interface TrackTopicDto {
-    topic: string;
+    title: string;
     wikipediaUrl: string;
 }

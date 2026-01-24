@@ -27,11 +27,11 @@ export function useTrackedTopics() {
         }
     }, [userId]);
 
-    const trackTopic = useCallback(async (topic: string, wikipediaUrl: string) => {
+    const trackTopic = useCallback(async (title: string, wikipediaUrl: string) => {
         if (!userId) throw new Error("User not authenticated");
 
         try {
-            const newTopic = await activityApi.trackTopic(userId, topic, wikipediaUrl);
+            const newTopic = await activityApi.trackTopic(userId, title, wikipediaUrl);
             setTrackedTopics(prev => [...prev, newTopic]);
             return newTopic;
         } catch (err) {
@@ -40,20 +40,20 @@ export function useTrackedTopics() {
         }
     }, [userId]);
 
-    const untrackTopic = useCallback(async (topic: string) => {
+    const untrackTopic = useCallback(async (title: string) => {
         if (!userId) throw new Error("User not authenticated");
 
         try {
-            await activityApi.untrackTopic(userId, topic);
-            setTrackedTopics(prev => prev.filter(t => t.topic !== topic));
+            await activityApi.untrackTopic(userId, title);
+            setTrackedTopics(prev => prev.filter(t => t.title !== title));
         } catch (err) {
             console.error('Failed to untrack topic:', err);
             throw err;
         }
     }, [userId]);
 
-    const isTracked = useCallback((topic: string) => {
-        return trackedTopics.some(t => t.topic === topic);
+    const isTracked = useCallback((title: string) => {
+        return trackedTopics.some(t => t.title === title);
     }, [trackedTopics]);
 
     return {

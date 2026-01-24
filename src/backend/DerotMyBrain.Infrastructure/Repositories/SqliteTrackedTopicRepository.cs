@@ -22,9 +22,9 @@ public class SqliteTrackedTopicRepository : ITrackedTopicRepository
         return await _context.TrackedTopics.FirstOrDefaultAsync(t => t.Id == id);
     }
     
-    public async Task<TrackedTopic?> GetByTopicAsync(string userId, string topic)
+    public async Task<TrackedTopic?> GetByTitleAsync(string userId, string title)
     {
-        return await _context.TrackedTopics.FirstOrDefaultAsync(t => t.UserId == userId && t.Topic == topic);
+        return await _context.TrackedTopics.FirstOrDefaultAsync(t => t.UserId == userId && t.Title == title);
     }
     
     public async Task<IEnumerable<TrackedTopic>> GetAllAsync(string userId)
@@ -58,8 +58,8 @@ public class SqliteTrackedTopicRepository : ITrackedTopicRepository
         }
     }
     
-    public async Task<bool> ExistsAsync(string userId, string topic)
+    public async Task<bool> ExistsAsync(string userId, string title)
     {
-        return await _context.TrackedTopics.AnyAsync(t => t.UserId == userId && t.Topic == topic);
+        return await _context.TrackedTopics.AnyAsync(t => t.UserId == userId && t.Title == title);
     }
 }

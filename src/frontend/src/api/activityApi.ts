@@ -11,8 +11,8 @@ import type {
 export const activityApi = {
     // --- Activities ---
 
-    getActivities: async (userId: string, topic?: string): Promise<UserActivity[]> => {
-        const params = topic ? { topic } : undefined;
+    getActivities: async (userId: string, title?: string): Promise<UserActivity[]> => {
+        const params = title ? { title } : undefined;
         const response = await client.get<UserActivity[]>(`/users/${userId}/activities`, { params });
         return response.data;
     },
@@ -64,18 +64,18 @@ export const activityApi = {
         return response.data;
     },
 
-    trackTopic: async (userId: string, topic: string, wikipediaUrl: string): Promise<TrackedTopicDto> => {
-        const dto: TrackTopicDto = { topic, wikipediaUrl };
+    trackTopic: async (userId: string, title: string, wikipediaUrl: string): Promise<TrackedTopicDto> => {
+        const dto: TrackTopicDto = { title, wikipediaUrl };
         const response = await client.post<TrackedTopicDto>(`/users/${userId}/tracked-topics`, dto);
         return response.data;
     },
 
-    untrackTopic: async (userId: string, topic: string): Promise<void> => {
-        await client.delete(`/users/${userId}/tracked-topics/${topic}`);
+    untrackTopic: async (userId: string, title: string): Promise<void> => {
+        await client.delete(`/users/${userId}/tracked-topics/${title}`);
     },
 
-    getTopicEvolution: async (userId: string, topic: string): Promise<UserActivity[]> => {
-        const response = await client.get<UserActivity[]>(`/users/${userId}/tracked-topics/${topic}/evolution`);
+    getTopicEvolution: async (userId: string, title: string): Promise<UserActivity[]> => {
+        const response = await client.get<UserActivity[]>(`/users/${userId}/tracked-topics/${title}/evolution`);
         return response.data;
     }
 };

@@ -143,7 +143,7 @@ public static class DbInitializer
             new TrackedTopic
             {
                 UserId = "test-user-id",
-                Topic = "Quantum Mechanics",
+                Title = "Quantum Mechanics",
                 LastInteraction = baseDate,
                 TotalReadSessions = 3,
                 BestScore = 8 // Mock score
@@ -152,7 +152,7 @@ public static class DbInitializer
             new TrackedTopic
             {
                 UserId = "test-user-id",
-                Topic = "Artificial Intelligence",
+                Title = "Artificial Intelligence",
                 LastInteraction = baseDate.AddDays(-7),
                 TotalReadSessions = 1,
                 BestScore = 2 

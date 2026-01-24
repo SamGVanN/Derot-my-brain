@@ -49,7 +49,7 @@ public class LastActivityDto
     /// <summary>
     /// Wikipedia topic/article title.
     /// </summary>
-    public string Topic { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
     
     /// <summary>
     /// Date of the activity.
@@ -75,7 +75,7 @@ public class BestScoreDto
     /// <summary>
     /// Wikipedia topic/article title.
     /// </summary>
-    public string Topic { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
     
     /// <summary>
     /// Score achieved.

@@ -87,7 +87,7 @@ public class DatabaseFixture
         var trackedTopic1 = new TrackedTopic
         {
             UserId = userId,
-            Topic = "Physics",
+            Title = "Physics",
             // WikipediaUrl removed from TrackedTopic
             // TrackedDate removed
             LastInteraction = DateTime.UtcNow.AddDays(-5),

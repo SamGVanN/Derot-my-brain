@@ -100,7 +100,7 @@ public class SqliteActivityRepository : IActivityRepository
             stats.LastActivity = new LastActivityDto
             {
                 ActivityId = last.Id,
-                Topic = last.Title,
+                Title = last.Title,
                 Date = last.LastAttemptDate,
                 Type = last.Type
             };
@@ -117,7 +117,7 @@ public class SqliteActivityRepository : IActivityRepository
             stats.BestScore = new BestScoreDto
             {
                 ActivityId = best.Id,
-                Topic = best.Title,
+                Title = best.Title,
                 Score = best.Score,
                 TotalQuestions = best.MaxScore,
                 Percentage = best.Percentage,
@@ -157,7 +157,7 @@ public class SqliteActivityRepository : IActivityRepository
         return scores.Select(a => new TopScoreDto
         {
             ActivityId = a.Id,
-            Topic = a.Title,
+            Title = a.Title,
             Score = a.Score,
             TotalQuestions = a.MaxScore,
             Percentage = a.Percentage,

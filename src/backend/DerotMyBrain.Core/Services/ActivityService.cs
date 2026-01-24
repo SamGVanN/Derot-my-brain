@@ -120,8 +120,8 @@ public class ActivityService : IActivityService
         {
             UserId = userId,
             Type = dto.Type, // "Quiz", "Read"
-            Title = dto.Topic,
-            Description = $"Activity on {dto.Topic}",
+            Title = dto.Title,
+            Description = $"Activity on {dto.Title}",
             SourceUrl = dto.WikipediaUrl,
             IsTracked = true, // Default to tracked
             LastAttemptDate = DateTime.UtcNow,
@@ -132,7 +132,7 @@ public class ActivityService : IActivityService
         await _repository.CreateAsync(activity);
 
         // Update topic stats if relevant. Fixed: passing activity.
-        await _trackedTopicService.UpdateStatsAsync(userId, dto.Topic, activity);
+        await _trackedTopicService.UpdateStatsAsync(userId, dto.Title, activity);
 
         return activity;
     }

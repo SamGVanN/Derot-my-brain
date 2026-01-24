@@ -10,7 +10,7 @@ public class TrackedTopic
     [JsonIgnore]
     public User User { get; set; } = null!;
     
-    public string Topic { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
     public int BestScore { get; set; }
     public DateTime BestScoreDate { get; set; }
     public int TotalQuizAttempts { get; set; }

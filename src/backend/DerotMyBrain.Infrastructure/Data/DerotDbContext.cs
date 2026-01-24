@@ -78,9 +78,9 @@ public class DerotDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.UserId).IsRequired();
-            entity.Property(e => e.Topic).IsRequired();
+            entity.Property(e => e.Title).IsRequired();
             
-            entity.HasIndex(e => new { e.UserId, e.Topic }).IsUnique();
+            entity.HasIndex(e => new { e.UserId, e.Title }).IsUnique();
             
             entity.HasOne(e => e.User)
                 .WithMany(u => u.TrackedTopics)

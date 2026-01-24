@@ -183,7 +183,7 @@ public class ActivitiesController : ControllerBase
         {
             Id = activity.Id,
             UserId = activity.UserId,
-            Topic = activity.Title, // Map Title -> Topic dto property
+            Title = activity.Title,
             WikipediaUrl = activity.SourceUrl ?? "",
             Type = activity.Type,
             SessionDate = activity.LastAttemptDate,
