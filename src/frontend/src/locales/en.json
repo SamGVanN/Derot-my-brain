@@ -155,9 +155,31 @@
         "description": "This is where you will read Wikipedia articles and take quizzes to test your knowledge."
     },
     "focusArea": {
-        "title": "My Focus Area",
-        "comingSoon": "Coming soon in Phase 5",
-        "description": "This is where you will manage your focused topics and favorite articles to revisit later."
+        "title": "My Focus Areas",
+        "subtitle": "Track and master topics that matter to you.",
+        "description": "This is where you manage your focused topics and monitor your learning depth over time.",
+        "searchPlaceholder": "Search by topic title...",
+        "totalStudyTime": "Total Study Time",
+        "bestScore": "Best Score",
+        "lastScore": "Last Score",
+        "lastInteraction": "Last Interaction",
+        "pinned": "Pinned",
+        "archived": "Archived",
+        "inProgress": "In Progress",
+        "filterAll": "All",
+        "filterPinned": "Pinned",
+        "filterArchived": "Archived",
+        "filterActive": "Active",
+        "noResults": "No focus areas found matching your criteria.",
+        "empty": "You haven't pinned any topics yet. Start exploring and click the bookmark icon to focus on a topic!",
+        "viewEvolution": "View Evolution",
+        "hideEvolution": "Hide Evolution",
+        "evolutionTitle": "Topic Evolution",
+        "metrics": {
+            "read": "Read",
+            "quiz": "Quiz",
+            "total": "Total"
+        }
     },
     "library": {
         "title": "My Library",

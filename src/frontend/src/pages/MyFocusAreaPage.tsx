@@ -1,41 +1,116 @@
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
 import { Layout } from '@/components/Layout';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Target } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { userFocusApi } from '@/api/userFocusApi';
+import type { UserFocus } from '@/models/UserFocus';
+import { FocusAreaCard } from '@/components/FocusAreaCard';
+import { FocusAreaFilters, type FocusFilter } from '@/components/FocusAreaFilters';
+import { Target, Loader2, Sparkles } from 'lucide-react';
 
 export function MyFocusAreaPage() {
     const { t } = useTranslation();
+    const { user } = useAuth();
+    const [focuses, setFocuses] = useState<UserFocus[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [activeFilter, setActiveFilter] = useState<FocusFilter>('active');
+
+    useEffect(() => {
+        const fetchFocuses = async () => {
+            if (!user) return;
+            setIsLoading(true);
+            try {
+                const data = await userFocusApi.getUserFocuses(user.id);
+                setFocuses(data);
+            } catch (error) {
+                console.error('Failed to fetch focus areas:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        fetchFocuses();
+    }, [user]);
+
+    const filteredFocuses = useMemo(() => {
+        return focuses.filter(f => {
+            const matchesSearch = f.displayTitle.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesFilter =
+                activeFilter === 'all' ? true :
+                    activeFilter === 'pinned' ? f.isPinned :
+                        activeFilter === 'archived' ? f.isArchived :
+                            activeFilter === 'active' ? (!f.isArchived) : true;
+
+            return matchesSearch && matchesFilter;
+        });
+    }, [focuses, searchQuery, activeFilter]);
+
+    if (!user) return null;
 
     return (
         <Layout>
-            <div className="container max-w-4xl mx-auto py-12 px-4">
-                <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 text-center">
-                    <div className="relative">
-                        <Target className="h-24 w-24 text-primary animate-pulse" />
-                        <div className="absolute inset-0 h-24 w-24 bg-primary/20 rounded-full blur-xl animate-pulse" />
+            <div className="container max-w-6xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-700">
+                {/* Header */}
+                <div className="flex flex-col gap-6 p-8 bg-card/40 rounded-2xl border shadow-sm backdrop-blur-md relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <Target className="w-24 h-24 text-primary" />
                     </div>
-
-                    <div className="space-y-2">
-                        <h1 className="text-4xl font-bold tracking-tight">
-                            {t('focusArea.title', 'My Focus Area')}
+                    <div className="relative z-10 space-y-2">
+                        <div className="flex items-center gap-2 text-primary font-semibold tracking-wide uppercase text-xs">
+                            <Sparkles className="w-4 h-4" />
+                            <span>{t('focusArea.title')}</span>
+                        </div>
+                        <h1 className="text-4xl font-bold tracking-tight text-foreground">
+                            {t('focusArea.subtitle')}
                         </h1>
-                        <p className="text-xl text-muted-foreground">
-                            {t('focusArea.comingSoon', 'Coming soon in Phase 5')}
+                        <p className="text-muted-foreground max-w-2xl text-lg">
+                            {t('focusArea.description')}
                         </p>
                     </div>
-
-                    <p className="text-muted-foreground max-w-md">
-                        {t('focusArea.description', 'This is where you will manage your focused topics and favorite articles to revisit later.')}
-                    </p>
-
-                    <Button asChild variant="outline" className="gap-2">
-                        <Link to="/history">
-                            <ArrowLeft className="h-4 w-4" />
-                            {t('common.backToHistory', 'Back to History')}
-                        </Link>
-                    </Button>
                 </div>
+
+                {/* Filters */}
+                <FocusAreaFilters
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    activeFilter={activeFilter}
+                    setActiveFilter={setActiveFilter}
+                />
+
+                {/* Content */}
+                {isLoading ? (
+                    <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                        <Loader2 className="w-10 h-10 animate-spin text-primary/40" />
+                        <p className="text-muted-foreground animate-pulse">{t('common.loading')}</p>
+                    </div>
+                ) : focuses.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 bg-muted/20 rounded-2xl border-2 border-dashed border-border/40">
+                        <div className="p-4 bg-background rounded-full shadow-sm border">
+                            <Target className="w-12 h-12 text-muted-foreground/40" />
+                        </div>
+                        <div className="space-y-2">
+                            <h3 className="text-xl font-semibold">{t('focusArea.title')}</h3>
+                            <p className="text-muted-foreground max-w-sm mx-auto">
+                                {t('focusArea.empty')}
+                            </p>
+                        </div>
+                    </div>
+                ) : filteredFocuses.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+                        <p className="text-muted-foreground text-lg italic">
+                            {t('focusArea.noResults')}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredFocuses.map(focus => (
+                            <FocusAreaCard
+                                key={focus.sourceHash}
+                                focus={focus}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
         </Layout>
     );

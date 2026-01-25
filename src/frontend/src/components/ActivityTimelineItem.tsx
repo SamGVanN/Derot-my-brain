@@ -22,6 +22,7 @@ interface ActivityTimelineItemProps {
     onTrack: () => void;
     onUntrack: () => void;
     isLast?: boolean;
+    isCompact?: boolean;
 }
 
 export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
@@ -32,7 +33,8 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
     isBaseline = false,
     onTrack,
     onUntrack,
-    isLast = false
+    isLast = false,
+    isCompact = false
 }) => {
     const { t } = useTranslation();
 
@@ -49,36 +51,41 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
     return (
         <div className="flex gap-4 group">
             {/* Timeline Column */}
-            <div className="flex flex-col items-center flex-shrink-0 w-16 pt-1">
-                <span className="text-xs font-mono text-muted-foreground">
-                    {isValidDate(parseDate(activity.sessionDateStart))
-                        ? parseDate(activity.sessionDateStart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                        : '--:--'}
-                </span>
-                <div className="relative flex flex-col items-center h-full mt-2">
-                    <div className={cn(
-                        "z-10 bg-background p-1 rounded-full border-2",
-                        isCurrentBest
-                            ? "border-yellow-500 text-yellow-600 dark:text-yellow-400 bg-yellow-500/10"
-                            : "border-primary text-primary"
-                    )}>
-                        {isCurrentBest ? (
-                            <Trophy className="w-4 h-4" />
-                        ) : activity.type === 'Quiz' ? (
-                            <NotebookPen className="w-4 h-4" />
-                        ) : (
-                            <BookOpenText className="w-4 h-4" />
+            {!isCompact && (
+                <div className="flex flex-col items-center flex-shrink-0 w-16 pt-1">
+                    <span className="text-xs font-mono text-muted-foreground">
+                        {isValidDate(parseDate(activity.sessionDateStart))
+                            ? parseDate(activity.sessionDateStart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            : '--:--'}
+                    </span>
+                    <div className="relative flex flex-col items-center h-full mt-2">
+                        <div className={cn(
+                            "z-10 bg-background p-1 rounded-full border-2",
+                            isCurrentBest
+                                ? "border-yellow-500 text-yellow-600 dark:text-yellow-400 bg-yellow-500/10"
+                                : "border-primary text-primary"
+                        )}>
+                            {isCurrentBest ? (
+                                <Trophy className="w-4 h-4" />
+                            ) : activity.type === 'Quiz' ? (
+                                <NotebookPen className="w-4 h-4" />
+                            ) : (
+                                <BookOpenText className="w-4 h-4" />
+                            )}
+                        </div>
+                        {!isLast && (
+                            <div className="w-px h-full bg-border absolute top-3" />
                         )}
                     </div>
-                    {!isLast && (
-                        <div className="w-px h-full bg-border absolute top-3" />
-                    )}
                 </div>
-            </div>
+            )}
 
             {/* Content Card */}
-            <div className="flex-1 pb-8 min-w-0">
-                <div className="p-4 rounded-lg bg-card border border-border/50 hover:border-border transition-all shadow-sm">
+            <div className={cn("flex-1 min-w-0", !isCompact && "pb-8")}>
+                <div className={cn(
+                    "p-4 rounded-lg bg-card border border-border/50 hover:border-border transition-all shadow-sm",
+                    isCompact && "p-3 bg-muted/30"
+                )}>
                     {/* Header: Link & Actions */}
                     <div className="flex justify-between items-start gap-4 mb-3">
                         <div className="min-w-0">
@@ -157,7 +164,10 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                                 href={activity.sourceId}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-base font-semibold text-foreground hover:text-primary transition-colors flex items-center gap-1.5 truncate group/link"
+                                className={cn(
+                                    "font-semibold text-foreground hover:text-primary transition-colors flex items-center gap-1.5 truncate group/link",
+                                    isCompact ? "text-sm" : "text-base"
+                                )}
                             >
                                 {activity.title}
                                 <ExternalLink className="h-3 w-3 opacity-0 group-hover/link:opacity-100 transition-opacity flex-shrink-0" />

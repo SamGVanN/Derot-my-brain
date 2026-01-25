@@ -150,9 +150,31 @@
         "description": "C'est ici que vous lirez des articles Wikipédia et passerez des quiz pour tester vos connaissances."
     },
     "focusArea": {
-        "title": "Mes Focus",
-        "comingSoon": "Bientôt disponible dans la Phase 5 (actuellement en cours de développement)",
-        "description": "C'est ici que vous gérerez vos sujets suivis et articles favoris pour les revisiter plus tard."
+        "title": "Mes Zones Focus",
+        "subtitle": "Suivez et maîtrisez les sujets qui vous importent.",
+        "description": "C'est ici que vous gérez vos sujets suivis et surveillez votre profondeur d'apprentissage au fil du temps.",
+        "searchPlaceholder": "Rechercher par titre...",
+        "totalStudyTime": "Temps d'Étude Total",
+        "bestScore": "Meilleur Score",
+        "lastScore": "Dernier Score",
+        "lastInteraction": "Dernière Interaction",
+        "pinned": "Épinglé",
+        "archived": "Archivé",
+        "inProgress": "En cours",
+        "filterAll": "Tous",
+        "filterPinned": "Épinglés",
+        "filterArchived": "Archivés",
+        "filterActive": "Actifs",
+        "noResults": "Aucun focus trouvé correspondant à vos critères.",
+        "empty": "Vous n'avez pas encore suivi de sujets. Commencez à explorer et cliquez sur l'icône de marque-page pour suivre un sujet !",
+        "viewEvolution": "Voir l'Évolution",
+        "hideEvolution": "Masquer l'Évolution",
+        "evolutionTitle": "Évolution du Sujet",
+        "metrics": {
+            "read": "Lecture",
+            "quiz": "Quiz",
+            "total": "Total"
+        }
     },
     "library": {
         "title": "Ma Bibliothèque",
