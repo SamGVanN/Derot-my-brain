@@ -65,9 +65,41 @@ Espace central de travail où l’utilisateur interagit activement avec un conte
 - Une session produit au minimum **une User Activity**
 - Le contenu affiché dépend du type de source
 
+#### UI et contrôles spécifiques (Derot Zone pour Wikipédia)
+- **Header de filtres / catégories (session-only)** :
+  - L’utilisateur peut sélectionner des catégories ou thèmes pour filtrer les articles.
+  - Ces préférences sont **stockées côté client pour la session** et **ne modifient pas** la table `UserPreference`.
+- **Champ URL directe** :
+  - Permet de coller l’URL complète d’un article Wikipédia (ex: `https://fr.wikipedia.org/wiki/Intelligence_artificielle`).
+  - Le champ extrait le `lang` et le `title` et déclenche le flux `Read` si l’utilisateur le confirme.
+- **Bouton Recycle** :
+  - Refait une sélection / récupération d’articles aléatoires ou basés sur les filtres du header.
+  - Appelle l’endpoint backend `GET /api/wikipedia/random` ou `search` selon le mode.
+
+#### Article Cards
+- Chaque article est affiché en carte avec : titre, court résumé, vignette (si disponible), langue, lien vers la page complète.
+- Actions sur la carte :
+  - **Read** : crée une `UserActivity` Type=`Read` côté serveur et ouvre la vue de lecture.
+  - **Add to Backlog** : ajoute la source (title+url+lang) au `Backlog` de l’utilisateur.
+  - Pendant que l’utilisateur explore (par navigation, recherche, Recycle), la UserActivity est en étape Explore (Enum ActivityType). Tout comme pour Read et Quiz, le temps de la UserActivity de Type Explore est enregistré (calculé par le front ou back selon choix fait par l'architecte). Quand l'utilisateur clique sur le bouton Read, la UserActivity de type Explore est enregistré et on commence une nouvelle UserActivity de type Read (avec ses propres timers).
+
 #### Modes
-- **Read Mode** : affichage du contenu
-- **Quiz Mode** : questions générées dynamiquement par IA
+- **Read Mode** : affichage du contenu d'une Source
+- **Quiz Mode** : questions générées dynamiquement par IA basées uniquement sur le contenu de la Source.
+
+#### Comportements UX
+- Le passage en lecture via le bouton `Read` doit :
+  - enregistrer la UserActivity de type Explore (stop des timers)
+  - récupérer l'article complet (titre et body),
+  - créer la `UserActivity` Type=`Read` associée (avec métadonnées : `title`, `lang`, `sourceUrl`, `pageId`),
+  - proposer d’ajouter l’article aux `UserFocus` si souhaité.
+  - Adapter la Derot Zone en mode Read
+- Le bouton `Add to Backlog` n’enregistre pas de `UserActivity` immédiatement.
+
+#### Cas d’usage principaux (Derot Zone)
+- L’utilisateur explore des articles filtrés ou aléatoires (`Explore`).
+- L’utilisateur déclenche la lecture d’une source (`Read`) — crée `UserActivity`.
+- L’utilisateur ajoute une source au `Backlog` pour traitement ultérieur.
 
 ---
 
@@ -77,15 +109,56 @@ Espace central de travail où l’utilisateur interagit activement avec un conte
 - **Read**
 - **Quiz**
 
+Additional type
+- **Explore** — interactions where the user browses/searches/refetches content without explicitly starting a Read session. Typical while entering Derot Zone.
+
 #### Données enregistrées
 - Type d’activité
 - Date / heure
 - Content Source
 - Score (uniquement pour Quiz)
 
+#### Données minimales enregistrées pour chaque type
+- `Explore` : `Type=Explore`, timestamp, `SourceHint` (optionnel: query/filters), `SessionId` (optionnel)
+- `Read` : `Type=Read`, timestamp, `Content Source` (title/url/lang/pageId), `Duration` (optionnel)
+- `Quiz` : `Type=Quiz`, timestamp, `Score`, `Content Source`
+
+#### Champs additionnels pour `Explore`
+- `SourceType` / `SourceId` : **doivent être renseignés** pour toute `Explore`. Pour les explorations qui ne proviennent pas d'une Source précise, utiliser des valeurs conventionnelles générées au démarrage de l'activité :
+  - `SourceType = "DerotZoneExploration"`
+  - `SourceId = <ISO8601 timestamp>` (ex : `2026-01-25T14:32:00Z`) — valeur horodatée définie au moment du début de l'Explore.
+- `ResultingReadActivityId` *(nullable Guid)* : si l'exploration débouche sur une lecture (`Read`), stocker l'ID de la `UserActivity` `Read` correspondante ; sinon `null`.
+- `BacklogAddsCount` *(nullable int)* : nombre d'articles ajoutés au Backlog durant cette session d'`Explore`. `null` signifie "non renseigné"; `0` signifie aucune addition.
+
+Ces champs permettent :
+- relier une session d'exploration à la lecture résultante (si elle existe),
+- mesurer le niveau d'engagement exploratoire (combien d'items ont été ajoutés au Backlog),
+- garder l'historique immuable tout en fournissant des métriques utiles.
+
 #### Règles
 - Toute interaction significative crée une User Activity
 - Les activités ne sont jamais supprimées (historique immuable)
+
+#### Règles
+- Les interactions exploratoires (navigation entre cartes, Recycle, recherche) doivent compter comme une seule activité `Explore` : c'est une "pré-étape" avant un Read.
+- Le bouton `Read` **crée obligatoirement** une `UserActivity` Type=`Read` avant d’ouvrir la session de lecture complète.
+- Ajouter une source au `Backlog` **ne crée pas** une `UserActivity`.
+
+#### Recommandations techniques (DB / DTO)
+- `UserActivity` table / entity :
+  - `SourceType` (string) **non-nullable**
+  - `SourceId` (string) **non-nullable** — pour `Explore` utiliser la valeur horodatée décrite ci-dessus
+  - ajouter nullable columns : `ResultingReadActivityId` (GUID, FK nullable vers `UserActivity`), `BacklogAddsCount` (int nullable)
+  - `SourceHash` : calculer systématiquement à partir de `SourceType + SourceId` (concat deterministic + hashing). Pour les `Explore` rows, `SourceHash` restera déterministe et non-null.
+- DTOs : étendre `UserActivityDto` avec `ResultingReadActivityId` et `BacklogAddsCount` (nullable) et exposer `SourceType`/`SourceId` (non-nullable).
+- API : l'endpoint POST qui crée une `Explore` doit accepter `{ sourceHint?, sessionId?, backlogAddsCount? }`, mais le serveur doit générer et renvoyer la paire `SourceType`/`SourceId` finales (et l'ID de l'Explore créée).
+
+#### Règles d'usage et validations
+- Toujours renseigner `SourceType`/`SourceId` — **ne pas** stocker des chaînes vides ni des valeurs `null`. Utiliser les constantes/horodatage définies pour les `Explore`.
+- Lors de la transition `Explore` → `Read` :
+  1. Mettre à jour l'enregistrement `Explore` existant pour remplir `ResultingReadActivityId` avec l'ID de la nouvelle `Read` (transactionnel si possible).
+  2. Optionnellement incrémenter `BacklogAddsCount` si l'utilisateur a ajouté des éléments durant l'exploration.
+- Les mises à jour sur l'activité `Explore` doivent préserver l'immuabilité historique autant que possible (stocker plutôt que modifier quand cela a du sens), mais relier via `ResultingReadActivityId` est acceptable pour traçabilité.
 
 ---
 
@@ -228,9 +301,33 @@ Source de contenu dynamique basée sur Wikipédia.
 - Recherche manuelle
 - Sélection aléatoire via catégories / thèmes
 
+#### Fonctionnalités
+- Recherche manuelle
+- Sélection aléatoire via catégories / thèmes
+- Lecture via URL directe (champ URL dans Derot Zone Header)
+
 #### Règles
-- Le titre Wikipédia est utilisé comme Title par défaut
-- L’URL est la référence technique unique
+- Le titre Wikipédia est utilisé comme `Title` par défaut
+- L’URL (lang + title) est la référence technique unique (`SourceId`)
+- Lecture directe (via URL) déclenche le flux `Read` et crée une `UserActivity` Type=`Read` associée
+- Les articles explorés via recherche / Recycle génèrent des événements `Explore` (suivi léger)
+
+#### Intégration backend / endpoints (résumé)
+- `GET /api/wikipedia/search?q={q}&lang={lang}&limit={n}` → liste d’articles
+- `GET /api/wikipedia/summary?title={title}&lang={lang}` → résumé détaillé
+- `GET /api/wikipedia/random?lang={lang}&count={n}&categories={csv}` → articles aléatoires
+- `POST /api/wikipedia/read` → body `{ title, lang, sourceUrl? }` : récupère le résumé, crée `UserActivity` Type=`Read`, retourne l’activité + DTO article
+- `POST /api/wikipedia/explore` → body `{ query?, lang?, filters? }` : log léger `Explore` event
+
+#### Backlog interaction
+- `Add to Backlog` côté frontend appelle le endpoint Backlog existant (ou `POST /api/backlog`) en fournissant `title`, `lang`, `sourceUrl`, `summary`.
+- Ajouter au Backlog **n’entraîne pas** la création d’une `UserActivity`.
+
+#### UX / Edge cases
+- Disambiguation pages : afficher indication et options de désambiguïsation
+- Redirects : suivre et afficher la page finale
+- Thumbnails manquantes : afficher placeholder
+- Validation des URL directes : signaler erreurs user-friendly
 
 ---
 

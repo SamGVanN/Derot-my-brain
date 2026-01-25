@@ -6,7 +6,12 @@ namespace DerotMyBrain.Core.Entities;
 public enum ActivityType
 {
     /// <summary>
-    /// Reading/Exploring content.
+    /// Exploring wikipedia article/choosing next Source for Read Activity.
+    /// </summary>
+    Explore = 0,
+
+    /// <summary>
+    /// Reading content.
     /// </summary>
     Read = 1,
 

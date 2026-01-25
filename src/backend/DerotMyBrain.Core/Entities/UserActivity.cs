@@ -65,6 +65,12 @@ public class UserActivity
     public DateTime? SessionDateEnd { get; set; }
 
     /// <summary>
+    /// Time spent actively exploring the content (in seconds).
+    /// Nullable if the session hasn't finished the 'Explore' phase.
+    /// </summary>
+    public int? ExploreDurationSeconds { get; set; }
+
+    /// <summary>
     /// Time spent actively reading or exploring the content (in seconds).
     /// Nullable if the session hasn't finished the 'Read' phase.
     /// </summary>
