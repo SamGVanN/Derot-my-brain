@@ -2,6 +2,8 @@ import { useCallback } from 'react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { userApi } from '../api/userApi';
 import { usePreferencesStore } from '../stores/usePreferencesStore';
+import type { User } from '../models/User';
+
 
 /**
  * Custom hook for authentication logic.
@@ -21,13 +23,15 @@ export function useAuth() {
     const { setPreferences } = usePreferencesStore();
     const userId = user?.id;
 
-    const login = useCallback((userToLogin: any) => {
-        storeLogin(userToLogin);
+    const login = useCallback((data: { user: User; token: string }) => {
+        const { user, token } = data;
+        storeLogin(user, token);
         // Sync preferences store with user's saved preferences on login
-        if (userToLogin.preferences) {
-            setPreferences(userToLogin.preferences);
+        if (user.preferences) {
+            setPreferences(user.preferences);
         }
     }, [storeLogin, setPreferences]);
+
 
     const logout = useCallback(() => {
         storeLogout();

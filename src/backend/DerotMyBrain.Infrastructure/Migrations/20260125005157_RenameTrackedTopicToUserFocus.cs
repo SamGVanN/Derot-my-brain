@@ -29,22 +29,21 @@ namespace DerotMyBrain.Infrastructure.Migrations
             migrationBuilder.RenameColumn(
                 name: "SourceUrl",
                 table: "Activities",
-                newName: "SessionDateEnd");
+                newName: "SourceId");
 
             migrationBuilder.RenameColumn(
                 name: "MaxScore",
                 table: "Activities",
-                newName: "SourceType");
+                newName: "QuestionCount");
 
             migrationBuilder.RenameColumn(
                 name: "LastAttemptDate",
                 table: "Activities",
-                newName: "SourceId");
+                newName: "SessionDateStart");
 
-            migrationBuilder.RenameColumn(
+            migrationBuilder.DropColumn(
                 name: "IsTracked",
-                table: "Activities",
-                newName: "QuestionCount");
+                table: "Activities");
 
             migrationBuilder.AlterColumn<int>(
                 name: "Type",
@@ -54,12 +53,31 @@ namespace DerotMyBrain.Infrastructure.Migrations
                 oldClrType: typeof(string),
                 oldType: "TEXT");
 
-            migrationBuilder.AddColumn<bool>(
-                name: "IsNewBestScore",
+            migrationBuilder.AddColumn<string>(
+                name: "SourceHash",
+                table: "Activities",
+                type: "TEXT",
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<double>(
+                name: "ScorePercentage",
+                table: "Activities",
+                type: "REAL",
+                nullable: true);
+
+            migrationBuilder.AddColumn<DateTime>(
+                name: "SessionDateEnd",
+                table: "Activities",
+                type: "TEXT",
+                nullable: true);
+
+            migrationBuilder.AddColumn<int>(
+                name: "SourceType",
                 table: "Activities",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: 0);
 
             migrationBuilder.AddColumn<int>(
                 name: "QuizDurationSeconds",
@@ -73,25 +91,12 @@ namespace DerotMyBrain.Infrastructure.Migrations
                 type: "INTEGER",
                 nullable: true);
 
-            migrationBuilder.AddColumn<double>(
-                name: "ScorePercentage",
+            migrationBuilder.AddColumn<bool>(
+                name: "IsNewBestScore",
                 table: "Activities",
-                type: "REAL",
-                nullable: true);
-
-            migrationBuilder.AddColumn<DateTime>(
-                name: "SessionDateStart",
-                table: "Activities",
-                type: "TEXT",
+                type: "INTEGER",
                 nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
-
-            migrationBuilder.AddColumn<string>(
-                name: "SourceHash",
-                table: "Activities",
-                type: "TEXT",
-                nullable: false,
-                defaultValue: "");
+                defaultValue: false);
 
             migrationBuilder.CreateTable(
                 name: "UserFocuses",
@@ -176,36 +181,42 @@ namespace DerotMyBrain.Infrastructure.Migrations
                 table: "Activities");
 
             migrationBuilder.DropColumn(
-                name: "ScorePercentage",
+                name: "SessionDateEnd",
                 table: "Activities");
 
             migrationBuilder.DropColumn(
-                name: "SessionDateStart",
+                name: "SourceType",
                 table: "Activities");
 
             migrationBuilder.DropColumn(
                 name: "SourceHash",
                 table: "Activities");
 
-            migrationBuilder.RenameColumn(
-                name: "SourceType",
-                table: "Activities",
-                newName: "MaxScore");
+            migrationBuilder.DropColumn(
+                name: "ScorePercentage",
+                table: "Activities");
 
             migrationBuilder.RenameColumn(
                 name: "SourceId",
-                table: "Activities",
-                newName: "LastAttemptDate");
-
-            migrationBuilder.RenameColumn(
-                name: "SessionDateEnd",
                 table: "Activities",
                 newName: "SourceUrl");
 
             migrationBuilder.RenameColumn(
                 name: "QuestionCount",
                 table: "Activities",
-                newName: "IsTracked");
+                newName: "MaxScore");
+
+            migrationBuilder.RenameColumn(
+                name: "SessionDateStart",
+                table: "Activities",
+                newName: "LastAttemptDate");
+
+            migrationBuilder.AddColumn<bool>(
+                name: "IsTracked",
+                table: "Activities",
+                type: "INTEGER",
+                nullable: false,
+                defaultValue: false);
 
             migrationBuilder.AlterColumn<string>(
                 name: "Type",

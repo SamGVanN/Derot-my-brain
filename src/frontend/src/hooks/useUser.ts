@@ -28,12 +28,12 @@ export function useUser() {
     const createOrSelectUser = useCallback(async (
         name: string,
         options?: { language?: string; preferredTheme?: string }
-    ): Promise<User> => {
+    ): Promise<{ user: User; token: string }> => {
         setLoading(true);
         setError(null);
         try {
-            const user = await userApi.createOrSelectUser(name, options);
-            return user;
+            const data = await userApi.createOrSelectUser(name, options);
+            return data;
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to create/select user';
             setError(errorMessage);
@@ -42,6 +42,7 @@ export function useUser() {
             setLoading(false);
         }
     }, []);
+
 
     return {
         loading,

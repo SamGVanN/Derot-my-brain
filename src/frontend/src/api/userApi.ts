@@ -8,10 +8,11 @@ export const userApi = {
         return response.data;
     },
 
-    createOrSelectUser: async (name: string, options?: { language?: string; preferredTheme?: string }): Promise<User> => {
-        const response = await client.post<User>('/users', { name, ...options });
+    createOrSelectUser: async (name: string, options?: { language?: string; preferredTheme?: string }): Promise<{ user: User; token: string }> => {
+        const response = await client.post<{ user: User; token: string }>('/users', { name, ...options });
         return response.data;
     },
+
 
     getUserById: async (id: string): Promise<User> => {
         const response = await client.get<User>(`/users/${id}`);

@@ -62,7 +62,9 @@ function WelcomeRoute({ children }: { children: React.ReactNode }) {
 
 function AppContent() {
   const { i18n } = useTranslation();
-  const { user, login, validateSession, isInitializing } = useAuth();
+  const { user, login, validateSession, isInitializing, updateUser } = useAuth();
+
+
   const { language } = usePreferences();
 
   // Initialize Session
@@ -77,9 +79,10 @@ function AppContent() {
     }
   }, [language, i18n]);
 
-  const handleUserSelected = (selectedUser: User) => {
-    login(selectedUser);
+  const handleUserSelected = (data: { user: User; token: string }) => {
+    login(data);
   };
+
 
   // Loading State
   if (isInitializing) {
@@ -195,7 +198,7 @@ function AppContent() {
           <ProtectedRoute>
             <PreferencesPage
               user={user!}
-              onUserUpdated={login}
+              onUserUpdated={updateUser}
             />
           </ProtectedRoute>
         }
@@ -208,7 +211,7 @@ function AppContent() {
             <div className="min-h-screen bg-background text-foreground animate-in fade-in slide-in-from-bottom-4 duration-500">
               <LLMConfigurationPage
                 user={user!}
-                onUserUpdated={login}
+                onUserUpdated={updateUser}
                 onCancel={() => window.history.back()}
               />
             </div>

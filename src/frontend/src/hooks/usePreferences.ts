@@ -105,10 +105,11 @@ export function usePreferences() {
                 updateUser({
                     ...user,
                     preferences: {
-                        ...user.preferences,
+                        ...(user.preferences || {}),
                         ...prefs
-                    }
+                    } as any
                 });
+
             } catch (e) {
                 console.error('Failed to persist preferences:', e);
                 throw e;

@@ -9,6 +9,23 @@ export const client = axios.create({
     },
 });
 
+// Add token to requests
+client.interceptors.request.use((config) => {
+    try {
+        const storage = localStorage.getItem('auth-storage');
+        if (storage) {
+            const { state } = JSON.parse(storage);
+            if (state?.token) {
+                config.headers.Authorization = `Bearer ${state.token}`;
+            }
+        }
+    } catch (e) {
+        console.error('Failed to parse auth token from localStorage', e);
+    }
+    return config;
+});
+
+
 // Optional: Add interceptors for global error handling
 client.interceptors.response.use(
     (response) => response,

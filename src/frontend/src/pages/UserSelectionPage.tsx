@@ -14,7 +14,7 @@ import { User as UserIcon, ArrowRight, Loader2 } from 'lucide-react';
 
 
 interface UserSelectionPageProps {
-    onUserSelected: (user: User) => void;
+    onUserSelected: (data: { user: User; token: string }) => void;
 }
 
 export default function UserSelectionPage({ onUserSelected }: UserSelectionPageProps) {
@@ -36,12 +36,13 @@ export default function UserSelectionPage({ onUserSelected }: UserSelectionPageP
     const mutation = useMutation({
         mutationFn: (variables: { name: string; options?: { language?: string; preferredTheme?: string } }) =>
             createOrSelectUser(variables.name, variables.options),
-        onSuccess: (user) => {
-            onUserSelected(user);
+        onSuccess: (data) => {
+            onUserSelected(data);
             // Refetch users list (optimistic update or simple invalidate)
             queryClient.invalidateQueries({ queryKey: ['users'] });
             setUsername('');
         },
+
         onError: (err) => {
             alert(`Error: ${err}`);
         }

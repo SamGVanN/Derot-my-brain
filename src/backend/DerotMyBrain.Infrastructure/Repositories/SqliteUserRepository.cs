@@ -39,6 +39,8 @@ public class SqliteUserRepository : IUserRepository
             .FirstOrDefaultAsync(u => u.Name.ToLower() == name.ToLower());
     }
 
+
+
     public async Task<User> CreateAsync(User user)
     {
         _context.Users.Add(user);

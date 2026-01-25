@@ -13,14 +13,21 @@ public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly IAuthService _authService;
+    private readonly ICategoryService _categoryService;
     private readonly ILogger<UsersController> _logger;
 
-    public UsersController(IUserService userService, IAuthService authService, ILogger<UsersController> logger)
+    public UsersController(
+        IUserService userService, 
+        IAuthService authService, 
+        ICategoryService categoryService,
+        ILogger<UsersController> logger)
     {
         _userService = userService;
         _authService = authService;
+        _categoryService = categoryService;
         _logger = logger;
     }
+
 
     [HttpGet]
     [AllowAnonymous]
@@ -70,6 +77,91 @@ public class UsersController : ControllerBase
             }
         });
     }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<User>> UpdateUserName(string id, [FromBody] UpdateUserDto request)
+    {
+        var user = await _userService.GetUserByIdAsync(id);
+        if (user == null) return NotFound();
+
+        user.Name = request.Name;
+        var updatedUser = await _userService.UpdateUserAsync(user);
+        
+        if (updatedUser == null) return StatusCode(500, "Failed to update user");
+
+        return Ok(updatedUser);
+    }
+
+    // --- Preferences Endpoints ---
+
+    [HttpGet("{id}/preferences")]
+    public async Task<ActionResult<UserPreferences>> GetPreferences(string id)
+    {
+        var user = await _userService.GetUserByIdAsync(id);
+        if (user == null || user.Preferences == null) return NotFound();
+        return Ok(user.Preferences);
+    }
+
+    [HttpPut("{id}/preferences")]
+    public async Task<ActionResult<User>> UpdatePreferences(string id, [FromBody] UserPreferences preferences)
+    {
+        var user = await _userService.GetUserByIdAsync(id);
+        if (user == null) return NotFound();
+
+        user.Preferences = preferences;
+        var updatedUser = await _userService.UpdateUserAsync(user);
+        return Ok(updatedUser);
+    }
+
+    [HttpPatch("{id}/preferences/general")]
+    public async Task<ActionResult<User>> UpdateGeneralPreferences(string id, [FromBody] GeneralPreferencesDto dto)
+    {
+        var user = await _userService.GetUserByIdAsync(id);
+        if (user == null || user.Preferences == null) return NotFound();
+
+        user.Preferences.Language = dto.Language;
+        user.Preferences.Theme = dto.PreferredTheme;
+        user.Preferences.QuestionsPerQuiz = dto.QuestionCount;
+
+        var updatedUser = await _userService.UpdateUserAsync(user);
+        return Ok(updatedUser);
+    }
+
+    [HttpPatch("{id}/preferences/derot-zone")]
+    public async Task<ActionResult<User>> UpdateDerotZonePreferences(string id, [FromBody] DerotZonePreferencesDto dto)
+    {
+        var user = await _userService.GetUserByIdAsync(id);
+        if (user == null || user.Preferences == null) return NotFound();
+
+        user.Preferences.QuestionsPerQuiz = dto.QuestionCount;
+        
+        var allCategories = await _categoryService.GetAllCategoriesAsync();
+        user.Preferences.FavoriteCategories = allCategories
+            .Where(c => dto.SelectedCategories.Contains(c.Id))
+            .ToList();
+        
+        var updatedUser = await _userService.UpdateUserAsync(user);
+        return Ok(updatedUser);
+    }
+
+    [HttpPatch("{id}/preferences/categories")]
+    public async Task<ActionResult<User>> UpdateCategoryPreferences(string id, [FromBody] CategoryPreferencesDto dto)
+    {
+        var user = await _userService.GetUserByIdAsync(id);
+        if (user == null || user.Preferences == null) return NotFound();
+
+        var allCategories = await _categoryService.GetAllCategoriesAsync();
+        user.Preferences.FavoriteCategories = allCategories
+            .Where(c => dto.SelectedCategories.Contains(c.Id))
+            .ToList();
+            
+        var updatedUser = await _userService.UpdateUserAsync(user);
+        return Ok(updatedUser);
+    }
+
+
+
+
 
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteUser(string id)

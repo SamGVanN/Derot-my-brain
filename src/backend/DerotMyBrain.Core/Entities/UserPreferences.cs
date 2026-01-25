@@ -12,14 +12,22 @@ public class UserPreferences
     [JsonIgnore]
     public User User { get; set; } = null!;
     
+    [JsonPropertyName("language")]
     public string Language { get; set; } = "en";
+
+    [JsonPropertyName("preferredTheme")]
     public string Theme { get; set; } = "system";
     
+    [JsonPropertyName("selectedCategories")]
     public List<WikipediaCategory> FavoriteCategories { get; set; } = new();
     
     // Quiz Preferences
+    [JsonPropertyName("questionCount")]
     public int QuestionsPerQuiz { get; set; } = 5;
+
+    [JsonPropertyName("defaultDifficulty")]
     public string DefaultDifficulty { get; set; } = "Medium";
+
     
     public static UserPreferences Default(string userId) => new()
     {
