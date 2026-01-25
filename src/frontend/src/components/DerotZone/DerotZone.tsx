@@ -1,9 +1,9 @@
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { type WikipediaArticle } from '@/api/wikipediaApi';
 import { useWikipediaExplore } from '@/hooks/useWikipediaExplore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, BookmarkPlus, Loader2, Sparkles, ExternalLink, AlertCircle } from 'lucide-react';
+import { BookOpen, ClockAlert, Loader2, Sparkles, ExternalLink, AlertCircle } from 'lucide-react';
 
 export type ArticleCard = WikipediaArticle;
 
@@ -12,7 +12,7 @@ type Props = {
 };
 
 export default function DerotZone({ articles }: Props) {
-  const navigate = useNavigate();
+  const [_, setSearchParams] = useSearchParams();
   const {
     isInitializing,
     loadingAction,
@@ -25,7 +25,7 @@ export default function DerotZone({ articles }: Props) {
   const handleRead = async (article: ArticleCard) => {
     const activity = await readArticle(article);
     if (activity?.id) {
-      navigate(`/activity?id=${activity.id}`);
+      setSearchParams({ activityId: activity.id });
     }
   };
 
@@ -104,7 +104,7 @@ export default function DerotZone({ articles }: Props) {
                 {isAddingToBacklog ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <BookmarkPlus className="h-4 w-4 group-hover/btn:scale-110 transition-transform" />
+                  <ClockAlert className="h-4 w-4 group-hover/btn:scale-110 transition-transform" />
                 )}
               </Button>
               {article.sourceUrl && (

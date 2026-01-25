@@ -150,9 +150,9 @@
         "description": "This is where you will find helpful guides and tutorials on how to use Derot My Brain."
     },
     "derot": {
-        "title": "Derot Page",
-        "comingSoon": "Coming soon in Phase 6",
-        "description": "This is where you will read Wikipedia articles and take quizzes to test your knowledge."
+        "title": "Derot Zone",
+        "subtitle": "Derot Zone",
+        "description": "Explore, read, and test your knowledge. This is where most of your learning happens."
     },
     "focusArea": {
         "title": "My Focus Areas",

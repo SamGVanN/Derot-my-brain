@@ -145,9 +145,9 @@
         "description": "Bienvenue sur Derot My Brain. Afficahge d'informations telles que la configuration de l'application, les 5 dernières activités, un rappel du nombre d'item dans le backlog, etc."
     },
     "derot": {
-        "title": "Page Derot",
-        "comingSoon": "Bientôt disponible dans la Phase 6 (à venir)",
-        "description": "C'est ici que vous lirez des articles Wikipédia et passerez des quiz pour tester vos connaissances."
+        "title": "Derot Zone",
+        "subtitle": "Derot Zone",
+        "description": "Explorez, lisez et testez vos connaissances. C'est ici que se passe l'essentiel de votre apprentissage."
     },
     "focusArea": {
         "title": "Mes Zones Focus",

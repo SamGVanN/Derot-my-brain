@@ -6,7 +6,8 @@ import { userFocusApi } from '@/api/userFocusApi';
 import type { UserFocus } from '@/models/UserFocus';
 import { FocusAreaCard } from '@/components/FocusAreaCard';
 import { FocusAreaFilters, type FocusFilter } from '@/components/FocusAreaFilters';
-import { Target, Loader2, Sparkles } from 'lucide-react';
+import { Target, Loader2 } from 'lucide-react';
+import { PageHeader } from '@/components/PageHeader';
 
 export function MyFocusAreaPage() {
     const { t } = useTranslation();
@@ -80,24 +81,12 @@ export function MyFocusAreaPage() {
     return (
         <Layout>
             <div className="container max-w-6xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-700">
-                {/* Header */}
-                <div className="flex flex-col gap-6 p-8 bg-card/40 rounded-2xl border shadow-sm backdrop-blur-md relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <Target className="w-24 h-24 text-primary" />
-                    </div>
-                    <div className="relative z-10 space-y-2">
-                        <div className="flex items-center gap-2 text-primary font-semibold tracking-wide uppercase text-xs">
-                            <Sparkles className="w-4 h-4" />
-                            <span>{t('focusArea.title')}</span>
-                        </div>
-                        <h1 className="text-4xl font-bold tracking-tight text-foreground">
-                            {t('focusArea.subtitle')}
-                        </h1>
-                        <p className="text-muted-foreground max-w-2xl text-lg">
-                            {t('focusArea.description')}
-                        </p>
-                    </div>
-                </div>
+                <PageHeader
+                    title={t('focusArea.title')}
+                    subtitle={t('focusArea.subtitle')}
+                    description={t('focusArea.description')}
+                    icon={Target}
+                />
 
                 {/* Filters */}
                 <FocusAreaFilters

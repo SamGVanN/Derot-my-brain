@@ -1,10 +1,30 @@
 import { useTranslation } from 'react-i18next';
 import { Layout } from '@/components/Layout';
-import DerotZone, { type ArticleCard } from '@/components/DerotZone/DerotZone';
-import { Brain, Sparkles, TrendingUp } from 'lucide-react';
+import { type ArticleCard } from '@/components/DerotZone/DerotZone';
+import { Brain } from 'lucide-react';
+import { PageHeader } from '@/components/PageHeader';
+import { DerotZoneSubHeader } from '@/components/DerotZone/DerotZoneSubHeader';
+import { ExploreView } from '@/components/DerotZone/ExploreView';
+import { ReadView } from '@/components/DerotZone/ReadView';
+import { QuizView } from '@/components/DerotZone/QuizView';
+import { useSearchParams, useNavigate } from 'react-router';
+import { useWikipediaExplore } from '@/hooks/useWikipediaExplore';
+import { useMemo } from 'react';
 
 export function DerotPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { isInitializing, refresh, error } = useWikipediaExplore();
+
+  const activityId = searchParams.get('activityId');
+  const paramMode = searchParams.get('mode');
+
+  const mode = useMemo(() => {
+    if (!activityId) return 'EXPLORE';
+    if (paramMode === 'quiz') return 'QUIZ';
+    return 'READ';
+  }, [activityId, paramMode]);
 
   // Mock articles for the POC
   const sampleArticles: ArticleCard[] = [
@@ -49,28 +69,42 @@ export function DerotPage() {
   return (
     <Layout>
       <div className="container max-w-7xl mx-auto py-10 px-4 space-y-12">
-        <section className="flex flex-col items-center text-center space-y-4 pt-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium animate-in fade-in slide-in-from-top-4 duration-500">
-            <Sparkles className="h-4 w-4" />
-            <span>Discover Knowledge</span>
-          </div>
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground/80 to-muted-foreground animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {t('derot.title', 'Derot Zone')}
-          </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {t('derot.description', 'Explore curated Wikipedia articles tailored to your interests. Expand your brain, one article at a time.')}
-          </p>
-        </section>
+        <PageHeader
+          title={t('derot.title', 'Derot Zone')}
+          subtitle={t('derot.subtitle', 'Derot Zone')}
+          description={t('derot.description', "Explorez, lisez et testez vos connaissances. C'est ici que se passe l'essentiel de votre apprentissage.")}
+          icon={Brain}
+        />
 
-        <section className="space-y-8 animate-in fade-in duration-1000">
-          <div className="flex items-center justify-between border-b pb-4 border-border/40">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <h2 className="text-2xl font-bold tracking-tight">Trending Topics</h2>
+        <section className="space-y-6 animate-in fade-in duration-1000">
+          <DerotZoneSubHeader
+            mode={mode}
+            onStopExplore={() => navigate('/focus-area')}
+            onGoToQuiz={() => setSearchParams({ activityId: activityId!, mode: 'quiz' })}
+            onSubmitQuiz={() => setSearchParams({})}
+          />
+
+          {mode === 'EXPLORE' && (
+            <ExploreView
+              articles={sampleArticles}
+              onRefresh={refresh}
+              isLoading={isInitializing}
+            />
+          )}
+
+          {mode === 'READ' && (
+            <ReadView activityId={activityId!} />
+          )}
+
+          {mode === 'QUIZ' && (
+            <QuizView activityId={activityId!} />
+          )}
+
+          {error && (
+            <div className="p-4 bg-destructive/10 text-destructive rounded-lg border border-destructive/20 text-center">
+              {error}
             </div>
-          </div>
-
-          <DerotZone articles={sampleArticles} />
+          )}
         </section>
 
         <section className="bg-primary/5 rounded-3xl p-8 md:p-12 border border-primary/10 flex flex-col md:flex-row items-center gap-8 animate-in fade-in duration-1000">

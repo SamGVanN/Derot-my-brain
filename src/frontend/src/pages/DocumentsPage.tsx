@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Library } from 'lucide-react';
+import { PageHeader } from '@/components/PageHeader';
 
 export function DocumentsPage() {
     const { t } = useTranslation();
@@ -10,24 +11,18 @@ export function DocumentsPage() {
     return (
         <Layout>
             <div className="container max-w-4xl mx-auto py-12 px-4">
-                <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 text-center">
+                <PageHeader
+                    title={t('documents.title', 'Documents')}
+                    subtitle={t('documents.comingSoon', 'Coming soon in Phase 8')}
+                    description={t('documents.description', 'This is where you will manage your uploaded documents : organize, tag, anotate, and create activities from them.')}
+                    icon={Library}
+                />
+
+                <div className="flex flex-col items-center justify-center py-20 space-y-6 text-center">
                     <div className="relative">
                         <Library className="h-24 w-24 text-primary animate-pulse" />
                         <div className="absolute inset-0 h-24 w-24 bg-primary/20 rounded-full blur-xl animate-pulse" />
                     </div>
-
-                    <div className="space-y-2">
-                        <h1 className="text-4xl font-bold tracking-tight">
-                            {t('documents.title', 'Documents')}
-                        </h1>
-                        <p className="text-xl text-muted-foreground">
-                            {t('documents.comingSoon', 'Coming soon in Phase 8')}
-                        </p>
-                    </div>
-
-                    <p className="text-muted-foreground max-w-md">
-                        {t('documents.description', 'This is where you will manage your uploaded documents : organize, tag, anotate, and create activities from them.')}
-                    </p>
 
                     <Button asChild variant="outline" className="gap-2">
                         <Link to="/homepage">
