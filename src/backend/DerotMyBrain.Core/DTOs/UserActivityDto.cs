@@ -33,6 +33,7 @@ public class UserActivityDto
     public int QuestionCount { get; set; }
     public double? ScorePercentage { get; set; }
     public bool IsNewBestScore { get; set; }
+    public bool IsBaseline { get; set; }
     public bool IsCompleted { get; set; }
 
     // LLM Info

@@ -106,6 +106,11 @@ public class UserActivity
     public bool IsNewBestScore { get; set; }
 
     /// <summary>
+    /// Indicates if this activity represents a baseline measurement for the user's knowledge on the topic.
+    /// </summary>
+    public bool IsBaseline { get; set; }
+
+    /// <summary>
     /// Whether the session was completed (e.g., quiz finished).
     /// </summary>
     public bool IsCompleted { get; set; }

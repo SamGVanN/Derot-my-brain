@@ -67,21 +67,31 @@ export const HistoryTimeline: React.FC<HistoryTimelineProps> = ({
                             }
                         </h3>
                         <div className="space-y-0">
-                            {groupedActivities[date].map((activity, index) => (
-                                <ActivityTimelineItem
-                                    key={activity.id}
-                                    activity={activity}
-                                    isTracked={isTopicFocused(activity.sourceHash)}
-                                    bestScore={getBestScore(activity.sourceHash)}
-                                    onTrack={() => onTrack({
-                                        sourceId: activity.sourceId,
-                                        sourceType: activity.sourceType,
-                                        displayTitle: activity.title
-                                    })}
-                                    onUntrack={() => onUntrack(activity.sourceHash)}
-                                    isLast={index === groupedActivities[date].length - 1}
-                                />
-                            ))}
+                            {groupedActivities[date].map((activity, index) => {
+                                const best = getBestScore(activity.sourceHash);
+                                const isCurrentBest = activity.type === 'Quiz' &&
+                                    best?.score != null &&
+                                    activity.scorePercentage != null &&
+                                    Math.abs(activity.scorePercentage - best.score) < 0.01;
+
+                                return (
+                                    <ActivityTimelineItem
+                                        key={activity.id}
+                                        activity={activity}
+                                        isTracked={isTopicFocused(activity.sourceHash)}
+                                        bestScore={best}
+                                        isCurrentBest={isCurrentBest}
+                                        isBaseline={activity.isBaseline}
+                                        onTrack={() => onTrack({
+                                            sourceId: activity.sourceId,
+                                            sourceType: activity.sourceType,
+                                            displayTitle: activity.title
+                                        })}
+                                        onUntrack={() => onUntrack(activity.sourceHash)}
+                                        isLast={index === groupedActivities[date].length - 1}
+                                    />
+                                );
+                            })}
                         </div>
                     </div>
                 ))

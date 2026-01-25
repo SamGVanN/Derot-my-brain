@@ -17,6 +17,8 @@ interface ActivityTimelineItemProps {
     activity: UserActivity;
     isTracked: boolean;
     bestScore?: { score: number; lastScore: number };
+    isCurrentBest?: boolean;
+    isBaseline?: boolean;
     onTrack: () => void;
     onUntrack: () => void;
     isLast?: boolean;
@@ -26,6 +28,8 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
     activity,
     isTracked,
     bestScore,
+    isCurrentBest = false,
+    isBaseline = false,
     onTrack,
     onUntrack,
     isLast = false
@@ -54,11 +58,11 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                 <div className="relative flex flex-col items-center h-full mt-2">
                     <div className={cn(
                         "z-10 bg-background p-1 rounded-full border-2",
-                        activity.isNewBestScore
+                        isCurrentBest
                             ? "border-yellow-500 text-yellow-600 dark:text-yellow-400 bg-yellow-500/10"
                             : "border-primary text-primary"
                     )}>
-                        {activity.isNewBestScore ? (
+                        {isCurrentBest ? (
                             <Trophy className="w-4 h-4" />
                         ) : activity.type === 'Quiz' ? (
                             <NotebookPen className="w-4 h-4" />
@@ -85,11 +89,67 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                                 )}>
                                     {activity.type}
                                 </span>
-                                {isTracked && bestScore && (
-                                    <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20 flex items-center gap-1" title={t('history.bestScore', 'Topic Personal Best')}>
-                                        <Trophy className="w-3 h-3" />
-                                        {Math.round(bestScore.score)}%
-                                    </span>
+                                {activity.isNewBestScore && !isCurrentBest && !isBaseline && (
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-green-500/10 text-green-600 border border-green-500/20 flex items-center gap-1">
+                                                    <PartyPopper className="w-3 h-3" />
+                                                    {t('history.record', 'Record')}
+                                                </span>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>{t('history.recordTooltip', 'This activity was a new personal best at that time!')}</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                )}
+                                {isBaseline && !isCurrentBest && (
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-muted text-muted-foreground border border-transparent flex items-center gap-1">
+                                                    <Info className="w-3 h-3" />
+                                                    {t('history.baseline', 'Baseline')}
+                                                </span>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>{t('history.baselineTooltip', 'This was your first assessment for this topic.')}</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                )}
+                                {bestScore && (
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <span className={cn(
+                                                    "px-1.5 py-0.5 rounded-full text-[10px] border flex items-center gap-1",
+                                                    isCurrentBest
+                                                        ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20"
+                                                        : "bg-muted text-muted-foreground border-transparent"
+                                                )}>
+                                                    <Trophy className="w-3 h-3" />
+                                                    {isCurrentBest
+                                                        ? isBaseline
+                                                            ? t('history.personalBestInitial', 'Baseline (Best): {{score}}%', { score: Math.round(bestScore.score) })
+                                                            : t('history.personalBest', 'Personal Best: {{score}}%', { score: Math.round(bestScore.score) })
+                                                        : `${Math.round(bestScore.score)}%`
+                                                    }
+                                                </span>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>
+                                                    {isCurrentBest
+                                                        ? isBaseline
+                                                            ? t('history.isInitialBestTooltip', 'This was your first attempt and is still your best score!')
+                                                            : t('history.isBestTooltip', 'This is your current best score for this topic!')
+                                                        : t('history.bestCompareTooltip', 'Your personal best for this topic is {{score}}%', { score: Math.round(bestScore.score) })
+                                                    }
+                                                </p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
                                 )}
                             </div>
 

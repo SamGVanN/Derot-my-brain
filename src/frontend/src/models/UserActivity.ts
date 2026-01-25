@@ -27,6 +27,7 @@ export interface UserActivity {
     questionCount: number;
     scorePercentage?: number;
     isNewBestScore: boolean;
+    isBaseline: boolean;
     isCompleted: boolean;
 
     // LLM Info

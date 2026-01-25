@@ -91,13 +91,21 @@ public class ActivityService : IActivityService
             scorePercentage = (double)(dto.Score ?? 0) / dto.QuestionCount.Value * 100.0;
         }
 
-        // Check for New Best Score
+        // Check for New Best Score and Baseline
         bool isNewBest = false;
-        if (scorePercentage.HasValue)
+        bool isBaseline = false;
+        if (dto.Type == ActivityType.Quiz)
         {
             var history = await _repository.GetAllForContentAsync(userId, sourceHash);
-            var prevBest = history.Where(h => h.ScorePercentage.HasValue).Max(h => (double?)h.ScorePercentage) ?? -1.0;
-            isNewBest = scorePercentage.Value > prevBest;
+            var quizzes = history.Where(h => h.Type == ActivityType.Quiz).ToList();
+            
+            isBaseline = !quizzes.Any();
+
+            if (scorePercentage.HasValue)
+            {
+                var prevBest = quizzes.Where(h => h.ScorePercentage.HasValue).Max(h => (double?)h.ScorePercentage) ?? -1.0;
+                isNewBest = scorePercentage.Value > prevBest;
+            }
         }
 
         var activity = new UserActivity
@@ -117,6 +125,7 @@ public class ActivityService : IActivityService
             QuestionCount = dto.QuestionCount ?? 0,
             ScorePercentage = scorePercentage,
             IsNewBestScore = isNewBest,
+            IsBaseline = isBaseline,
             IsCompleted = true, // If created via DTO, usually it's a finished session
             LlmModelName = dto.LlmModelName,
             LlmVersion = dto.LlmVersion,
@@ -228,6 +237,7 @@ public class ActivityService : IActivityService
             QuestionCount = a.QuestionCount,
             ScorePercentage = a.ScorePercentage,
             IsNewBestScore = a.IsNewBestScore,
+            IsBaseline = a.IsBaseline,
             IsCompleted = a.IsCompleted,
             LlmModelName = a.LlmModelName,
             LlmVersion = a.LlmVersion,

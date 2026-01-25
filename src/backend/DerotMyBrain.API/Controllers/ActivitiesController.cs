@@ -198,6 +198,7 @@ public class ActivitiesController : ControllerBase
             QuestionCount = a.QuestionCount,
             ScorePercentage = a.ScorePercentage,
             IsNewBestScore = a.IsNewBestScore,
+            IsBaseline = a.IsBaseline,
             IsCompleted = a.IsCompleted,
             LlmModelName = a.LlmModelName,
             LlmVersion = a.LlmVersion,
