@@ -79,7 +79,7 @@ export const DocumentsPage: React.FC = () => {
 
     return (
         <Layout>
-            <div className="container mx-auto py-8 space-y-8">
+            <div className="container max-w-7xl mx-auto py-10 px-4 space-y-12">
                 <PageHeader
                     title="My Documents"
                     subtitle="Document Library"

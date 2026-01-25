@@ -80,7 +80,7 @@ export function MyFocusAreaPage() {
 
     return (
         <Layout>
-            <div className="container max-w-6xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-700">
+            <div className="container max-w-7xl mx-auto py-10 px-4 space-y-12 animate-in fade-in duration-700">
                 <PageHeader
                     title={t('focusArea.title')}
                     subtitle={t('focusArea.subtitle')}

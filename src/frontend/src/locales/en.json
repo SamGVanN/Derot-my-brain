@@ -46,7 +46,7 @@
     "layout": {
         "appName": "Derot My Brain",
         "footer": "© 2026 Derot My Brain. Local Learning.",
-        "version": "v0.5.0"
+        "version": "v0.6.0"
     },
     "theme": {
         "fallback": "Theme"
@@ -155,7 +155,7 @@
         "description": "Explore, read, and test your knowledge. This is where most of your learning happens."
     },
     "focusArea": {
-        "title": "My Focus Areas",
+        "title": "My Focus Area",
         "subtitle": "Track and master topics that matter to you.",
         "description": "This is where you manage your focused topics and monitor your learning depth over time.",
         "searchPlaceholder": "Search by topic title...",

@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { backlogApi, type BacklogItemDto } from '@/api/backlogApi';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, Play, BookOpen, ListPlus, ClockAlert, BookOpenText } from 'lucide-react';
+import { Trash2, Play, BookOpen, ClockAlert, BookOpenText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router';
 import {
@@ -72,7 +72,7 @@ export const BacklogPage: React.FC = () => {
 
     return (
         <Layout>
-            <div className="container mx-auto py-8 space-y-8">
+            <div className="container max-w-7xl mx-auto py-10 px-4 space-y-12">
                 <PageHeader
                     title="Backlog"
                     subtitle="Learning Backlog"
