@@ -23,6 +23,9 @@ public static class InfrastructureServiceExtensions
         // Register LLM Service
         services.AddScoped<ILlmService, OllamaLlmService>();
 
+        // Register Utilities
+        services.AddScoped<ITextExtractor, TextExtractor>();
+
         return services;
     }
 }

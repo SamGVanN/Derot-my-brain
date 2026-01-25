@@ -38,4 +38,14 @@ public class User
     /// Navigation property for user focus areas (1-to-many relationship).
     /// </summary>
     public List<UserFocus> UserFocuses { get; set; } = new();
+
+    /// <summary>
+    /// Navigation property for user uploaded documents.
+    /// </summary>
+    public ICollection<Document> Documents { get; set; } = new List<Document>();
+
+    /// <summary>
+    /// Navigation property for user backlog items.
+    /// </summary>
+    public ICollection<BacklogItem> BacklogItems { get; set; } = new List<BacklogItem>();
 }

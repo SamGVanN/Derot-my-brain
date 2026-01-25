@@ -36,6 +36,8 @@ public static class DataServiceExtensions
         services.AddScoped<IUserRepository, SqliteUserRepository>();
         services.AddScoped<IActivityRepository, SqliteActivityRepository>();
         services.AddScoped<IUserFocusRepository, SqliteUserFocusRepository>();
+        services.AddScoped<IDocumentRepository, SqliteDocumentRepository>();
+        services.AddScoped<IBacklogRepository, SqliteBacklogRepository>();
 
         // Configuration setup for DataDirectory used elsewhere if needed
         // Note: The original Program.cs set this in Configuration, which is fine to leave or move.

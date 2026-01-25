@@ -15,6 +15,8 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IActivityService, ActivityService>();
         services.AddScoped<IUserFocusService, UserFocusService>();
         services.AddScoped<IWikipediaService, WikipediaService>();
+        services.AddScoped<IDocumentService, DocumentService>();
+        services.AddScoped<IBacklogService, BacklogService>();
 
         // Infrastructure Utilities
         services.AddSingleton<IJsonSerializer, JsonSerializerWrapper>();

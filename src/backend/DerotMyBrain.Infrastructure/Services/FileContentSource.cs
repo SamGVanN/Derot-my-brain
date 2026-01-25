@@ -4,36 +4,61 @@ using Microsoft.Extensions.Logging;
 
 namespace DerotMyBrain.Infrastructure.Services;
 
+using DerotMyBrain.Core.Utils;
+
 public class FileContentSource : IContentSource
 {
     private readonly ILogger<FileContentSource> _logger;
+    private readonly ITextExtractor _textExtractor;
 
-    public FileContentSource(ILogger<FileContentSource> logger)
+    public FileContentSource(ILogger<FileContentSource> logger, ITextExtractor textExtractor)
     {
         _logger = logger;
+        _textExtractor = textExtractor;
     }
 
     public bool CanHandle(string sourceId)
     {
-        // Simple check: starts with file path indicator or extension check
-        return sourceId.StartsWith("file://") || sourceId.EndsWith(".txt") || sourceId.EndsWith(".pdf") || sourceId.Equals("File", StringComparison.OrdinalIgnoreCase);
+        return sourceId.StartsWith("file://") || 
+               sourceId.EndsWith(".pdf") || 
+               sourceId.EndsWith(".txt") ||
+               sourceId.EndsWith(".docx") ||
+               sourceId.EndsWith(".odt") ||
+               sourceId.Equals("File", StringComparison.OrdinalIgnoreCase);
     }
 
     public async Task<ContentResult> GetContentAsync(string sourceId)
     {
-        // For now, return dummy content or implement reading local file if path provided
-        // In real app, this might handle uploaded stream which doesn't fit simple string sourceId easily
-        // unless sourceId is a TempFilePath.
-        
         _logger.LogInformation("Reading file content from {SourceId}", sourceId);
+
+        // Remove prefix if present to get path
+        var filePath = sourceId.Replace("file://", "");
         
-        // Mock implementation
-        return await Task.FromResult(new ContentResult
+        try 
         {
-            Title = "Uploaded Document",
-            TextContent = "This is the content of the uploaded document. It contains information about Clean Architecture.",
-            SourceType = "File",
-            SourceUrl = sourceId
-        });
+            var extension = Path.GetExtension(filePath).ToLowerInvariant();
+            var text = _textExtractor.ExtractText(filePath, extension);
+            
+            return await Task.FromResult(new ContentResult
+            {
+                Title = Path.GetFileNameWithoutExtension(filePath),
+                TextContent = text,
+                SourceType = "Document",
+                SourceUrl = sourceId
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to read file {FilePath}", filePath);
+            // Fallback or rethrow?
+            // For now, return error as content to inform agent/user
+            return new ContentResult
+            {
+                Title = "Error Reading File",
+                TextContent = $"Error reading file content: {ex.Message}",
+                SourceType = "Error",
+                SourceUrl = sourceId
+            };
+        }
     }
 }

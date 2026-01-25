@@ -9,6 +9,8 @@ public class DerotDbContext : DbContext
     public DbSet<UserPreferences> UserPreferences { get; set; }
     public DbSet<UserActivity> Activities { get; set; }
     public DbSet<UserFocus> UserFocuses { get; set; }
+    public DbSet<Document> Documents { get; set; }
+    public DbSet<BacklogItem> BacklogItems { get; set; }
     
     public DerotDbContext(DbContextOptions<DerotDbContext> options) : base(options)
     {
@@ -90,6 +92,41 @@ public class DerotDbContext : DbContext
             
             entity.HasOne(e => e.User)
                 .WithMany(u => u.UserFocuses)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Document configuration
+        modelBuilder.Entity<Document>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.FileName).IsRequired();
+            entity.Property(e => e.StoragePath).IsRequired();
+            entity.Property(e => e.FileType).IsRequired();
+            entity.Property(e => e.SourceHash).IsRequired();
+
+            entity.HasIndex(e => new { e.UserId, e.SourceHash }).IsUnique();
+
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.Documents)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // BacklogItem configuration
+        modelBuilder.Entity<BacklogItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.SourceId).IsRequired();
+            entity.Property(e => e.SourceType).IsRequired();
+            entity.Property(e => e.SourceHash).IsRequired();
+
+            entity.HasIndex(e => new { e.UserId, e.SourceHash }).IsUnique();
+
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.BacklogItems)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
