@@ -10,12 +10,16 @@ import { UserProfilePage } from './pages/UserProfilePage';
 import { HistoryPage } from './pages/HistoryPage';
 import { DerotPage } from './pages/DerotPage';
 import { ActivityPage } from './pages/ActivityPage';
-import { TrackedTopicsPage } from './pages/TrackedTopicsPage';
+import { MyFocusAreaPage } from './pages/MyFocusAreaPage';
 import { GuidePage } from './pages/GuidePage';
 import { WelcomePage } from './features/welcome/WelcomePage';
 import { useAuth } from './hooks/useAuth';
 import { usePreferences } from './hooks/usePreferences';
 import type { User } from './models/User';
+import { HomepagePage } from './pages/HomePage';
+import { DocumentsPage } from './pages/DocumentsPage';
+import { BacklogPage } from './pages/BacklogPage';
+import { DashboardPage } from './pages/DashboardPage';
 
 const queryClient = new QueryClient();
 
@@ -101,6 +105,37 @@ function AppContent() {
       />
 
       {/* Protected Routes */}
+
+
+
+      <Route
+        path="/homepage"
+        element={<HomepagePage />}
+      />
+
+      <Route
+        path="/guide"
+        element={<GuidePage />}
+      />
+
+
+
+      <Route
+        path="/activity"
+        element={
+          <ProtectedRoute>
+            <ActivityPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/derot"
+        element={
+          <ProtectedRoute>
+            <DerotPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/history"
         element={
@@ -113,10 +148,55 @@ function AppContent() {
       />
 
       <Route
+        path="/focus-area"
+        element={
+          <ProtectedRoute>
+            <MyFocusAreaPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/documents"
+        element={
+          <ProtectedRoute>
+            <DocumentsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/backlog"
+        element={
+          <ProtectedRoute>
+            <BacklogPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/profile"
         element={
           <ProtectedRoute>
             <UserProfilePage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/preferences"
+        element={
+          <ProtectedRoute>
+            <PreferencesPage
+              user={user!}
+              onUserUpdated={login}
+            />
           </ProtectedRoute>
         }
       />
@@ -136,49 +216,7 @@ function AppContent() {
         }
       />
 
-      <Route
-        path="/preferences"
-        element={
-          <ProtectedRoute>
-            <PreferencesPage
-              user={user!}
-              onUserUpdated={login}
-            />
-          </ProtectedRoute>
-        }
-      />
 
-      <Route
-        path="/derot"
-        element={
-          <ProtectedRoute>
-            <DerotPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/activity"
-        element={
-          <ProtectedRoute>
-            <ActivityPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/tracked-topics"
-        element={
-          <ProtectedRoute>
-            <TrackedTopicsPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/guide"
-        element={<GuidePage />}
-      />
 
       {/* Fallback - Redirect to home */}
       <Route path="*" element={<Navigate to="/" replace />} />

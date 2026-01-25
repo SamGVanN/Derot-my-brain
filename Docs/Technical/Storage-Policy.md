@@ -366,7 +366,7 @@ Un agent IA peut proposer **LiteDB ou RavenDB** UNIQUEMENT si :
 | Document | Section Ajoutée | Statut |
 |----------|-----------------|--------|
 | **Implementation-Roadmap.md** | Technical Constraints & Storage Policy | ✅ |
-| **Specifications-fonctionnelles.md** | Section 1.2.1 - Contraintes Techniques | ✅ |
+| **functional_specifications_derot_my_brain.md** | Section 1.2.1 - Contraintes Techniques | ✅ |
 | **TECHNICAL-CONSTRAINTS-Storage.md** | Document complet | ✅ |
 
 ---

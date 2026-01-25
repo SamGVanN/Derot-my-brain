@@ -1,4 +1,4 @@
-# Feature: My Documents
+# Feature: My Documents / Library
 
 ## Description
 The **My Documents** page serves as the personal library for the user. It allows users to upload, manage, and utilize their own files (PDF, DOCX, TXT) as content sources for learning activities in the **Derot Zone**.
@@ -18,14 +18,14 @@ Upon selecting a file, the user is presented with **3 options** to define the im
     *   **Status**: Inactive / Inventory.
     
 2.  **Upload & Add to Backlog**
-    *   **Action**: Save to storage AND add an entry to the Backlog.
+    *   **Action**: Save to storage AND add an entry to the user library.
     *   **Destination**: *My Documents* + *Backlog* page.
     *   **Status**: To be processed.
 
 3.  **Start Now**
-    *   **Action**: Save to storage AND immediately launch a **User Activity** (Read or Quiz).
+    *   **Action**: Save to storage AND immediately launch a **User Activity** (Type: Read, SourceType: Document, SourceId: DocumentId).
     *   **Destination**: Redirects to **Derot Zone**.
-    *   **Status**: Becomes a **Tracked Topic** automatically once the activity starts.
+    *   **Status**: Becomes a **User Focus** (SourceType: Document, SourceId: DocumentId) automatically once the activity starts.
 
 ### 2. Document Management
 *   **List View**: See all uploaded documents.

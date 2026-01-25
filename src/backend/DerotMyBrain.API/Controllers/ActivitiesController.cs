@@ -3,7 +3,6 @@ using DerotMyBrain.Core.Entities;
 using DerotMyBrain.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 
 namespace DerotMyBrain.API.Controllers;
 
@@ -13,32 +12,30 @@ namespace DerotMyBrain.API.Controllers;
 public class ActivitiesController : ControllerBase
 {
     private readonly IActivityService _activityService;
+    private readonly IUserFocusService _userFocusService;
     private readonly ILogger<ActivitiesController> _logger;
 
-    public ActivitiesController(IActivityService activityService, ILogger<ActivitiesController> logger)
+    public ActivitiesController(
+        IActivityService activityService, 
+        IUserFocusService userFocusService,
+        ILogger<ActivitiesController> logger)
     {
         _activityService = activityService;
+        _userFocusService = userFocusService;
         _logger = logger;
     }
 
     [HttpGet("activities")]
-    public async Task<ActionResult<IEnumerable<UserActivityDto>>> GetAllActivities(string userId, [FromQuery] string? topic = null)
+    public async Task<ActionResult<IEnumerable<UserActivityDto>>> GetAllActivities(string userId, [FromQuery] string? sourceHash = null)
     {
         try
         {
-            IEnumerable<UserActivity> activities;
-            if (!string.IsNullOrEmpty(topic))
+            if (!string.IsNullOrEmpty(sourceHash))
             {
-                activities = await _activityService.GetAllForTopicAsync(userId, topic);
-            }
-            else
-            {
-                activities = await _activityService.GetAllActivitiesAsync(userId);
+                return Ok(await _activityService.GetAllForContentAsync(userId, sourceHash));
             }
             
-            // Map to DTO (Use AutoMapper in prod, manual for now)
-            var dtos = activities.Select(MapToDto).ToList();
-            return Ok(dtos);
+            return Ok(await _activityService.GetAllActivitiesAsync(userId));
         }
         catch (Exception ex)
         {
@@ -54,7 +51,9 @@ public class ActivitiesController : ControllerBase
         {
             var activity = await _activityService.GetActivityByIdAsync(userId, activityId);
             if (activity == null) return NotFound();
-            return Ok(MapToDto(activity));
+            
+            var isTracked = await _userFocusService.GetFocusAsync(userId, activity.SourceHash) != null;
+            return Ok(MapToDto(activity, isTracked));
         }
         catch (Exception ex)
         {
@@ -71,7 +70,8 @@ public class ActivitiesController : ControllerBase
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var activity = await _activityService.CreateActivityAsync(userId, dto);
-            var resultDto = MapToDto(activity);
+            var isTracked = await _userFocusService.GetFocusAsync(userId, activity.SourceHash) != null;
+            var resultDto = MapToDto(activity, isTracked);
             
             return CreatedAtAction(nameof(GetActivity), new { userId, activityId = activity.Id }, resultDto);
         }
@@ -88,7 +88,8 @@ public class ActivitiesController : ControllerBase
         try
         {
             var activity = await _activityService.UpdateActivityAsync(userId, activityId, dto);
-            return Ok(MapToDto(activity));
+            var isTracked = await _userFocusService.GetFocusAsync(userId, activity.SourceHash) != null;
+            return Ok(MapToDto(activity, isTracked));
         }
         catch (KeyNotFoundException)
         {
@@ -136,7 +137,7 @@ public class ActivitiesController : ControllerBase
         return Ok(await _activityService.GetTopScoresAsync(userId, limit));
     }
 
-    // --- Legacy / Specific Endpoints ---
+    // --- Content Flow Endpoints ---
 
     [HttpPost("activities/start")]
     public async Task<ActionResult<DerotMyBrain.Core.DTOs.ContentResult>> StartReading(string userId, [FromBody] StartActivityRequest request)
@@ -158,7 +159,6 @@ public class ActivitiesController : ControllerBase
     }
 
     [HttpPost("activities/{activityId}/quiz")]
-    // [EnableRateLimiting("LlmPolicy")] // Disabled for local LLM usage
     public async Task<ActionResult<QuizDto>> GenerateQuiz(string userId, string activityId)
     {
         try
@@ -177,23 +177,32 @@ public class ActivitiesController : ControllerBase
         }
     }
 
-    private UserActivityDto MapToDto(UserActivity activity)
+    private UserActivityDto MapToDto(UserActivity a, bool isTracked)
     {
         return new UserActivityDto
         {
-            Id = activity.Id,
-            UserId = activity.UserId,
-            Title = activity.Title,
-            WikipediaUrl = activity.SourceUrl ?? "",
-            Type = activity.Type,
-            SessionDate = activity.LastAttemptDate,
-            Score = activity.Score == 0 && activity.MaxScore == 0 ? null : activity.Score, // Heuristic for logic, or just return as is?
-            // DTO has int? Score. Entity has int Score. Tests expect null for Read. 
-            // The activity created for Read usually has 0/0.
-            TotalQuestions = activity.MaxScore == 0 ? null : activity.MaxScore,
-            LlmModelName = activity.LlmModelName,
-            LlmVersion = activity.LlmVersion,
-            IsTracked = activity.IsTracked
+            Id = a.Id,
+            UserId = a.UserId,
+            Title = a.Title,
+            Description = a.Description,
+            SourceId = a.SourceId,
+            SourceType = a.SourceType,
+            SourceHash = a.SourceHash,
+            Type = a.Type,
+            SessionDateStart = a.SessionDateStart,
+            SessionDateEnd = a.SessionDateEnd,
+            ReadDurationSeconds = a.ReadDurationSeconds,
+            QuizDurationSeconds = a.QuizDurationSeconds,
+            TotalDurationSeconds = a.TotalDurationSeconds,
+            Score = a.Score,
+            QuestionCount = a.QuestionCount,
+            ScorePercentage = a.ScorePercentage,
+            IsNewBestScore = a.IsNewBestScore,
+            IsCompleted = a.IsCompleted,
+            LlmModelName = a.LlmModelName,
+            LlmVersion = a.LlmVersion,
+            IsTracked = isTracked,
+            Payload = a.Payload
         };
     }
 }

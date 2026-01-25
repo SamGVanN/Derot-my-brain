@@ -14,14 +14,14 @@ Application web locale destinée à stimuler la curiosité et l'apprentissage ac
 
 **Principe global**
 
-- L'application sélectionne une **page Wikipédia aléatoire**, éventuellement filtrée par **axe d'intérêt**.
-- L'utilisateur consulte librement l'article.
-- Il déclenche un **quiz de 5 questions** générées dynamiquement par une IA locale.
+- L'application sélectionne une **page Wikipédia aléatoire**, éventuellement filtrée par **axe d'intérêt**, ou reçoit de l'utilisateur un lien vers une page Wikipédia, ou prend un document uploadé par l'utilisateur comme Source.
+- L'utilisateur consulte librement la source.
+- Il déclenche un **quiz de 5 questions** générées dynamiquement par une IA locale (nombre de questions configurable dans les préférences utilisateur).
 - À la fin du quiz :
   - L'utilisateur obtient son **score**
   - Les **réponses attendues** sont affichées
 - Le sujet est enregistré dans un **historique utilisateur**
-- Le sujet peut être ajouté aux **Sujets Suivis** (Tracked Topics) pour révision ultérieure.
+- Le sujet peut être ajouté aux **Sujets Suivis** ("Tracked Topics"/"Focus Zone") pour révision ultérieure.
 
 **Contraintes clés**
 

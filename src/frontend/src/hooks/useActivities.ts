@@ -11,13 +11,13 @@ export function useActivities() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const refresh = useCallback(async (topic?: string) => {
+    const refresh = useCallback(async (sourceHash?: string) => {
         if (!userId) return;
 
         setLoading(true);
         setError(null);
         try {
-            const data = await activityApi.getActivities(userId, topic);
+            const data = await activityApi.getActivities(userId, sourceHash);
             setActivities(data);
         } catch (err) {
             console.error('Failed to fetch activities:', err);

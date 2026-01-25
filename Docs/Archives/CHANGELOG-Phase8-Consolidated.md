@@ -392,7 +392,7 @@ public class WikipediaCategory
 | Document | Modifications | Statut |
 |----------|---------------|--------|
 | **Implementation-Roadmap.md** | Phase 8 + simplification | ✅ |
-| **Specifications-fonctionnelles.md** | Sections i18n + catégories | ✅ |
+| **functional_specifications_derot_my_brain.md** | Sections i18n + catégories | ✅ |
 | **Project-Status.md** | Phase 8 tracking | ✅ |
 | **CHANGELOG-Phase8-Consolidated.md** | Document consolidé | ✅ |
 

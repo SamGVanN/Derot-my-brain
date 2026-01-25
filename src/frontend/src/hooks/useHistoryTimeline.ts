@@ -1,17 +1,17 @@
 import { useMemo, useCallback } from 'react';
 import type { UserActivity } from '../models/UserActivity';
-import type { TrackedTopicDto } from '../models/UserStatistics';
+import type { UserFocus } from '../models/UserFocus';
 import { parseDate, isValidDate } from '@/lib/dateUtils';
 
 interface UseHistoryTimelineProps {
     activities: UserActivity[];
-    trackedTopics: TrackedTopicDto[];
+    userFocuses: UserFocus[];
 }
 
-export function useHistoryTimeline({ activities, trackedTopics }: UseHistoryTimelineProps) {
+export function useHistoryTimeline({ activities, userFocuses }: UseHistoryTimelineProps) {
     const groupedActivities = useMemo(() => {
         return activities.reduce((groups, activity) => {
-            const dateObj = parseDate(activity.sessionDate);
+            const dateObj = parseDate(activity.sessionDateStart);
             const date = isValidDate(dateObj)
                 ? dateObj.toLocaleDateString()
                 : 'Unknown Date';
@@ -32,20 +32,20 @@ export function useHistoryTimeline({ activities, trackedTopics }: UseHistoryTime
         });
     }, [groupedActivities]);
 
-    const getBestScore = useCallback((topic: string) => {
-        const tracked = trackedTopics.find(t => t.topic === topic);
-        if (tracked?.bestScore != null) {
+    const getBestScore = useCallback((sourceHash: string) => {
+        const focus = userFocuses.find(t => t.sourceHash === sourceHash);
+        if (focus?.bestScore != null) {
             return {
-                score: tracked.bestScore,
-                total: tracked.totalQuestions
+                score: focus.bestScore,
+                lastScore: focus.lastScore
             };
         }
         return undefined;
-    }, [trackedTopics]);
+    }, [userFocuses]);
 
-    const isTracked = useCallback((topic: string) => {
-        return trackedTopics.some(t => t.topic === topic);
-    }, [trackedTopics]);
+    const isTracked = useCallback((sourceHash: string) => {
+        return userFocuses.some(t => t.sourceHash === sourceHash);
+    }, [userFocuses]);
 
     return {
         groupedActivities,

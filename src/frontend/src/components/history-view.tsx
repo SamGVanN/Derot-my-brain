@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useActivities } from '../hooks/useActivities';
-import { useTrackedTopics } from '../hooks/useTrackedTopics';
+import { useUserFocus } from '../hooks/useUserFocus';
 import type { User } from '../models/User';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { HistoryTimeline } from './HistoryTimeline';
@@ -13,7 +13,7 @@ interface HistoryViewProps {
 export const HistoryView: React.FC<HistoryViewProps> = ({ user }) => {
     const { t } = useTranslation();
     const { activities, loading: loadingActivities, error: activitiesError, refresh: refreshActivities } = useActivities();
-    const { trackedTopics, loading: loadingTracks, refresh: refreshTracks, trackTopic, untrackTopic } = useTrackedTopics();
+    const { userFocuses, loading: loadingTracks, refresh: refreshTracks, trackTopic, untrackTopic } = useUserFocus();
 
     useEffect(() => {
         if (user.id) {
@@ -54,7 +54,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ user }) => {
             ) : (
                 <HistoryTimeline
                     activities={activities}
-                    trackedTopics={trackedTopics}
+                    userFocuses={userFocuses}
                     onTrack={trackTopic}
                     onUntrack={untrackTopic}
                 />

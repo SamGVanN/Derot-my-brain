@@ -35,7 +35,7 @@ public class User
     public ICollection<UserActivity> Activities { get; set; } = new List<UserActivity>();
 
     /// <summary>
-    /// Navigation property to user tracked topics (1-to-many relationship).
+    /// Navigation property for user focus areas (1-to-many relationship).
     /// </summary>
-    public List<TrackedTopic> TrackedTopics { get; set; } = new();
+    public List<UserFocus> UserFocuses { get; set; } = new();
 }

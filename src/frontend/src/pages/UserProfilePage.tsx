@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Layout } from '@/components/Layout';
@@ -11,6 +11,7 @@ import { AlertTriangle, Edit, Save, X } from 'lucide-react';
 import { userApi } from '@/api/userApi';
 import { useAuth } from '@/hooks/useAuth';
 import { DeleteAccountModal } from '@/components/profile/DeleteAccountModal';
+import { useUserStatistics } from '@/hooks/useUserStatistics';
 
 export function UserProfilePage() {
     const { t } = useTranslation();
@@ -20,6 +21,11 @@ export function UserProfilePage() {
     const [editedName, setEditedName] = useState(user?.name || '');
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const { statistics, refreshStatistics } = useUserStatistics();
+
+    useEffect(() => {
+        refreshStatistics();
+    }, [refreshStatistics]);
 
     if (!user) {
         navigate('/');
@@ -36,7 +42,6 @@ export function UserProfilePage() {
             setIsEditing(false);
         } catch (error) {
             console.error('Failed to update user name:', error);
-            // Ideally show a toast here
         } finally {
             setIsLoading(false);
         }
@@ -54,7 +59,6 @@ export function UserProfilePage() {
             navigate('/');
         } catch (error) {
             console.error('Failed to delete account:', error);
-            // Ideally show a toast here
         }
     };
 
@@ -92,7 +96,6 @@ export function UserProfilePage() {
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {/* Name Field */}
                         <div className="space-y-2">
                             <Label htmlFor="name">{t('profile.name')}</Label>
                             {isEditing ? (
@@ -117,19 +120,16 @@ export function UserProfilePage() {
 
                         <Separator />
 
-                        {/* User ID */}
                         <div className="space-y-2">
                             <Label>{t('profile.userId')}</Label>
                             <p className="text-sm text-muted-foreground font-mono">{user.id}</p>
                         </div>
 
-                        {/* Created At */}
                         <div className="space-y-2">
                             <Label>{t('profile.createdAt')}</Label>
                             <p className="text-sm">{formatDate(user.createdAt)}</p>
                         </div>
 
-                        {/* Last Connection */}
                         <div className="space-y-2">
                             <Label>{t('profile.lastConnection')}</Label>
                             <p className="text-sm">{user.lastConnectionAt ? formatDate(user.lastConnectionAt) : 'N/A'}</p>
@@ -146,11 +146,11 @@ export function UserProfilePage() {
                     <CardContent className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <p className="text-sm text-muted-foreground">{t('profile.totalActivities')}</p>
-                            <p className="text-2xl font-bold">0</p>
+                            <p className="text-2xl font-bold">{statistics?.totalActivities ?? 0}</p>
                         </div>
                         <div className="space-y-1">
-                            <p className="text-sm text-muted-foreground">{t('profile.trackedTopicsCount')}</p>
-                            <p className="text-2xl font-bold">0</p>
+                            <p className="text-sm text-muted-foreground">{t('profile.userFocusCount')}</p>
+                            <p className="text-2xl font-bold">{statistics?.userFocusCount ?? 0}</p>
                         </div>
                     </CardContent>
                 </Card>

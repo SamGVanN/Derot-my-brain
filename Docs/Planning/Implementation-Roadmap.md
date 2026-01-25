@@ -124,7 +124,7 @@ If migration from JSON to embedded DB is needed:
 **TestUser Data Location:**
 - User profile: `/Data/users/users.json`
 - Activity history: `/Data/users/user-{testuser-id}-history.json`
-- Tracked Topics: `/Data/users/user-{testuser-id}-tracked.json`
+- User Focuss: `/Data/users/user-{testuser-id}-tracked.json`
 
 ### For All Tasks
 
@@ -607,7 +607,7 @@ Create a dedicated user preferences page where users can configure their setting
       - Section for difficulty, language, etc.
   - Add "Save" and "Cancel" buttons
   - Show success/error notifications on save
-  - Add "My Brain" (Historique + Tracked Topics) navigation link in main menu
+  - Add "My Brain" (Historique + User Focuss) navigation link in main menu
 
 - **API Integration:**
   - Call `PUT /api/users/{id}/preferences` on save
@@ -1144,7 +1144,7 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
 **Dependencies:** Task 4.2.3
 
 **Objective:**
-- Create REST endpoints for activities and tracked topics
+- Create REST endpoints for activities and User Focuss
 - Implement DTOs
 - Add dashboard endpoints
 
@@ -1239,7 +1239,7 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
 - Create dashboard hooks
 
 **Specifications:**
-- Create `hooks/useActivities.ts`, `hooks/useTrackedTopics.ts`, `hooks/useUserStatistics.ts`
+- Create `hooks/useActivities.ts`, `hooks/useUserFocuss.ts`, `hooks/useUserStatistics.ts`
 - Encapsulate all business logic
 - Handle loading/error states
 
@@ -1265,42 +1265,42 @@ This task has been decomposed into 10 sub-tasks to implement the Enhanced Activi
 - Update `components/history-view.tsx`
 - Display Score
 - Best Score if Topic is tracked (with icon)
-- Show book-marked icon if Topic is in user's Tracked Topics
+- Show book-marked icon if Topic is in user's User Focuss
 - Show LLM info on hover
-- Show Add to tracked topics button if topic is not tracked
-- Show Remove from tracked topics button if topic is tracked
+- Show Add to User Focuss button if topic is not tracked
+- Show Remove from User Focuss button if topic is tracked
 
 **Acceptance Criteria:**
 - [x] Score displayed (X/Y)
-- [x] Best Score displayed (X/Y) - only if activity Topic is a tracked topic
-- [x] icon for Tracked Topics
+- [x] Best Score displayed (X/Y) - only if activity Topic is a User Focus
+- [x] icon for User Focuss
 - [x] LLM info on hover
 - [x] Render tests pass
 - [x] Responsive design
-- [x] Add/Remove from tracked topics
+- [x] Add/Remove from User Focuss
 
 ---
 
-#### **Task 4.2.9: Frontend - Tracked Topics Page**
+#### **Task 4.2.9: Frontend - User Focuss Page**
 **Priority:** LOW  
 **Estimated Complexity:** Medium  
 **Dependencies:** Task 4.2.7
 
 **Objective:**
-- Create dedicated Tracked Topics page
+- Create dedicated User Focuss page
 - Allow track/untrack (use same logic as in history page)
 
 **Specifications:**
-- Create `pages/TrackedTopicsPage.tsx`
+- Create `pages/UserFocussPage.tsx`
 - Add track/untrack buttons
 - Handle empty state
 
 **Acceptance Criteria:**
-- [ ] Page displays only Tracked Topics
+- [ ] Page displays only User Focuss
 - [ ] "Track" button in history works
-- [ ] "Untrack" button in Tracked Topics works
+- [ ] "Untrack" button in User Focuss works
 - [ ] Interaction tests pass
-- [ ] Empty state when no tracked topics
+- [ ] Empty state when no User Focuss
 
 ---
 
@@ -1375,15 +1375,15 @@ Create a dedicated backlog page where users can view and manage their saved arti
 **Dependencies:** Task 4.2
 
 #### Objective
-Update the history view to display enhanced activity information with "Tracked Topic" indicators and Split Card design.
+Update the history view to display enhanced activity information with "User Focus" indicators and Split Card design.
 
 #### Specifications
 - **Frontend:**
   - Update `history-view.tsx` component:
     - Display activities as cards (Grid layout)
     - **Card Design**:
-      - **Standard**: Simple card for non-tracked topics.
-      - **Split Card (Tracked Topics)**: 
+      - **Standard**: Simple card for non-User Focuss.
+      - **Split Card (User Focuss)**: 
         - Left: Current Session Stats
         - Right: Best Score (Personal Record)
         - *Mobile*: Vertical layout instead of split.
@@ -1399,11 +1399,11 @@ Update the history view to display enhanced activity information with "Tracked T
 
 - **Interactions:**
   - Click topic to restart quiz on that article
-  - Click "Track Topic" (⭐) to add to tracked topics
+  - Click "Track Topic" (⭐) to add to User Focuss
   - Hover over LLM info to see model details
 
 #### Acceptance Criteria
-- [ ] History displays Split Cards for tracked topics
+- [ ] History displays Split Cards for User Focuss
 - [ ] Mobile view uses vertical layout for cards
 - [ ] Festive card appears for new records
 - [ ] Tracked items clearly indicated with ⭐ icon
@@ -2912,7 +2912,7 @@ Create comprehensive, non-technical documentation for end users and set up distr
 
 ### Documentation Updates
 - Update `Project-Status.md` after completing each task
-- Update `Specifications-fonctionnelles.md` if requirements change
+- Update `functional_specifications_derot_my_brain.md` if requirements change
 - Document any new API endpoints in `API-endpoints.md`
 - Update `Guide-Compilation-Execution.md` if build process changes
 

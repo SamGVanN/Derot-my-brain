@@ -30,9 +30,9 @@ export function GuidePage() {
                     </p>
 
                     <Button asChild variant="outline" className="gap-2">
-                        <Link to="/history">
+                        <Link to="/homepage">
                             <ArrowLeft className="h-4 w-4" />
-                            {t('common.backToHistory', 'Back to History')}
+                            {t('common.backToHomepage', 'Back to Homepage')}
                         </Link>
                     </Button>
                 </div>

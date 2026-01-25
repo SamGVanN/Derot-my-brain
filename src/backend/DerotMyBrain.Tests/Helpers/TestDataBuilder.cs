@@ -1,4 +1,5 @@
 using DerotMyBrain.Core.Entities;
+using DerotMyBrain.Core.Utils;
 
 namespace DerotMyBrain.Tests.Helpers;
 
@@ -99,10 +100,6 @@ public class PreferencesBuilder
 
     public UserPreferences Build()
     {
-        // Mapping string categories to WikipediaCategory objects logic would go here
-        // For now, assume empty list or simple mapping if WikipediaCategory has matching constructor
-        // UserPreferences.FavoriteCategories is List<WikipediaCategory>
-        
         var categoryObjects = _selectedCategories.Select(c => new WikipediaCategory { Name = c }).ToList();
 
         return new UserPreferences
@@ -123,14 +120,18 @@ public class ActivityBuilder
 {
     private string _id = Guid.NewGuid().ToString();
     private string _userId = "test-user-id";
-    private string _topic = "Test Topic";
-    private string _wikipediaUrl = "https://en.wikipedia.org/wiki/Test";
-    private string _type = "Quiz";
-    private DateTime _sessionDate = DateTime.UtcNow;
-    private int? _score = 0;
-    private int? _totalQuestions = 10;
+    private string _title = "Test Topic";
+    private string _sourceId = "https://en.wikipedia.org/wiki/Test";
+    private SourceType _sourceType = SourceType.Wikipedia;
+    private ActivityType _type = ActivityType.Quiz;
+    private DateTime _sessionDateStart = DateTime.UtcNow.AddMinutes(-30);
+    private DateTime? _sessionDateEnd = DateTime.UtcNow;
+    private int? _readDuration = 600;
+    private int? _quizDuration = 900;
+    private int _score = 8;
+    private int _questionCount = 10;
     private string? _llmModelName;
-    private string? _llmVersion; // Ignored as invalid property
+    private string? _llmVersion;
 
     public ActivityBuilder WithId(string id)
     {
@@ -146,72 +147,78 @@ public class ActivityBuilder
 
     public ActivityBuilder WithTopic(string topic)
     {
-        _topic = topic;
+        _title = topic;
         return this;
     }
 
-    public ActivityBuilder WithWikipediaUrl(string url)
+    public ActivityBuilder WithSource(string sourceId, SourceType sourceType)
     {
-        _wikipediaUrl = url;
+        _sourceId = sourceId;
+        _sourceType = sourceType;
         return this;
     }
 
-    public ActivityBuilder WithType(string type)
+    public ActivityBuilder WithType(ActivityType type)
     {
         _type = type;
         return this;
     }
 
-    public ActivityBuilder AsQuiz(int score, int totalQuestions)
+    public ActivityBuilder AsQuiz(int score, int questionCount)
     {
-        _type = "Quiz";
+        _type = ActivityType.Quiz;
         _score = score;
-        _totalQuestions = totalQuestions;
+        _questionCount = questionCount;
         return this;
     }
 
     public ActivityBuilder AsRead()
     {
-        _type = "Read";
-        _score = null;
-        _totalQuestions = null;
+        _type = ActivityType.Read;
+        _score = 0;
+        _questionCount = 0;
+        _quizDuration = 0;
         return this;
     }
 
-    public ActivityBuilder WithScore(int? score)
+    public ActivityBuilder WithTiming(DateTime start, DateTime? end, int? readSecs, int? quizSecs)
     {
-        _score = score;
-        return this;
-    }
-
-    public ActivityBuilder WithSessionDate(DateTime date)
-    {
-        _sessionDate = date;
-        return this;
-    }
-
-    public ActivityBuilder WithLlm(string model, string version)
-    {
-        _llmModelName = model;
-        _llmVersion = version;
+        _sessionDateStart = start;
+        _sessionDateEnd = end;
+        _readDuration = readSecs;
+        _quizDuration = quizSecs;
         return this;
     }
 
     public UserActivity Build()
     {
+        var sourceHash = SourceHasher.GenerateHash(_sourceType, _sourceId);
+        double? percentage = null;
+        if (_type == ActivityType.Quiz && _questionCount > 0)
+        {
+            percentage = (double)_score / _questionCount * 100.0;
+        }
+
         return new UserActivity
         {
             Id = _id,
             UserId = _userId,
-            Title = _topic, // Map Topic -> Title
-            Description = $"{_type} on {_topic}",
-            SourceUrl = _wikipediaUrl,
+            Title = _title,
+            Description = $"{_type} session",
+            SourceId = _sourceId,
+            SourceType = _sourceType,
+            SourceHash = sourceHash,
             Type = _type,
-            LastAttemptDate = _sessionDate,
-            Score = _score ?? 0,
-            MaxScore = _totalQuestions ?? 0,
+            SessionDateStart = _sessionDateStart,
+            SessionDateEnd = _sessionDateEnd,
+            ReadDurationSeconds = _readDuration,
+            QuizDurationSeconds = _quizDuration,
+            Score = _score,
+            QuestionCount = _questionCount,
+            ScorePercentage = percentage,
+            IsCompleted = true,
             LlmModelName = _llmModelName,
-            IsTracked = true
+            LlmVersion = _llmVersion
         };
     }
 }

@@ -51,7 +51,7 @@ Peux-tu analyser l'état actuel et proposer tes améliorations ?
 Je veux améliorer l'UI/UX de la page UserPreferencesPage du projet "Derot My Brain".
 
 DOCUMENTATION À LIRE :
-- Docs/Planning/Specifications-fonctionnelles.md section "1.4.2 Préférences utilisateur"
+- Docs/Planning/functional_specifications_derot_my_brain.md section "1.4.2 Préférences utilisateur"
 - Docs/Technical/Frontend-Architecture.md
 
 AMÉLIORATION DEMANDÉE :

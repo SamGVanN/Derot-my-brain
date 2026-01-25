@@ -352,7 +352,7 @@ Toutes les autres tâches dépendent de Task 0.1.
 | Document | Modifications | Statut |
 |----------|---------------|--------|
 | **Implementation-Roadmap.md** | Ajout Phase 0 + Task 0.1 | ✅ |
-| **Specifications-fonctionnelles.md** | Section 1.3.0 ajoutée | ✅ |
+| **functional_specifications_derot_my_brain.md** | Section 1.3.0 ajoutée | ✅ |
 | **Project-Status.md** | Phase 0 ajoutée | ✅ |
 | **CHANGELOG-Phase0-Foundation.md** | Nouveau changelog | ✅ |
 

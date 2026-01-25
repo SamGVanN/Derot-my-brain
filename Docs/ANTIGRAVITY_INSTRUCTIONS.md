@@ -7,7 +7,7 @@
 - **Local hosting**: Run entirely on the user's machine (Windows/Linux/Homelab).
 - **SQLite**: Local embedded database for data persistence (No external SQL Server).
 - **Local AI**: Use Ollama (llama3, mistral, etc.) for generating questions and evaluating answers.
-- **Active Learning**: Read -> Quiz -> History/TrackedTopics loop.
+- **Active Learning**: Read -> Quiz -> History/UserFocus loop.
 
 ## Technology Stack
 - **Frontend**: React + TypeScript (using Vite).
@@ -47,7 +47,7 @@ CREATE TABLE UserPreferences (
     QuestionCount INTEGER DEFAULT 10,
     PreferredTheme TEXT DEFAULT 'derot-brain',
     Language TEXT DEFAULT 'auto',
-    FavoriteCategories TEXT, -- JSON Array of categories
+    SelectedCategories TEXT, -- JSON Array of category IDs
     FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
 );
 
@@ -55,40 +55,46 @@ CREATE TABLE UserPreferences (
 CREATE TABLE Activities (
     Id TEXT PRIMARY KEY,
     UserId TEXT NOT NULL,
-    Type TEXT NOT NULL, -- 'Read', 'Quiz'
-    Title TEXT NOT NULL, -- Topic/Article Title
-    Description TEXT,
-    SourceUrl TEXT,
-    ContentSourceType TEXT, -- 'Wikipedia', 'File', 'Url'
+    SourceId TEXT NOT NULL,
+    SourceType INTEGER NOT NULL,
+    SourceHash TEXT NOT NULL,
+    Title TEXT NOT NULL,
+    Description TEXT NOT NULL,
+    Type INTEGER NOT NULL,
+    SessionDateStart TEXT NOT NULL,
+    SessionDateEnd TEXT,
+    ReadDurationSeconds INTEGER,
+    QuizDurationSeconds INTEGER,
+    Score INTEGER NOT NULL,
+    QuestionCount INTEGER NOT NULL,
+    ScorePercentage REAL,
+    IsNewBestScore INTEGER DEFAULT 0,
+    IsCompleted INTEGER DEFAULT 0,
     ArticleContent TEXT,
     LlmModelName TEXT,
     LlmVersion TEXT,
-    
-    -- Quiz Stats
-    Score INTEGER NOT NULL DEFAULT 0,
-    MaxScore INTEGER NOT NULL DEFAULT 0,
-    
-    LastAttemptDate TEXT NOT NULL,
-    IsCompleted INTEGER DEFAULT 0,
-    IsTracked INTEGER DEFAULT 0,
-    Payload TEXT, -- JSON blob for questions/answers
-    
+    Payload TEXT,
     FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
 );
 
--- Table TrackedTopics
-CREATE TABLE TrackedTopics (
+-- Table UserFocuses
+CREATE TABLE UserFocuses (
     Id TEXT PRIMARY KEY,
     UserId TEXT NOT NULL,
-    Topic TEXT NOT NULL,
-    BestScore INTEGER DEFAULT 0,
-    BestScoreDate TEXT,
-    TotalQuizAttempts INTEGER DEFAULT 0,
-    TotalReadSessions INTEGER DEFAULT 0,
-    LastInteraction TEXT NOT NULL,
-    
+    SourceHash TEXT NOT NULL,
+    SourceId TEXT NOT NULL,
+    SourceType INTEGER NOT NULL,
+    DisplayTitle TEXT NOT NULL,
+    IsPinned INTEGER DEFAULT 0,
+    IsArchived INTEGER DEFAULT 0,
+    BestScore REAL DEFAULT 0,
+    LastScore REAL DEFAULT 0,
+    LastAttemptDate TEXT NOT NULL,
+    TotalReadTimeSeconds INTEGER DEFAULT 0,
+    TotalQuizTimeSeconds INTEGER DEFAULT 0,
+    TotalStudyTimeSeconds INTEGER DEFAULT 0,
     FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE,
-    UNIQUE(UserId, Topic)
+    UNIQUE(UserId, SourceHash)
 );
 ```
 
@@ -116,9 +122,11 @@ CREATE TABLE TrackedTopics (
 - `GET /api/users/{userId}/statistics/activity-calendar` - Get heatmap data.
 - `GET /api/users/{userId}/statistics/top-scores` - Get leaderboard/top scores.
 
-### Tracked Topics
-- `GET /api/users/{userId}/compendium` - Get all tracked topics.
-- `POST /api/users/{userId}/compendium/import` - Import tracked topics from history.
+### User Focus
+- `GET /api/users/{userId}/user-focus` - Get all user focus topics.
+- `POST /api/users/{userId}/user-focus` - Track/Untrack a topic.
+- `DELETE /api/users/{userId}/user-focus/{sourceHash}` - Untrack a topic.
+- `POST /api/users/{userId}/user-focus/{sourceHash}/rebuild` - Rebuild stats from history.
 
 ## AI Prompts
 

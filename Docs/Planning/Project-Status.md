@@ -3,7 +3,7 @@
 ## Overview
 This document tracks the implementation status of features defined in the Functional Specifications and the feature bucket list. It provides a high-level view of what's completed, in progress, and planned.
 
-**Last Updated:** 2026-01-21
+**Last Updated:** 2026-01-25
 
 ---
 
@@ -28,15 +28,15 @@ This document tracks the implementation status of features defined in the Functi
 - [x] **JSON File Storage**: Repository pattern for user data
 - [x] **User Service**: CRUD operations for users
 - [x] **User Activity Model**: High-performance hybrid architecture (Full session tracking + Aggregated cache) implemented
-- [x] **Tracked Topics**: Decoupled topic tracking with history rebuilding logic
+- [x] **User Focus Areas**: Decoupled topic tracking (UserFocus) with history rebuilding logic
 - [x] **CORS Configuration**: Frontend-backend communication enabled
 - [x] **Logging**: Serilog integrated
 
 #### 4. Testing & Quality Assurance
 - [x] **Backend Test Infrastructure**: xUnit + Moq project created (`DerotMyBrain.Tests`)
 - [x] **Frontend Test Infrastructure**: Vitest + React Testing Library configured
-- [x] **Unit Tests**: Core services (UserService, ConfigurationService, ActivityService, TrackedTopicService) covered >80%
-- [x] **Integration Tests**: Full API suite for Activities and TrackedTopics using WebApplicationFactory (24 tests)
+- [x] **Unit Tests**: Core services (UserService, ConfigurationService, ActivityService, UserFocusService) covered >80%
+- [x] **Integration Tests**: Full API suite for Activities and UserFocuses using WebApplicationFactory (32 tests passing)
 - [x] **Mock Data**: Comprehensive seed data in SQLite demonstrating topic evolution and improvement
 
 
@@ -145,7 +145,7 @@ This document tracks the implementation status of features defined in the Functi
     - LanguageSelector component for i18n switching
     - Active page highlighting with NavLink
     - Protected routes with authentication guards
-    - Routes: /, /history, /profile, /preferences, /derot, /tracked-topics, /guide
+    - Routes: /, /history, /profile, /preferences, /derot, /focus-area, /guide
 
 - [x] **Task 3.2: User Profile Page** (Formerly 4.2)
   - **Status:** Completed ✅
@@ -155,7 +155,7 @@ This document tracks the implementation status of features defined in the Functi
     - DeleteAccountModal with username confirmation
     - Backend endpoints: PUT /api/users/{id}, DELETE /api/users/{id}
     - 8 new backend tests (22/22 passing)
-    - Statistics display (activities, tracked topics)
+    - Statistics display (activities, user focus count)
     - Danger zone with account deletion
   - **Roadmap Task:** 3.2
 
@@ -210,8 +210,9 @@ This document tracks the implementation status of features defined in the Functi
     - Implemented logic for distinguishing "Read" vs "Quiz" activities
     - Implemented proxy methods for dashboard statistics
     - Created DTOs (`CreateActivityDto`, `UpdateActivityDto`)
-    - 10 comprehensive unit tests passing
+    - 14 comprehensive unit tests passing
     - Registered in DI container
+    - **Refactored (2026-01-25)**: Updated to use `ActivityType` and `SourceType` enums. Renamed `TrackedTopic` to `UserFocus` globally. Added support for multiple sessions per topic in `UserFocusService`. Added nullable timing support.
   - **Roadmap Task:** 4.2.3
 
 - [x] **Task 4.2.4: Backend - API Endpoints & DTOs**
@@ -222,6 +223,7 @@ This document tracks the implementation status of features defined in the Functi
     - Implemented `ActivitiesController` with all CRUD and dashboard endpoints
     - Implemented Unit Tests with Moq
     - Implemented Integration Tests with WebApplicationFactory
+    - **Refactored (2026-01-25)**: Renamed `MaxScore` to `QuestionCount`. Updated controllers and DTOs to use enums. Renamed `TrackedTopicsController` to `UserFocusController`.
   - **Roadmap Task:** 4.2.4
 
 - [x] **Task 4.2.5: Backend - Database Seeding & Mock Data**
@@ -235,24 +237,31 @@ This document tracks the implementation status of features defined in the Functi
   - **Roadmap Task:** 4.2.5
 
 - [x] **Task 4.2.6: Frontend - TypeScript Interfaces & API Client**
-  - **Status:** Not Started
-  - Create TS interfaces
-  - Implement API calls
+  - **Status:** Completed ✅
+  - **Completed Date:** 2026-01-25
+  - **Implementation:**
+    - Created `Enums.ts`, updated `UserActivity.ts`, `UserStatistics.ts`, `UserFocus.ts`.
+    - Refactored `activityApi.ts` and added `userFocusApi.ts`.
 
 - [x] **Task 4.2.7: Frontend - Custom Hooks**
-  - **Status:** Not Started
-  - useActivities, useTrackedTopics
-  - Dashboard hooks
+  - **Status:** Completed ✅
+  - **Completed Date:** 2026-01-25
+  - **Implementation:**
+    - Updated `useActivities`, `useUserFocus`, `useHistoryTimeline`.
 
 - [x] **Task 4.2.8: Frontend - History View Update**
-  - **Status:** Not Started
-  - Display Last/Best scores
-  - Show tracked indicators
+  - **Status:** Completed ✅
+  - **Completed Date:** 2026-01-25
+  - **Implementation:**
+    - Updated `HistoryTimeline.tsx` and `ActivityTimelineItem.tsx` to use new DTO properties and show personal bests.
 
-- [ ] **Task 4.2.9: Frontend - Tracked Topics Page**
-  - **Status:** Not Started
-  - Dedicated tracked topics page
-  - Track/untrack functionality
+- [x] **Task 4.2.9: Frontend - My Focus Area Page**
+  - **Status:** Completed ✅
+  - **Completed Date:** 2026-01-25
+  - **Implementation:**
+    - Renamed `TrackedTopicsPage` to `MyFocusAreaPage`.
+    - Updated routing and navigation.
+    - Updated translations.
 
 - [ ] **Task 4.2.10: Frontend - Dashboard Statistics (Optional V1)**
   - **Status:** Not Started
@@ -274,10 +283,10 @@ This document tracks the implementation status of features defined in the Functi
 
 ---
 
-### Phase 5: Data Views - History & Tracked Topics Page (Sprint C)
+### Phase 5: Data Views - History & My Focus Area Page (Sprint C)
 
 #### Visualization
-- [ ] **Task 5.1: Tracked Topics Page** (Formerly 4.3)
+- [ ] **Task 5.1: My Focus Area Page** (Formerly 4.3)
   - **Status:** Not Started
   - View and manage saved topics
 
@@ -350,10 +359,8 @@ This document tracks the implementation status of features defined in the Functi
 - [ ] Derot Page/Quiz (Phase 6)
 
 **Terminology Update (2026-01-18):**
-- **Backlog** renamed to **Tracked Topics** (Sujets Suivis)
-- **Favorites** merged into **Tracked Topics**
 - **Read** activity defined by scroll-to-bottom OR click "Passer au Quiz"
-- **My Brain** menu introduced to group History + Tracked Topics
+- **My Brain** menu introduced to group History + My Focus Area
 
 ### 📋 Implementation Details
 All features from the bucket list have been broken down into specific tasks in the **Implementation-Roadmap.md** document. Each task includes:
@@ -486,22 +493,20 @@ All features from the bucket list have been broken down into specific tasks in t
 - **CI/CD:** All tests must pass in pipeline before merge
 
 ### TestUser Mock Data Requirements:
-- **Location:** `/Data/users/` directory
-- **Files:**
-  - `users.json` - TestUser profile and preferences
-  - `user-{testuser-id}-history.json` - Activity history
-  - `user-{testuser-id}-tracked.json` - Tracked Topics (ex-Backlog) items
+- **Location:** `DerotMyBrain.Infrastructure.Data.DbInitializer`
 - **Quality:**
   - Realistic and representative data
   - Cover edge cases (empty, full, maximum values)
   - Include timestamps and proper formatting
   - Document data structure in acceptance criteria
+- **Seeding:**
+  - Every new feature must include a corresponding seeding logic for "TestUser" in the database initializer.
 
 ---
 
 ## Related Documentation
 
 - **[Implementation-Roadmap.md](file:///d:/Repos/Derot-my-brain/Docs/Implementation-Roadmap.md)**: Detailed task breakdowns with specifications
-- **[Specifications-fonctionnelles.md](file:///d:/Repos/Derot-my-brain/Docs/Specifications-fonctionnelles.md)**: Original functional specifications
+- **[functional_specifications_derot_my_brain.md](file:///d:/Repos/Derot-my-brain/Docs/functional_specifications_derot_my_brain.md)**: Original functional specifications
 - **[Guide-Compilation-Execution.md](file:///d:/Repos/Derot-my-brain/Docs/Guide-Compilation-Execution.md)**: How to build and run the project
 - **[ArchitectureDiagram.md](file:///d:/Repos/Derot-my-brain/Docs/ArchitectureDiagram.md)**: System architecture overview

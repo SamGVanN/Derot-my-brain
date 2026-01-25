@@ -1,7 +1,7 @@
 using DerotMyBrain.Infrastructure.Data;
 using DerotMyBrain.Core.Entities;
 using DerotMyBrain.Core.Interfaces.Services;
-using System.Text.Json;
+using DerotMyBrain.Core.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace DerotMyBrain.Infrastructure.Data;
@@ -11,6 +11,8 @@ namespace DerotMyBrain.Infrastructure.Data;
 /// </summary>
 public static class DbInitializer
 {
+    private const SourceType WikiType = SourceType.Wikipedia;
+
     public static async Task InitializeAsync(DerotDbContext context, ICategoryService categoryService)
     {
         // Check if TestUser already exists (idempotency)
@@ -40,128 +42,115 @@ public static class DbInitializer
 
         context.Users.Add(testUser);
         
-        // Seed realistic activities
+        // Topic Hashes
+        var quantumHash = SourceHasher.GenerateHash(WikiType, "https://en.wikipedia.org/wiki/Quantum_mechanics");
+        var relativityHash = SourceHasher.GenerateHash(WikiType, "https://en.wikipedia.org/wiki/Theory_of_relativity");
+        var aiHash = SourceHasher.GenerateHash(WikiType, "https://en.wikipedia.org/wiki/Artificial_intelligence");
+
         var baseDate = DateTime.UtcNow;
+
+        // Seed realistic activities
         var activities = new List<UserActivity>
         {
-            // ===== Topic Evolution: Quantum Mechanics (Tracked) =====
-            // Session 1: Read (5 days ago)
+            // ===== Topic Evolution: Quantum Mechanics =====
             new UserActivity
             {
-                Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
-                Type = "Reading",
+                Type = ActivityType.Read,
                 Title = "Quantum Mechanics",
-                Description = "Study session",
-                SourceUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
-                LastAttemptDate = baseDate.AddDays(-5),
-                Score = 0,
-                MaxScore = 0,
-                IsTracked = true
+                Description = "Getting to know the basics of Quantum Physics.",
+                SourceId = "https://en.wikipedia.org/wiki/Quantum_mechanics",
+                SourceType = WikiType,
+                SourceHash = quantumHash,
+                SessionDateStart = baseDate.AddDays(-5).AddHours(-1),
+                SessionDateEnd = baseDate.AddDays(-5),
+                ReadDurationSeconds = 1200,
+                IsCompleted = true
             },
-            // Session 2: First quiz (3 days ago, 6/10)
             new UserActivity
             {
-                Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
+                Type = ActivityType.Quiz,
                 Title = "Quantum Mechanics",
-                Description = "Quiz on Quantum Mechanics",
-                SourceUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
-                Type = "Quiz",
-                LastAttemptDate = baseDate.AddDays(-3),
+                Description = "First evaluation of basic concepts.",
+                SourceId = "https://en.wikipedia.org/wiki/Quantum_mechanics",
+                SourceType = WikiType,
+                SourceHash = quantumHash,
+                SessionDateStart = baseDate.AddDays(-3).AddHours(-0.5),
+                SessionDateEnd = baseDate.AddDays(-3),
+                ReadDurationSeconds = 300,
+                QuizDurationSeconds = 600,
                 Score = 6,
-                MaxScore = 10,
-                IsTracked = true
+                QuestionCount = 10,
+                ScorePercentage = 60.0,
+                IsNewBestScore = true,
+                IsCompleted = true
             },
-            // Session 3: Second quiz (today, 9/10 - improvement!)
             new UserActivity
             {
-                Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
+                Type = ActivityType.Quiz,
                 Title = "Quantum Mechanics",
-                Description = "Quiz on Quantum Mechanics",
-                SourceUrl = "https://en.wikipedia.org/wiki/Quantum_mechanics",
-                Type = "Quiz",
-                LastAttemptDate = baseDate,
+                Description = "Re-evaluation after further study.",
+                SourceId = "https://en.wikipedia.org/wiki/Quantum_mechanics",
+                SourceType = WikiType,
+                SourceHash = quantumHash,
+                SessionDateStart = baseDate.AddMinutes(-45),
+                SessionDateEnd = baseDate,
+                ReadDurationSeconds = 600,
+                QuizDurationSeconds = 450,
                 Score = 9,
-                MaxScore = 10,
-                IsTracked = true
+                QuestionCount = 10,
+                ScorePercentage = 90.0,
+                IsNewBestScore = true,
+                IsCompleted = true
             },
 
-            // ===== Non-Tracked Topic: Theory of Relativity =====
-            // Session 1: Read (2 days ago)
+            // ===== Theory of Relativity =====
             new UserActivity
             {
-                Id = Guid.NewGuid().ToString(),
                 UserId = "test-user-id",
+                Type = ActivityType.Quiz,
                 Title = "Theory of Relativity",
-                Description = "Reading session",
-                SourceUrl = "https://en.wikipedia.org/wiki/Theory_of_relativity",
-                Type = "Reading",
-                LastAttemptDate = baseDate.AddDays(-2),
-                Score = 0,
-                MaxScore = 0,
-                IsTracked = false
-            },
-            // Session 2: Quiz (1 day ago, 7/10)
-            new UserActivity
-            {
-                Id = Guid.NewGuid().ToString(),
-                UserId = "test-user-id",
-                Title = "Theory of Relativity",
-                Description = "Quiz on Theory of Relativity",
-                SourceUrl = "https://en.wikipedia.org/wiki/Theory_of_relativity",
-                Type = "Quiz",
-                LastAttemptDate = baseDate.AddDays(-1),
+                Description = "General relativity quiz.",
+                SourceId = "https://en.wikipedia.org/wiki/Theory_of_relativity",
+                SourceType = WikiType,
+                SourceHash = relativityHash,
+                SessionDateStart = baseDate.AddDays(-1).AddHours(-1),
+                SessionDateEnd = baseDate.AddDays(-1),
+                ReadDurationSeconds = 1800,
+                QuizDurationSeconds = 900,
                 Score = 7,
-                MaxScore = 10,
-                IsTracked = false
-            },
-
-            // ===== Tracked Topic with only reads: Artificial Intelligence =====
-            new UserActivity
-            {
-                Id = Guid.NewGuid().ToString(),
-                UserId = "test-user-id",
-                Title = "Artificial Intelligence",
-                Description = "Reading session",
-                SourceUrl = "https://en.wikipedia.org/wiki/Artificial_intelligence",
-                Type = "Reading",
-                LastAttemptDate = baseDate.AddDays(-7),
-                Score = 0,
-                MaxScore = 0,
-                IsTracked = true
+                QuestionCount = 10,
+                ScorePercentage = 70.0,
+                IsNewBestScore = true,
+                IsCompleted = true
             }
         };
 
         context.Activities.AddRange(activities);
 
-        // Seed Tracked Topics
-        var trackedTopics = new List<TrackedTopic>
+        // Seed focal points
+        var userFocuses = new List<UserFocus>
         {
-            // Quantum Mechanics (Tracked 4 days ago)
-            new TrackedTopic
+            new UserFocus
             {
                 UserId = "test-user-id",
-                Title = "Quantum Mechanics",
-                LastInteraction = baseDate,
-                TotalReadSessions = 3,
-                BestScore = 8 // Mock score
-            },
-            // Artificial Intelligence (Tracked 7 days ago)
-            new TrackedTopic
-            {
-                UserId = "test-user-id",
-                Title = "Artificial Intelligence",
-                LastInteraction = baseDate.AddDays(-7),
-                TotalReadSessions = 1,
-                BestScore = 2 
+                SourceHash = quantumHash,
+                SourceId = "https://en.wikipedia.org/wiki/Quantum_mechanics",
+                SourceType = WikiType,
+                DisplayTitle = "Quantum Mechanics Mastery",
+                BestScore = 90.0,
+                LastScore = 90.0,
+                LastAttemptDate = baseDate,
+                TotalReadTimeSeconds = 1200 + 300 + 600,
+                TotalQuizTimeSeconds = 600 + 450,
+                TotalStudyTimeSeconds = 1200 + 300 + 600 + 600 + 450
             }
         };
 
-        context.TrackedTopics.AddRange(trackedTopics);
+        context.UserFocuses.AddRange(userFocuses);
 
         await context.SaveChangesAsync();
-
     }
 }

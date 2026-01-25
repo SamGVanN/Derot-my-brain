@@ -1,52 +1,56 @@
 using System.ComponentModel.DataAnnotations;
+using DerotMyBrain.Core.Entities;
 
 namespace DerotMyBrain.Core.DTOs;
 
 /// <summary>
-/// DTO for creating a new user activity session.
+/// DTO for creating or initiating a new user activity session.
 /// </summary>
-public class CreateActivityDto : IValidatableObject
+public class CreateActivityDto
 {
     [Required]
     public string Title { get; set; } = string.Empty;
+
+    public string Description { get; set; } = string.Empty;
     
     [Required]
-    [Url]
-    public string WikipediaUrl { get; set; } = string.Empty;
+    public string SourceId { get; set; } = string.Empty;
     
+    [Required]
+    public SourceType SourceType { get; set; }
+
+    [Required]
+    public ActivityType Type { get; set; }
+
+    // Timing
+    [Required]
+    public DateTime SessionDateStart { get; set; }
+    
+    /// <summary>
+    /// Can be null if the activity is just being initiated.
+    /// </summary>
+    public DateTime? SessionDateEnd { get; set; }
+
+    // Durations
+    [Range(0, int.MaxValue)]
+    public int? ReadDurationSeconds { get; set; }
+    
+    [Range(0, int.MaxValue)]
+    public int? QuizDurationSeconds { get; set; }
+
+    // Quiz Metrics
     [Range(0, int.MaxValue)]
     public int? Score { get; set; }
     
-    [Range(1, int.MaxValue)]
-    public int? TotalQuestions { get; set; }
+    /// <summary>
+    /// Replaces MaxScore.
+    /// </summary>
+    [Range(0, int.MaxValue)]
+    public int? QuestionCount { get; set; }
     
+    // LLM Metadata
     public string? LlmModelName { get; set; }
     public string? LlmVersion { get; set; }
     
-    [Required]
-    [RegularExpression("^(Read|Quiz)$", ErrorMessage = "Type must be 'Read' or 'Quiz'")]
-    public string Type { get; set; } = "Read";
-
-    /// <summary>
-    /// Custom validation: Quiz activities must have Score and TotalQuestions.
-    /// </summary>
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-    {
-        if (Type == "Quiz")
-        {
-            if (!Score.HasValue)
-            {
-                yield return new ValidationResult(
-                    "Score is required for Quiz activities",
-                    new[] { nameof(Score) });
-            }
-
-            if (!TotalQuestions.HasValue)
-            {
-                yield return new ValidationResult(
-                    "TotalQuestions is required for Quiz activities",
-                    new[] { nameof(TotalQuestions) });
-            }
-        }
-    }
+    public string? Payload { get; set; }
 }

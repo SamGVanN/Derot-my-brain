@@ -19,12 +19,12 @@ public interface IActivityRepository
     Task<IEnumerable<UserActivity>> GetAllAsync(string userId);
     
     /// <summary>
-    /// Gets all activities for a specific topic (for evolution tracking and rebuilding cache).
+    /// Gets all activities for a specific content (by hash) for evolution tracking and rebuilding cache.
     /// </summary>
     /// <param name="userId">User identifier.</param>
-    /// <param name="topic">Topic name.</param>
-    /// <returns>Collection of activities for the topic, ordered by session date ascending.</returns>
-    Task<IEnumerable<UserActivity>> GetAllForTopicAsync(string userId, string topic);
+    /// <param name="sourceHash">Deterministic hash of (SourceType + SourceId).</param>
+    /// <returns>Collection of activities for the content, ordered by session date ascending.</returns>
+    Task<IEnumerable<UserActivity>> GetAllForContentAsync(string userId, string sourceHash);
     
     /// <summary>
     /// Gets a specific activity by ID for a user.

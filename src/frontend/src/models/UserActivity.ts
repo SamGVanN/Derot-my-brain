@@ -1,13 +1,38 @@
+import { SourceType, ActivityType } from './Enums';
+
 export interface UserActivity {
     id: string;
     userId: string;
-    type: string;
     title: string;
-    wikipediaUrl: string;
-    sessionDate: string;
-    score?: number;
-    totalQuestions?: number;
+    description: string;
+
+    // Content Identity
+    sourceId: string;
+    sourceType: SourceType;
+    sourceHash: string;
+
+    type: ActivityType;
+
+    // Timing
+    sessionDateStart: string;
+    sessionDateEnd?: string;
+
+    // Durations
+    readDurationSeconds?: number;
+    quizDurationSeconds?: number;
+    totalDurationSeconds: number;
+
+    // Stats
+    score: number;
+    questionCount: number;
+    scorePercentage?: number;
+    isNewBestScore: boolean;
+    isCompleted: boolean;
+
+    // LLM Info
     llmModelName?: string;
     llmVersion?: string;
+
     isTracked: boolean;
+    payload?: string;
 }

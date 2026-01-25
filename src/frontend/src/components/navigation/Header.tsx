@@ -82,7 +82,7 @@ export function Header() {
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => navigate('/tracked-topics')}>
                                         <Brain className="mr-2 h-4 w-4" />
-                                        {t('nav.trackedTopics', 'Tracked Topics')}
+                                        {t('nav.focusArea', 'Mes focus')}
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">

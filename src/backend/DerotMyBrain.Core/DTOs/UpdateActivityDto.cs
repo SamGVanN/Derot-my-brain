@@ -8,8 +8,13 @@ public class UpdateActivityDto
     public int? Score { get; set; }
     
     [Range(1, int.MaxValue)]
-    public int? TotalQuestions { get; set; }
+    public int? QuestionCount { get; set; }
     
     public string? LlmModelName { get; set; }
     public string? LlmVersion { get; set; }
+
+    public int? ReadDurationSeconds { get; set; }
+    public int? QuizDurationSeconds { get; set; }
+    public DateTime? SessionDateEnd { get; set; }
+    public bool? IsCompleted { get; set; }
 }

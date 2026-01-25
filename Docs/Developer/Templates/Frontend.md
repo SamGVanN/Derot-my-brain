@@ -55,7 +55,7 @@ Je veux implémenter le FRONTEND de la tâche 3.1 (Session Management) du projet
 DOCUMENTATION À LIRE :
 - ANTIGRAVITY_INSTRUCTIONS.md
 - Docs/Planning/Implementation-Roadmap.md section 3.1
-- Docs/Planning/Specifications-fonctionnelles.md section "1.4.5 Gestion des sessions"
+- Docs/Planning/functional_specifications_derot_my_brain.md section "1.4.5 Gestion des sessions"
 - Docs/Technical/Frontend-Architecture.md
 
 SCOPE FRONTEND :

@@ -1,27 +1,27 @@
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import type { UserActivity } from '../models/UserActivity';
-import type { TrackedTopicDto } from '../models/UserStatistics';
+import type { UserFocus, TrackTopicRequest } from '../models/UserFocus';
 import { ActivityTimelineItem } from './ActivityTimelineItem';
-
 import { parseDate, isValidDate } from '@/lib/dateUtils';
 
 interface HistoryTimelineProps {
     activities: UserActivity[];
-    trackedTopics: TrackedTopicDto[];
-    onTrack: (topic: string, url: string) => void;
-    onUntrack: (topic: string) => void;
+    userFocuses: UserFocus[];
+    onTrack: (request: TrackTopicRequest) => void;
+    onUntrack: (sourceHash: string) => void;
 }
 
 export const HistoryTimeline: React.FC<HistoryTimelineProps> = ({
     activities,
-    trackedTopics,
+    userFocuses,
     onTrack,
     onUntrack
 }) => {
     const { t } = useTranslation();
 
     const groupedActivities = activities.reduce((groups, activity) => {
-        const dateObj = parseDate(activity.sessionDate);
+        const dateObj = parseDate(activity.sessionDateStart);
         const date = isValidDate(dateObj)
             ? dateObj.toLocaleDateString()
             : 'Unknown Date';
@@ -40,19 +40,19 @@ export const HistoryTimeline: React.FC<HistoryTimelineProps> = ({
         return parseDate(b).getTime() - parseDate(a).getTime();
     });
 
-    const getBestScore = (topic: string) => {
-        const tracked = trackedTopics.find(t => t.topic === topic);
-        if (tracked?.bestScore != null) {
+    const getBestScore = (sourceHash: string) => {
+        const focus = userFocuses.find(t => t.sourceHash === sourceHash);
+        if (focus?.bestScore != null) {
             return {
-                score: tracked.bestScore,
-                total: tracked.totalQuestions
+                score: focus.bestScore,
+                lastScore: focus.lastScore
             };
         }
         return undefined;
     };
 
-    const isTracked = (topic: string) => {
-        return trackedTopics.some(t => t.topic === topic);
+    const isTopicFocused = (sourceHash: string) => {
+        return userFocuses.some(t => t.sourceHash === sourceHash);
     };
 
     return (
@@ -71,10 +71,14 @@ export const HistoryTimeline: React.FC<HistoryTimelineProps> = ({
                                 <ActivityTimelineItem
                                     key={activity.id}
                                     activity={activity}
-                                    isTracked={isTracked(activity.topic)}
-                                    bestScore={getBestScore(activity.topic)}
-                                    onTrack={() => onTrack(activity.topic, activity.wikipediaUrl)}
-                                    onUntrack={() => onUntrack(activity.topic)}
+                                    isTracked={isTopicFocused(activity.sourceHash)}
+                                    bestScore={getBestScore(activity.sourceHash)}
+                                    onTrack={() => onTrack({
+                                        sourceId: activity.sourceId,
+                                        sourceType: activity.sourceType,
+                                        displayTitle: activity.title
+                                    })}
+                                    onUntrack={() => onUntrack(activity.sourceHash)}
                                     isLast={index === groupedActivities[date].length - 1}
                                 />
                             ))}

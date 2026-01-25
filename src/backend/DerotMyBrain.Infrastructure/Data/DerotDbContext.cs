@@ -8,7 +8,7 @@ public class DerotDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<UserPreferences> UserPreferences { get; set; }
     public DbSet<UserActivity> Activities { get; set; }
-    public DbSet<TrackedTopic> TrackedTopics { get; set; }
+    public DbSet<UserFocus> UserFocuses { get; set; }
     
     public DerotDbContext(DbContextOptions<DerotDbContext> options) : base(options)
     {
@@ -35,14 +35,12 @@ public class DerotDbContext : DbContext
             entity.Property(e => e.Theme).HasDefaultValue("system");
             entity.Property(e => e.Language).HasDefaultValue("en");
             
-            // JSON column for FavoriteCategories (List<WikipediaCategory>)
-             entity.Property(e => e.FavoriteCategories)
+            entity.Property(e => e.FavoriteCategories)
                 .HasConversion(
                     v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
                     v => System.Text.Json.JsonSerializer.Deserialize<List<WikipediaCategory>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<WikipediaCategory>()
                 );
             
-            // Foreign key relationship (1-to-1)
             entity.HasOne(e => e.User)
                 .WithOne(u => u.Preferences)
                 .HasForeignKey<UserPreferences>(e => e.UserId)
@@ -55,17 +53,19 @@ public class DerotDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.Type).IsRequired();
-            entity.Property(e => e.LastAttemptDate).IsRequired();
             
-            // Required fields
             entity.Property(e => e.Title).IsRequired();
-            // SourceUrl is optional in entity (string?), but if we want it required for now:
-            // entity.Property(e => e.SourceUrl).IsRequired(); 
-            // In Entity it is nullable string? SourceUrl. So IsRequired() might be wrong if we allow file uploads without URL.
-            // Let's matching Entity: nullable.
+            entity.Property(e => e.SourceId).IsRequired();
+            entity.Property(e => e.SourceType).IsRequired();
+            entity.Property(e => e.SourceHash).IsRequired();
             
-            entity.HasIndex(e => new { e.UserId, e.LastAttemptDate });
-            entity.HasIndex(e => new { e.UserId, e.Title, e.LastAttemptDate });
+            // Map SessionDateEnd as optional
+            entity.Property(e => e.SessionDateEnd).IsRequired(false);
+            
+            // Indexes
+            entity.HasIndex(e => new { e.UserId, e.SessionDateStart }); // For history sorting by start
+            entity.HasIndex(e => new { e.UserId, e.SessionDateEnd }); // For history sorting by end
+            entity.HasIndex(e => new { e.UserId, e.SourceHash });
             
             entity.HasOne(e => e.User)
                 .WithMany(u => u.Activities)
@@ -73,17 +73,20 @@ public class DerotDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // TrackedTopic configuration
-        modelBuilder.Entity<TrackedTopic>(entity =>
+        // UserFocus configuration
+        modelBuilder.Entity<UserFocus>(entity =>
         {
+            entity.ToTable("UserFocuses"); // renaming the table too
             entity.HasKey(e => e.Id);
             entity.Property(e => e.UserId).IsRequired();
-            entity.Property(e => e.Title).IsRequired();
+            entity.Property(e => e.SourceId).IsRequired();
+            entity.Property(e => e.SourceType).IsRequired();
+            entity.Property(e => e.SourceHash).IsRequired();
             
-            entity.HasIndex(e => new { e.UserId, e.Title }).IsUnique();
+            entity.HasIndex(e => new { e.UserId, e.SourceHash }).IsUnique();
             
             entity.HasOne(e => e.User)
-                .WithMany(u => u.TrackedTopics)
+                .WithMany(u => u.UserFocuses)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });

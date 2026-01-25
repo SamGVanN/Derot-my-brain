@@ -4,6 +4,11 @@
         "loading": "Chargement de l'historique...",
         "error": "Impossible de charger l'historique.",
         "empty": "Aucune activité enregistrée. Commencez à explorer !",
+        "bestScore": "Meilleur score du sujet",
+        "untrack": "Ne plus suivre",
+        "track": "Suivre le sujet",
+        "score": "Score",
+        "unknownDate": "Date Inconnue",
         "motivational": {
             "tier1": "Bel effort ! Continuez d'apprendre.",
             "tier2": "Bon travail ! Vous progressez bien.",
@@ -19,25 +24,29 @@
         "delete": "Supprimer",
         "edit": "Modifier",
         "back": "Retour",
+        "backToHistory": "Retour à l'Historique",
         "or": "OU",
         "loading": "Chargement...",
         "error": "Erreur",
         "selectAll": "Tout sélectionner",
-        "deselectAll": "Tout désélectionner"
+        "deselectAll": "Tout désélectionner",
+        "global": "Global/Système"
     },
     "nav": {
-        "derot": "Derot",
+        "derot": "Derot Zone",
         "history": "Historique",
+        "focusArea": "Mes Focus",
         "backlog": "Backlog",
         "profile": "Profil",
         "preferences": "Préférences",
         "guide": "Guide",
-        "logout": "Déconnexion"
+        "logout": "Déconnexion",
+        "myAccount": "Mon Compte"
     },
     "layout": {
         "appName": "Derot My Brain",
         "footer": "© 2026 Derot My Brain. Apprentissage Local.",
-        "version": "v0.1.0"
+        "version": "v0.5.0"
     },
     "theme": {
         "fallback": "Thème"
@@ -58,8 +67,8 @@
             "feature2Text": "Défiez-vous avec des quiz générés par l'IA sur les articles que vous venez de lire.",
             "feature3Title": "Suivre vos Progrès",
             "feature3Text": "Suivez votre parcours d'apprentissage, vos scores et vos meilleures performances au fil du temps.",
-            "feature4Title": "Votre Backlog",
-            "feature4Text": "Sauvegardez des articles intéressants dans votre backlog pour les lire et faire des quiz plus tard."
+            "feature4Title": "Votre Zone Focus",
+            "feature4Text": "Sauvegardez des sujets intéressants dans votre Zone Focus pour les revisiter et les maîtriser par la répétition."
         }
     },
     "userSelection": {
@@ -88,20 +97,17 @@
             "label": "Thème d'Apparence",
             "mismatch": "Le thème actuellement actif ({{themeName}}) est différent du thème de votre profil enregistré."
         },
-        "quiz": {
-            "questionCount": "Questions par Quiz"
-        },
-        "categories": {
-            "title": "Domaines de Connaissance",
-            "description": "Sélectionnez les sujets que vous souhaitez explorer."
-        },
-        "about": {
-            "title": "À Propos des Paramètres",
-            "description": "Personnalisez votre expérience. Ces paramètres seront automatiquement chargés à chaque connexion."
-        },
         "section": {
             "general": "Paramètres Généraux",
-            "interests": "Centres d'Intérêt & Sujets"
+            "generalDescription": "Personnalisez votre expérience UI et la langue.",
+            "derotZone": "Paramètres de la Derot Zone",
+            "interests": "Centres d'Intérêt & Sujets",
+            "interestsDescription": "Sélectionnez les sujets que vous souhaitez explorer.",
+            "ai": "Configuration du Moteur IA"
+        },
+        "quiz": {
+            "questionCount": "Questions par Quiz",
+            "questionCountDescription": "Choisissez le nombre de questions à inclure dans chaque session de quiz."
         }
     },
     "profile": {
@@ -116,7 +122,7 @@
         "statistics": "Statistiques",
         "statsDescription": "Votre progression d'apprentissage",
         "totalActivities": "Activités totales",
-        "trackedTopicsCount": "Sujets suivis",
+        "userFocusCount": "Sujets en Focus",
         "dangerZone": "Zone de danger",
         "dangerZoneDescription": "Actions irréversibles",
         "deleteAccount": "Supprimer le compte",
@@ -125,7 +131,7 @@
         "deleteAccountList": {
             "profile": "Informations de profil",
             "history": "Historique d'activité",
-            "tracked": "Sujets suivis",
+            "tracked": "Sujets du Focus",
             "preferences": "Préférences"
         },
         "deleteAccountConfirm": "Tapez votre nom d'utilisateur pour confirmer",
@@ -133,19 +139,39 @@
         "saveSuccess": "Profil mis à jour avec succès",
         "saveError": "Échec de la mise à jour du profil"
     },
+    "homepage": {
+        "title": "Page d'Accueil",
+        "comingSoon": "Bientôt disponible dans la Phase 7 (à venir)",
+        "description": "Bienvenue sur Derot My Brain. Afficahge d'informations telles que la configuration de l'application, les 5 dernières activités, un rappel du nombre d'item dans le backlog, etc."
+    },
     "derot": {
         "title": "Page Derot",
-        "comingSoon": "Bientôt disponible dans la Phase 6",
+        "comingSoon": "Bientôt disponible dans la Phase 6 (à venir)",
         "description": "C'est ici que vous lirez des articles Wikipédia et passerez des quiz pour tester vos connaissances."
     },
-    "trackedTopics": {
-        "title": "Sujets Suivis",
-        "comingSoon": "Bientôt disponible dans la Phase 5",
+    "focusArea": {
+        "title": "Mes Focus",
+        "comingSoon": "Bientôt disponible dans la Phase 5 (actuellement en cours de développement)",
         "description": "C'est ici que vous gérerez vos sujets suivis et articles favoris pour les revisiter plus tard."
+    },
+    "library": {
+        "title": "Ma Bibliothèque",
+        "comingSoon": "Bientôt disponible dans la Phase 5 (actuellement en cours de développement)",
+        "description": "C'est ici que vous gérerez vos documents personnels pour les étudier."
+    },
+    "backlog": {
+        "title": "Backlog",
+        "comingSoon": "Bientôt disponible dans la Phase 5 (actuellement en cours de développement)",
+        "description": "C'est ici que vous choisirez quoi faire des artiles qui vous intéressent mais n'avez pas traité."
+    },
+    "dashboard": {
+        "title": "Tableau de Bord",
+        "comingSoon": "Bientôt disponible dans la Phase 9 (à venir)",
+        "description": "C'est ici que vous trouverez des guides utiles et des tutoriels sur l'utilisation de Derot My Brain."
     },
     "guide": {
         "title": "Guide Utilisateur",
-        "comingSoon": "Bientôt disponible dans la Phase 8",
+        "comingSoon": "Bientôt disponible dans la Phase 8 (à venir)",
         "description": "C'est ici que vous trouverez des guides utiles et des tutoriels sur l'utilisation de Derot My Brain."
     },
     "configuration": {

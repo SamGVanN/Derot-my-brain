@@ -23,7 +23,7 @@ Refactor the `UserActivity` model and introduce a new `TrackedTopic` model to su
 **Before you start, review these documents:**
 
 1. **[DerotProperties.md](file:///d:/Repos/Derot-my-brain/Docs/Planning/DerotProperties.md)** - Full architecture analysis and approved solution
-2. **[Specifications-fonctionnelles.md](file:///d:/Repos/Derot-my-brain/Docs/Planning/Specifications-fonctionnelles.md)** - Functional requirements (especially section 1.3.7)
+2. **[functional_specifications_derot_my_brain.md](file:///d:/Repos/Derot-my-brain/Docs/Planning/functional_specifications_derot_my_brain.md)** - Functional requirements (especially section 1.3.7)
 3. **[Backend-Guidelines.md](file:///d:/Repos/Derot-my-brain/Docs/Technical/Backend-Guidelines.md)** - Coding standards and patterns
 4. **[Testing-Strategy.md](file:///d:/Repos/Derot-my-brain/Docs/Technical/Testing-Strategy.md)** - TDD requirements
 

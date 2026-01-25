@@ -1,3 +1,5 @@
+using DerotMyBrain.Core.Entities;
+
 namespace DerotMyBrain.Core.DTOs;
 
 /// <summary>
@@ -5,59 +7,42 @@ namespace DerotMyBrain.Core.DTOs;
 /// </summary>
 public class UserActivityDto
 {
-    /// <summary>
-    /// Unique identifier for the activity.
-    /// </summary>
     public string Id { get; set; } = string.Empty;
-
-    /// <summary>
-    /// ID of the user who performed this activity.
-    /// </summary>
     public string UserId { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Wikipedia topic/article title.
-    /// </summary>
     public string Title { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Full Wikipedia URL for the article.
-    /// </summary>
-    public string WikipediaUrl { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Type of this session: "Read" or "Quiz".
-    /// </summary>
-    public string Type { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
     
-    /// <summary>
-    /// When this session occurred.
-    /// </summary>
-    public DateTime SessionDate { get; set; }
+    // Content Identity
+    public string SourceId { get; set; } = string.Empty;
+    public SourceType SourceType { get; set; }
+    public string SourceHash { get; set; } = string.Empty;
+
+    public ActivityType Type { get; set; }
     
-    /// <summary>
-    /// Score from this quiz session. Null for Type = "Read".
-    /// </summary>
-    public int? Score { get; set; }
+    // Timing
+    public DateTime SessionDateStart { get; set; }
+    public DateTime? SessionDateEnd { get; set; }
+    
+    // Durations
+    public int? ReadDurationSeconds { get; set; }
+    public int? QuizDurationSeconds { get; set; }
+    public int TotalDurationSeconds { get; set; }
+    
+    // Stats
+    public int Score { get; set; }
+    public int QuestionCount { get; set; }
+    public double? ScorePercentage { get; set; }
+    public bool IsNewBestScore { get; set; }
+    public bool IsCompleted { get; set; }
 
-    /// <summary>
-    /// Total questions in this session. Null for Type = "Read".
-    /// </summary>
-    public int? TotalQuestions { get; set; }
-
-    /// <summary>
-    /// Name of the LLM model used.
-    /// </summary>
+    // LLM Info
     public string? LlmModelName { get; set; }
-
-    /// <summary>
-    /// Version of the LLM model used.
-    /// </summary>
     public string? LlmVersion { get; set; }
-
+    
     /// <summary>
-    /// Indicator if the topic is currently tracked by the user.
+    /// Indicates if this topic is currently being tracked by the user.
     /// </summary>
     public bool IsTracked { get; set; }
+    
+    public string? Payload { get; set; }
 }
-

@@ -2,7 +2,7 @@ import { NavLink } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import {
     BrainCircuit,
-    Brain,
+    Target,
     User,
     Settings,
     BookOpen,
@@ -10,7 +10,10 @@ import {
     Menu,
     X,
     History,
-    Home
+    Home,
+    ChartColumn,
+    Library,
+    ClockAlert
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -32,19 +35,33 @@ type NavigationGroup = {
 
 const navigationGroups: NavigationGroup[] = [
     {
+        title: 'Welcome',
+        items: [
+            { path: '/homepage', icon: Home, labelKey: 'nav.home', label: 'Homepage' },
+            { path: '/guide', icon: BookOpen, labelKey: 'nav.guide', label: 'Guide' },
+        ]
+    },
+    {
         title: 'Derot my brain',
         items: [
-            { path: '/home', icon: Home, labelKey: 'nav.home', label: 'Homepage', disabled: true },
-            { path: '/activity', icon: BrainCircuit, labelKey: 'nav.activity', label: 'Derot zone' },
-            { path: '/tracked-topics', icon: Brain, labelKey: 'nav.trackedTopics', label: 'Tracked Topics' },
+            { path: '/activity', icon: BrainCircuit, labelKey: 'nav.derot', label: 'Derot zone' },
             { path: '/history', icon: History, labelKey: 'nav.history', label: 'History' },
         ]
     },
     {
+        title: 'Knowledge',
         items: [
+            { path: '/focus-area', icon: Target, labelKey: 'nav.focusArea', label: 'My Focus Area' },
+            { path: '/documents', icon: Library, labelKey: 'nav.documents', label: 'Documents' },
+            { path: '/backlog', icon: ClockAlert, labelKey: 'nav.backlog', label: 'Backlog' },
+        ]
+    },
+    {
+        title: 'Personal',
+        items: [
+            { path: '/dashboard', icon: ChartColumn, labelKey: 'nav.dashboard', label: 'Dashboard' },
             { path: '/profile', icon: User, labelKey: 'nav.profile', label: 'Profile' },
             { path: '/preferences', icon: Settings, labelKey: 'nav.preferences', label: 'Preferences' },
-            { path: '/guide', icon: BookOpen, labelKey: 'nav.guide', label: 'Guide' },
         ]
     }
 ];

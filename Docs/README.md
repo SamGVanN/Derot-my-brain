@@ -12,7 +12,7 @@ The documentation is organized into four main folders:
 
 - **[Project-Status.md](file:///d:/Repos/Derot-my-brain/Docs/Planning/Project-Status.md)** - Current project state, completed features, sprint tracking
 - **[Implementation-Roadmap.md](file:///d:/Repos/Derot-my-brain/Docs/Planning/Implementation-Roadmap.md)** - Detailed task breakdown with specifications and acceptance criteria
-- **[Specifications-fonctionnelles.md](file:///d:/Repos/Derot-my-brain/Docs/Planning/Specifications-fonctionnelles.md)** - Complete functional requirements and business logic
+- **[functional_specifications_derot_my_brain.md](file:///d:/Repos/Derot-my-brain/Docs/Planning/functional_specifications_derot_my_brain.md)** - Complete functional requirements and business logic
 
 ### 🏗️ Technical/ - Technical Specifications & Constraints
 
@@ -62,7 +62,7 @@ Planning/Project-Status.md (What's done, what's next)
     ↓
 Planning/Implementation-Roadmap.md (How to build each feature)
     ↓
-Planning/Specifications-fonctionnelles.md (What each feature should do)
+Planning/functional_specifications_derot_my_brain.md (What each feature should do)
     ↓
 Technical/* (How to implement technically)
     ↓
@@ -85,7 +85,7 @@ Developer/Getting-Started.md (How to run the code)
    - Review objectives, specifications, and acceptance criteria
    - Note dependencies and complexity
 
-3. **Reference Planning/Specifications-fonctionnelles.md**
+3. **Reference Planning/functional_specifications_derot_my_brain.md**
    - Read the corresponding functional section
    - Understand business requirements
    - Check data structures and UI requirements
@@ -118,7 +118,7 @@ Developer/Getting-Started.md (How to run the code)
 |------------|-------------------|
 | Check project status | [Planning/Project-Status.md](file:///d:/Repos/Derot-my-brain/Docs/Planning/Project-Status.md) |
 | Start implementing a feature | [Planning/Implementation-Roadmap.md](file:///d:/Repos/Derot-my-brain/Docs/Planning/Implementation-Roadmap.md) |
-| Understand requirements | [Planning/Specifications-fonctionnelles.md](file:///d:/Repos/Derot-my-brain/Docs/Planning/Specifications-fonctionnelles.md) |
+| Understand requirements | [Planning/functional_specifications_derot_my_brain.md](file:///d:/Repos/Derot-my-brain/Docs/Planning/functional_specifications_derot_my_brain.md) |
 | Frontend architecture | [Technical/Frontend-Architecture.md](file:///d:/Repos/Derot-my-brain/Docs/Technical/Frontend-Architecture.md) |
 | Backend architecture | [Technical/Backend-Guidelines.md](file:///d:/Repos/Derot-my-brain/Docs/Technical/Backend-Guidelines.md) |
 | Testing approach | [Technical/Testing-Strategy.md](file:///d:/Repos/Derot-my-brain/Docs/Technical/Testing-Strategy.md) |
@@ -135,11 +135,11 @@ Developer/Getting-Started.md (How to run the code)
 ### For Planning Agents
 - Start with **Planning/Project-Status.md** to understand context
 - Use **Planning/Implementation-Roadmap.md** to create detailed plans
-- Reference **Planning/Specifications-fonctionnelles.md** for requirements
+- Reference **Planning/functional_specifications_derot_my_brain.md** for requirements
 
 ### For Implementation Agents
 - Read the specific task in **Planning/Implementation-Roadmap.md**
-- Check **Planning/Specifications-fonctionnelles.md** for detailed requirements
+- Check **Planning/functional_specifications_derot_my_brain.md** for detailed requirements
 - Follow **Technical/** guidelines for your area (Frontend, Backend, Testing)
 - Use appropriate **Developer/Templates/** prompt template
 - Follow the acceptance criteria exactly
@@ -147,7 +147,7 @@ Developer/Getting-Started.md (How to run the code)
 
 ### For Review Agents
 - Compare implementation against **Planning/Implementation-Roadmap.md** acceptance criteria
-- Verify alignment with **Planning/Specifications-fonctionnelles.md**
+- Verify alignment with **Planning/functional_specifications_derot_my_brain.md**
 - Check compliance with **Technical/** guidelines
 - Verify **Planning/Project-Status.md** is updated correctly
 
@@ -158,15 +158,15 @@ Developer/Getting-Started.md (How to run the code)
 ### When Adding New Features
 1. Add to **Planning/Project-Status.md** (in appropriate phase)
 2. Create detailed task in **Planning/Implementation-Roadmap.md**
-3. Add functional specification in **Planning/Specifications-fonctionnelles.md**
+3. Add functional specification in **Planning/functional_specifications_derot_my_brain.md**
 
 ### When Completing Features
 1. Mark as complete in **Planning/Project-Status.md**
 2. Update task status in **Planning/Implementation-Roadmap.md**
-3. Verify implementation matches **Planning/Specifications-fonctionnelles.md**
+3. Verify implementation matches **Planning/functional_specifications_derot_my_brain.md**
 
 ### When Changing Requirements
-1. Update **Planning/Specifications-fonctionnelles.md** first
+1. Update **Planning/functional_specifications_derot_my_brain.md** first
 2. Modify task in **Planning/Implementation-Roadmap.md**
 3. Update status in **Planning/Project-Status.md**
 4. Document the change reason
@@ -186,4 +186,4 @@ Each folder serves a specific purpose and they work together to provide complete
 
 ---
 
-**Last Updated:** 2026-01-19
+**Last Updated:** 2026-01-25

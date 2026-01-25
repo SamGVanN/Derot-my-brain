@@ -5,7 +5,7 @@ import type { UserActivity } from '../models/UserActivity';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { parseDate, isValidDate } from '@/lib/dateUtils';
-import { calculatePercentage, formatScoreDisplay, isBestScore } from '@/lib/formatUtils';
+import { formatScoreDisplay } from '@/lib/formatUtils';
 import {
     Tooltip,
     TooltipContent,
@@ -16,7 +16,7 @@ import {
 interface ActivityTimelineItemProps {
     activity: UserActivity;
     isTracked: boolean;
-    bestScore?: { score: number; total?: number };
+    bestScore?: { score: number; lastScore: number };
     onTrack: () => void;
     onUntrack: () => void;
     isLast?: boolean;
@@ -47,18 +47,18 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
             {/* Timeline Column */}
             <div className="flex flex-col items-center flex-shrink-0 w-16 pt-1">
                 <span className="text-xs font-mono text-muted-foreground">
-                    {isValidDate(parseDate(activity.sessionDate))
-                        ? parseDate(activity.sessionDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    {isValidDate(parseDate(activity.sessionDateStart))
+                        ? parseDate(activity.sessionDateStart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                         : '--:--'}
                 </span>
                 <div className="relative flex flex-col items-center h-full mt-2">
                     <div className={cn(
                         "z-10 bg-background p-1 rounded-full border-2",
-                        isBestScore(activity.score, bestScore, isTracked)
+                        activity.isNewBestScore
                             ? "border-yellow-500 text-yellow-600 dark:text-yellow-400 bg-yellow-500/10"
                             : "border-primary text-primary"
                     )}>
-                        {isBestScore(activity.score, bestScore, isTracked) ? (
+                        {activity.isNewBestScore ? (
                             <Trophy className="w-4 h-4" />
                         ) : activity.type === 'Quiz' ? (
                             <NotebookPen className="w-4 h-4" />
@@ -86,22 +86,20 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                                     {activity.type}
                                 </span>
                                 {isTracked && bestScore && (
-                                    <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20 flex items-center gap-1" title={t('history.bestScore', 'All-time Best')}>
+                                    <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20 flex items-center gap-1" title={t('history.bestScore', 'Topic Personal Best')}>
                                         <Trophy className="w-3 h-3" />
-                                        {bestScore!.total
-                                            ? calculatePercentage(bestScore!.score, bestScore!.total)
-                                            : bestScore!.score}%
+                                        {Math.round(bestScore.score)}%
                                     </span>
                                 )}
                             </div>
 
                             <a
-                                href={activity.wikipediaUrl}
+                                href={activity.sourceId}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-base font-semibold text-foreground hover:text-primary transition-colors flex items-center gap-1.5 truncate group/link"
                             >
-                                {activity.topic}
+                                {activity.title}
                                 <ExternalLink className="h-3 w-3 opacity-0 group-hover/link:opacity-100 transition-opacity flex-shrink-0" />
                             </a>
                         </div>
@@ -123,21 +121,21 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                     {/* Stats & Info */}
                     <div className="flex items-end justify-between mt-4">
                         <div className="flex-1 pr-4">
-                            {activity.score !== undefined && activity.score !== null && (
+                            {activity.type === 'Quiz' && (
                                 <div>
                                     <div className="flex justify-between text-xs mb-1.5">
                                         <span className="text-muted-foreground">{t('history.score', 'Score')}</span>
                                         <span className="font-medium text-foreground">
-                                            {formatScoreDisplay(activity.score, activity.totalQuestions ?? undefined)}
+                                            {formatScoreDisplay(activity.score, activity.questionCount)}
                                         </span>
                                     </div>
                                     <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-gradient-to-r from-primary/80 to-primary"
                                             style={{
-                                                width: `${activity.totalQuestions
-                                                    ? (activity.score! / activity.totalQuestions) * 100
-                                                    : activity.score}%`
+                                                width: `${activity.questionCount > 0
+                                                    ? (activity.score / activity.questionCount) * 100
+                                                    : 0}%`
                                             }}
                                         />
                                     </div>
@@ -164,9 +162,9 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                         )}
                     </div>
 
-                    {/* Motivational Text - Moved to separate row */}
-                    {activity.score !== undefined && activity.totalQuestions && (() => {
-                        const percentage = (activity.score / activity.totalQuestions) * 100;
+                    {/* Motivational Text */}
+                    {activity.type === 'Quiz' && activity.questionCount > 0 && (() => {
+                        const percentage = (activity.score / activity.questionCount) * 100;
                         if (percentage <= 60) return null;
 
                         let messageKey = '';

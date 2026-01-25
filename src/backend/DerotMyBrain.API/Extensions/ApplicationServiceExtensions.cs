@@ -11,7 +11,7 @@ public static class ApplicationServiceExtensions
         // 3. Domain Services (Core)
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IActivityService, ActivityService>();
-        services.AddScoped<ITrackedTopicService, TrackedTopicService>();
+        services.AddScoped<IUserFocusService, UserFocusService>();
 
         // Legacy / Helper Services
         services.AddSingleton<ISeedDataService, SeedDataService>();

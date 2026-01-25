@@ -16,7 +16,7 @@ Ce document contient le template principal pour l'implémentation des tâches du
 ## 📝 Template pour Ajouter des Features dans la Documentation
 
 ```
-Met à jours /Docs (à minima Specifications-fonctionnelles.md, Implementation-Roadmap.md, Project-Status.md) pour la feature ou tâche suivante à implémenter.
+Met à jours /Docs (à minima functional_specifications_derot_my_brain.md, Implementation-Roadmap.md, Project-Status.md) pour la feature ou tâche suivante à implémenter.
 Tu n'implémente rien, tu prépare le terrain et maintiens à jours les instructions pour l'agent développeur.
 
 FEATURE À AJOUTER :
@@ -55,7 +55,7 @@ TÂCHE À IMPLÉMENTER :
 - Respecter les dépendances listées
 
 SPÉCIFICATIONS FONCTIONNELLES :
-- Lire la section correspondante dans Docs/Planning/Specifications-fonctionnelles.md
+- Lire la section correspondante dans Docs/Planning/functional_specifications_derot_my_brain.md
 - Comprendre les besoins métier avant de coder
 
 CONTRAINTES TECHNIQUES :

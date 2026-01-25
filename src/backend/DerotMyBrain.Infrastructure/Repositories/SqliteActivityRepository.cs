@@ -23,26 +23,16 @@ public class SqliteActivityRepository : IActivityRepository
         return await _context.Activities
             .AsNoTracking()
             .Where(a => a.UserId == userId)
-            .OrderByDescending(a => a.LastAttemptDate)
+            .OrderByDescending(a => a.SessionDateStart)
             .ToListAsync();
     }
     
-    public async Task<IEnumerable<UserActivity>> GetAllForTopicAsync(string userId, string topic)
+    public async Task<IEnumerable<UserActivity>> GetAllForContentAsync(string userId, string sourceHash)
     {
-        // Activity entity might store topic in Title or Description if not dedicated column
-        // But in original code it had "Topic". In new Entity I removed "Topic" property in favor of generic properties?
-        // Let me check Entity definition I wrote...
-        // Ah, UserActivity.cs I wrote: Type, Title, Description, SourceUrl, ContentSourceType...
-        // Does it have Topic? No.
-        // But "Title" is likely the Topic for Wiki.
-        // Wait, TrackedTopic uses "Name".
-        // I need to ensure consistency.
-        // Ideally "Title" is the topic name for Wiki.
-        
         return await _context.Activities
             .AsNoTracking()
-            .Where(a => a.UserId == userId && a.Title == topic) // Assuming Title is Topic
-            .OrderBy(a => a.LastAttemptDate)
+            .Where(a => a.UserId == userId && a.SourceHash == sourceHash)
+            .OrderBy(a => a.SessionDateStart)
             .ToListAsync();
     }
     
@@ -89,27 +79,26 @@ public class SqliteActivityRepository : IActivityRepository
         var stats = new UserStatisticsDto
         {
             TotalActivities = activities.Count,
-            TotalQuizzes = activities.Count(a => a.Type == "Quiz" || a.Type == "Quiz_Pending"),
-            TotalReads = activities.Count(a => a.Type == "Reading" || a.Type == "Read"),
-            TrackedTopicsCount = await _context.TrackedTopics.CountAsync(t => t.UserId == userId)
+            TotalQuizzes = activities.Count(a => a.Type == ActivityType.Quiz),
+            TotalReads = activities.Count(a => a.Type == ActivityType.Read),
+            UserFocusCount = await _context.UserFocuses.CountAsync(t => t.UserId == userId)
         };
 
-        var last = activities.OrderByDescending(a => a.LastAttemptDate).FirstOrDefault();
+        var last = activities.OrderByDescending(a => a.SessionDateStart).FirstOrDefault();
         if (last != null)
         {
             stats.LastActivity = new LastActivityDto
             {
                 ActivityId = last.Id,
                 Title = last.Title,
-                Date = last.LastAttemptDate,
-                Type = last.Type
+                Date = last.SessionDateEnd ?? last.SessionDateStart,
+                Type = last.Type.ToString()
             };
         }
         
-        // Best Score logic needs "Percentage" which is computed property, querying in memory is fine for low volume
         var best = activities
-            .Where(a => a.MaxScore > 0)
-            .OrderByDescending(a => a.Percentage)
+            .Where(a => a.ScorePercentage.HasValue)
+            .OrderByDescending(a => a.ScorePercentage)
             .FirstOrDefault();
             
         if (best != null)
@@ -119,9 +108,9 @@ public class SqliteActivityRepository : IActivityRepository
                 ActivityId = best.Id,
                 Title = best.Title,
                 Score = best.Score,
-                TotalQuestions = best.MaxScore,
-                Percentage = best.Percentage,
-                Date = best.LastAttemptDate
+                QuestionCount = best.QuestionCount,
+                Percentage = best.ScorePercentage ?? 0,
+                Date = best.SessionDateEnd ?? best.SessionDateStart
             };
         }
         
@@ -133,8 +122,8 @@ public class SqliteActivityRepository : IActivityRepository
         var startDate = DateTime.UtcNow.Date.AddDays(-days + 1);
         var stats = await _context.Activities
             .AsNoTracking()
-            .Where(a => a.UserId == userId && a.LastAttemptDate >= startDate)
-            .GroupBy(a => a.LastAttemptDate.Date)
+            .Where(a => a.UserId == userId && a.SessionDateStart >= startDate)
+            .GroupBy(a => a.SessionDateStart.Date)
             .Select(g => new ActivityCalendarDto
             {
                 Date = g.Key,
@@ -149,8 +138,8 @@ public class SqliteActivityRepository : IActivityRepository
     {
         var scores = await _context.Activities
             .AsNoTracking()
-            .Where(a => a.UserId == userId && a.MaxScore > 0)
-            .OrderByDescending(a => (double)a.Score / a.MaxScore)
+            .Where(a => a.UserId == userId && a.ScorePercentage.HasValue)
+            .OrderByDescending(a => a.ScorePercentage)
             .Take(limit)
             .ToListAsync();
             
@@ -159,9 +148,9 @@ public class SqliteActivityRepository : IActivityRepository
             ActivityId = a.Id,
             Title = a.Title,
             Score = a.Score,
-            TotalQuestions = a.MaxScore,
-            Percentage = a.Percentage,
-            Date = a.LastAttemptDate
+            QuestionCount = a.QuestionCount,
+            Percentage = a.ScorePercentage ?? 0,
+            Date = a.SessionDateEnd ?? a.SessionDateStart
         });
     }
 }

@@ -2,6 +2,7 @@ using DerotMyBrain.Core.DTOs;
 using DerotMyBrain.Core.Entities;
 using DerotMyBrain.Core.Interfaces.Repositories;
 using DerotMyBrain.Core.Interfaces.Services;
+using DerotMyBrain.Core.Utils;
 using System.Text.Json;
 
 namespace DerotMyBrain.Core.Services;
@@ -9,18 +10,18 @@ namespace DerotMyBrain.Core.Services;
 public class ActivityService : IActivityService
 {
     private readonly IActivityRepository _repository;
-    private readonly ITrackedTopicService _trackedTopicService;
+    private readonly IUserFocusService _userFocusService;
     private readonly IEnumerable<IContentSource> _contentSources;
     private readonly ILlmService _llmService;
 
     public ActivityService(
         IActivityRepository repository,
-        ITrackedTopicService trackedTopicService,
+        IUserFocusService userFocusService,
         IEnumerable<IContentSource> contentSources,
         ILlmService llmService)
     {
         _repository = repository;
-        _trackedTopicService = trackedTopicService;
+        _userFocusService = userFocusService;
         _contentSources = contentSources;
         _llmService = llmService;
     }
@@ -29,29 +30,30 @@ public class ActivityService : IActivityService
     {
         // 1. Resolve Strategy
         var source = _contentSources.FirstOrDefault(s => s.CanHandle(request.Type));
-        
-        if (source == null)
-        {
-             source = _contentSources.FirstOrDefault(s => s.CanHandle("Wikipedia")); 
-        }
-        
         if (source == null) throw new InvalidOperationException("No suitable content source found.");
 
         // 2. Fetch Content
         var content = await source.GetContentAsync(request.Filter); 
 
-        // 3. Create Activity
+        // 3. Create Activity (Initial Read)
+        // Map string SourceType from ContentResult to Enum
+        Enum.TryParse<SourceType>(content.SourceType, true, out var sourceType);
+        if (sourceType == 0) sourceType = SourceType.Wikipedia;
+
+        var sourceHash = SourceHasher.GenerateHash(sourceType, content.SourceUrl);
         var activity = new UserActivity
         {
             UserId = userId,
-            Type = "Reading",
+            Type = ActivityType.Read,
             Title = content.Title,
             Description = "Reading article: " + content.Title,
-            SourceUrl = content.SourceUrl,
-            ContentSourceType = content.SourceType,
+            SourceId = content.SourceUrl,
+            SourceType = sourceType,
+            SourceHash = sourceHash,
             ArticleContent = content.TextContent, 
-            LastAttemptDate = DateTime.UtcNow,
-            IsTracked = false
+            SessionDateStart = DateTime.UtcNow,
+            SessionDateEnd = null, // Still reading
+            ReadDurationSeconds = 0 
         };
 
         await _repository.CreateAsync(activity);
@@ -61,40 +63,72 @@ public class ActivityService : IActivityService
 
     public async Task<QuizDto> GenerateQuizAsync(string userId, string activityId)
     {
-        // 1. Get Activity
         var activity = await _repository.GetByIdAsync(userId, activityId);
         if (activity == null) throw new KeyNotFoundException("Activity not found");
 
-        // 2. Get Content
-        string textToProcess = activity.ArticleContent;
+        string textToProcess = activity.ArticleContent ?? string.Empty;
         if (string.IsNullOrEmpty(textToProcess)) throw new InvalidOperationException("No content available to generate quiz.");
 
-        // 3. Generate Questions via LLM
         var questionsJson = await _llmService.GenerateQuestionsAsync(textToProcess);
         
-        // Deserialize questions
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var questions = JsonSerializer.Deserialize<List<QuestionDto>>(questionsJson, options) ?? new List<QuestionDto>();
-
-        // 4. Create separate Quiz Activity
-        var quizActivity = new UserActivity
-        {
-            UserId = userId,
-            Type = "Quiz_Pending", 
-            Title = "Quiz: " + activity.Title,
-            Description = "Generated quiz for " + activity.Title,
-            SourceUrl = activity.SourceUrl,
-            ArticleContent = textToProcess, 
-            Payload = questionsJson, 
-            LastAttemptDate = DateTime.UtcNow
-        };
-        
-        await _repository.CreateAsync(quizActivity);
 
         return new QuizDto
         {
             Questions = questions
         };
+    }
+
+    public async Task<UserActivity> CreateActivityAsync(string userId, CreateActivityDto dto)
+    {
+        var sourceHash = SourceHasher.GenerateHash(dto.SourceType, dto.SourceId);
+        
+        // Calculate Score Percentage
+        double? scorePercentage = null;
+        if (dto.Type == ActivityType.Quiz && dto.QuestionCount.HasValue && dto.QuestionCount.Value > 0)
+        {
+            scorePercentage = (double)(dto.Score ?? 0) / dto.QuestionCount.Value * 100.0;
+        }
+
+        // Check for New Best Score
+        bool isNewBest = false;
+        if (scorePercentage.HasValue)
+        {
+            var history = await _repository.GetAllForContentAsync(userId, sourceHash);
+            var prevBest = history.Where(h => h.ScorePercentage.HasValue).Max(h => (double?)h.ScorePercentage) ?? -1.0;
+            isNewBest = scorePercentage.Value > prevBest;
+        }
+
+        var activity = new UserActivity
+        {
+            UserId = userId,
+            Type = dto.Type,
+            Title = dto.Title,
+            Description = string.IsNullOrEmpty(dto.Description) ? $"Activity on {dto.Title}" : dto.Description,
+            SourceId = dto.SourceId,
+            SourceType = dto.SourceType,
+            SourceHash = sourceHash,
+            SessionDateStart = dto.SessionDateStart,
+            SessionDateEnd = dto.SessionDateEnd,
+            ReadDurationSeconds = dto.ReadDurationSeconds,
+            QuizDurationSeconds = dto.QuizDurationSeconds,
+            Score = dto.Score ?? 0,
+            QuestionCount = dto.QuestionCount ?? 0,
+            ScorePercentage = scorePercentage,
+            IsNewBestScore = isNewBest,
+            IsCompleted = true, // If created via DTO, usually it's a finished session
+            LlmModelName = dto.LlmModelName,
+            LlmVersion = dto.LlmVersion,
+            Payload = dto.Payload
+        };
+
+        await _repository.CreateAsync(activity);
+
+        // Update focus stats
+        await _userFocusService.UpdateStatsAsync(userId, sourceHash, activity);
+
+        return activity;
     }
 
     public async Task<UserStatisticsDto> GetStatisticsAsync(string userId) => await _repository.GetStatisticsAsync(userId);
@@ -109,57 +143,96 @@ public class ActivityService : IActivityService
         => await _repository.GetByIdAsync(userId, activityId);
 
     public async Task DeleteActivityAsync(string userId, string activityId) 
-        => await _repository.DeleteAsync(userId, activityId);
-
-    public async Task<IEnumerable<UserActivity>> GetAllActivitiesAsync(string userId) 
-        => await _repository.GetAllAsync(userId);
-
-    public async Task<UserActivity> CreateActivityAsync(string userId, CreateActivityDto dto)
     {
-        var activity = new UserActivity
-        {
-            UserId = userId,
-            Type = dto.Type, // "Quiz", "Read"
-            Title = dto.Title,
-            Description = $"Activity on {dto.Title}",
-            SourceUrl = dto.WikipediaUrl,
-            IsTracked = true, // Default to tracked
-            LastAttemptDate = DateTime.UtcNow,
-            Score = dto.Score ?? 0,
-            MaxScore = dto.TotalQuestions ?? 0
-        };
+        var activity = await _repository.GetByIdAsync(userId, activityId);
+        if (activity == null) return;
 
-        await _repository.CreateAsync(activity);
+        var sourceHash = activity.SourceHash;
+        await _repository.DeleteAsync(userId, activityId);
+        
+        await _userFocusService.RebuildStatsAsync(userId, sourceHash);
+    }
 
-        // Update topic stats if relevant. Fixed: passing activity.
-        await _trackedTopicService.UpdateStatsAsync(userId, dto.Title, activity);
+    public async Task<IEnumerable<UserActivityDto>> GetAllActivitiesAsync(string userId) 
+    {
+        var activities = await _repository.GetAllAsync(userId);
+        var trackedHashes = (await _userFocusService.GetAllFocusesAsync(userId))
+            .Select(t => t.SourceHash)
+            .ToHashSet();
 
-        return activity;
+        return activities.Select(a => MapToDto(a, trackedHashes.Contains(a.SourceHash)));
+    }
+
+    public async Task<IEnumerable<UserActivityDto>> GetAllForContentAsync(string userId, string sourceHash)
+    {
+        var activities = await _repository.GetAllForContentAsync(userId, sourceHash);
+        var isTracked = await _userFocusService.GetFocusAsync(userId, sourceHash) != null;
+        
+        return activities.Select(a => MapToDto(a, isTracked));
     }
 
     public async Task<UserActivity> UpdateActivityAsync(string userId, string activityId, UpdateActivityDto dto)
     {
         var activity = await _repository.GetByIdAsync(userId, activityId);
-        if (activity == null)
-            throw new KeyNotFoundException($"Activity {activityId} not found");
+        if (activity == null) throw new KeyNotFoundException($"Activity {activityId} not found");
 
         if (dto.Score.HasValue) activity.Score = dto.Score.Value;
-        if (dto.TotalQuestions.HasValue) activity.MaxScore = dto.TotalQuestions.Value;
+        if (dto.QuestionCount.HasValue) activity.QuestionCount = dto.QuestionCount.Value;
+        if (dto.ReadDurationSeconds.HasValue) activity.ReadDurationSeconds = dto.ReadDurationSeconds.Value;
+        if (dto.QuizDurationSeconds.HasValue) activity.QuizDurationSeconds = dto.QuizDurationSeconds.Value;
+        if (dto.SessionDateEnd.HasValue) activity.SessionDateEnd = dto.SessionDateEnd.Value;
+        if (dto.IsCompleted.HasValue) activity.IsCompleted = dto.IsCompleted.Value;
+
+        // Recalculate score percentage if updated
+        if (dto.Score.HasValue || dto.QuestionCount.HasValue)
+        {
+            if (activity.QuestionCount > 0)
+            {
+                activity.ScorePercentage = (double)activity.Score / activity.QuestionCount * 100.0;
+                
+                var history = await _repository.GetAllForContentAsync(userId, activity.SourceHash);
+                var prevBest = history.Where(h => h.Id != activityId && h.ScorePercentage.HasValue)
+                                     .Max(h => (double?)h.ScorePercentage) ?? -1.0;
+                activity.IsNewBestScore = activity.ScorePercentage.Value > prevBest;
+            }
+        }
+
         if (!string.IsNullOrEmpty(dto.LlmModelName)) activity.LlmModelName = dto.LlmModelName;
         if (!string.IsNullOrEmpty(dto.LlmVersion)) activity.LlmVersion = dto.LlmVersion;
 
         await _repository.UpdateAsync(activity);
         
-        // Update tracked topic stats if applicable
-        if (activity.IsTracked)
-        {
-            // Fixed: passing activity
-            await _trackedTopicService.UpdateStatsAsync(userId, activity.Title, activity);
-        }
+        await _userFocusService.RebuildStatsAsync(userId, activity.SourceHash);
 
         return activity;
     }
 
-    public async Task<IEnumerable<UserActivity>> GetAllForTopicAsync(string userId, string topic)
-        => await _repository.GetAllForTopicAsync(userId, topic);
+    private UserActivityDto MapToDto(UserActivity a, bool isTracked)
+    {
+        return new UserActivityDto
+        {
+            Id = a.Id,
+            UserId = a.UserId,
+            Title = a.Title,
+            Description = a.Description,
+            SourceId = a.SourceId,
+            SourceType = a.SourceType,
+            SourceHash = a.SourceHash,
+            Type = a.Type,
+            SessionDateStart = a.SessionDateStart,
+            SessionDateEnd = a.SessionDateEnd,
+            ReadDurationSeconds = a.ReadDurationSeconds,
+            QuizDurationSeconds = a.QuizDurationSeconds,
+            TotalDurationSeconds = a.TotalDurationSeconds,
+            Score = a.Score,
+            QuestionCount = a.QuestionCount,
+            ScorePercentage = a.ScorePercentage,
+            IsNewBestScore = a.IsNewBestScore,
+            IsCompleted = a.IsCompleted,
+            LlmModelName = a.LlmModelName,
+            LlmVersion = a.LlmVersion,
+            IsTracked = isTracked,
+            Payload = a.Payload
+        };
+    }
 }

@@ -1,19 +1,26 @@
 export interface UserStatisticsDto {
-    lastActivity?: {
-        date: string;
-        title: string;
-        activityId: string;
-    };
     totalActivities: number;
-    bestScore?: {
-        score: number;
-        totalQuestions: number;
-        percentage: number;
-        title: string;
-        activityId: string;
-        date: string;
-    };
-    activityCalendar: ActivityCalendarDto[];
+    totalQuizzes: number;
+    totalReads: number;
+    userFocusCount: number;
+    lastActivity?: LastActivityDto;
+    bestScore?: BestScoreDto;
+}
+
+export interface LastActivityDto {
+    activityId: string;
+    title: string;
+    date: string;
+    type: string;
+}
+
+export interface BestScoreDto {
+    activityId: string;
+    title: string;
+    score: number;
+    questionCount: number;
+    percentage: number;
+    date: string;
 }
 
 export interface ActivityCalendarDto {
@@ -22,26 +29,10 @@ export interface ActivityCalendarDto {
 }
 
 export interface TopScoreDto {
-    score: number;
-    totalQuestions: number;
-    percentage: number;
-    title: string;
     activityId: string;
+    title: string;
+    score: number;
+    questionCount: number;
+    percentage: number;
     date: string;
-}
-
-export interface TrackedTopicDto {
-    title: string;
-    wikipediaUrl: string;
-    addedAt: string;
-    lastActivityAt?: string;
-    bestScore?: number;
-    bestScoreDate?: string;
-    totalQuestions?: number;
-    totalSessions: number;
-}
-
-export interface TrackTopicDto {
-    title: string;
-    wikipediaUrl: string;
 }
