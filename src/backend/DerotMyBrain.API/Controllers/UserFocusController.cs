@@ -138,6 +138,44 @@ public class UserFocusController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Toggles PIN status.
+    /// </summary>
+    [HttpPatch("{sourceHash}/pin")]
+    public async Task<ActionResult<UserFocusDto>> TogglePin(string userId, string sourceHash)
+    {
+        try
+        {
+            var focus = await _userFocusService.TogglePinAsync(userId, sourceHash);
+            if (focus == null) return NotFound();
+            return Ok(MapToDto(focus));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error toggling pin for focus {Hash}, user {UserId}", sourceHash, userId);
+            return StatusCode(500, new { message = "Internal server error" });
+        }
+    }
+
+    /// <summary>
+    /// Toggles ARCHIVE status.
+    /// </summary>
+    [HttpPatch("{sourceHash}/archive")]
+    public async Task<ActionResult<UserFocusDto>> ToggleArchive(string userId, string sourceHash)
+    {
+        try
+        {
+            var focus = await _userFocusService.ToggleArchiveAsync(userId, sourceHash);
+            if (focus == null) return NotFound();
+            return Ok(MapToDto(focus));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error toggling archive for focus {Hash}, user {UserId}", sourceHash, userId);
+            return StatusCode(500, new { message = "Internal server error" });
+        }
+    }
+
     private UserFocusDto MapToDto(UserFocus t)
     {
         return new UserFocusDto

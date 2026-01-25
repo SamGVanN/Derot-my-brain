@@ -53,4 +53,14 @@ public class CreateActivityDto
     public string? LlmVersion { get; set; }
     
     public string? Payload { get; set; }
+    
+    // Optional: number of backlog additions performed during creation (useful for Explore creations)
+    [Range(0, int.MaxValue)]
+    public int? BacklogAddsCount { get; set; }
+
+    /// <summary>
+    /// Optional: when creating a Read that originates from a prior Explore session,
+    /// provide the Explore activity Id so the service can link them transactionally.
+    /// </summary>
+    public string? OriginExploreId { get; set; }
 }

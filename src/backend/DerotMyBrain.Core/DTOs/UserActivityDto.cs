@@ -46,4 +46,17 @@ public class UserActivityDto
     public bool IsTracked { get; set; }
     
     public string? Payload { get; set; }
+    
+    // --- Explore-specific fields ---
+    /// <summary>
+    /// If this activity was an Explore session that later resulted in a Read,
+    /// this holds the Id of the resulting Read UserActivity.
+    /// </summary>
+    public string? ResultingReadActivityId { get; set; }
+
+    /// <summary>
+    /// Number of items added to the Backlog during this Explore session.
+    /// Nullable: null => not recorded, 0 => recorded and none were added.
+    /// </summary>
+    public int? BacklogAddsCount { get; set; }
 }

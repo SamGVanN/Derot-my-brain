@@ -25,5 +25,15 @@ export const userFocusApi = {
     getFocusEvolution: async (userId: string, sourceHash: string): Promise<UserActivity[]> => {
         const response = await client.get<UserActivity[]>(`/users/${userId}/user-focus/${sourceHash}/evolution`);
         return response.data;
+    },
+
+    togglePin: async (userId: string, sourceHash: string): Promise<UserFocus> => {
+        const response = await client.patch<UserFocus>(`/users/${userId}/user-focus/${sourceHash}/pin`);
+        return response.data;
+    },
+
+    toggleArchive: async (userId: string, sourceHash: string): Promise<UserFocus> => {
+        const response = await client.patch<UserFocus>(`/users/${userId}/user-focus/${sourceHash}/archive`);
+        return response.data;
     }
 };

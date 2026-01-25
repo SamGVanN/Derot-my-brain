@@ -32,6 +32,36 @@ export function MyFocusAreaPage() {
         fetchFocuses();
     }, [user]);
 
+    const handleUntrack = async (focus: UserFocus) => {
+        if (!user) return;
+        try {
+            await userFocusApi.untrackTopic(user.id, focus.sourceHash);
+            setFocuses(prev => prev.filter(f => f.sourceHash !== focus.sourceHash));
+        } catch (error) {
+            console.error('Failed to untrack focus area:', error);
+        }
+    };
+
+    const handleTogglePin = async (focus: UserFocus) => {
+        if (!user) return;
+        try {
+            const updated = await userFocusApi.togglePin(user.id, focus.sourceHash);
+            setFocuses(prev => prev.map(f => f.sourceHash === focus.sourceHash ? updated : f));
+        } catch (error) {
+            console.error('Failed to toggle pin:', error);
+        }
+    };
+
+    const handleToggleArchive = async (focus: UserFocus) => {
+        if (!user) return;
+        try {
+            const updated = await userFocusApi.toggleArchive(user.id, focus.sourceHash);
+            setFocuses(prev => prev.map(f => f.sourceHash === focus.sourceHash ? updated : f));
+        } catch (error) {
+            console.error('Failed to toggle archive:', error);
+        }
+    };
+
     const filteredFocuses = useMemo(() => {
         return focuses.filter(f => {
             const matchesSearch = f.displayTitle.toLowerCase().includes(searchQuery.toLowerCase());
@@ -107,6 +137,9 @@ export function MyFocusAreaPage() {
                             <FocusAreaCard
                                 key={focus.sourceHash}
                                 focus={focus}
+                                onUntrack={handleUntrack}
+                                onTogglePin={handleTogglePin}
+                                onToggleArchive={handleToggleArchive}
                             />
                         ))}
                     </div>

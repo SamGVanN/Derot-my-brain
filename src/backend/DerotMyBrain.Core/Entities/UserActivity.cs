@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace DerotMyBrain.Core.Entities;
 
@@ -13,7 +12,6 @@ public class UserActivity
     
     public required string UserId { get; set; }
     
-    [JsonIgnore]
     public User User { get; set; } = null!;
     
     // --- Content Identification ---
@@ -142,4 +140,25 @@ public class UserActivity
     /// JSON blob containing the technical details of the session (e.g., questions, answers).
     /// </summary>
     public string? Payload { get; set; }
+
+    // --- Explore-specific linkage & counters ---
+
+    /// <summary>
+    /// If this activity is an Explore session, and it later resulted in a Read activity,
+    /// this field stores the Id of the corresponding Read `UserActivity`.
+    /// Nullable when no Read followed the exploration.
+    /// </summary>
+    public string? ResultingReadActivityId { get; set; }
+
+    /// <summary>
+    /// Navigation property to the resulting Read activity (self-referencing).
+    /// Nullable.
+    /// </summary>
+    public UserActivity? ResultingReadActivity { get; set; }
+
+    /// <summary>
+    /// Number of articles the user added to their Backlog during this Explore session.
+    /// Nullable: `null` means "not recorded", `0` means recorded and none were added.
+    /// </summary>
+    public int? BacklogAddsCount { get; set; }
 }

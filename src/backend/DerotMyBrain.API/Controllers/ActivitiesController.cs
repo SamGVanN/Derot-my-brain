@@ -204,6 +204,9 @@ public class ActivitiesController : ControllerBase
             LlmVersion = a.LlmVersion,
             IsTracked = isTracked,
             Payload = a.Payload
+                ,
+                ResultingReadActivityId = a.ResultingReadActivityId,
+                BacklogAddsCount = a.BacklogAddsCount
         };
     }
 }

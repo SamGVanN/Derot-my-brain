@@ -23,6 +23,7 @@ interface ActivityTimelineItemProps {
     onUntrack: () => void;
     isLast?: boolean;
     isCompact?: boolean;
+    showTrackButton?: boolean;
 }
 
 export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
@@ -34,7 +35,8 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
     onTrack,
     onUntrack,
     isLast = false,
-    isCompact = false
+    isCompact = false,
+    showTrackButton = true
 }) => {
     const { t } = useTranslation();
 
@@ -174,18 +176,20 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                             </a>
                         </div>
 
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className={cn(
-                                "h-8 w-8 flex-shrink-0 hover:bg-muted",
-                                isTracked ? "text-primary" : "text-muted-foreground/40 hover:text-primary"
-                            )}
-                            onClick={handleToggleTrack}
-                            title={isTracked ? t('history.untrack', 'Untrack topic') : t('history.track', 'Track topic')}
-                        >
-                            {isTracked ? <BookmarkCheck className="h-5 w-5 fill-current" /> : <Bookmark className="h-5 w-5" />}
-                        </Button>
+                        {showTrackButton && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={cn(
+                                    "h-8 w-8 flex-shrink-0 hover:bg-muted",
+                                    isTracked ? "text-primary" : "text-muted-foreground/40 hover:text-primary"
+                                )}
+                                onClick={handleToggleTrack}
+                                title={isTracked ? t('history.untrack', 'Untrack topic') : t('history.track', 'Track topic')}
+                            >
+                                {isTracked ? <BookmarkCheck className="h-5 w-5 fill-current" /> : <Bookmark className="h-5 w-5" />}
+                            </Button>
+                        )}
                     </div>
 
                     {/* Stats & Info */}

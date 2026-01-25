@@ -33,4 +33,14 @@ public interface IUserFocusService
     /// Updates the aggregated statistics of a focus after a new activity.
     /// </summary>
     Task UpdateStatsAsync(string userId, string sourceHash, UserActivity activity);
+
+    /// <summary>
+    /// Toggles the pinned status of a focus área.
+    /// </summary>
+    Task<UserFocus?> TogglePinAsync(string userId, string sourceHash);
+
+    /// <summary>
+    /// Toggles the archived status of a focus área.
+    /// </summary>
+    Task<UserFocus?> ToggleArchiveAsync(string userId, string sourceHash);
 }

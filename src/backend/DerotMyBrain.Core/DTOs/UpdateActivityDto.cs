@@ -17,4 +17,15 @@ public class UpdateActivityDto
     public int? QuizDurationSeconds { get; set; }
     public DateTime? SessionDateEnd { get; set; }
     public bool? IsCompleted { get; set; }
+
+    // --- Explore linkage updates ---
+    /// <summary>
+    /// When an Explore transitions to a Read, the resulting Read activity Id can be set here.
+    /// </summary>
+    public string? ResultingReadActivityId { get; set; }
+
+    /// <summary>
+    /// Optional update to backlog additions count for Explore sessions.
+    /// </summary>
+    public int? BacklogAddsCount { get; set; }
 }

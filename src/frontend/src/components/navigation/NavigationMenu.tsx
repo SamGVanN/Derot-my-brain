@@ -44,7 +44,7 @@ const navigationGroups: NavigationGroup[] = [
     {
         title: 'Derot my brain',
         items: [
-            { path: '/activity', icon: BrainCircuit, labelKey: 'nav.derot', label: 'Derot zone' },
+            { path: '/derot', icon: BrainCircuit, labelKey: 'nav.derot', label: 'Derot zone' },
             { path: '/history', icon: History, labelKey: 'nav.history', label: 'History' },
         ]
     },

@@ -87,4 +87,47 @@ public class ActivitiesControllerIntegrationTests :
         Assert.Equal(2, stats.TotalActivities);
         Assert.Equal(1, stats.UserFocusCount);
     }
+
+    [Fact]
+    public async Task CreateActivity_WithOriginExploreId_ShouldLinkExploreAndRead()
+    {
+        // Arrange: create an Explore activity directly in DB
+        var explore = new UserActivity
+        {
+            Id = "explore-integ-1",
+            UserId = "test-user-integration",
+            Title = "Explore Session",
+            Description = "Exploring topics",
+            SourceId = "derot://explore/2026-01-25T15:00:00Z",
+            SourceType = SourceType.Wikipedia,
+            SourceHash = "explore-hash-1",
+            Type = ActivityType.Read,
+            SessionDateStart = DateTime.UtcNow.AddMinutes(-5)
+        };
+
+        await _dbFixture.SeedActivityAsync(explore);
+
+        // Act: create a Read activity that references the Explore via OriginExploreId
+        var dto = new CreateActivityDto
+        {
+            Title = "Linked Read",
+            SourceId = "https://en.wikipedia.org/wiki/Linked",
+            SourceType = SourceType.Wikipedia,
+            Type = ActivityType.Read,
+            SessionDateStart = DateTime.UtcNow,
+            OriginExploreId = explore.Id
+        };
+
+        var postResponse = await _client.PostAsJsonAsync("/api/users/test-user-integration/activities", dto);
+        Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
+        var created = await postResponse.Content.ReadFromJsonAsync<UserActivityDto>(_jsonOptions);
+        Assert.NotNull(created);
+
+        // Assert: fetch the explore activity and verify it was updated with ResultingReadActivityId
+        var getResponse = await _client.GetAsync($"/api/users/test-user-integration/activities/{explore.Id}");
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+        var exploreDto = await getResponse.Content.ReadFromJsonAsync<UserActivityDto>(_jsonOptions);
+        Assert.NotNull(exploreDto);
+        Assert.Equal(created.Id, exploreDto.ResultingReadActivityId);
+    }
 }

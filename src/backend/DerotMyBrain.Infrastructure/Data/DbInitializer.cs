@@ -16,7 +16,8 @@ public static class DbInitializer
     public static async Task InitializeAsync(DerotDbContext context, ICategoryService categoryService)
     {
         // Check if TestUser already exists (idempotency)
-        if (await context.Users.AnyAsync(u => u.Id == "test-user-id"))
+        const string testUserId = "test-user-id";
+        if (await context.Users.AnyAsync(u => u.Id == testUserId))
         {
             return; // DB has already been seeded
         }
@@ -26,13 +27,13 @@ public static class DbInitializer
         
         var testUser = new User
         {
-            Id = "test-user-id",
+            Id = testUserId,
             Name = "TestUser",
             CreatedAt = DateTime.UtcNow.AddMonths(-6),
             LastConnectionAt = DateTime.UtcNow,
             Preferences = new UserPreferences
             {
-                UserId = "test-user-id",
+                UserId = testUserId,
                 QuestionsPerQuiz = 10,
                 Theme = "derot-brain",
                 Language = "en",
@@ -55,7 +56,7 @@ public static class DbInitializer
             // ===== Topic Evolution: Quantum Mechanics =====
             new UserActivity
             {
-                UserId = "test-user-id",
+                UserId = testUserId,
                 Type = ActivityType.Read,
                 Title = "Quantum Mechanics",
                 Description = "Getting to know the basics of Quantum Physics.",
@@ -69,7 +70,7 @@ public static class DbInitializer
             },
             new UserActivity
             {
-                UserId = "test-user-id",
+                UserId = testUserId,
                 Type = ActivityType.Quiz,
                 Title = "Quantum Mechanics",
                 Description = "First evaluation of basic concepts.",
@@ -88,7 +89,7 @@ public static class DbInitializer
             },
             new UserActivity
             {
-                UserId = "test-user-id",
+                UserId = testUserId,
                 Type = ActivityType.Quiz,
                 Title = "Quantum Mechanics",
                 Description = "Re-evaluation after further study.",
@@ -109,7 +110,7 @@ public static class DbInitializer
             // ===== Theory of Relativity =====
             new UserActivity
             {
-                UserId = "test-user-id",
+                UserId = testUserId,
                 Type = ActivityType.Quiz,
                 Title = "Theory of Relativity",
                 Description = "General relativity quiz.",
@@ -135,7 +136,7 @@ public static class DbInitializer
         {
             new UserFocus
             {
-                UserId = "test-user-id",
+                UserId = testUserId,
                 SourceHash = quantumHash,
                 SourceId = "https://en.wikipedia.org/wiki/Quantum_mechanics",
                 SourceType = WikiType,

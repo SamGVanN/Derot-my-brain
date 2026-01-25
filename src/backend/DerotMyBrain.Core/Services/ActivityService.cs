@@ -2,8 +2,8 @@ using DerotMyBrain.Core.DTOs;
 using DerotMyBrain.Core.Entities;
 using DerotMyBrain.Core.Interfaces.Repositories;
 using DerotMyBrain.Core.Interfaces.Services;
+using DerotMyBrain.Core.Interfaces.Utils;
 using DerotMyBrain.Core.Utils;
-using System.Text.Json;
 
 namespace DerotMyBrain.Core.Services;
 
@@ -13,17 +13,20 @@ public class ActivityService : IActivityService
     private readonly IUserFocusService _userFocusService;
     private readonly IEnumerable<IContentSource> _contentSources;
     private readonly ILlmService _llmService;
+    private readonly IJsonSerializer _jsonSerializer;
 
     public ActivityService(
         IActivityRepository repository,
         IUserFocusService userFocusService,
         IEnumerable<IContentSource> contentSources,
-        ILlmService llmService)
+        ILlmService llmService,
+        IJsonSerializer jsonSerializer)
     {
         _repository = repository;
         _userFocusService = userFocusService;
         _contentSources = contentSources;
         _llmService = llmService;
+        _jsonSerializer = jsonSerializer;
     }
 
     public async Task<ContentResult> StartReadingAsync(string userId, StartActivityRequest request)
@@ -71,8 +74,7 @@ public class ActivityService : IActivityService
 
         var questionsJson = await _llmService.GenerateQuestionsAsync(textToProcess);
         
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var questions = JsonSerializer.Deserialize<List<QuestionDto>>(questionsJson, options) ?? new List<QuestionDto>();
+        var questions = _jsonSerializer.Deserialize<List<QuestionDto>>(questionsJson) ?? new List<QuestionDto>();
 
         return new QuizDto
         {
@@ -130,9 +132,31 @@ public class ActivityService : IActivityService
             LlmModelName = dto.LlmModelName,
             LlmVersion = dto.LlmVersion,
             Payload = dto.Payload
+            ,
+            // Support Explore-specific metadata if provided
+            BacklogAddsCount = dto.BacklogAddsCount
         };
 
         await _repository.CreateAsync(activity);
+
+        // If this Read was originated from an Explore session, link them.
+        if (!string.IsNullOrEmpty(dto.OriginExploreId) && dto.Type == ActivityType.Read)
+        {
+            try
+            {
+                var explore = await _repository.GetByIdAsync(userId, dto.OriginExploreId);
+                if (explore != null)
+                {
+                    explore.ResultingReadActivityId = activity.Id;
+                    await _repository.UpdateAsync(explore);
+                }
+            }
+            catch
+            {
+                // Do not fail the creation of the Read activity if linking fails;
+                // logging could be added here in real implementation.
+            }
+        }
 
         // Update focus stats
         await _userFocusService.UpdateStatsAsync(userId, sourceHash, activity);
@@ -209,6 +233,17 @@ public class ActivityService : IActivityService
         if (!string.IsNullOrEmpty(dto.LlmModelName)) activity.LlmModelName = dto.LlmModelName;
         if (!string.IsNullOrEmpty(dto.LlmVersion)) activity.LlmVersion = dto.LlmVersion;
 
+        // Apply Explore linkage updates when provided
+        if (!string.IsNullOrEmpty(dto.ResultingReadActivityId))
+        {
+            activity.ResultingReadActivityId = dto.ResultingReadActivityId;
+        }
+
+        if (dto.BacklogAddsCount.HasValue)
+        {
+            activity.BacklogAddsCount = dto.BacklogAddsCount.Value;
+        }
+
         await _repository.UpdateAsync(activity);
         
         await _userFocusService.RebuildStatsAsync(userId, activity.SourceHash);
@@ -243,6 +278,9 @@ public class ActivityService : IActivityService
             LlmVersion = a.LlmVersion,
             IsTracked = isTracked,
             Payload = a.Payload
+            ,
+            ResultingReadActivityId = a.ResultingReadActivityId,
+            BacklogAddsCount = a.BacklogAddsCount
         };
     }
 }

@@ -125,4 +125,24 @@ public class UserFocusService : IUserFocusService
 
         await _repository.UpdateAsync(focus);
     }
+
+    public async Task<UserFocus?> TogglePinAsync(string userId, string sourceHash)
+    {
+        var focus = await _repository.GetByHashAsync(userId, sourceHash);
+        if (focus == null) return null;
+
+        focus.IsPinned = !focus.IsPinned;
+        await _repository.UpdateAsync(focus);
+        return focus;
+    }
+
+    public async Task<UserFocus?> ToggleArchiveAsync(string userId, string sourceHash)
+    {
+        var focus = await _repository.GetByHashAsync(userId, sourceHash);
+        if (focus == null) return null;
+
+        focus.IsArchived = !focus.IsArchived;
+        await _repository.UpdateAsync(focus);
+        return focus;
+    }
 }

@@ -10,7 +10,8 @@ import {
     ChevronUp,
     Pin,
     Archive,
-    Loader2
+    Loader2,
+    BookmarkCheck
 } from 'lucide-react';
 import type { UserFocus } from '../models/UserFocus';
 import type { UserActivity } from '../models/UserActivity';
@@ -25,12 +26,14 @@ interface FocusAreaCardProps {
     focus: UserFocus;
     onTogglePin?: (focus: UserFocus) => void;
     onToggleArchive?: (focus: UserFocus) => void;
+    onUntrack?: (focus: UserFocus) => void;
 }
 
 export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
     focus,
     onTogglePin,
-    onToggleArchive
+    onToggleArchive,
+    onUntrack
 }) => {
     const { t, i18n } = useTranslation();
     const [isExpanded, setIsExpanded] = useState(false);
@@ -181,6 +184,7 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
                                             activity={activity}
                                             isTracked={true}
                                             isCompact={true}
+                                            showTrackButton={false}
                                             isLast={idx === activities.length - 1}
                                             onTrack={() => { }}
                                             onUntrack={() => { }}
@@ -204,7 +208,7 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
                         size="icon"
                         className={cn("h-8 w-8", focus.isPinned && "text-primary")}
                         onClick={() => onTogglePin(focus)}
-                        title={focus.isPinned ? t('history.untrack') : t('history.track')}
+                        title={focus.isPinned ? t('common.unpin', 'Unpin') : t('common.pin', 'Pin to top')}
                     >
                         <Pin className={cn("w-4 h-4", focus.isPinned && "fill-current")} />
                     </Button>
@@ -215,8 +219,20 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
                         size="icon"
                         className={cn("h-8 w-8", focus.isArchived && "text-yellow-600")}
                         onClick={() => onToggleArchive(focus)}
+                        title={focus.isArchived ? t('common.unarchive', 'Unarchive') : t('common.archive', 'Archive')}
                     >
                         <Archive className={cn("w-4 h-4", focus.isArchived && "fill-current")} />
+                    </Button>
+                )}
+                {onUntrack && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-primary"
+                        onClick={() => onUntrack(focus)}
+                        title={t('history.untrack', 'Untrack topic')}
+                    >
+                        <BookmarkCheck className="w-4 h-4 fill-current" />
                     </Button>
                 )}
             </CardFooter>

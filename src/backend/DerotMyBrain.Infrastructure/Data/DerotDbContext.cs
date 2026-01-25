@@ -38,8 +38,11 @@ public class DerotDbContext : DbContext
             entity.Property(e => e.FavoriteCategories)
                 .HasConversion(
                     v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                    v => System.Text.Json.JsonSerializer.Deserialize<List<WikipediaCategory>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<WikipediaCategory>()
-                );
+                    v => System.Text.Json.JsonSerializer.Deserialize<List<WikipediaCategory>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<WikipediaCategory>(),
+                    new Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<List<WikipediaCategory>>(
+                        (c1, c2) => c1!.SequenceEqual(c2!),
+                        c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                        c => c.ToList()));
             
             entity.HasOne(e => e.User)
                 .WithOne(u => u.Preferences)
