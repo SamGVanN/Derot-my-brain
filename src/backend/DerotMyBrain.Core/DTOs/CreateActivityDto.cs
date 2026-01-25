@@ -33,6 +33,9 @@ public class CreateActivityDto
 
     // Durations
     [Range(0, int.MaxValue)]
+    public int? ExploreDurationSeconds { get; set; }
+
+    [Range(0, int.MaxValue)]
     public int? ReadDurationSeconds { get; set; }
     
     [Range(0, int.MaxValue)]

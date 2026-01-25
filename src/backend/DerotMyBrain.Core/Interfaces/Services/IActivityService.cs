@@ -6,7 +6,8 @@ namespace DerotMyBrain.Core.Interfaces.Services;
 public interface IActivityService
 {
     // New Two-Phase Workflow
-    Task<ContentResult> StartReadingAsync(string userId, StartActivityRequest request);
+    Task<UserActivity> ExploreAsync(string userId, string? title = null, string? sourceId = null, SourceType sourceType = SourceType.Custom);
+    Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceId, SourceType sourceType, string? originExploreId = null, int? backlogAddsCount = null, int? exploreDurationSeconds = null);
     Task<QuizDto> GenerateQuizAsync(string userId, string activityId);
     Task<UserActivity> CreateActivityAsync(string userId, CreateActivityDto dto);
     

@@ -89,11 +89,10 @@ Espace central de travail où l’utilisateur interagit activement avec un conte
 
 #### Comportements UX
 - Le passage en lecture via le bouton `Read` doit :
-  - enregistrer la UserActivity de type Explore (stop des timers)
-  - récupérer l'article complet (titre et body),
-  - créer la `UserActivity` Type=`Read` associée (avec métadonnées : `title`, `lang`, `sourceUrl`, `pageId`),
-  - proposer d’ajouter l’article aux `UserFocus` si souhaité.
-  - Adapter la Derot Zone en mode Read
+  - déclencher la sauvegarde de l'activité `Explore` (calcul de la durée par le front et envoi au back)
+  - créer l'activité `Read` liée (linkage via `ResultingReadActivityId`)
+  - récupérer l'article complet côté backend
+  - persister le contenu dans la `UserActivity` de type Read.
 - Le bouton `Add to Backlog` n’enregistre pas de `UserActivity` immédiatement.
 
 #### Cas d’usage principaux (Derot Zone)

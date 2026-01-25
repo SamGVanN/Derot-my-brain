@@ -15,7 +15,7 @@ export function DerotPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isInitializing, refresh, error } = useWikipediaExplore();
+  const { isInitializing, refresh, error, stopExplore, readArticle, addToBacklog, loadingAction } = useWikipediaExplore();
 
   const activityId = searchParams.get('activityId');
   const paramMode = searchParams.get('mode');
@@ -79,7 +79,10 @@ export function DerotPage() {
         <section className="space-y-6 animate-in fade-in duration-1000">
           <DerotZoneSubHeader
             mode={mode}
-            onStopExplore={() => navigate('/focus-area')}
+            onStopExplore={async () => {
+              await stopExplore();
+              navigate('/focus-area');
+            }}
             onGoToQuiz={() => setSearchParams({ activityId: activityId!, mode: 'quiz' })}
             onSubmitQuiz={() => setSearchParams({})}
           />
@@ -88,6 +91,14 @@ export function DerotPage() {
             <ExploreView
               articles={sampleArticles}
               onRefresh={refresh}
+              onRead={async (article) => {
+                const activity = await readArticle(article);
+                if (activity?.id) {
+                  setSearchParams({ activityId: activity.id });
+                }
+              }}
+              onAddToBacklog={addToBacklog}
+              loadingAction={loadingAction}
               isLoading={isInitializing}
             />
           )}

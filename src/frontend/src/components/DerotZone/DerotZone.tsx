@@ -1,49 +1,23 @@
-import { useNavigate, useSearchParams } from 'react-router';
 import { type WikipediaArticle } from '@/api/wikipediaApi';
-import { useWikipediaExplore } from '@/hooks/useWikipediaExplore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, ClockAlert, Loader2, Sparkles, ExternalLink, AlertCircle } from 'lucide-react';
+import { BookOpen, ClockAlert, Loader2, Sparkles, ExternalLink } from 'lucide-react';
 
 export type ArticleCard = WikipediaArticle;
 
 type Props = {
   articles: ArticleCard[];
+  onRead: (article: ArticleCard) => Promise<void>;
+  onAddToBacklog: (article: ArticleCard) => Promise<boolean>;
+  loadingAction: string | null;
 };
 
-export default function DerotZone({ articles }: Props) {
-  const [_, setSearchParams] = useSearchParams();
-  const {
-    isInitializing,
-    loadingAction,
-    error,
-    addToBacklog,
-    readArticle,
-    refresh
-  } = useWikipediaExplore();
+export default function DerotZone({ articles, onRead, onAddToBacklog, loadingAction }: Props) {
 
-  const handleRead = async (article: ArticleCard) => {
-    const activity = await readArticle(article);
-    if (activity?.id) {
-      setSearchParams({ activityId: activity.id });
-    }
-  };
-
-  if (isInitializing) {
+  if (articles.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 space-y-4 text-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="text-muted-foreground animate-pulse">Initializing your Derot Zone experience...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center p-12 space-y-4 text-center border border-destructive/20 bg-destructive/5 rounded-2xl">
-        <AlertCircle className="h-8 w-8 text-destructive" />
-        <p className="text-destructive font-medium">{error}</p>
-        <Button onClick={refresh} variant="outline" size="sm">Try Again</Button>
+      <div className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground">
+        <p>No articles found for the current selection.</p>
       </div>
     );
   }
@@ -82,7 +56,7 @@ export default function DerotZone({ articles }: Props) {
 
             <CardFooter className="flex gap-3 pt-2">
               <Button
-                onClick={() => handleRead(article)}
+                onClick={() => onRead(article)}
                 disabled={loadingAction !== null}
                 className="flex-1 gap-2 shadow-lg shadow-primary/20"
               >
@@ -96,7 +70,7 @@ export default function DerotZone({ articles }: Props) {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => addToBacklog(article)}
+                onClick={() => onAddToBacklog(article)}
                 disabled={loadingAction !== null}
                 title="Add to Backlog"
                 className="group/btn relative"

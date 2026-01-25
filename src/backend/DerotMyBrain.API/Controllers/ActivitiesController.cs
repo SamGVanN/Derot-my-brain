@@ -8,7 +8,7 @@ namespace DerotMyBrain.API.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/users/{userId}")]
+[Route("api/users/{userId}/activities")]
 public class ActivitiesController : ControllerBase
 {
     private readonly IActivityService _activityService;
@@ -25,8 +25,8 @@ public class ActivitiesController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet("activities")]
-    public async Task<ActionResult<IEnumerable<UserActivityDto>>> GetAllActivities(string userId, [FromQuery] string? sourceHash = null)
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<UserActivityDto>>> GetAllActivities([FromRoute] string userId, [FromQuery] string? sourceHash = null)
     {
         try
         {
@@ -44,8 +44,8 @@ public class ActivitiesController : ControllerBase
         }
     }
 
-    [HttpGet("activities/{activityId}")]
-    public async Task<ActionResult<UserActivityDto>> GetActivity(string userId, string activityId)
+    [HttpGet("{activityId}")]
+    public async Task<ActionResult<UserActivityDto>> GetActivity([FromRoute] string userId, [FromRoute] string activityId)
     {
         try
         {
@@ -62,8 +62,8 @@ public class ActivitiesController : ControllerBase
         }
     }
 
-    [HttpPost("activities")]
-    public async Task<ActionResult<UserActivityDto>> CreateActivity(string userId, [FromBody] CreateActivityDto dto)
+    [HttpPost]
+    public async Task<ActionResult<UserActivityDto>> CreateActivity([FromRoute] string userId, [FromBody] CreateActivityDto dto)
     {
         try
         {
@@ -82,8 +82,8 @@ public class ActivitiesController : ControllerBase
         }
     }
 
-    [HttpPut("activities/{activityId}")]
-    public async Task<ActionResult<UserActivityDto>> UpdateActivity(string userId, string activityId, [FromBody] UpdateActivityDto dto)
+    [HttpPut("{activityId}")]
+    public async Task<ActionResult<UserActivityDto>> UpdateActivity([FromRoute] string userId, [FromRoute] string activityId, [FromBody] UpdateActivityDto dto)
     {
         try
         {
@@ -102,8 +102,8 @@ public class ActivitiesController : ControllerBase
         }
     }
 
-    [HttpDelete("activities/{activityId}")]
-    public async Task<IActionResult> DeleteActivity(string userId, string activityId)
+    [HttpDelete("{activityId}")]
+    public async Task<IActionResult> DeleteActivity([FromRoute] string userId, [FromRoute] string activityId)
     {
         try
         {
@@ -119,41 +119,86 @@ public class ActivitiesController : ControllerBase
 
     // --- Statistics Endpoints ---
 
-    [HttpGet("statistics")]
-    public async Task<ActionResult<UserStatisticsDto>> GetStatistics(string userId)
+    [HttpGet("/api/users/{userId}/statistics")]
+    public async Task<ActionResult<UserStatisticsDto>> GetStatistics([FromRoute] string userId)
     {
         return Ok(await _activityService.GetStatisticsAsync(userId));
     }
 
-    [HttpGet("statistics/activity-calendar")]
-    public async Task<ActionResult<IEnumerable<ActivityCalendarDto>>> GetCalendar(string userId, [FromQuery] int days = 365)
+    [HttpGet("/api/users/{userId}/statistics/activity-calendar")]
+    public async Task<ActionResult<IEnumerable<ActivityCalendarDto>>> GetCalendar([FromRoute] string userId, [FromQuery] int days = 365)
     {
         return Ok(await _activityService.GetActivityCalendarAsync(userId, days));
     }
 
-    [HttpGet("statistics/top-scores")]
-    public async Task<ActionResult<IEnumerable<TopScoreDto>>> GetTopScores(string userId, [FromQuery] int limit = 10)
+    [HttpGet("/api/users/{userId}/statistics/top-scores")]
+    public async Task<ActionResult<IEnumerable<TopScoreDto>>> GetTopScores([FromRoute] string userId, [FromQuery] int limit = 10)
     {
         return Ok(await _activityService.GetTopScoresAsync(userId, limit));
     }
 
     // --- Content Flow Endpoints ---
 
-    [HttpPost("activities/start")]
-    public async Task<ActionResult<DerotMyBrain.Core.DTOs.ContentResult>> StartReading(string userId, [FromBody] StartActivityRequest request)
+    [HttpPost("explore")]
+    public async Task<ActionResult<UserActivityDto>> Explore([FromRoute] string userId, [FromBody] ExploreRequest req)
     {
         try
         {
-            var result = await _activityService.StartReadingAsync(userId, request);
-            return Ok(result);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
+            var activity = await _activityService.ExploreAsync(userId, req.Title, req.SourceId, req.SourceType);
+            var isTracked = await _userFocusService.GetFocusAsync(userId, activity.SourceHash) != null;
+            return Ok(MapToDto(activity, isTracked));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error starting activity");
+            _logger.LogError(ex, "Error starting exploration activity");
+            return StatusCode(500, "Internal Server Error");
+        }
+    }
+
+    [HttpPost("read")]
+    public async Task<ActionResult<UserActivityDto>> Read([FromRoute] string userId, [FromBody] ReadRequest req)
+    {
+        try
+        {
+            var activity = await _activityService.ReadAsync(
+                userId, 
+                req.Title ?? string.Empty, 
+                req.Language, 
+                req.SourceId, 
+                req.SourceType,
+                req.OriginExploreId, 
+                req.BacklogAddsCount,
+                req.ExploreDurationSeconds);
+
+            var isTracked = await _userFocusService.GetFocusAsync(userId, activity.SourceHash) != null;
+            return Ok(MapToDto(activity, isTracked));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error starting read activity");
+            return StatusCode(500, "Internal Server Error");
+        }
+    }
+
+    [HttpPost("{activityId}/stop-explore")]
+    public async Task<IActionResult> StopExplore([FromRoute] string userId, [FromRoute] string activityId, [FromBody] StopExploreRequest req)
+    {
+        try
+        {
+            var updates = new UpdateActivityDto
+            {
+                ExploreDurationSeconds = req.DurationSeconds,
+                BacklogAddsCount = req.BacklogAddsCount,
+                SessionDateEnd = DateTime.UtcNow,
+                IsCompleted = true
+            };
+
+            await _activityService.UpdateActivityAsync(userId, activityId, updates);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error stopping exploration activity");
             return StatusCode(500, "Internal Server Error");
         }
     }
@@ -191,6 +236,7 @@ public class ActivitiesController : ControllerBase
             Type = a.Type,
             SessionDateStart = a.SessionDateStart,
             SessionDateEnd = a.SessionDateEnd,
+            ExploreDurationSeconds = a.ExploreDurationSeconds,
             ReadDurationSeconds = a.ReadDurationSeconds,
             QuizDurationSeconds = a.QuizDurationSeconds,
             TotalDurationSeconds = a.TotalDurationSeconds,
@@ -203,10 +249,33 @@ public class ActivitiesController : ControllerBase
             LlmModelName = a.LlmModelName,
             LlmVersion = a.LlmVersion,
             IsTracked = isTracked,
-            Payload = a.Payload
-                ,
-                ResultingReadActivityId = a.ResultingReadActivityId,
-                BacklogAddsCount = a.BacklogAddsCount
+            Payload = a.Payload,
+            ResultingReadActivityId = a.ResultingReadActivityId,
+            BacklogAddsCount = a.BacklogAddsCount
         };
+    }
+
+    public class ExploreRequest
+    {
+        public string? Title { get; set; }
+        public string? SourceId { get; set; }
+        public SourceType SourceType { get; set; }
+    }
+
+    public class ReadRequest
+    {
+        public string? Title { get; set; }
+        public string? Language { get; set; }
+        public string? SourceId { get; set; }
+        public SourceType SourceType { get; set; }
+        public string? OriginExploreId { get; set; }
+        public int? BacklogAddsCount { get; set; }
+        public int? ExploreDurationSeconds { get; set; }
+    }
+
+    public class StopExploreRequest
+    {
+        public int DurationSeconds { get; set; }
+        public int? BacklogAddsCount { get; set; }
     }
 }

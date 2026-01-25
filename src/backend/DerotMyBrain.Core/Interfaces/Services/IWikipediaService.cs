@@ -4,6 +4,6 @@ namespace DerotMyBrain.Core.Interfaces.Services;
 
 public interface IWikipediaService
 {
-    Task<UserActivity> ExploreAsync(string userId);
-    Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceUrl, string? originExploreId, int? backlogAddsCount);
+    // Currently no methods needed as discovery is done via ContentSource directly for now,
+    // or we might add search/random here later.
 }

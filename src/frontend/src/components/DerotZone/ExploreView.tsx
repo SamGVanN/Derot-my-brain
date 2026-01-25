@@ -1,17 +1,24 @@
 import DerotZone, { type ArticleCard } from './DerotZone';
 import { TrendingUp, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useTranslation } from 'react-i18next';
 
 interface ExploreViewProps {
     articles: ArticleCard[];
     onRefresh: () => void;
+    onRead: (article: ArticleCard) => Promise<void>;
+    onAddToBacklog: (article: ArticleCard) => Promise<boolean>;
+    loadingAction: string | null;
     isLoading?: boolean;
 }
 
-export function ExploreView({ articles, onRefresh, isLoading }: ExploreViewProps) {
-    const { t } = useTranslation();
-
+export function ExploreView({
+    articles,
+    onRefresh,
+    onRead,
+    onAddToBacklog,
+    loadingAction,
+    isLoading
+}: ExploreViewProps) {
     return (
         <div className="space-y-8 animate-in fade-in duration-1000">
             <div className="flex items-center justify-between border-b pb-4 border-border/40 pt-4">
@@ -31,7 +38,12 @@ export function ExploreView({ articles, onRefresh, isLoading }: ExploreViewProps
                 </Button>
             </div>
 
-            <DerotZone articles={articles} />
+            <DerotZone
+                articles={articles}
+                onRead={onRead}
+                onAddToBacklog={onAddToBacklog}
+                loadingAction={loadingAction}
+            />
         </div>
     );
 }

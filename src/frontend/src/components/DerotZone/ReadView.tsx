@@ -1,13 +1,34 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Loader2 } from 'lucide-react';
+import { FileText, Loader2, AlertCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useActivities } from '@/hooks/useActivities';
+import type { UserActivity } from '@/models/UserActivity';
 
 interface ReadViewProps {
     activityId?: string;
-    isLoading?: boolean;
 }
 
-export function ReadView({ activityId, isLoading }: ReadViewProps) {
-    if (isLoading) {
+export function ReadView({ activityId }: ReadViewProps) {
+    const { getActivity } = useActivities();
+    const [activity, setActivity] = useState<UserActivity | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (activityId) {
+            setLoading(true);
+            setError(null);
+            getActivity(activityId)
+                .then(setActivity)
+                .catch((err) => {
+                    console.error('Failed to fetch activity content', err);
+                    setError("Impossible de charger le contenu de l'article.");
+                })
+                .finally(() => setLoading(false));
+        }
+    }, [activityId, getActivity]);
+
+    if (loading) {
         return (
             <div className="flex flex-col items-center justify-center py-20 space-y-4">
                 <Loader2 className="h-10 w-10 animate-spin text-primary/40" />
@@ -16,6 +37,18 @@ export function ReadView({ activityId, isLoading }: ReadViewProps) {
         );
     }
 
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 space-y-4 text-destructive">
+                <AlertCircle className="h-10 w-10" />
+                <p>{error}</p>
+            </div>
+        );
+    }
+
+    const title = activity?.title || "...";
+    const content = activity?.articleContent || (activity as any)?.payload || "Aucun contenu disponible.";
+
     return (
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
             <CardHeader className="flex flex-row items-center gap-4 border-b border-border/40 pb-6">
@@ -23,19 +56,13 @@ export function ReadView({ activityId, isLoading }: ReadViewProps) {
                     <FileText className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                    <CardTitle className="text-2xl">Mode Lecture : [Titre de l'article]</CardTitle>
-                    <p className="text-sm text-muted-foreground">ID Activité : {activityId}</p>
+                    <CardTitle className="text-2xl">{title}</CardTitle>
+                    {activityId && <p className="text-xs text-muted-foreground opacity-50">ID : {activityId}</p>}
                 </div>
             </CardHeader>
             <CardContent className="pt-8 prose prose-invert max-w-none">
-                <p className="text-lg leading-relaxed text-foreground/90">
-                    Le contenu complet de l'article Wikipedia s'affichera ici une fois connecté au backend.
-                    Vous pourrez lire l'article en détail avant de passer au quiz de mémorisation.
-                </p>
-                <div className="h-64 flex items-center justify-center border-2 border-dashed border-border/40 rounded-xl bg-accent/5 my-8">
-                    <p className="text-muted-foreground italic text-center px-4">
-                        [Zone de contenu article Wikipedia enrichi]
-                    </p>
+                <div className="text-lg leading-relaxed text-foreground/90 whitespace-pre-wrap">
+                    {content}
                 </div>
             </CardContent>
         </Card>

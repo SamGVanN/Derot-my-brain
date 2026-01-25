@@ -1,4 +1,4 @@
-import { SourceType, ActivityType } from './Enums';
+import type { SourceType, ActivityType } from './Enums';
 
 export interface UserActivity {
     id: string;
@@ -18,6 +18,7 @@ export interface UserActivity {
     sessionDateEnd?: string;
 
     // Durations
+    exploreDurationSeconds?: number;
     readDurationSeconds?: number;
     quizDurationSeconds?: number;
     totalDurationSeconds: number;
@@ -35,5 +36,6 @@ export interface UserActivity {
     llmVersion?: string;
 
     isTracked: boolean;
+    articleContent?: string;
     payload?: string;
 }

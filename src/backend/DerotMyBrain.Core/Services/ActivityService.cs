@@ -29,39 +29,51 @@ public class ActivityService : IActivityService
         _jsonSerializer = jsonSerializer;
     }
 
-    public async Task<ContentResult> StartReadingAsync(string userId, StartActivityRequest request)
+    public async Task<UserActivity> ExploreAsync(string userId, string? title = null, string? sourceId = null, SourceType sourceType = SourceType.Custom)
     {
-        // 1. Resolve Strategy
-        var source = _contentSources.FirstOrDefault(s => s.CanHandle(request.Type));
-        if (source == null) throw new InvalidOperationException("No suitable content source found.");
-
-        // 2. Fetch Content
-        var content = await source.GetContentAsync(request.Filter); 
-
-        // 3. Create Activity (Initial Read)
-        // Map string SourceType from ContentResult to Enum
-        Enum.TryParse<SourceType>(content.SourceType, true, out var sourceType);
-        if (sourceType == 0) sourceType = SourceType.Wikipedia;
-
-        var sourceHash = SourceHasher.GenerateHash(sourceType, content.SourceUrl);
-        var activity = new UserActivity
+        var dto = new CreateActivityDto
         {
-            UserId = userId,
-            Type = ActivityType.Read,
-            Title = content.Title,
-            Description = "Reading article: " + content.Title,
-            SourceId = content.SourceUrl,
+            Title = title ?? "Exploration",
+            Description = "Exploration session",
+            SourceId = sourceId ?? DateTime.UtcNow.ToString("o"),
             SourceType = sourceType,
-            SourceHash = sourceHash,
-            ArticleContent = content.TextContent, 
-            SessionDateStart = DateTime.UtcNow,
-            SessionDateEnd = null, // Still reading
-            ReadDurationSeconds = 0 
+            Type = ActivityType.Explore,
+            SessionDateStart = DateTime.UtcNow
         };
 
-        await _repository.CreateAsync(activity);
+        return await CreateActivityAsync(userId, dto);
+    }
 
-        return content;
+    public async Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceId, SourceType sourceType, string? originExploreId = null, int? backlogAddsCount = null, int? exploreDurationSeconds = null)
+    {
+        // 1. Resolve source and fetch content
+        var sourceName = sourceType == SourceType.Wikipedia ? "Wikipedia" : "File"; 
+        var source = _contentSources.FirstOrDefault(s => s.CanHandle(sourceName));
+        if (source == null) throw new InvalidOperationException($"Content source for {sourceType} not found.");
+
+        var content = await source.GetContentAsync(sourceId ?? title);
+
+        // 2. Create activity
+        var dto = new CreateActivityDto
+        {
+            Title = content.Title,
+            Description = content.SourceType == "Wikipedia" ? "Read from Wikipedia" : "Read from Document",
+            SourceId = content.SourceUrl,
+            SourceType = sourceType,
+            Type = ActivityType.Read,
+            SessionDateStart = DateTime.UtcNow,
+            OriginExploreId = originExploreId,
+            BacklogAddsCount = backlogAddsCount,
+            ExploreDurationSeconds = exploreDurationSeconds
+        };
+
+        var activity = await CreateActivityAsync(userId, dto);
+        
+        // Ensure ArticleContent is set
+        activity.ArticleContent = content.TextContent;
+        await _repository.UpdateAsync(activity);
+
+        return activity;
     }
 
     public async Task<QuizDto> GenerateQuizAsync(string userId, string activityId)
@@ -121,6 +133,7 @@ public class ActivityService : IActivityService
             SourceHash = sourceHash,
             SessionDateStart = dto.SessionDateStart,
             SessionDateEnd = dto.SessionDateEnd,
+            ExploreDurationSeconds = dto.ExploreDurationSeconds,
             ReadDurationSeconds = dto.ReadDurationSeconds,
             QuizDurationSeconds = dto.QuizDurationSeconds,
             Score = dto.Score ?? 0,
@@ -148,6 +161,12 @@ public class ActivityService : IActivityService
                 if (explore != null)
                 {
                     explore.ResultingReadActivityId = activity.Id;
+                    if (dto.ExploreDurationSeconds.HasValue)
+                    {
+                        explore.ExploreDurationSeconds = dto.ExploreDurationSeconds.Value;
+                    }
+                    explore.IsCompleted = true;
+                    explore.SessionDateEnd = DateTime.UtcNow;
                     await _repository.UpdateAsync(explore);
                 }
             }
@@ -212,6 +231,7 @@ public class ActivityService : IActivityService
         if (dto.Score.HasValue) activity.Score = dto.Score.Value;
         if (dto.QuestionCount.HasValue) activity.QuestionCount = dto.QuestionCount.Value;
         if (dto.ReadDurationSeconds.HasValue) activity.ReadDurationSeconds = dto.ReadDurationSeconds.Value;
+        if (dto.ExploreDurationSeconds.HasValue) activity.ExploreDurationSeconds = dto.ExploreDurationSeconds.Value;
         if (dto.QuizDurationSeconds.HasValue) activity.QuizDurationSeconds = dto.QuizDurationSeconds.Value;
         if (dto.SessionDateEnd.HasValue) activity.SessionDateEnd = dto.SessionDateEnd.Value;
         if (dto.IsCompleted.HasValue) activity.IsCompleted = dto.IsCompleted.Value;
@@ -265,6 +285,7 @@ public class ActivityService : IActivityService
             Type = a.Type,
             SessionDateStart = a.SessionDateStart,
             SessionDateEnd = a.SessionDateEnd,
+            ExploreDurationSeconds = a.ExploreDurationSeconds,
             ReadDurationSeconds = a.ReadDurationSeconds,
             QuizDurationSeconds = a.QuizDurationSeconds,
             TotalDurationSeconds = a.TotalDurationSeconds,

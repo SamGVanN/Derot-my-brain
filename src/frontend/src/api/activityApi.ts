@@ -34,6 +34,28 @@ export const activityApi = {
         await client.delete(`/users/${userId}/activities/${activityId}`);
     },
 
+    explore: async (userId: string, request: { title?: string, sourceId?: string, sourceType: number }): Promise<UserActivity> => {
+        const response = await client.post<UserActivity>(`/users/${userId}/activities/explore`, request);
+        return response.data;
+    },
+
+    read: async (userId: string, request: {
+        title: string,
+        language?: string,
+        sourceId?: string,
+        sourceType: number,
+        originExploreId?: string,
+        backlogAddsCount?: number,
+        exploreDurationSeconds?: number
+    }): Promise<UserActivity> => {
+        const response = await client.post<UserActivity>(`/users/${userId}/activities/read`, request);
+        return response.data;
+    },
+
+    stopExplore: async (userId: string, activityId: string, request: { durationSeconds: number, backlogAddsCount?: number }): Promise<void> => {
+        await client.post(`/users/${userId}/activities/${activityId}/stop-explore`, request);
+    },
+
     // --- Statistics ---
 
     getStatistics: async (userId: string): Promise<UserStatisticsDto> => {
