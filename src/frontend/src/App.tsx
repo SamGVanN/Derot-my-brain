@@ -100,7 +100,7 @@ function AppContent() {
         path="/"
         element={
           user ? (
-            <Navigate to="/history" replace />
+            <Navigate to="/homepage" replace />
           ) : (
             <UserSelectionPage onUserSelected={handleUserSelected} />
           )

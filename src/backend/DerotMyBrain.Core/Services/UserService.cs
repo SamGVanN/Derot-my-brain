@@ -44,7 +44,7 @@ public class UserService : IUserService
                 QuestionsPerQuiz = 10,
                 Theme = preferredTheme ?? "derot-brain",
                 Language = language ?? "auto",
-                FavoriteCategories = allCategories.Take(5).ToList() // Default to top 5 or logic
+                FavoriteCategories = allCategories.ToList() // Default to all categories
             }
         };
         newUser.Preferences.UserId = newUser.Id;
