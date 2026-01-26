@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Search, StopCircle, GraduationCap, Send, ArrowRight } from 'lucide-react';
+import { Radar, StopCircle, GraduationCap, Send, ArrowRight } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 export type DerotZoneMode = 'EXPLORE' | 'READ' | 'QUIZ';
@@ -25,7 +25,7 @@ export function DerotZoneSubHeader({
                 {mode === 'EXPLORE' && (
                     <div className="flex items-center gap-3 flex-1 md:flex-none">
                         <div className="p-2 bg-primary/10 rounded-lg">
-                            <Search className="h-5 w-5 text-primary" />
+                            <Radar className="h-5 w-5 text-primary" />
                         </div>
                         <div className="flex flex-col">
                             <span className="text-xs font-semibold uppercase tracking-wider text-primary/70">Mode</span>

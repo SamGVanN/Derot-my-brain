@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { BookOpenText, NotebookPen, ExternalLink, Bookmark, BookmarkCheck, Trophy, Info, PartyPopper } from 'lucide-react';
+import { BookOpenText, NotebookPen, ExternalLink, Bookmark, BookmarkCheck, Trophy, Info, PartyPopper, Radar } from 'lucide-react';
 import type { UserActivity } from '../models/UserActivity';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
@@ -71,6 +71,8 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                                 <Trophy className="w-4 h-4" />
                             ) : activity.type === 'Quiz' ? (
                                 <NotebookPen className="w-4 h-4" />
+                            ) : activity.type === 'Explore' ? (
+                                <Radar className="w-4 h-4" />
                             ) : (
                                 <BookOpenText className="w-4 h-4" />
                             )}

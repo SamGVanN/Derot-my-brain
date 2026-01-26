@@ -2,7 +2,7 @@ import { NavLink } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import {
     BrainCircuit,
-    Target,
+    Brain,
     User,
     Settings,
     BookOpen,
@@ -51,7 +51,7 @@ const navigationGroups: NavigationGroup[] = [
     {
         title: 'Knowledge',
         items: [
-            { path: '/focus-area', icon: Target, labelKey: 'nav.focusArea', label: 'My Focus Area' },
+            { path: '/focus-area', icon: Brain, labelKey: 'nav.focusArea', label: 'My Focus Area' },
             { path: '/documents', icon: Library, labelKey: 'nav.documents', label: 'Documents' },
             { path: '/backlog', icon: ClockAlert, labelKey: 'nav.backlog', label: 'Backlog' },
         ]

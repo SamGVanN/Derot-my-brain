@@ -6,7 +6,7 @@ import { userFocusApi } from '@/api/userFocusApi';
 import type { UserFocus } from '@/models/UserFocus';
 import { FocusAreaCard } from '@/components/FocusAreaCard';
 import { FocusAreaFilters, type FocusFilter } from '@/components/FocusAreaFilters';
-import { Target, Loader2 } from 'lucide-react';
+import { Brain, Loader2 } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 
 export function MyFocusAreaPage() {
@@ -85,7 +85,7 @@ export function MyFocusAreaPage() {
                     title={t('focusArea.title')}
                     subtitle={t('focusArea.subtitle')}
                     description={t('focusArea.description')}
-                    icon={Target}
+                    icon={Brain}
                 />
 
                 {/* Filters */}
@@ -105,7 +105,7 @@ export function MyFocusAreaPage() {
                 ) : focuses.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 bg-muted/20 rounded-2xl border-2 border-dashed border-border/40">
                         <div className="p-4 bg-background rounded-full shadow-sm border">
-                            <Target className="w-12 h-12 text-muted-foreground/40" />
+                            <Brain className="w-12 h-12 text-muted-foreground/40" />
                         </div>
                         <div className="space-y-2">
                             <h3 className="text-xl font-semibold">{t('focusArea.title')}</h3>
