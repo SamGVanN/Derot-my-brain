@@ -214,6 +214,8 @@ out/
 
 # Database files (if any local DBs are used)
 *.db
+*.db-shm
+*.db-wal
 *.sqlite
 *.sqlite3
 
