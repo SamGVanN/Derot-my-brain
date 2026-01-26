@@ -24,6 +24,7 @@ public class SqliteActivityRepository : IActivityRepository
             .AsNoTracking()
             .Include(a => a.UserSession)
                 .ThenInclude(s => s.TargetSource)
+            .Include(a => a.Source)
             .Where(a => a.UserId == userId)
             .OrderByDescending(a => a.SessionDateStart)
             .ToListAsync();
@@ -76,6 +77,7 @@ public class SqliteActivityRepository : IActivityRepository
     public async Task<Source?> GetSourceByIdAsync(string sourceId)
     {
         return await _context.Sources
+            .Include(s => s.Activities)
             .FirstOrDefaultAsync(s => s.Id == sourceId);
     }
 
@@ -84,6 +86,22 @@ public class SqliteActivityRepository : IActivityRepository
         _context.Sources.Add(source);
         await _context.SaveChangesAsync();
         return source;
+    }
+
+    public async Task<Source> UpdateSourceAsync(Source source)
+    {
+        _context.Sources.Update(source);
+        await _context.SaveChangesAsync();
+        return source;
+    }
+
+    public async Task<IEnumerable<Source>> GetTrackedSourcesAsync(string userId)
+    {
+        return await _context.Sources
+            .AsNoTracking()
+            .Include(s => s.Activities)
+            .Where(s => s.UserId == userId && s.IsTracked)
+            .ToListAsync();
     }
 
     // Session Operations

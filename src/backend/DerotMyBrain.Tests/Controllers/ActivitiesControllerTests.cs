@@ -41,10 +41,9 @@ public class ActivitiesControllerTests
         activityServiceMock.Setup(s => s.CreateActivityAsync(userId, It.IsAny<CreateActivityDto>()))
             .ReturnsAsync(createdActivity);
 
-        var userFocusMock = new Mock<IUserFocusService>();
         var loggerMock = new Mock<Microsoft.Extensions.Logging.ILogger<ActivitiesController>>();
 
-        var controller = new ActivitiesController(activityServiceMock.Object, userFocusMock.Object, loggerMock.Object);
+        var controller = new ActivitiesController(activityServiceMock.Object, loggerMock.Object);
 
         // Act
         var result = await controller.CreateActivity(userId, createDto);

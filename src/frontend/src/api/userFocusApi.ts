@@ -4,22 +4,22 @@ import type { UserActivity } from '../models/UserActivity';
 
 export const userFocusApi = {
     getUserFocuses: async (userId: string): Promise<UserFocus[]> => {
-        const response = await client.get<UserFocus[]>(`/users/${userId}/user-focus`);
+        const response = await client.get<UserFocus[]>(`/users/${userId}/sources?tracked=true`);
         return response.data;
     },
 
     getUserFocus: async (userId: string, sourceId: string): Promise<UserFocus> => {
-        const response = await client.get<UserFocus>(`/users/${userId}/user-focus/${sourceId}`);
+        const response = await client.get<UserFocus>(`/users/${userId}/sources/${sourceId}`);
         return response.data;
     },
 
     trackTopic: async (userId: string, request: TrackTopicRequest): Promise<UserFocus> => {
-        const response = await client.post<UserFocus>(`/users/${userId}/user-focus`, request);
+        const response = await client.post<UserFocus>(`/users/${userId}/sources`, request);
         return response.data;
     },
 
     untrackTopic: async (userId: string, sourceId: string): Promise<void> => {
-        await client.delete(`/users/${userId}/user-focus/${sourceId}`);
+        await client.patch(`/users/${userId}/sources/${sourceId}/track`, { isTracked: false });
     },
 
     getFocusEvolution: async (userId: string, sourceId: string): Promise<UserActivity[]> => {

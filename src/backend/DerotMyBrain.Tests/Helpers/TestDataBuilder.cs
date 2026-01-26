@@ -154,7 +154,7 @@ public class SessionBuilder
         {
             Id = _id,
             UserId = _userId,
-            SourceId = _sourceId,
+            TargetSourceId = _sourceId,
             StartedAt = _startedAt,
             Status = _status
         };

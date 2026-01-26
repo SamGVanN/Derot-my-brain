@@ -36,8 +36,8 @@ export function MyFocusAreaPage() {
     const handleUntrack = async (focus: UserFocus) => {
         if (!user) return;
         try {
-            await userFocusApi.untrackTopic(user.id, focus.sourceId);
-            setFocuses(prev => prev.filter(f => f.sourceId !== focus.sourceId));
+            await userFocusApi.untrackTopic(user.id, focus.id);
+            setFocuses(prev => prev.filter(f => f.id !== focus.id));
         } catch (error) {
             console.error('Failed to untrack focus area:', error);
         }
@@ -46,8 +46,8 @@ export function MyFocusAreaPage() {
     const handleTogglePin = async (focus: UserFocus) => {
         if (!user) return;
         try {
-            const updated = await userFocusApi.togglePin(user.id, focus.sourceId);
-            setFocuses(prev => prev.map(f => f.sourceId === focus.sourceId ? updated : f));
+            const updated = await userFocusApi.togglePin(user.id, focus.id);
+            setFocuses(prev => prev.map(f => f.id === focus.id ? updated : f));
         } catch (error) {
             console.error('Failed to toggle pin:', error);
         }
@@ -56,8 +56,8 @@ export function MyFocusAreaPage() {
     const handleToggleArchive = async (focus: UserFocus) => {
         if (!user) return;
         try {
-            const updated = await userFocusApi.toggleArchive(user.id, focus.sourceId);
-            setFocuses(prev => prev.map(f => f.sourceId === focus.sourceId ? updated : f));
+            const updated = await userFocusApi.toggleArchive(user.id, focus.id);
+            setFocuses(prev => prev.map(f => f.id === focus.id ? updated : f));
         } catch (error) {
             console.error('Failed to toggle archive:', error);
         }

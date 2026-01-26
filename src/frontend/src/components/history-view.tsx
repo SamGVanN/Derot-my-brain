@@ -13,7 +13,7 @@ interface HistoryViewProps {
 export const HistoryView: React.FC<HistoryViewProps> = ({ user }) => {
     const { t } = useTranslation();
     const { activities, loading: loadingActivities, error: activitiesError, refresh: refreshActivities } = useActivities();
-    const { userFocuses, loading: loadingTracks, refresh: refreshTracks, trackTopic, untrackTopic } = useUserFocus();
+    const { userFocuses, loading: loadingTracks, refresh: refreshTracks, trackSource, untrackSource } = useUserFocus();
 
     useEffect(() => {
         if (user.id) {
@@ -55,8 +55,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ user }) => {
                 <HistoryTimeline
                     activities={activities}
                     userFocuses={userFocuses}
-                    onTrack={trackTopic}
-                    onUntrack={untrackTopic}
+                    onTrack={trackSource}
+                    onUntrack={untrackSource}
                 />
             )}
         </div>

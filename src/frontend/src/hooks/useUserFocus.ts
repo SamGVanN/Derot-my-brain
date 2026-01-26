@@ -26,7 +26,7 @@ export function useUserFocus() {
         }
     }, [userId]);
 
-    const trackTopic = useCallback(async (request: TrackTopicRequest) => {
+    const trackSource = useCallback(async (request: TrackTopicRequest) => {
         if (!userId) throw new Error("User not authenticated");
 
         try {
@@ -34,19 +34,19 @@ export function useUserFocus() {
             setUserFocuses(prev => [...prev, newFocus]);
             return newFocus;
         } catch (err) {
-            console.error('Failed to track topic:', err);
+            console.error('Failed to track source:', err);
             throw err;
         }
     }, [userId]);
 
-    const untrackTopic = useCallback(async (sourceId: string) => {
+    const untrackSource = useCallback(async (id: string) => {
         if (!userId) throw new Error("User not authenticated");
 
         try {
-            await userFocusApi.untrackTopic(userId, sourceId);
-            setUserFocuses(prev => prev.filter(t => t.sourceId !== sourceId));
+            await userFocusApi.untrackTopic(userId, id);
+            setUserFocuses(prev => prev.filter(t => t.id !== id));
         } catch (err) {
-            console.error('Failed to untrack topic:', err);
+            console.error('Failed to untrack source:', err);
             throw err;
         }
     }, [userId]);
@@ -64,8 +64,8 @@ export function useUserFocus() {
         loading,
         error,
         refresh,
-        trackTopic,
-        untrackTopic,
+        trackSource,
+        untrackSource,
         isTracked,
         findBySourceId
     };

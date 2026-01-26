@@ -33,7 +33,7 @@ public class DatabaseFixture
         var testUser = new User
         {
             Id = userId,
-            Name = "Integration Test User",
+            Name = "test-user-integration",
             CreatedAt = DateTime.UtcNow,
             LastConnectionAt = DateTime.UtcNow,
             Preferences = new UserPreferences
@@ -50,16 +50,19 @@ public class DatabaseFixture
         
         var physicsSource = new Source
         {
-            Id = SourceHasher.GenerateHash(wikiType, "https://en.wikipedia.org/wiki/Physics"),
+            Id = SourceHasher.GenerateId(wikiType, "https://en.wikipedia.org/wiki/Physics"),
+            UserId = userId,
             Type = wikiType,
             ExternalId = "Physics",
             DisplayTitle = "Physics",
-            Url = "https://en.wikipedia.org/wiki/Physics"
+            Url = "https://en.wikipedia.org/wiki/Physics",
+            IsTracked = true
         };
         
         var historySource = new Source
         {
-            Id = SourceHasher.GenerateHash(wikiType, "https://en.wikipedia.org/wiki/History"),
+            Id = SourceHasher.GenerateId(wikiType, "https://en.wikipedia.org/wiki/History"),
+            UserId = userId,
             Type = wikiType,
             ExternalId = "History",
             DisplayTitle = "History",
@@ -70,7 +73,7 @@ public class DatabaseFixture
         {
             Id = "session-physics",
             UserId = userId,
-            SourceId = physicsSource.Id,
+            TargetSourceId = physicsSource.Id,
             StartedAt = DateTime.UtcNow.AddMinutes(-60),
             Status = SessionStatus.Stopped
         };
@@ -79,7 +82,7 @@ public class DatabaseFixture
         {
             Id = "session-history",
             UserId = userId,
-            SourceId = historySource.Id,
+            TargetSourceId = historySource.Id,
             StartedAt = DateTime.UtcNow.AddMinutes(-10),
             Status = SessionStatus.Stopped
         };
@@ -118,24 +121,10 @@ public class DatabaseFixture
             IsCompleted = true
         };
 
-        var userFocus1 = new UserFocus
-        {
-            UserId = userId,
-            SourceId = physicsSource.Id,
-            DisplayTitle = "Physics",
-            LastAttemptDate = DateTime.UtcNow.AddMinutes(-50),
-            BestScore = 80.0,
-            LastScore = 80.0,
-            TotalReadTimeSeconds = 300,
-            TotalQuizTimeSeconds = 300,
-            TotalStudyTimeSeconds = 600
-        };
-
         context.Users.Add(testUser);
         context.Sources.AddRange(physicsSource, historySource);
         context.Sessions.AddRange(physicsSession, historySession);
         context.Activities.AddRange(activity1, activity2);
-        context.FocusAreas.Add(userFocus1);
         
         await context.SaveChangesAsync();
     }
@@ -156,7 +145,6 @@ public class DatabaseFixture
         context.Activities.RemoveRange(context.Activities);
         context.Sessions.RemoveRange(context.Sessions);
         context.Sources.RemoveRange(context.Sources);
-        context.FocusAreas.RemoveRange(context.FocusAreas);
         context.UserPreferences.RemoveRange(context.UserPreferences);
         context.Users.RemoveRange(context.Users);
         

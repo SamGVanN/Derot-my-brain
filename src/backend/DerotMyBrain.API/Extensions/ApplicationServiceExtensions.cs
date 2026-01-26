@@ -15,6 +15,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IActivityService, ActivityService>();
         services.AddScoped<IWikipediaService, WikipediaService>();
         services.AddScoped<IDocumentService, DocumentService>();
+        services.AddScoped<ISourceService, SourceService>();
         services.AddScoped<IBacklogService, BacklogService>();
 
         // Infrastructure Utilities

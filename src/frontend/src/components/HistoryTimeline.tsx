@@ -107,7 +107,7 @@ export const HistoryTimeline: React.FC<HistoryTimelineProps> = ({
                                                             sourceType: activity.sourceType,
                                                             displayTitle: activity.title
                                                         })}
-                                                        onUntrack={() => onUntrack(activity.sourceId)}
+                                                        onUntrack={() => onUntrack(activity.sourceHash)}
                                                         isLast={index === sortedActivities.length - 1}
                                                     />
                                                 );

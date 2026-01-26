@@ -15,17 +15,20 @@ public class DocumentService : IDocumentService
     private readonly IDocumentRepository _repository;
     private readonly ITextExtractor _textExtractor;
     private readonly IFileStorageService _fileStorageService;
+    private readonly ISourceService _sourceService;
     private readonly ILogger<DocumentService> _logger;
 
     public DocumentService(
         IDocumentRepository repository,
         ITextExtractor textExtractor,
         IFileStorageService fileStorageService,
+        ISourceService sourceService,
         ILogger<DocumentService> logger)
     {
         _repository = repository;
         _textExtractor = textExtractor;
         _fileStorageService = fileStorageService;
+        _sourceService = sourceService;
         _logger = logger;
     }
 
@@ -64,26 +67,17 @@ public class DocumentService : IDocumentService
             SourceId = string.Empty // Set below
         };
 
-        var technicalSourceId = SourceHasher.GenerateId(SourceType.Document, document.Id);
-        document.SourceId = technicalSourceId;
-
         // Ensure Source exists
-        // Since it's a new document upload, we create the Source hub
-        var source = new Source
-        {
-            Id = technicalSourceId,
-            UserId = userId,
-            Type = SourceType.Document,
-            ExternalId = document.Id,
-            DisplayTitle = document.DisplayTitle,
-            Url = storagePath,
-            IsTracked = false
-        };
+        var source = await _sourceService.GetOrCreateSourceAsync(
+            userId, 
+            document.DisplayTitle, 
+            document.Id, 
+            SourceType.Document);
+            
+        document.SourceId = source.Id;
 
-        // We need an IActivityRepository or similar to create the Source
-        // Or we can add Source-related methods to IDocumentRepository.
-        // For now, let's assume the repository should handle the Source creation or we need to inject it.
-        // In the handoff, I mentioned Service realignment.
+        // Optionally update Source URL to point to file if desired, but default checks externalId.
+        // For documents, the Document entity holds the real path.
         
         // 3. Persist to DB
         return await _repository.CreateAsync(document);

@@ -58,6 +58,8 @@ public interface IActivityRepository
     // Source Operations
     Task<Source?> GetSourceByIdAsync(string sourceId);
     Task<Source> CreateSourceAsync(Source source);
+    Task<Source> UpdateSourceAsync(Source source);
+    Task<IEnumerable<Source>> GetTrackedSourcesAsync(string userId);
 
     // Session Operations
     Task<UserSession?> GetSessionByIdAsync(string userId, string sessionId);
