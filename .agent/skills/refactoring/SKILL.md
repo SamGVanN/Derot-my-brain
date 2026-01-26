@@ -17,6 +17,7 @@ description: Improving code structure and readability while maintaining behavior
 4.  **Clean Code**:
     - Apply SOLID principles.
     - Improve naming based on `d:\Repos\Derot-my-brain\Docs\Reference\Glossary.md`.
+    - Update `d:\Repos\Derot-my-brain\Docs\Reference\DataModel.md` if new entities or relationships were introduced.
 5.  **Verification**:
     - Run tests after every change to ensure zero regression.
 

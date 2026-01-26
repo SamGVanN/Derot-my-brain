@@ -18,8 +18,9 @@ Finalizing the **Derot Zone** Wikipedia integration. We are transitioning from U
 | Authentication | ✅ Done | Local profile selection with persistence. |
 | i18n (FR/EN) | ✅ Done | Fully implemented across all pages. |
 | Derot Zone (UI) | ✅ Done | Explore, Read, and Quiz views implemented. |
-| Wikipedia Service | 🟡 In Progress | Integration logic for content fetching. |
-| LLM Integration | 🟡 In Progress | Ollama integration for quiz generation. |
+| Wikipedia Service | 🟡 TODO | Integration logic for content fetching. |
+| Derot Zone (Full user story) | 🟡 TODO | Explore, Read, and Quiz views implemented. |
+| LLM Integration | 🟡 TODO | Ollama integration for quiz generation. |
 | Focus Area | 🔴 Backlog | Visual dashboard for subject mastery. |
 
 ## Immediate Roadmap

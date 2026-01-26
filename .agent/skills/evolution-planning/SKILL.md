@@ -8,6 +8,7 @@ description: Planning long-term application evolutions aligned with project visi
 2.  **Terminology Consistency**: Use `d:\Repos\Derot-my-brain\Docs\Reference\Glossary.md` to define new concepts or extend existing ones.
 3.  **Impact Analysis**:
     - **Data Schema**: Review `d:\Repos\Derot-my-brain\Docs\Technical\Storage-Policy.md`. How will the SQLite schema evolve?
+    - **Data Model**: Review `d:\Repos\Derot-my-brain\Docs\Reference\DataModel.md`. How will the database schema evolve?
     - **API Surface**: Plan new endpoints and DTOs in the API layer.
     - **UX/UI**: Ensure the evolution follows the "Rich Aesthetics" guide and doesn't break existing dark/light modes.
 4.  **Phased Roadmap**: Break the evolution into manageable phases (e.g., Phase 1: Core/Infrastructure, Phase 2: UI/UX implementation).

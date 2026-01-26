@@ -45,6 +45,7 @@ Purpose: Quickly onboard AI coding agents to be productive in this repository. F
 - `Docs/Technical/*` — Backend/Frontend coding standards and testing strategy
 - `Docs/Planning/functional_specifications_derot_my_brain.md` — product goals and functional requirements
 - `Docs/Reference/Glossary.md` — project-specific terms and definitions used in specs
+- `Docs/Reference/DataModel.md` — database schema. (keep it updated please)
 
 7) What not to change without approval
 - Database schema or production data flows; prefer migrations and tests.

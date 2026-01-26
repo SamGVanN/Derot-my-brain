@@ -36,4 +36,5 @@ Upon selecting a file, the user is presented with **3 options** to define the im
 
 ## Technical Context
 *   Reference the [Glossary](../Reference/Glossary.md) for terminology (`Content Source`, `User Activity`).
+*   Reference the [Data Model](../Reference/DataModel.md) for the database schema.
 *   Documents should be stored according to `Docs/Technical/Storage-Policy.md`.

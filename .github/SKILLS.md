@@ -57,6 +57,7 @@ This file lists concrete, repository-specific capabilities an AI coding agent sh
 - **Documentation & context sources** (read these first):
   - `Docs/Planning/functional_specifications_derot_my_brain.md` — product goals and acceptance criteria.
   - `Docs/Reference/Glossary.md` — project-specific terms used across specs.
+  - `Docs/Reference/DataModel.md` — database schema. (keep it updated please)
   - `Docs/Developer/Getting-Started.md` — exact build/run commands.
   - `Docs/Technical/Architecture.md` — Clean Architecture mapping and the TestUser rule.
 

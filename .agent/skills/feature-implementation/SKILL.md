@@ -7,6 +7,7 @@ description: Systematic approach to implementing new features with full technica
 1.  **Preparation**:
     - Review `Docs/Technical/` for relevant guidelines.
     - Check `Docs/Reference/Glossary.md` for consistent naming.
+    - Check `Docs/Reference/DataModel.md` for the database schema.
 2.  **TDD First**:
     - Start by writing failing tests in `DerotMyBrain.Tests` (Backend) or `src/frontend/src/**/*.test.tsx` (Frontend).
     - Ensure tests cover nominal, edge, and error cases.

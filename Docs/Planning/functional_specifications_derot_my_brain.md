@@ -15,10 +15,11 @@ Ce document décrit les **spécifications fonctionnelles** de l’application **
 Derot My Brain est une application d’**apprentissage actif** destinée aux :
 - curieux,
 - étudiants,
-- professionnels préparant des certifications.
+- professionnels préparant des certifications
+- toute personne souhaitant étudier ou apprendre librement avec du contenu personnel ou Wikipédia.
 
 Le principe central est :
-> *Lire → S’auto-évaluer → Mesurer la progression → Répéter intelligemment*
+> *Lire → valider sa compréhension et améliorer sa mémoire → Mesurer la progression → Répéter intelligemment*
 
 L’application transforme des contenus passifs (articles Wikipédia, documents personnels) en **activités interactives** basées sur des quiz générés par IA.
 
@@ -28,14 +29,26 @@ L’application transforme des contenus passifs (articles Wikipédia, documents 
 
 Les termes suivants sont **normatifs** et doivent être utilisés tels quels dans l’UI, le code et la documentation :
 
-- **Derot Zone** : espace de session où se déroule une activité
+- **Derot Zone** : espace de session où se déroule une ou plusieurs activités
 - **User Activity** : interaction unique d’un utilisateur avec un contenu (Read ou Quiz)
-- **Source** : hub central rattaché à un contenu (Wikipédia, YouTube ou Document)
-- **Topic** : regroupement logique de plusieurs Sources (ex: "Physique Quantique")
-- **Source Tracking** : action de "suivre" une Source pour qu'elle apparaisse dans la progression (anciennement User Focus)
+- **Source** : hub central rattaché à un contenu (Wikipédia, Document)
+- **Topic** : regroupement logique de plusieurs Sources (ex: "Physique Quantique", "Mathématiques", "exam de droit") créé par l'utilisateur
+- **Source Tracking** : action de "suivre" une Source pour suivre sa progression (anciennement User Focus)
 - **Backlog** : liste de contenus à traiter plus tard
 - **My Documents** : bibliothèque de documents uploadés
 - **Knowledge Area** : catégorie système (Wikipédia) utilisée pour le filtrage initial
+
+
+**Mémo des Relations Clés**
+
+1.  **Centralisation par `User`** : Tout appartient explicitement à un utilisateur (`UserId`).
+2.  **Rôle de `Source`** : C'est le pivot du contenu. Un `Document` *appartient* à une Source. Un `BacklogItem` *pointe* vers une Source.
+3.  **Organisation par `Topic`** : Les sources peuvent être regroupées dans des Topics (dossiers thématiques).
+4.  **Tracking (`UserActivity` & `UserSession`)** :
+    *   Une **Session** est le conteneur temporel (ex: "J'ai étudié pendant 30 min").
+    *   Une **Activité** est l'action précise dans cette session (ex: "J'ai Lu l'article X", "J'ai fait le Quiz Y").
+    *   L'activité lie la performance (Score, Durée) au contenu (Source).
+
 
 ---
 
@@ -48,9 +61,10 @@ Les termes suivants sont **normatifs** et doivent être utilisés tels quels dan
 3. Il effectue une **User Activity** :
    - Lecture (Read)
    - Quiz (Quiz)
+   - c'est le début d'une session (**UserSession**)
 4. Le système enregistre l’activité
-5. Les métriques de la **Source** sont mises à jour (si trackée)
-6. L’utilisateur peut recommencer ou changer de sujet via les **Topics** ou la recherche
+5. Les métriques de la **Source** et de la **UserSession** sont mises à jour
+6. L’utilisateur peut recommencer une activité sur cette source ou arrêter la session
 
 ---
 
@@ -261,37 +275,36 @@ La page **Ma bibliothèque** constitue une forme de backlog implicite pour les d
 ### 5.7 Wikipedia Integration
 
 #### Description
-Source de contenu dynamique basée sur Wikipédia.
+Source de contenu dynamique basée sur l'API de Wikipédia.
 
 #### Fonctionnalités
 - Recherche manuelle
-- Sélection aléatoire via catégories / thèmes
-
-#### Fonctionnalités
-- Recherche manuelle
-- Sélection aléatoire via catégories / thèmes
+- Sélection aléatoire via catégories / thèmes mis à disposition par l'API
 - Lecture via URL directe (champ URL dans Derot Zone Header)
 
 #### Règles
 - Le titre Wikipédia est utilisé comme `Title` par défaut
 - L’URL (lang + title) est la référence technique unique (`SourceId`)
 - Lecture directe (via URL) déclenche le flux `Read` et crée une `UserActivity` Type=`Read` associée
-- Les articles explorés via recherche / Recycle génèrent des événements `Explore` (suivi léger)
+- Les articles explorés via recherche génèrent des événements sur l'activité `Explore` (suivi du nombre d'articles ajoutés au backlog, temps passé sur la recherche)
+- Lorsque l'utilisateur choisit de lire un article wikipédia (bouton "Lire l'article"), une activité `Read` est créée au sein de la même UserSession que l'activité `Explore`.
 
 #### Intégration backend / endpoints (résumé)
+- l'API DerotMyBrain est-elle même interfacée avec l'API Wikipedia pour fournir au frontend les données nécessaires.
 - `GET /api/wikipedia/search?q={q}&lang={lang}&limit={n}` → liste d’articles
 - `GET /api/wikipedia/summary?title={title}&lang={lang}` → résumé détaillé
 - `GET /api/wikipedia/random?lang={lang}&count={n}&categories={csv}` → articles aléatoires
 - `POST /api/wikipedia/read` → body `{ title, lang, sourceUrl? }` : récupère le résumé, crée `UserActivity` Type=`Read`, retourne l’activité + DTO article
 - `POST /api/wikipedia/explore` → body `{ query?, lang?, filters? }` : log léger `Explore` event
 
+
 #### Backlog interaction
-- `Add to Backlog` côté frontend appelle le endpoint Backlog existant (ou `POST /api/backlog`) en fournissant `title`, `lang`, `sourceUrl`, `summary`.
+- `Add to Backlog` côté frontend appelle le endpoint Backlog existant (ou `POST /api/backlog`) en fournissant `title`, `lang`, `sourceUrl`, `summary` et toute les infos nécessaire pour que l'API DerotMyBrain puisse créer la source.
 - Ajouter au Backlog **n’entraîne pas** la création d’une `UserActivity`.
 
 #### UX / Edge cases
 - Disambiguation pages : afficher indication et options de désambiguïsation
-- Redirects : suivre et afficher la page finale
+- Redirects : Dans la DerotZone pas de redirection vers l'article. Car dans la DerotZone l'utilisateur peut lire els articles ou les ajouter au backlog. Un lien externe vers l'article wikipédia serait "tricher" en terme de suivi des temps, l'activité de lecture doit être faite dans la DerotZone.
 - Thumbnails manquantes : afficher placeholder
 - Validation des URL directes : signaler erreurs user-friendly
 
@@ -306,10 +319,10 @@ Vue chronologique exhaustive de **toutes les User Activities**, indépendamment 
 
 #### Règles fonctionnelles
 - Les activités sont affichées par **ordre décroissant de date**
-- Chaque User Activity est rattachée à un **SourceHash**
+- Chaque User Activity est rattachée à un **SourceId**
 - La page permet :
   - de consulter l’historique global
-  - de filtrer par Knowledge Area, SourceType, ou SourceId
+  - de filtrer par Catégorie Wikipédia, SourceType, SourceId
   - de **Track / Untrack** la source associée à une activité
 
 ---
@@ -326,16 +339,16 @@ Vue chronologique exhaustive de **toutes les User Activities**, indépendamment 
 
 - Le système est **source-agnostique**
 - La logique d’apprentissage est indépendante du format du contenu
-- L’utilisateur contrôle ses priorités (User Focus)
-- Les scores servent à **mesurer**, jamais à sanctionner
+- L’utilisateur contrôle ses priorités (Track/Untrack une source)
+- Les scores et temps servent à **mesurer**, **informer** et **encourager**, jamais à sanctionner
 
 ---
 
 ## 7. Hors Périmètre (V1)
 
 - Collaboration multi-utilisateurs
-- Partage public de User Focus
-- Gamification avancée (badges, streaks)
+- Partage public de User Focus (Track/Untrack de Source)
+- Gamification avancée (badges, streaks, record personnels)
 
 ---
 
@@ -356,4 +369,5 @@ Ce document doit être cohérent avec :
 - Architecture.md
 - Backend-Architecture.md
 - Frontend-Architecture.md
+- DataModel.md
 
