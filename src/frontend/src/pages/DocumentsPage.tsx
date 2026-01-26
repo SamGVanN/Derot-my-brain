@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Layout } from '@/components/Layout';
 import { PageHeader } from '@/components/PageHeader';
 import { useAuth } from '@/hooks/useAuth';
-import { documentApi, type DocumentDto } from '@/api/documentApi'; // Added type-only import
+import { useDocuments } from '@/hooks/useDocuments';
+import { type DocumentDto } from '@/api/documentApi';
 import { DocumentUpload } from '@/components/Documents/DocumentUpload';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, FileText, Library, BookOpenText, NotebookPen } from 'lucide-react';
-// import { format } from 'date-fns'; // Removed
-import { useToast } from '@/hooks/use-toast'; // Updated path
+import { Trash2, FileText, Library, BookOpenText, NotebookPen, FolderOpen } from 'lucide-react';
 import {
     Tooltip,
     TooltipContent,
@@ -24,48 +23,24 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-// Table imports removed
 
 export const DocumentsPage: React.FC = () => {
     const { user } = useAuth();
-    const { toast } = useToast();
     const navigate = useNavigate();
-    const [documents, setDocuments] = useState<DocumentDto[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const { documents, isLoading, deleteDocument, refresh } = useDocuments(user?.id);
     const [deleteDocId, setDeleteDocId] = useState<string | null>(null);
-
-    const loadDocuments = async () => {
-        if (!user) return;
-        setIsLoading(true);
-        try {
-            const data = await documentApi.getAll(user.id);
-            setDocuments(data);
-        } catch (error) {
-            console.error("Failed to load documents", error);
-            toast({ variant: "destructive", title: "Error", description: "Failed to load documents." });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        loadDocuments();
-    }, [user]);
 
     const confirmDelete = (docId: string) => {
         setDeleteDocId(docId);
     };
 
     const handleDelete = async () => {
-        if (!user || !deleteDocId) return;
+        if (!deleteDocId) return;
         try {
-            await documentApi.delete(user.id, deleteDocId);
-            toast({ title: "Deleted", description: "Document deleted successfully." });
+            await deleteDocument(deleteDocId);
             setDeleteDocId(null);
-            loadDocuments();
         } catch (error) {
-            console.error("Failed to delete", error);
-            toast({ variant: "destructive", title: "Error", description: "Failed to delete document." });
+            // Error handled by hook
         }
     };
 
@@ -88,7 +63,7 @@ export const DocumentsPage: React.FC = () => {
                 />
 
                 <section className="max-w-xl">
-                    <DocumentUpload onUploadComplete={loadDocuments} />
+                    <DocumentUpload onUploadComplete={refresh} />
                 </section>
 
                 <Card>
@@ -109,6 +84,7 @@ export const DocumentsPage: React.FC = () => {
                                             <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Type</th>
                                             <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Size</th>
                                             <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Uploaded</th>
+                                            <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Path</th>
                                             <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Actions</th>
                                         </tr>
                                     </thead>
@@ -122,6 +98,12 @@ export const DocumentsPage: React.FC = () => {
                                                 <td className="p-4 align-middle">{doc.fileType}</td>
                                                 <td className="p-4 align-middle">{(doc.fileSize / 1024).toFixed(1)} KB</td>
                                                 <td className="p-4 align-middle">{new Date(doc.uploadDate).toLocaleDateString()}</td>
+                                                <td className="p-4 align-middle text-muted-foreground text-xs font-mono max-w-[200px] truncate" title={doc.storagePath}>
+                                                    <div className="flex items-center gap-1">
+                                                        <FolderOpen className="h-3 w-3" />
+                                                        {doc.storagePath}
+                                                    </div>
+                                                </td>
                                                 <td className="p-4 align-middle text-right">
                                                     <div className="flex justify-end gap-1">
                                                         <TooltipProvider>

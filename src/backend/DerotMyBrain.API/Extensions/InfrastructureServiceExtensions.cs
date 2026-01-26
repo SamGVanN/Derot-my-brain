@@ -25,6 +25,9 @@ public static class InfrastructureServiceExtensions
 
         // Register Utilities
         services.AddScoped<ITextExtractor, TextExtractor>();
+        
+        // Register File Storage
+        services.AddScoped<IFileStorageService, FileSystemStorageService>();
 
         return services;
     }

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DerotMyBrain.Core.Entities;
 
@@ -12,6 +13,7 @@ public class UserActivity
     
     public required string UserId { get; set; }
     
+    [JsonIgnore]
     public User User { get; set; } = null!;
     
     // --- Content Identification ---

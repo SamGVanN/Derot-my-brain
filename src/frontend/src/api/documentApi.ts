@@ -9,6 +9,7 @@ export interface DocumentDto {
     uploadDate: string;
     displayTitle: string;
     sourceHash: string;
+    storagePath: string;
 }
 
 export const documentApi = {
@@ -23,7 +24,7 @@ export const documentApi = {
 
         const response = await client.post<DocumentDto>(`/users/${userId}/documents`, formData, {
             headers: {
-                'Content-Type': 'multipart/form-data'
+                'Content-Type': undefined
             }
         });
         return response.data;

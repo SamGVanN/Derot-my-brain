@@ -1,3 +1,4 @@
+using System.IO;
 using DerotMyBrain.Core.DTOs;
 using DerotMyBrain.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -11,11 +12,16 @@ namespace DerotMyBrain.API.Controllers;
 public class DocumentsController : ControllerBase
 {
     private readonly IDocumentService _documentService;
+    private readonly IFileStorageService _fileStorageService;
     private readonly ILogger<DocumentsController> _logger;
 
-    public DocumentsController(IDocumentService documentService, ILogger<DocumentsController> logger)
+    public DocumentsController(
+        IDocumentService documentService,
+        IFileStorageService fileStorageService,
+        ILogger<DocumentsController> logger)
     {
         _documentService = documentService;
+        _fileStorageService = fileStorageService;
         _logger = logger;
     }
 
@@ -35,14 +41,15 @@ public class DocumentsController : ControllerBase
             FileSize = d.FileSize,
             UploadDate = d.UploadDate,
             DisplayTitle = d.DisplayTitle,
-            SourceHash = d.SourceHash
+            SourceHash = d.SourceHash,
+            StoragePath = Path.GetDirectoryName(_fileStorageService.GetAbsolutePath(d.StoragePath)) ?? string.Empty
         });
 
         return Ok(dtos);
     }
 
     [HttpPost]
-    public async Task<ActionResult<DocumentDto>> UploadDocument(string userId, IFormFile file)
+    public async Task<ActionResult<DocumentDto>> UploadDocument(string userId, [FromForm] IFormFile file)
     {
         if (file == null || file.Length == 0)
             return BadRequest("No file uploaded.");
@@ -61,7 +68,8 @@ public class DocumentsController : ControllerBase
                 FileSize = doc.FileSize,
                 UploadDate = doc.UploadDate,
                 DisplayTitle = doc.DisplayTitle,
-                SourceHash = doc.SourceHash
+                SourceHash = doc.SourceHash,
+                StoragePath = Path.GetDirectoryName(_fileStorageService.GetAbsolutePath(doc.StoragePath)) ?? string.Empty
             };
 
             return CreatedAtAction(nameof(GetDocuments), new { userId = userId }, dto);

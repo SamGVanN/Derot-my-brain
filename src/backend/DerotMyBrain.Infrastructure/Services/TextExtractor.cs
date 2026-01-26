@@ -26,25 +26,47 @@ public class TextExtractor : ITextExtractor
         {
             if (!File.Exists(filePath)) throw new FileNotFoundException($"File not found: {filePath}");
 
+            using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            return ExtractText(stream, extension);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error extracting text from file {FilePath}", filePath);
+            throw; 
+        }
+    }
+
+    public string ExtractText(Stream fileStream, string extension)
+    {
+        try
+        {
             return extension.ToLowerInvariant() switch
             {
-                ".pdf" => ExtractPdf(filePath),
-                ".docx" => ExtractDocx(filePath),
-                ".odt" => ExtractOdt(filePath),
-                ".txt" => File.ReadAllText(filePath),
+                ".pdf" => ExtractPdf(fileStream),
+                ".docx" => ExtractDocx(fileStream),
+                ".odt" => ExtractOdt(fileStream),
+                ".txt" => ExtractTxt(fileStream),
                 _ => throw new NotSupportedException($"File type {extension} is not supported for text extraction.")
             };
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error extracting text from {FilePath}", filePath);
-            throw; // Re-throw to allow caller to handle or let it bubble up
+            _logger.LogError(ex, "Error extracting text from stream with extension {Extension}", extension);
+            throw;
         }
     }
 
-    private string ExtractPdf(string filePath)
+    private string ExtractTxt(Stream stream)
     {
-        using var pdf = PdfDocument.Open(filePath);
+        using var reader = new StreamReader(stream, leaveOpen: true);
+        var text = reader.ReadToEnd();
+        // Reset position if needed, though usually we consume it once.
+        return text;
+    }
+
+    private string ExtractPdf(Stream stream)
+    {
+        using var pdf = PdfDocument.Open(stream); // PdfPig supports stream
         var builder = new StringBuilder();
         foreach (var page in pdf.GetPages())
         {
@@ -53,22 +75,22 @@ public class TextExtractor : ITextExtractor
         return builder.ToString();
     }
 
-    private string ExtractDocx(string filePath)
+    private string ExtractDocx(Stream stream)
     {
-        using var doc = WordprocessingDocument.Open(filePath, false);
+        using var doc = WordprocessingDocument.Open(stream, false);
         var body = doc.MainDocumentPart?.Document.Body;
         return body?.InnerText ?? string.Empty;
     }
 
-    private string ExtractOdt(string filePath)
+    private string ExtractOdt(Stream stream)
     {
-        // ODT is a ZIP. Content is in content.xml.
-        using var archive = ZipFile.OpenRead(filePath);
+        // ODT is a ZIP.
+        using var archive = new ZipArchive(stream, ZipArchiveMode.Read, leaveOpen: true);
         var contentEntry = archive.GetEntry("content.xml");
         if (contentEntry == null) return string.Empty;
 
-        using var stream = contentEntry.Open();
-        using var reader = new StreamReader(stream);
+        using var entryStream = contentEntry.Open();
+        using var reader = new StreamReader(entryStream);
         var xmlContent = reader.ReadToEnd();
 
         var xmlDoc = new XmlDocument();

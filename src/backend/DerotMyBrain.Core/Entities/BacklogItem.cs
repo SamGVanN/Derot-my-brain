@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace DerotMyBrain.Core.Entities;
 
@@ -11,6 +12,7 @@ public class BacklogItem
     
     public required string UserId { get; set; }
     
+    [JsonIgnore]
     public User User { get; set; } = null!;
     
     /// <summary>
