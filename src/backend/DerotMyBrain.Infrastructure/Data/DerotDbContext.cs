@@ -8,7 +8,9 @@ public class DerotDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<UserPreferences> UserPreferences { get; set; }
     public DbSet<UserActivity> Activities { get; set; }
-    public DbSet<UserFocus> UserFocuses { get; set; }
+    public DbSet<UserFocus> FocusAreas { get; set; }
+    public DbSet<Source> Sources { get; set; }
+    public DbSet<UserSession> Sessions { get; set; }
     public DbSet<Document> Documents { get; set; }
     public DbSet<BacklogItem> BacklogItems { get; set; }
     
@@ -52,47 +54,79 @@ public class DerotDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
         
+        // Source configuration
+        modelBuilder.Entity<Source>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Type).IsRequired();
+            entity.Property(e => e.ExternalId).IsRequired();
+            entity.Property(e => e.DisplayTitle).IsRequired();
+        });
+
+        // UserSession configuration
+        modelBuilder.Entity<UserSession>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.SourceId).IsRequired(false);
+            entity.Property(e => e.StartedAt).IsRequired();
+            
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.Sessions)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Source)
+                .WithMany(s => s.Sessions)
+                .HasForeignKey(e => e.SourceId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
         // UserActivity configuration
         modelBuilder.Entity<UserActivity>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.UserSessionId).IsRequired();
             entity.Property(e => e.Type).IsRequired();
             
             entity.Property(e => e.Title).IsRequired();
-            entity.Property(e => e.SourceId).IsRequired();
-            entity.Property(e => e.SourceType).IsRequired();
-            entity.Property(e => e.SourceHash).IsRequired();
             
             // Map SessionDateEnd as optional
             entity.Property(e => e.SessionDateEnd).IsRequired(false);
             
             // Indexes
-            entity.HasIndex(e => new { e.UserId, e.SessionDateStart }); // For history sorting by start
-            entity.HasIndex(e => new { e.UserId, e.SessionDateEnd }); // For history sorting by end
-            entity.HasIndex(e => new { e.UserId, e.SourceHash });
+            entity.HasIndex(e => new { e.UserId, e.SessionDateStart });
+            entity.HasIndex(e => new { e.UserId, e.SessionDateEnd });
+            entity.HasIndex(e => e.UserSessionId);
             
             entity.HasOne(e => e.User)
                 .WithMany(u => u.Activities)
                 .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.UserSession)
+                .WithMany(s => s.Activities)
+                .HasForeignKey(e => e.UserSessionId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
         // UserFocus configuration
         modelBuilder.Entity<UserFocus>(entity =>
         {
-            entity.ToTable("UserFocuses"); // renaming the table too
+            entity.ToTable("FocusAreas"); // naming the table too
             entity.HasKey(e => e.Id);
             entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.SourceId).IsRequired();
-            entity.Property(e => e.SourceType).IsRequired();
-            entity.Property(e => e.SourceHash).IsRequired();
-            
-            entity.HasIndex(e => new { e.UserId, e.SourceHash }).IsUnique();
             
             entity.HasOne(e => e.User)
-                .WithMany(u => u.UserFocuses)
+                .WithMany(u => u.FocusAreas)
                 .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Source)
+                .WithMany(s => s.UserFocuses)
+                .HasForeignKey(e => e.SourceId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

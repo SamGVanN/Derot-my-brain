@@ -5,9 +5,8 @@ export interface UserFocus {
     userId: string;
 
     // Identity
-    sourceHash: string;
     sourceId: string;
-    sourceType: SourceType;
+    source?: import('./UserSession').Source;
     displayTitle: string;
 
     // Stats

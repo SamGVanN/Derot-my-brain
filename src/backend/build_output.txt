@@ -1,0 +1,17 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  DerotMyBrain.Core -> /home/samuel/Documents/Repos/Derot-my-brain/src/backend/DerotMyBrain.Core/bin/Debug/net9.0/DerotMyBrain.Core.dll
+  DerotMyBrain.Infrastructure -> /home/samuel/Documents/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/bin/Debug/net9.0/DerotMyBrain.Infrastructure.dll
+  DerotMyBrain.API -> /home/samuel/Documents/Repos/Derot-my-brain/src/backend/DerotMyBrain.API/bin/Debug/net9.0/DerotMyBrain.API.dll
+/home/samuel/Documents/Repos/Derot-my-brain/src/backend/DerotMyBrain.Tests/Helpers/TestDataBuilder.cs(180,21): warning CS0649: Le champ 'ActivityBuilder._llmModelName' n'est jamais assigné et aura toujours sa valeur par défaut null [/home/samuel/Documents/Repos/Derot-my-brain/src/backend/DerotMyBrain.Tests/DerotMyBrain.Tests.csproj]
+/home/samuel/Documents/Repos/Derot-my-brain/src/backend/DerotMyBrain.Tests/Helpers/TestDataBuilder.cs(181,21): warning CS0649: Le champ 'ActivityBuilder._llmVersion' n'est jamais assigné et aura toujours sa valeur par défaut null [/home/samuel/Documents/Repos/Derot-my-brain/src/backend/DerotMyBrain.Tests/DerotMyBrain.Tests.csproj]
+  DerotMyBrain.Tests -> /home/samuel/Documents/Repos/Derot-my-brain/src/backend/DerotMyBrain.Tests/bin/Debug/net9.0/DerotMyBrain.Tests.dll
+
+La génération a réussi.
+
+/home/samuel/Documents/Repos/Derot-my-brain/src/backend/DerotMyBrain.Tests/Helpers/TestDataBuilder.cs(180,21): warning CS0649: Le champ 'ActivityBuilder._llmModelName' n'est jamais assigné et aura toujours sa valeur par défaut null [/home/samuel/Documents/Repos/Derot-my-brain/src/backend/DerotMyBrain.Tests/DerotMyBrain.Tests.csproj]
+/home/samuel/Documents/Repos/Derot-my-brain/src/backend/DerotMyBrain.Tests/Helpers/TestDataBuilder.cs(181,21): warning CS0649: Le champ 'ActivityBuilder._llmVersion' n'est jamais assigné et aura toujours sa valeur par défaut null [/home/samuel/Documents/Repos/Derot-my-brain/src/backend/DerotMyBrain.Tests/DerotMyBrain.Tests.csproj]
+    2 Avertissement(s)
+    0 Erreur(s)
+
+Temps écoulé 00:00:06.08

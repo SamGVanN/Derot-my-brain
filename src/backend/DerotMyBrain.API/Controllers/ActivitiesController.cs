@@ -26,13 +26,13 @@ public class ActivitiesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserActivityDto>>> GetAllActivities([FromRoute] string userId, [FromQuery] string? sourceHash = null)
+    public async Task<ActionResult<IEnumerable<UserActivityDto>>> GetAllActivities([FromRoute] string userId, [FromQuery] string? sourceId = null)
     {
         try
         {
-            if (!string.IsNullOrEmpty(sourceHash))
+            if (!string.IsNullOrEmpty(sourceId))
             {
-                return Ok(await _activityService.GetAllForContentAsync(userId, sourceHash));
+                return Ok(await _activityService.GetAllForContentAsync(userId, sourceId));
             }
             
             return Ok(await _activityService.GetAllActivitiesAsync(userId));
@@ -52,7 +52,9 @@ public class ActivitiesController : ControllerBase
             var activity = await _activityService.GetActivityByIdAsync(userId, activityId);
             if (activity == null) return NotFound();
             
-            var isTracked = await _userFocusService.GetFocusAsync(userId, activity.SourceHash) != null;
+            // sourceId is only present if the session is promoted
+            var sourceId = activity.UserSession?.SourceId;
+            var isTracked = sourceId != null && await _userFocusService.GetFocusAsync(userId, sourceId) != null;
             return Ok(MapToDto(activity, isTracked));
         }
         catch (Exception ex)
@@ -70,7 +72,8 @@ public class ActivitiesController : ControllerBase
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var activity = await _activityService.CreateActivityAsync(userId, dto);
-            var isTracked = await _userFocusService.GetFocusAsync(userId, activity.SourceHash) != null;
+            var sourceId = activity.UserSession?.SourceId;
+            var isTracked = sourceId != null && await _userFocusService.GetFocusAsync(userId, sourceId) != null;
             var resultDto = MapToDto(activity, isTracked);
             
             return CreatedAtAction(nameof(GetActivity), new { userId, activityId = activity.Id }, resultDto);
@@ -88,7 +91,8 @@ public class ActivitiesController : ControllerBase
         try
         {
             var activity = await _activityService.UpdateActivityAsync(userId, activityId, dto);
-            var isTracked = await _userFocusService.GetFocusAsync(userId, activity.SourceHash) != null;
+            var sourceId = activity.UserSession?.SourceId;
+            var isTracked = sourceId != null && await _userFocusService.GetFocusAsync(userId, sourceId) != null;
             return Ok(MapToDto(activity, isTracked));
         }
         catch (KeyNotFoundException)
@@ -145,7 +149,8 @@ public class ActivitiesController : ControllerBase
         try
         {
             var activity = await _activityService.ExploreAsync(userId, req.Title, req.SourceId, req.SourceType);
-            var isTracked = await _userFocusService.GetFocusAsync(userId, activity.SourceHash) != null;
+            var sourceId = activity.UserSession?.SourceId;
+            var isTracked = sourceId != null && await _userFocusService.GetFocusAsync(userId, sourceId) != null;
             return Ok(MapToDto(activity, isTracked));
         }
         catch (Exception ex)
@@ -170,7 +175,8 @@ public class ActivitiesController : ControllerBase
                 req.BacklogAddsCount,
                 req.ExploreDurationSeconds);
 
-            var isTracked = await _userFocusService.GetFocusAsync(userId, activity.SourceHash) != null;
+            var sourceId = activity.UserSession?.SourceId;
+            var isTracked = sourceId != null && await _userFocusService.GetFocusAsync(userId, sourceId) != null;
             return Ok(MapToDto(activity, isTracked));
         }
         catch (Exception ex)
@@ -224,15 +230,19 @@ public class ActivitiesController : ControllerBase
 
     private UserActivityDto MapToDto(UserActivity a, bool isTracked)
     {
+        var session = a.UserSession;
+        var source = session?.Source;
+
         return new UserActivityDto
         {
             Id = a.Id,
             UserId = a.UserId,
+            UserSessionId = a.UserSessionId,
             Title = a.Title,
             Description = a.Description,
-            SourceId = a.SourceId,
-            SourceType = a.SourceType,
-            SourceHash = a.SourceHash,
+            SourceId = source?.ExternalId ?? string.Empty,
+            SourceType = source?.Type ?? SourceType.Custom,
+            SourceHash = source?.Id ?? string.Empty,
             Type = a.Type,
             SessionDateStart = a.SessionDateStart,
             SessionDateEnd = a.SessionDateEnd,

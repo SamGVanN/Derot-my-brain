@@ -9,8 +9,8 @@ import type {
 export const activityApi = {
     // --- Activities ---
 
-    getActivities: async (userId: string, sourceHash?: string): Promise<UserActivity[]> => {
-        const params = sourceHash ? { sourceHash } : undefined;
+    getActivities: async (userId: string, sourceId?: string): Promise<UserActivity[]> => {
+        const params = sourceId ? { sourceId } : undefined;
         const response = await client.get<UserActivity[]>(`/users/${userId}/activities`, { params });
         return response.data;
     },

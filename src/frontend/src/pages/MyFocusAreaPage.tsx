@@ -36,8 +36,8 @@ export function MyFocusAreaPage() {
     const handleUntrack = async (focus: UserFocus) => {
         if (!user) return;
         try {
-            await userFocusApi.untrackTopic(user.id, focus.sourceHash);
-            setFocuses(prev => prev.filter(f => f.sourceHash !== focus.sourceHash));
+            await userFocusApi.untrackTopic(user.id, focus.sourceId);
+            setFocuses(prev => prev.filter(f => f.sourceId !== focus.sourceId));
         } catch (error) {
             console.error('Failed to untrack focus area:', error);
         }
@@ -46,8 +46,8 @@ export function MyFocusAreaPage() {
     const handleTogglePin = async (focus: UserFocus) => {
         if (!user) return;
         try {
-            const updated = await userFocusApi.togglePin(user.id, focus.sourceHash);
-            setFocuses(prev => prev.map(f => f.sourceHash === focus.sourceHash ? updated : f));
+            const updated = await userFocusApi.togglePin(user.id, focus.sourceId);
+            setFocuses(prev => prev.map(f => f.sourceId === focus.sourceId ? updated : f));
         } catch (error) {
             console.error('Failed to toggle pin:', error);
         }
@@ -56,8 +56,8 @@ export function MyFocusAreaPage() {
     const handleToggleArchive = async (focus: UserFocus) => {
         if (!user) return;
         try {
-            const updated = await userFocusApi.toggleArchive(user.id, focus.sourceHash);
-            setFocuses(prev => prev.map(f => f.sourceHash === focus.sourceHash ? updated : f));
+            const updated = await userFocusApi.toggleArchive(user.id, focus.sourceId);
+            setFocuses(prev => prev.map(f => f.sourceId === focus.sourceId ? updated : f));
         } catch (error) {
             console.error('Failed to toggle archive:', error);
         }
@@ -124,7 +124,7 @@ export function MyFocusAreaPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredFocuses.map(focus => (
                             <FocusAreaCard
-                                key={focus.sourceHash}
+                                key={focus.sourceId}
                                 focus={focus}
                                 onUntrack={handleUntrack}
                                 onTogglePin={handleTogglePin}

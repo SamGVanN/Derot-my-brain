@@ -47,20 +47,52 @@ public class DatabaseFixture
         };
 
         var wikiType = SourceType.Wikipedia;
-        var physicsHash = SourceHasher.GenerateHash(wikiType, "https://en.wikipedia.org/wiki/Physics");
-        var historyHash = SourceHasher.GenerateHash(wikiType, "https://en.wikipedia.org/wiki/History");
+        
+        var physicsSource = new Source
+        {
+            Id = SourceHasher.GenerateHash(wikiType, "https://en.wikipedia.org/wiki/Physics"),
+            Type = wikiType,
+            ExternalId = "Physics",
+            DisplayTitle = "Physics",
+            Url = "https://en.wikipedia.org/wiki/Physics"
+        };
+        
+        var historySource = new Source
+        {
+            Id = SourceHasher.GenerateHash(wikiType, "https://en.wikipedia.org/wiki/History"),
+            Type = wikiType,
+            ExternalId = "History",
+            DisplayTitle = "History",
+            Url = "https://en.wikipedia.org/wiki/History"
+        };
+
+        var physicsSession = new UserSession
+        {
+            Id = "session-physics",
+            UserId = userId,
+            SourceId = physicsSource.Id,
+            StartedAt = DateTime.UtcNow.AddMinutes(-60),
+            Status = SessionStatus.Stopped
+        };
+
+        var historySession = new UserSession
+        {
+            Id = "session-history",
+            UserId = userId,
+            SourceId = historySource.Id,
+            StartedAt = DateTime.UtcNow.AddMinutes(-10),
+            Status = SessionStatus.Stopped
+        };
 
         var activity1 = new UserActivity
         {
             Id = "activity-1",
             UserId = userId,
+            UserSessionId = physicsSession.Id,
             Title = "Physics",
             Description = "Quiz on Physics",
-            SourceId = "https://en.wikipedia.org/wiki/Physics",
-            SourceType = wikiType,
-            SourceHash = physicsHash,
             Type = ActivityType.Quiz,
-            SessionDateStart = DateTime.UtcNow.AddMinutes(-60),
+            SessionDateStart = physicsSession.StartedAt,
             SessionDateEnd = DateTime.UtcNow.AddMinutes(-50),
             ReadDurationSeconds = 300,
             QuizDurationSeconds = 300,
@@ -75,13 +107,11 @@ public class DatabaseFixture
         {
             Id = "activity-2",
             UserId = userId,
+            UserSessionId = historySession.Id,
             Title = "History",
             Description = "Reading History",
-            SourceId = "https://en.wikipedia.org/wiki/History",
-            SourceType = wikiType,
-            SourceHash = historyHash,
             Type = ActivityType.Read,
-            SessionDateStart = DateTime.UtcNow.AddMinutes(-10),
+            SessionDateStart = historySession.StartedAt,
             SessionDateEnd = DateTime.UtcNow,
             ReadDurationSeconds = 600,
             QuizDurationSeconds = 0,
@@ -91,9 +121,7 @@ public class DatabaseFixture
         var userFocus1 = new UserFocus
         {
             UserId = userId,
-            SourceId = "https://en.wikipedia.org/wiki/Physics",
-            SourceType = wikiType,
-            SourceHash = physicsHash,
+            SourceId = physicsSource.Id,
             DisplayTitle = "Physics",
             LastAttemptDate = DateTime.UtcNow.AddMinutes(-50),
             BestScore = 80.0,
@@ -104,8 +132,10 @@ public class DatabaseFixture
         };
 
         context.Users.Add(testUser);
+        context.Sources.AddRange(physicsSource, historySource);
+        context.Sessions.AddRange(physicsSession, historySession);
         context.Activities.AddRange(activity1, activity2);
-        context.UserFocuses.Add(userFocus1);
+        context.FocusAreas.Add(userFocus1);
         
         await context.SaveChangesAsync();
     }
@@ -124,7 +154,9 @@ public class DatabaseFixture
         var context = scope.ServiceProvider.GetRequiredService<DerotDbContext>();
         
         context.Activities.RemoveRange(context.Activities);
-        context.UserFocuses.RemoveRange(context.UserFocuses);
+        context.Sessions.RemoveRange(context.Sessions);
+        context.Sources.RemoveRange(context.Sources);
+        context.FocusAreas.RemoveRange(context.FocusAreas);
         context.UserPreferences.RemoveRange(context.UserPreferences);
         context.Users.RemoveRange(context.Users);
         

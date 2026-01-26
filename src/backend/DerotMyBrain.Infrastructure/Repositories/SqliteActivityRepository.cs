@@ -22,16 +22,19 @@ public class SqliteActivityRepository : IActivityRepository
     {
         return await _context.Activities
             .AsNoTracking()
+            .Include(a => a.UserSession)
+                .ThenInclude(s => s.Source)
             .Where(a => a.UserId == userId)
             .OrderByDescending(a => a.SessionDateStart)
             .ToListAsync();
     }
     
-    public async Task<IEnumerable<UserActivity>> GetAllForContentAsync(string userId, string sourceHash)
+    public async Task<IEnumerable<UserActivity>> GetAllForContentAsync(string userId, string sourceId)
     {
         return await _context.Activities
             .AsNoTracking()
-            .Where(a => a.UserId == userId && a.SourceHash == sourceHash)
+            .Include(a => a.UserSession)
+            .Where(a => a.UserId == userId && a.UserSession.SourceId == sourceId)
             .OrderBy(a => a.SessionDateStart)
             .ToListAsync();
     }
@@ -68,6 +71,51 @@ public class SqliteActivityRepository : IActivityRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    // Source Operations
+    public async Task<Source?> GetSourceByIdAsync(string sourceId)
+    {
+        return await _context.Sources
+            .FirstOrDefaultAsync(s => s.Id == sourceId);
+    }
+
+    public async Task<Source> CreateSourceAsync(Source source)
+    {
+        _context.Sources.Add(source);
+        await _context.SaveChangesAsync();
+        return source;
+    }
+
+    // Session Operations
+    public async Task<UserSession?> GetSessionByIdAsync(string userId, string sessionId)
+    {
+        return await _context.Sessions
+            .Include(s => s.Source)
+            .Include(s => s.Activities)
+            .FirstOrDefaultAsync(s => s.UserId == userId && s.Id == sessionId);
+    }
+
+    public async Task<UserSession> CreateSessionAsync(UserSession session)
+    {
+        _context.Sessions.Add(session);
+        await _context.SaveChangesAsync();
+        return session;
+    }
+
+    public async Task<UserSession> UpdateSessionAsync(UserSession session)
+    {
+        _context.Sessions.Update(session);
+        await _context.SaveChangesAsync();
+        return session;
+    }
+
+    public async Task<UserSession?> GetLastActiveSessionAsync(string userId, string sourceId)
+    {
+        return await _context.Sessions
+            .Where(s => s.UserId == userId && s.SourceId == sourceId && s.Status == SessionStatus.Active)
+            .OrderByDescending(s => s.StartedAt)
+            .FirstOrDefaultAsync();
+    }
     
     public async Task<UserStatisticsDto> GetStatisticsAsync(string userId)
     {
@@ -81,7 +129,7 @@ public class SqliteActivityRepository : IActivityRepository
             TotalActivities = activities.Count,
             TotalQuizzes = activities.Count(a => a.Type == ActivityType.Quiz),
             TotalReads = activities.Count(a => a.Type == ActivityType.Read),
-            UserFocusCount = await _context.UserFocuses.CountAsync(t => t.UserId == userId)
+            UserFocusCount = await _context.FocusAreas.CountAsync(t => t.UserId == userId)
         };
 
         var last = activities.OrderByDescending(a => a.SessionDateStart).FirstOrDefault();

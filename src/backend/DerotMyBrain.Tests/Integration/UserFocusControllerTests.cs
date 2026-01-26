@@ -76,8 +76,8 @@ public class UserFocusControllerTests :
     [Fact]
     public async Task UntrackTopic_ShouldReturn204()
     {
-        var physicsHash = SourceHasher.GenerateHash(SourceType.Wikipedia, "https://en.wikipedia.org/wiki/Physics");
-        var response = await _client.DeleteAsync($"/api/users/test-user-integration/user-focus/{physicsHash}");
+        var physicsId = SourceHasher.GenerateHash(SourceType.Wikipedia, "https://en.wikipedia.org/wiki/Physics");
+        var response = await _client.DeleteAsync($"/api/users/test-user-integration/user-focus/{physicsId}");
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 }

@@ -35,7 +35,7 @@ public class ActivityService : IActivityService
         {
             Title = title ?? "Exploration",
             Description = "Exploration session",
-            SourceId = sourceId ?? DateTime.UtcNow.ToString("o"),
+            SourceId = sourceId, // May be null now
             SourceType = sourceType,
             Type = ActivityType.Explore,
             SessionDateStart = DateTime.UtcNow
@@ -96,8 +96,78 @@ public class ActivityService : IActivityService
 
     public async Task<UserActivity> CreateActivityAsync(string userId, CreateActivityDto dto)
     {
-        var sourceHash = SourceHasher.GenerateHash(dto.SourceType, dto.SourceId);
-        
+        // 1. Resolve Source (Deduplication)
+        string? technicalSourceId = null;
+        Source? source = null;
+
+        if (!string.IsNullOrEmpty(dto.SourceId))
+        {
+            technicalSourceId = SourceHasher.GenerateHash(dto.SourceType, dto.SourceId);
+            source = await _repository.GetSourceByIdAsync(technicalSourceId);
+            if (source == null)
+            {
+                source = new Source
+                {
+                    Id = technicalSourceId,
+                    Type = dto.SourceType,
+                    ExternalId = dto.SourceId,
+                    DisplayTitle = dto.Title,
+                    Url = dto.SourceType == SourceType.Wikipedia ? $"https://en.wikipedia.org/wiki/{dto.SourceId}" : dto.SourceId
+                };
+                await _repository.CreateSourceAsync(source);
+            }
+        }
+
+        // Validation: Read and Quiz MUST have a source (either provided or in session)
+        if (dto.Type != ActivityType.Explore && technicalSourceId == null && string.IsNullOrEmpty(dto.UserSessionId))
+        {
+            throw new ArgumentException($"Activity of type {dto.Type} requires a SourceId.");
+        }
+
+        // 2. Resolve/Create Session
+        UserSession? session = null;
+        if (!string.IsNullOrEmpty(dto.UserSessionId))
+        {
+            session = await _repository.GetSessionByIdAsync(userId, dto.UserSessionId);
+            
+            // Session Promotion Logic: 
+            // If the session exists but has no source, and this new activity DOES have a source, "promote" the session.
+            if (session != null && session.SourceId == null && technicalSourceId != null)
+            {
+                session.SourceId = technicalSourceId;
+                await _repository.UpdateSessionAsync(session);
+            }
+        }
+
+        if (session == null)
+        {
+            // Try to find a last active session for this source (if we have one)
+            if (technicalSourceId != null)
+            {
+                session = await _repository.GetLastActiveSessionAsync(userId, technicalSourceId);
+            }
+            
+            if (session == null)
+            {
+                session = new UserSession
+                {
+                    UserId = userId,
+                    SourceId = technicalSourceId, // Might be null for Explore
+                    StartedAt = dto.SessionDateStart,
+                    Status = SessionStatus.Active
+                };
+                await _repository.CreateSessionAsync(session);
+            }
+        }
+
+        // Final Validation for Read/Quiz: Even with session, we need a source ID at this point
+        if (dto.Type != ActivityType.Explore && session.SourceId == null)
+        {
+            // This happens if we try to add a Read/Quiz to a session that still doesn't have a source
+            // and the DTO didn't provide one either.
+            throw new InvalidOperationException($"Cannot add {dto.Type} activity to a session without a source.");
+        }
+
         // Calculate Score Percentage
         double? scorePercentage = null;
         if (dto.Type == ActivityType.Quiz && dto.QuestionCount.HasValue && dto.QuestionCount.Value > 0)
@@ -108,9 +178,9 @@ public class ActivityService : IActivityService
         // Check for New Best Score and Baseline
         bool isNewBest = false;
         bool isBaseline = false;
-        if (dto.Type == ActivityType.Quiz)
+        if (dto.Type == ActivityType.Quiz && technicalSourceId != null)
         {
-            var history = await _repository.GetAllForContentAsync(userId, sourceHash);
+            var history = await _repository.GetAllForContentAsync(userId, technicalSourceId);
             var quizzes = history.Where(h => h.Type == ActivityType.Quiz).ToList();
             
             isBaseline = !quizzes.Any();
@@ -125,12 +195,10 @@ public class ActivityService : IActivityService
         var activity = new UserActivity
         {
             UserId = userId,
+            UserSessionId = session.Id,
             Type = dto.Type,
             Title = dto.Title,
             Description = string.IsNullOrEmpty(dto.Description) ? $"Activity on {dto.Title}" : dto.Description,
-            SourceId = dto.SourceId,
-            SourceType = dto.SourceType,
-            SourceHash = sourceHash,
             SessionDateStart = dto.SessionDateStart,
             SessionDateEnd = dto.SessionDateEnd,
             ExploreDurationSeconds = dto.ExploreDurationSeconds,
@@ -141,44 +209,32 @@ public class ActivityService : IActivityService
             ScorePercentage = scorePercentage,
             IsNewBestScore = isNewBest,
             IsBaseline = isBaseline,
-            IsCompleted = true, // If created via DTO, usually it's a finished session
+            IsCompleted = true,
             LlmModelName = dto.LlmModelName,
             LlmVersion = dto.LlmVersion,
-            Payload = dto.Payload
-            ,
-            // Support Explore-specific metadata if provided
+            Payload = dto.Payload,
             BacklogAddsCount = dto.BacklogAddsCount
         };
 
         await _repository.CreateAsync(activity);
 
-        // If this Read was originated from an Explore session, link them.
+        // Link Explore result if applicable
         if (!string.IsNullOrEmpty(dto.OriginExploreId) && dto.Type == ActivityType.Read)
         {
-            try
+            var explore = await _repository.GetByIdAsync(userId, dto.OriginExploreId);
+            if (explore != null)
             {
-                var explore = await _repository.GetByIdAsync(userId, dto.OriginExploreId);
-                if (explore != null)
-                {
-                    explore.ResultingReadActivityId = activity.Id;
-                    if (dto.ExploreDurationSeconds.HasValue)
-                    {
-                        explore.ExploreDurationSeconds = dto.ExploreDurationSeconds.Value;
-                    }
-                    explore.IsCompleted = true;
-                    explore.SessionDateEnd = DateTime.UtcNow;
-                    await _repository.UpdateAsync(explore);
-                }
-            }
-            catch
-            {
-                // Do not fail the creation of the Read activity if linking fails;
-                // logging could be added here in real implementation.
+                explore.ResultingReadActivityId = activity.Id;
+                await _repository.UpdateAsync(explore);
             }
         }
 
-        // Update focus stats
-        await _userFocusService.UpdateStatsAsync(userId, sourceHash, activity);
+        // Update focus stats (only if we have a source)
+        var sourceIdForStats = session.SourceId;
+        if (sourceIdForStats != null)
+        {
+            await _userFocusService.UpdateStatsAsync(userId, sourceIdForStats, activity);
+        }
 
         return activity;
     }
@@ -199,26 +255,30 @@ public class ActivityService : IActivityService
         var activity = await _repository.GetByIdAsync(userId, activityId);
         if (activity == null) return;
 
-        var sourceHash = activity.SourceHash;
+        // Fetch session to get sourceId
+        var session = await _repository.GetSessionByIdAsync(userId, activity.UserSessionId);
+        if (session == null) return;
+
+        var sourceId = session.SourceId;
         await _repository.DeleteAsync(userId, activityId);
         
-        await _userFocusService.RebuildStatsAsync(userId, sourceHash);
+        if (sourceId != null) await _userFocusService.RebuildStatsAsync(userId, sourceId);
     }
 
     public async Task<IEnumerable<UserActivityDto>> GetAllActivitiesAsync(string userId) 
     {
         var activities = await _repository.GetAllAsync(userId);
-        var trackedHashes = (await _userFocusService.GetAllFocusesAsync(userId))
-            .Select(t => t.SourceHash)
+        var trackedSourceIds = (await _userFocusService.GetAllFocusesAsync(userId))
+            .Select(t => t.SourceId)
             .ToHashSet();
 
-        return activities.Select(a => MapToDto(a, trackedHashes.Contains(a.SourceHash)));
+        return activities.Select(a => MapToDto(a, trackedSourceIds.Contains(a.UserSession.SourceId)));
     }
 
-    public async Task<IEnumerable<UserActivityDto>> GetAllForContentAsync(string userId, string sourceHash)
+    public async Task<IEnumerable<UserActivityDto>> GetAllForContentAsync(string userId, string sourceId)
     {
-        var activities = await _repository.GetAllForContentAsync(userId, sourceHash);
-        var isTracked = await _userFocusService.GetFocusAsync(userId, sourceHash) != null;
+        var activities = await _repository.GetAllForContentAsync(userId, sourceId);
+        var isTracked = await _userFocusService.GetFocusAsync(userId, sourceId) != null;
         
         return activities.Select(a => MapToDto(a, isTracked));
     }
@@ -243,7 +303,11 @@ public class ActivityService : IActivityService
             {
                 activity.ScorePercentage = (double)activity.Score / activity.QuestionCount * 100.0;
                 
-                var history = await _repository.GetAllForContentAsync(userId, activity.SourceHash);
+                // Fetch sourceId through session
+                var session = await _repository.GetSessionByIdAsync(userId, activity.UserSessionId);
+                var sourceId = session?.SourceId ?? string.Empty;
+
+                var history = await _repository.GetAllForContentAsync(userId, sourceId);
                 var prevBest = history.Where(h => h.Id != activityId && h.ScorePercentage.HasValue)
                                      .Max(h => (double?)h.ScorePercentage) ?? -1.0;
                 activity.IsNewBestScore = activity.ScorePercentage.Value > prevBest;
@@ -252,36 +316,32 @@ public class ActivityService : IActivityService
 
         if (!string.IsNullOrEmpty(dto.LlmModelName)) activity.LlmModelName = dto.LlmModelName;
         if (!string.IsNullOrEmpty(dto.LlmVersion)) activity.LlmVersion = dto.LlmVersion;
-
-        // Apply Explore linkage updates when provided
-        if (!string.IsNullOrEmpty(dto.ResultingReadActivityId))
-        {
-            activity.ResultingReadActivityId = dto.ResultingReadActivityId;
-        }
-
-        if (dto.BacklogAddsCount.HasValue)
-        {
-            activity.BacklogAddsCount = dto.BacklogAddsCount.Value;
-        }
+        if (!string.IsNullOrEmpty(dto.ResultingReadActivityId)) activity.ResultingReadActivityId = dto.ResultingReadActivityId;
+        if (dto.BacklogAddsCount.HasValue) activity.BacklogAddsCount = dto.BacklogAddsCount.Value;
 
         await _repository.UpdateAsync(activity);
         
-        await _userFocusService.RebuildStatsAsync(userId, activity.SourceHash);
+        var sourceIdForStats = (await _repository.GetSessionByIdAsync(userId, activity.UserSessionId))?.SourceId;
+        if (sourceIdForStats != null) await _userFocusService.RebuildStatsAsync(userId, sourceIdForStats);
 
         return activity;
     }
 
     private UserActivityDto MapToDto(UserActivity a, bool isTracked)
     {
+        // Use UserSession/Source info for the DTO
+        var source = a.UserSession?.Source;
+
         return new UserActivityDto
         {
             Id = a.Id,
             UserId = a.UserId,
+            UserSessionId = a.UserSessionId,
             Title = a.Title,
             Description = a.Description,
-            SourceId = a.SourceId,
-            SourceType = a.SourceType,
-            SourceHash = a.SourceHash,
+            SourceId = source?.ExternalId ?? string.Empty,
+            SourceType = source?.Type ?? SourceType.Custom,
+            SourceHash = source?.Id ?? string.Empty,
             Type = a.Type,
             SessionDateStart = a.SessionDateStart,
             SessionDateEnd = a.SessionDateEnd,
@@ -298,8 +358,7 @@ public class ActivityService : IActivityService
             LlmModelName = a.LlmModelName,
             LlmVersion = a.LlmVersion,
             IsTracked = isTracked,
-            Payload = a.Payload
-            ,
+            Payload = a.Payload,
             ResultingReadActivityId = a.ResultingReadActivityId,
             BacklogAddsCount = a.BacklogAddsCount
         };

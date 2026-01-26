@@ -30,14 +30,19 @@ public class User
     public UserPreferences? Preferences { get; set; }
     
     /// <summary>
+    /// Navigation property to user sessions (1-to-many relationship).
+    /// </summary>
+    public ICollection<UserSession> Sessions { get; set; } = new List<UserSession>();
+
+    /// <summary>
     /// Navigation property to user activities (1-to-many relationship).
     /// </summary>
     public ICollection<UserActivity> Activities { get; set; } = new List<UserActivity>();
 
     /// <summary>
-    /// Navigation property for user focus areas (1-to-many relationship).
+    /// Navigation property to user focus areas (1-to-many relationship).
     /// </summary>
-    public List<UserFocus> UserFocuses { get; set; } = new();
+    public List<UserFocus> FocusAreas { get; set; } = new();
 
     /// <summary>
     /// Navigation property for user uploaded documents.

@@ -13,9 +13,9 @@ public interface IUserFocusRepository
     Task<UserFocus?> GetByIdAsync(string id);
     
     /// <summary>
-    /// Gets a user focus by user ID and content hash.
+    /// Gets a user focus by user ID and source ID.
     /// </summary>
-    Task<UserFocus?> GetByHashAsync(string userId, string sourceHash);
+    Task<UserFocus?> GetBySourceIdAsync(string userId, string sourceId);
     
     /// <summary>
     /// Gets all user focus objects for a user.
@@ -38,7 +38,7 @@ public interface IUserFocusRepository
     Task DeleteAsync(string id);
     
     /// <summary>
-    /// Checks if a content (by hash) is focused by the user.
+    /// Checks if a source ID is focused by the user.
     /// </summary>
-    Task<bool> ExistsAsync(string userId, string sourceHash);
+    Task<bool> ExistsAsync(string userId, string sourceId);
 }

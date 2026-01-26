@@ -48,7 +48,7 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
         if (newExpandedState && !hasLoadedEntries) {
             setIsLoading(true);
             try {
-                const data = await userFocusApi.getFocusEvolution(focus.userId, focus.sourceHash);
+                const data = await userFocusApi.getFocusEvolution(focus.userId, focus.sourceId);
                 setActivities(data);
                 setHasLoadedEntries(true);
             } catch (error) {
@@ -90,7 +90,7 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
                         </div>
                         <CardTitle className="text-xl leading-tight">
                             <a
-                                href={focus.sourceId}
+                                href={focus.source?.url || focus.sourceId}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="hover:text-primary transition-colors inline-flex items-center gap-2"

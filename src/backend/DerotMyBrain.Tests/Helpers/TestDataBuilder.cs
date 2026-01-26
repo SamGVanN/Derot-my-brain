@@ -114,15 +114,62 @@ public class PreferencesBuilder
 }
 
 /// <summary>
+/// Fluent builder for creating UserSession test entities.
+/// </summary>
+public class SessionBuilder
+{
+    private string _id = Guid.NewGuid().ToString();
+    private string _userId = "test-user-id";
+    private string? _sourceId;
+    private DateTime _startedAt = DateTime.UtcNow;
+    private SessionStatus _status = SessionStatus.Active;
+
+    public SessionBuilder WithId(string id)
+    {
+        _id = id;
+        return this;
+    }
+
+    public SessionBuilder WithUserId(string userId)
+    {
+        _userId = userId;
+        return this;
+    }
+
+    public SessionBuilder WithSource(string sourceId)
+    {
+        _sourceId = sourceId;
+        return this;
+    }
+
+    public SessionBuilder WithStatus(SessionStatus status)
+    {
+        _status = status;
+        return this;
+    }
+
+    public UserSession Build()
+    {
+        return new UserSession
+        {
+            Id = _id,
+            UserId = _userId,
+            SourceId = _sourceId,
+            StartedAt = _startedAt,
+            Status = _status
+        };
+    }
+}
+
+/// <summary>
 /// Fluent builder for creating UserActivity test entities with sensible defaults.
 /// </summary>
 public class ActivityBuilder
 {
     private string _id = Guid.NewGuid().ToString();
     private string _userId = "test-user-id";
+    private string _userSessionId = Guid.NewGuid().ToString();
     private string _title = "Test Topic";
-    private string _sourceId = "https://en.wikipedia.org/wiki/Test";
-    private SourceType _sourceType = SourceType.Wikipedia;
     private ActivityType _type = ActivityType.Quiz;
     private DateTime _sessionDateStart = DateTime.UtcNow.AddMinutes(-30);
     private DateTime? _sessionDateEnd = DateTime.UtcNow;
@@ -151,10 +198,9 @@ public class ActivityBuilder
         return this;
     }
 
-    public ActivityBuilder WithSource(string sourceId, SourceType sourceType)
+    public ActivityBuilder WithSession(string sessionId)
     {
-        _sourceId = sourceId;
-        _sourceType = sourceType;
+        _userSessionId = sessionId;
         return this;
     }
 
@@ -192,7 +238,6 @@ public class ActivityBuilder
 
     public UserActivity Build()
     {
-        var sourceHash = SourceHasher.GenerateHash(_sourceType, _sourceId);
         double? percentage = null;
         if (_type == ActivityType.Quiz && _questionCount > 0)
         {
@@ -203,11 +248,9 @@ public class ActivityBuilder
         {
             Id = _id,
             UserId = _userId,
+            UserSessionId = _userSessionId,
             Title = _title,
             Description = $"{_type} session",
-            SourceId = _sourceId,
-            SourceType = _sourceType,
-            SourceHash = sourceHash,
             Type = _type,
             SessionDateStart = _sessionDateStart,
             SessionDateEnd = _sessionDateEnd,

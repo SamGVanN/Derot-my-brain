@@ -6,7 +6,10 @@ export interface UserActivity {
     title: string;
     description: string;
 
-    // Content Identity
+    // Identity
+    userSessionId: string;
+
+    // Content Identity (denormalized for convenience in UI)
     sourceId: string;
     sourceType: SourceType;
     sourceHash: string;

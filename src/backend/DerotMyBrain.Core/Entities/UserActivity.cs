@@ -16,23 +16,14 @@ public class UserActivity
     [JsonIgnore]
     public User User { get; set; } = null!;
     
-    // --- Content Identification ---
+    // --- Session Link ---
 
     /// <summary>
-    /// The technical identifier for the source (e.g., full Wikipedia URL or absolute file path).
+    /// The session this activity belongs to.
     /// </summary>
-    public required string SourceId { get; set; }
+    public required string UserSessionId { get; set; }
 
-    /// <summary>
-    /// The origin of the content.
-    /// </summary>
-    public SourceType SourceType { get; set; }
-
-    /// <summary>
-    /// A deterministic SHA-256 hash of (SourceType + SourceId).
-    /// Used as a fixed-length key for efficient indexing and logical relationships.
-    /// </summary>
-    public required string SourceHash { get; set; }
+    public UserSession UserSession { get; set; } = null!;
 
     // --- Activity Metadata ---
 

@@ -13,6 +13,12 @@ public class CreateActivityDto
 
     public string Description { get; set; } = string.Empty;
     
+    /// <summary>
+    /// If provided, the activity will be linked to this session.
+    /// If null, a new session will be created for the source.
+    /// </summary>
+    public string? UserSessionId { get; set; }
+    
     [Required]
     public string SourceId { get; set; } = string.Empty;
     

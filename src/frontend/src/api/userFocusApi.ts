@@ -8,8 +8,8 @@ export const userFocusApi = {
         return response.data;
     },
 
-    getUserFocus: async (userId: string, sourceHash: string): Promise<UserFocus> => {
-        const response = await client.get<UserFocus>(`/users/${userId}/user-focus/${sourceHash}`);
+    getUserFocus: async (userId: string, sourceId: string): Promise<UserFocus> => {
+        const response = await client.get<UserFocus>(`/users/${userId}/user-focus/${sourceId}`);
         return response.data;
     },
 
@@ -18,22 +18,22 @@ export const userFocusApi = {
         return response.data;
     },
 
-    untrackTopic: async (userId: string, sourceHash: string): Promise<void> => {
-        await client.delete(`/users/${userId}/user-focus/${sourceHash}`);
+    untrackTopic: async (userId: string, sourceId: string): Promise<void> => {
+        await client.delete(`/users/${userId}/user-focus/${sourceId}`);
     },
 
-    getFocusEvolution: async (userId: string, sourceHash: string): Promise<UserActivity[]> => {
-        const response = await client.get<UserActivity[]>(`/users/${userId}/user-focus/${sourceHash}/evolution`);
+    getFocusEvolution: async (userId: string, sourceId: string): Promise<UserActivity[]> => {
+        const response = await client.get<UserActivity[]>(`/users/${userId}/user-focus/${sourceId}/evolution`);
         return response.data;
     },
 
-    togglePin: async (userId: string, sourceHash: string): Promise<UserFocus> => {
-        const response = await client.patch<UserFocus>(`/users/${userId}/user-focus/${sourceHash}/pin`);
+    togglePin: async (userId: string, sourceId: string): Promise<UserFocus> => {
+        const response = await client.patch<UserFocus>(`/users/${userId}/user-focus/${sourceId}/pin`);
         return response.data;
     },
 
-    toggleArchive: async (userId: string, sourceHash: string): Promise<UserFocus> => {
-        const response = await client.patch<UserFocus>(`/users/${userId}/user-focus/${sourceHash}/archive`);
+    toggleArchive: async (userId: string, sourceId: string): Promise<UserFocus> => {
+        const response = await client.patch<UserFocus>(`/users/${userId}/user-focus/${sourceId}/archive`);
         return response.data;
     }
 };

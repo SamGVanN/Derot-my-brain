@@ -17,11 +17,17 @@ export function useHistoryTimeline({ activities, userFocuses }: UseHistoryTimeli
                 : 'Unknown Date';
 
             if (!groups[date]) {
-                groups[date] = [];
+                groups[date] = {};
             }
-            groups[date].push(activity);
+
+            const sessionId = activity.userSessionId || 'no-session';
+            if (!groups[date][sessionId]) {
+                groups[date][sessionId] = [];
+            }
+
+            groups[date][sessionId].push(activity);
             return groups;
-        }, {} as Record<string, UserActivity[]>);
+        }, {} as Record<string, Record<string, UserActivity[]>>);
     }, [activities]);
 
     const dates = useMemo(() => {
@@ -32,8 +38,8 @@ export function useHistoryTimeline({ activities, userFocuses }: UseHistoryTimeli
         });
     }, [groupedActivities]);
 
-    const getBestScore = useCallback((sourceHash: string) => {
-        const focus = userFocuses.find(t => t.sourceHash === sourceHash);
+    const getBestScore = useCallback((sourceId: string) => {
+        const focus = userFocuses.find(t => t.sourceId === sourceId);
         if (focus?.bestScore != null) {
             return {
                 score: focus.bestScore,
@@ -43,8 +49,8 @@ export function useHistoryTimeline({ activities, userFocuses }: UseHistoryTimeli
         return undefined;
     }, [userFocuses]);
 
-    const isTracked = useCallback((sourceHash: string) => {
-        return userFocuses.some(t => t.sourceHash === sourceHash);
+    const isTracked = useCallback((sourceId: string) => {
+        return userFocuses.some(t => t.sourceId === sourceId);
     }, [userFocuses]);
 
     return {

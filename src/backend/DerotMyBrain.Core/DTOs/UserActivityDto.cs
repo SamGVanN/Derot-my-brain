@@ -12,7 +12,10 @@ public class UserActivityDto
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     
-    // Content Identity
+    // Session context
+    public string UserSessionId { get; set; } = string.Empty;
+
+    // Content Identity (still provided here for convenience, mapped from Source)
     public string SourceId { get; set; } = string.Empty;
     public SourceType SourceType { get; set; }
     public string SourceHash { get; set; } = string.Empty;

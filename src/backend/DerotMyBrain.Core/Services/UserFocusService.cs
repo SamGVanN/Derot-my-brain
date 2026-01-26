@@ -18,16 +18,30 @@ public class UserFocusService : IUserFocusService
 
     public async Task<UserFocus> TrackTopicAsync(string userId, string sourceId, SourceType sourceType, string displayTitle)
     {
-        var sourceHash = SourceHasher.GenerateHash(sourceType, sourceId);
-        var existing = await _repository.GetByHashAsync(userId, sourceHash);
+        var technicalSourceId = SourceHasher.GenerateHash(sourceType, sourceId);
+        
+        // Ensure Source exists (similar to ActivityService)
+        var source = await _activityRepository.GetSourceByIdAsync(technicalSourceId);
+        if (source == null)
+        {
+            source = new Source
+            {
+                Id = technicalSourceId,
+                Type = sourceType,
+                ExternalId = sourceId,
+                DisplayTitle = displayTitle,
+                Url = sourceType == SourceType.Wikipedia ? $"https://en.wikipedia.org/wiki/{sourceId}" : sourceId
+            };
+            await _activityRepository.CreateSourceAsync(source);
+        }
+
+        var existing = await _repository.GetBySourceIdAsync(userId, technicalSourceId);
         if (existing != null) return existing;
 
         var focus = new UserFocus
         {
             UserId = userId,
-            SourceId = sourceId,
-            SourceType = sourceType,
-            SourceHash = sourceHash,
+            SourceId = technicalSourceId,
             DisplayTitle = displayTitle,
             LastAttemptDate = DateTime.UtcNow
         };
@@ -36,14 +50,14 @@ public class UserFocusService : IUserFocusService
         await _repository.CreateAsync(focus);
         
         // Build stats from history
-        await RebuildStatsAsync(userId, sourceHash);
+        await RebuildStatsAsync(userId, technicalSourceId);
         
-        return (await _repository.GetByHashAsync(userId, sourceHash))!;
+        return (await _repository.GetBySourceIdAsync(userId, technicalSourceId))!;
     }
 
-    public async Task UntrackTopicAsync(string userId, string sourceHash)
+    public async Task UntrackTopicAsync(string userId, string sourceId)
     {
-        var existing = await _repository.GetByHashAsync(userId, sourceHash);
+        var existing = await _repository.GetBySourceIdAsync(userId, sourceId);
         if (existing != null)
         {
             await _repository.DeleteAsync(existing.Id);
@@ -55,17 +69,17 @@ public class UserFocusService : IUserFocusService
         return await _repository.GetAllAsync(userId);
     }
 
-    public async Task<UserFocus?> GetFocusAsync(string userId, string sourceHash)
+    public async Task<UserFocus?> GetFocusAsync(string userId, string sourceId)
     {
-        return await _repository.GetByHashAsync(userId, sourceHash);
+        return await _repository.GetBySourceIdAsync(userId, sourceId);
     }
 
-    public async Task RebuildStatsAsync(string userId, string sourceHash)
+    public async Task RebuildStatsAsync(string userId, string sourceId)
     {
-        var focus = await _repository.GetByHashAsync(userId, sourceHash);
+        var focus = await _repository.GetBySourceIdAsync(userId, sourceId);
         if (focus == null) return;
 
-        var activities = await _activityRepository.GetAllForContentAsync(userId, sourceHash);
+        var activities = await _activityRepository.GetAllForContentAsync(userId, sourceId);
         
         focus.BestScore = 0;
         focus.LastScore = 0;
@@ -99,9 +113,9 @@ public class UserFocusService : IUserFocusService
         await _repository.UpdateAsync(focus);
     }
 
-    public async Task UpdateStatsAsync(string userId, string sourceHash, UserActivity activity)
+    public async Task UpdateStatsAsync(string userId, string sourceId, UserActivity activity)
     {
-        var focus = await _repository.GetByHashAsync(userId, sourceHash);
+        var focus = await _repository.GetBySourceIdAsync(userId, sourceId);
         if (focus == null) return;
 
         var activityDate = activity.SessionDateEnd ?? activity.SessionDateStart;
@@ -126,9 +140,9 @@ public class UserFocusService : IUserFocusService
         await _repository.UpdateAsync(focus);
     }
 
-    public async Task<UserFocus?> TogglePinAsync(string userId, string sourceHash)
+    public async Task<UserFocus?> TogglePinAsync(string userId, string sourceId)
     {
-        var focus = await _repository.GetByHashAsync(userId, sourceHash);
+        var focus = await _repository.GetBySourceIdAsync(userId, sourceId);
         if (focus == null) return null;
 
         focus.IsPinned = !focus.IsPinned;
@@ -136,9 +150,9 @@ public class UserFocusService : IUserFocusService
         return focus;
     }
 
-    public async Task<UserFocus?> ToggleArchiveAsync(string userId, string sourceHash)
+    public async Task<UserFocus?> ToggleArchiveAsync(string userId, string sourceId)
     {
-        var focus = await _repository.GetByHashAsync(userId, sourceHash);
+        var focus = await _repository.GetBySourceIdAsync(userId, sourceId);
         if (focus == null) return null;
 
         focus.IsArchived = !focus.IsArchived;

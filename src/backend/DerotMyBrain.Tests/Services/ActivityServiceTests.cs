@@ -65,7 +65,6 @@ public class ActivityServiceTests
         Assert.Equal(100, result.ReadDurationSeconds);
         Assert.Equal(0, result.QuizDurationSeconds);
         Assert.Equal(100, result.TotalDurationSeconds);
-        Assert.NotNull(result.SourceHash);
     }
     
     [Fact]
@@ -123,7 +122,7 @@ public class ActivityServiceTests
         
         var history = new List<UserActivity>
         {
-            new UserActivity { UserId = userId, SourceId = "...", SourceType = SourceType.Wikipedia, SourceHash = "...", Title = "...", Description = "...", Type = ActivityType.Quiz, ScorePercentage = 90.0 }
+            new UserActivity { Id = "h1", UserId = userId, UserSessionId = "s1", Title = "...", Description = "...", Type = ActivityType.Quiz, ScorePercentage = 90.0 }
         };
 
         _activityRepoMock.Setup(r => r.GetAllForContentAsync(userId, It.IsAny<string>()))
@@ -181,9 +180,7 @@ public class ActivityServiceTests
         {
             Id = activityId,
             UserId = userId,
-            SourceId = "https://test",
-            SourceType = SourceType.Wikipedia,
-            SourceHash = "h1",
+            UserSessionId = "s1",
             Title = "Expl",
             Description = "Exploration",
             Type = ActivityType.Read
@@ -227,9 +224,7 @@ public class ActivityServiceTests
         {
             Id = exploreId,
             UserId = userId,
-            SourceId = "derot://explore/2026-01-25T14:00:00Z",
-            SourceType = SourceType.Wikipedia,
-            SourceHash = "h-explore",
+            UserSessionId = "s-explore",
             Title = "Exploration",
             Description = "Exploration session",
             Type = ActivityType.Read

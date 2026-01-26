@@ -29,11 +29,9 @@ public class ActivitiesControllerTests
         {
             Id = "act-123",
             UserId = userId,
+            UserSessionId = "s123",
             Title = createDto.Title,
             Description = createDto.Description,
-            SourceId = createDto.SourceId,
-            SourceType = createDto.SourceType,
-            SourceHash = "hash-1",
             Type = createDto.Type,
             SessionDateStart = createDto.SessionDateStart,
             BacklogAddsCount = createDto.BacklogAddsCount

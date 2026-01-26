@@ -19,5 +19,5 @@ public interface IActivityService
     Task<UserActivity> UpdateActivityAsync(string userId, string activityId, UpdateActivityDto dto);
     Task DeleteActivityAsync(string userId, string activityId);
     Task<IEnumerable<UserActivityDto>> GetAllActivitiesAsync(string userId);
-    Task<IEnumerable<UserActivityDto>> GetAllForContentAsync(string userId, string sourceHash);
+    Task<IEnumerable<UserActivityDto>> GetAllForContentAsync(string userId, string sourceId);
 }

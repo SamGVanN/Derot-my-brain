@@ -19,19 +19,11 @@ public class UserFocus
     // --- Identification ---
 
     /// <summary>
-    /// Fixed-length technical key (SHA-256) used to link with UserActivity.
-    /// </summary>
-    public required string SourceHash { get; set; }
-
-    /// <summary>
-    /// The raw identifier (URL, Path) for display or re-fetching.
+    /// FK to the Source entity.
     /// </summary>
     public required string SourceId { get; set; }
 
-    /// <summary>
-    /// The origin of the content.
-    /// </summary>
-    public SourceType SourceType { get; set; }
+    public Source Source { get; set; } = null!;
     
     // --- User Customization ---
 

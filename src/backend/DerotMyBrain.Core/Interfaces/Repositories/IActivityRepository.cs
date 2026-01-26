@@ -19,12 +19,12 @@ public interface IActivityRepository
     Task<IEnumerable<UserActivity>> GetAllAsync(string userId);
     
     /// <summary>
-    /// Gets all activities for a specific content (by hash) for evolution tracking and rebuilding cache.
+    /// Gets all activities for a specific content (by source ID) for evolution tracking.
     /// </summary>
     /// <param name="userId">User identifier.</param>
-    /// <param name="sourceHash">Deterministic hash of (SourceType + SourceId).</param>
+    /// <param name="sourceId">Deterministic ID of the source.</param>
     /// <returns>Collection of activities for the content, ordered by session date ascending.</returns>
-    Task<IEnumerable<UserActivity>> GetAllForContentAsync(string userId, string sourceHash);
+    Task<IEnumerable<UserActivity>> GetAllForContentAsync(string userId, string sourceId);
     
     /// <summary>
     /// Gets a specific activity by ID for a user.
@@ -54,6 +54,16 @@ public interface IActivityRepository
     /// <param name="userId">User identifier.</param>
     /// <param name="activityId">Activity identifier.</param>
     Task DeleteAsync(string userId, string activityId);
+
+    // Source Operations
+    Task<Source?> GetSourceByIdAsync(string sourceId);
+    Task<Source> CreateSourceAsync(Source source);
+
+    // Session Operations
+    Task<UserSession?> GetSessionByIdAsync(string userId, string sessionId);
+    Task<UserSession> CreateSessionAsync(UserSession session);
+    Task<UserSession> UpdateSessionAsync(UserSession session);
+    Task<UserSession?> GetLastActiveSessionAsync(string userId, string sourceId);
     
     // Dashboard Queries
     

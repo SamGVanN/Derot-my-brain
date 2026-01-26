@@ -19,17 +19,22 @@ public class SqliteUserFocusRepository : IUserFocusRepository
     
     public async Task<UserFocus?> GetByIdAsync(string id)
     {
-        return await _context.UserFocuses.FirstOrDefaultAsync(t => t.Id == id);
+        return await _context.FocusAreas
+            .Include(t => t.Source)
+            .FirstOrDefaultAsync(t => t.Id == id);
     }
     
-    public async Task<UserFocus?> GetByHashAsync(string userId, string sourceHash)
+    public async Task<UserFocus?> GetBySourceIdAsync(string userId, string sourceId)
     {
-        return await _context.UserFocuses.FirstOrDefaultAsync(t => t.UserId == userId && t.SourceHash == sourceHash);
+        return await _context.FocusAreas
+            .Include(t => t.Source)
+            .FirstOrDefaultAsync(t => t.UserId == userId && t.SourceId == sourceId);
     }
     
     public async Task<IEnumerable<UserFocus>> GetAllAsync(string userId)
     {
-        return await _context.UserFocuses
+        return await _context.FocusAreas
+            .Include(t => t.Source)
             .Where(t => t.UserId == userId)
             .OrderByDescending(t => t.LastAttemptDate)
             .ToListAsync();
@@ -37,29 +42,29 @@ public class SqliteUserFocusRepository : IUserFocusRepository
     
     public async Task<UserFocus> CreateAsync(UserFocus userFocus)
     {
-        _context.UserFocuses.Add(userFocus);
+        _context.FocusAreas.Add(userFocus);
         await _context.SaveChangesAsync();
         return userFocus;
     }
     
     public async Task UpdateAsync(UserFocus userFocus)
     {
-        _context.UserFocuses.Update(userFocus);
+        _context.FocusAreas.Update(userFocus);
         await _context.SaveChangesAsync();
     }
     
     public async Task DeleteAsync(string id)
     {
-        var focus = await _context.UserFocuses.FindAsync(id);
+        var focus = await _context.FocusAreas.FindAsync(id);
         if (focus != null)
         {
-            _context.UserFocuses.Remove(focus);
+            _context.FocusAreas.Remove(focus);
             await _context.SaveChangesAsync();
         }
     }
     
-    public async Task<bool> ExistsAsync(string userId, string sourceHash)
+    public async Task<bool> ExistsAsync(string userId, string sourceId)
     {
-        return await _context.UserFocuses.AnyAsync(t => t.UserId == userId && t.SourceHash == sourceHash);
+        return await _context.FocusAreas.AnyAsync(t => t.UserId == userId && t.SourceId == sourceId);
     }
 }

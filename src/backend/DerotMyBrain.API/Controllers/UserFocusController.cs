@@ -48,23 +48,23 @@ public class UserFocusController : ControllerBase
     }
     
     /// <summary>
-    /// Gets a specific focal point by hash.
+    /// Gets a specific focal point by ID.
     /// </summary>
-    [HttpGet("{sourceHash}")]
-    public async Task<ActionResult<UserFocusDto>> GetFocus(string userId, string sourceHash)
+    [HttpGet("{sourceId}")]
+    public async Task<ActionResult<UserFocusDto>> GetFocus(string userId, string sourceId)
     {
         try
         {
-            var focus = await _userFocusService.GetFocusAsync(userId, sourceHash);
+            var focus = await _userFocusService.GetFocusAsync(userId, sourceId);
             
             if (focus == null)
-                return NotFound(new { message = $"Topic with hash '{sourceHash}' is not in focus" });
+                return NotFound(new { message = $"Topic with ID '{sourceId}' is not in focus" });
             
             return Ok(MapToDto(focus));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting user focus {Hash} for user {UserId}", sourceHash, userId);
+            _logger.LogError(ex, "Error getting user focus {Id} for user {UserId}", sourceId, userId);
             return StatusCode(500, new { message = "Internal server error" });
         }
     }
@@ -87,7 +87,7 @@ public class UserFocusController : ControllerBase
             
             return CreatedAtAction(
                 nameof(GetFocus),
-                new { userId, sourceHash = focus.SourceHash },
+                new { userId, sourceId = focus.SourceId },
                 MapToDto(focus));
         }
         catch (Exception ex)
@@ -100,17 +100,17 @@ public class UserFocusController : ControllerBase
     /// <summary>
     /// Untracks a topic (removes from focus area) for the user.
     /// </summary>
-    [HttpDelete("{sourceHash}")]
-    public async Task<IActionResult> UntrackTopic(string userId, string sourceHash)
+    [HttpDelete("{sourceId}")]
+    public async Task<IActionResult> UntrackTopic(string userId, string sourceId)
     {
         try
         {
-            await _userFocusService.UntrackTopicAsync(userId, sourceHash);
+            await _userFocusService.UntrackTopicAsync(userId, sourceId);
             return NoContent();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error untracking focal point {Hash} for user {UserId}", sourceHash, userId);
+            _logger.LogError(ex, "Error untracking focal point {Id} for user {UserId}", sourceId, userId);
             return StatusCode(500, new { message = "Internal server error" });
         }
     }
@@ -118,22 +118,22 @@ public class UserFocusController : ControllerBase
     /// <summary>
     /// Gets the evolution/history of a focus area (all sessions).
     /// </summary>
-    [HttpGet("{sourceHash}/evolution")]
+    [HttpGet("{sourceId}/evolution")]
     public async Task<ActionResult<IEnumerable<UserActivityDto>>> GetFocusEvolution(
         string userId, 
-        string sourceHash)
+        string sourceId)
     {
         try
         {
-            var focus = await _userFocusService.GetFocusAsync(userId, sourceHash);
+            var focus = await _userFocusService.GetFocusAsync(userId, sourceId);
             if (focus == null)
-                return NotFound(new { message = $"Topic with hash '{sourceHash}' is not in focus" });
+                return NotFound(new { message = $"Topic with ID '{sourceId}' is not in focus" });
             
-            return Ok(await _activityService.GetAllForContentAsync(userId, sourceHash));
+            return Ok(await _activityService.GetAllForContentAsync(userId, sourceId));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting evolution for focus {Hash}, user {UserId}", sourceHash, userId);
+            _logger.LogError(ex, "Error getting evolution for focus {Id}, user {UserId}", sourceId, userId);
             return StatusCode(500, new { message = "Internal server error" });
         }
     }
@@ -141,18 +141,18 @@ public class UserFocusController : ControllerBase
     /// <summary>
     /// Toggles PIN status.
     /// </summary>
-    [HttpPatch("{sourceHash}/pin")]
-    public async Task<ActionResult<UserFocusDto>> TogglePin(string userId, string sourceHash)
+    [HttpPatch("{sourceId}/pin")]
+    public async Task<ActionResult<UserFocusDto>> TogglePin(string userId, string sourceId)
     {
         try
         {
-            var focus = await _userFocusService.TogglePinAsync(userId, sourceHash);
+            var focus = await _userFocusService.TogglePinAsync(userId, sourceId);
             if (focus == null) return NotFound();
             return Ok(MapToDto(focus));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error toggling pin for focus {Hash}, user {UserId}", sourceHash, userId);
+            _logger.LogError(ex, "Error toggling pin for focus {Id}, user {UserId}", sourceId, userId);
             return StatusCode(500, new { message = "Internal server error" });
         }
     }
@@ -160,18 +160,18 @@ public class UserFocusController : ControllerBase
     /// <summary>
     /// Toggles ARCHIVE status.
     /// </summary>
-    [HttpPatch("{sourceHash}/archive")]
-    public async Task<ActionResult<UserFocusDto>> ToggleArchive(string userId, string sourceHash)
+    [HttpPatch("{sourceId}/archive")]
+    public async Task<ActionResult<UserFocusDto>> ToggleArchive(string userId, string sourceId)
     {
         try
         {
-            var focus = await _userFocusService.ToggleArchiveAsync(userId, sourceHash);
+            var focus = await _userFocusService.ToggleArchiveAsync(userId, sourceId);
             if (focus == null) return NotFound();
             return Ok(MapToDto(focus));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error toggling archive for focus {Hash}, user {UserId}", sourceHash, userId);
+            _logger.LogError(ex, "Error toggling archive for focus {Id}, user {UserId}", sourceId, userId);
             return StatusCode(500, new { message = "Internal server error" });
         }
     }
@@ -182,9 +182,9 @@ public class UserFocusController : ControllerBase
         {
             Id = t.Id,
             UserId = t.UserId,
-            SourceHash = t.SourceHash,
-            SourceId = t.SourceId,
-            SourceType = t.SourceType,
+            SourceHash = t.Source?.Id ?? string.Empty,
+            SourceId = t.Source?.ExternalId ?? string.Empty, 
+            SourceType = t.Source?.Type ?? SourceType.Custom,
             DisplayTitle = t.DisplayTitle,
             BestScore = t.BestScore,
             LastScore = t.LastScore,

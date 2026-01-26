@@ -39,20 +39,20 @@ export function useUserFocus() {
         }
     }, [userId]);
 
-    const untrackTopic = useCallback(async (sourceHash: string) => {
+    const untrackTopic = useCallback(async (sourceId: string) => {
         if (!userId) throw new Error("User not authenticated");
 
         try {
-            await userFocusApi.untrackTopic(userId, sourceHash);
-            setUserFocuses(prev => prev.filter(t => t.sourceHash !== sourceHash));
+            await userFocusApi.untrackTopic(userId, sourceId);
+            setUserFocuses(prev => prev.filter(t => t.sourceId !== sourceId));
         } catch (err) {
             console.error('Failed to untrack topic:', err);
             throw err;
         }
     }, [userId]);
 
-    const isTracked = useCallback((sourceHash: string) => {
-        return userFocuses.some(t => t.sourceHash === sourceHash);
+    const isTracked = useCallback((sourceId: string) => {
+        return userFocuses.some(t => t.sourceId === sourceId);
     }, [userFocuses]);
 
     const findBySourceId = useCallback((sourceId: string) => {

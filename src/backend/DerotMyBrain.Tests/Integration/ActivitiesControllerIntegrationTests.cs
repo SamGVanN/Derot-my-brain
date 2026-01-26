@@ -96,11 +96,9 @@ public class ActivitiesControllerIntegrationTests :
         {
             Id = "explore-integ-1",
             UserId = "test-user-integration",
+            UserSessionId = "session-physics", // Use a seeded session from SeedDefaultTestDataAsync
             Title = "Explore Session",
             Description = "Exploring topics",
-            SourceId = "derot://explore/2026-01-25T15:00:00Z",
-            SourceType = SourceType.Wikipedia,
-            SourceHash = "explore-hash-1",
             Type = ActivityType.Read,
             SessionDateStart = DateTime.UtcNow.AddMinutes(-5)
         };
