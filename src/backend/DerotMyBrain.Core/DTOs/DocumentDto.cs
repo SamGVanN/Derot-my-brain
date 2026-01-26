@@ -11,6 +11,6 @@ public class DocumentDto
     public long FileSize { get; set; }
     public DateTime UploadDate { get; set; }
     public string DisplayTitle { get; set; } = string.Empty;
-    public string SourceHash { get; set; } = string.Empty;
+    public string SourceId { get; set; } = string.Empty;
     public string StoragePath { get; set; } = string.Empty;
 }

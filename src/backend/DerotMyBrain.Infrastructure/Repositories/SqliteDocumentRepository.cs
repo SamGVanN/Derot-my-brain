@@ -36,11 +36,11 @@ public class SqliteDocumentRepository : IDocumentRepository
             .FirstOrDefaultAsync(d => d.UserId == userId && d.Id == id);
     }
 
-    public async Task<Document?> GetBySourceHashAsync(string userId, string sourceHash)
+    public async Task<Document?> GetBySourceIdAsync(string userId, string sourceId)
     {
         return await _context.Documents
             .AsNoTracking()
-            .FirstOrDefaultAsync(d => d.UserId == userId && d.SourceHash == sourceHash);
+            .FirstOrDefaultAsync(d => d.UserId == userId && d.SourceId == sourceId);
     }
 
     public async Task<Document> CreateAsync(Document document)

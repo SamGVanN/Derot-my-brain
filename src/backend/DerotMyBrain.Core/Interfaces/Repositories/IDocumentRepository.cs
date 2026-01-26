@@ -8,7 +8,7 @@ public interface IDocumentRepository
 {
     Task<IEnumerable<Document>> GetAllAsync(string userId);
     Task<Document?> GetByIdAsync(string userId, string id);
-    Task<Document?> GetBySourceHashAsync(string userId, string sourceHash);
+    Task<Document?> GetBySourceIdAsync(string userId, string sourceId);
     Task<Document> CreateAsync(Document document);
     Task DeleteAsync(string userId, string id);
 }

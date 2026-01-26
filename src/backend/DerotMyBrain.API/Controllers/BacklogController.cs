@@ -29,8 +29,6 @@ public class BacklogController : ControllerBase
             Id = i.Id,
             UserId = i.UserId,
             SourceId = i.SourceId,
-            SourceType = i.SourceType,
-            SourceHash = i.SourceHash,
             Title = i.Title,
             AddedAt = i.AddedAt
         });
@@ -48,8 +46,6 @@ public class BacklogController : ControllerBase
             Id = item.Id,
             UserId = item.UserId,
             SourceId = item.SourceId,
-            SourceType = item.SourceType,
-            SourceHash = item.SourceHash,
             Title = item.Title,
             AddedAt = item.AddedAt
         };
@@ -57,10 +53,10 @@ public class BacklogController : ControllerBase
         return Ok(dto);
     }
 
-    [HttpDelete("{sourceHash}")]
-    public async Task<IActionResult> RemoveFromBacklog(string userId, string sourceHash)
+    [HttpDelete("{sourceId}")]
+    public async Task<IActionResult> RemoveFromBacklog(string userId, string sourceId)
     {
-        await _backlogService.RemoveFromBacklogAsync(userId, sourceHash);
+        await _backlogService.RemoveFromBacklogAsync(userId, sourceId);
         return NoContent();
     }
 }

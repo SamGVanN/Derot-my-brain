@@ -23,7 +23,7 @@ public class SqliteActivityRepository : IActivityRepository
         return await _context.Activities
             .AsNoTracking()
             .Include(a => a.UserSession)
-                .ThenInclude(s => s.Source)
+                .ThenInclude(s => s.TargetSource)
             .Where(a => a.UserId == userId)
             .OrderByDescending(a => a.SessionDateStart)
             .ToListAsync();
@@ -34,7 +34,7 @@ public class SqliteActivityRepository : IActivityRepository
         return await _context.Activities
             .AsNoTracking()
             .Include(a => a.UserSession)
-            .Where(a => a.UserId == userId && a.UserSession.SourceId == sourceId)
+            .Where(a => a.UserId == userId && a.UserSession.TargetSourceId == sourceId)
             .OrderBy(a => a.SessionDateStart)
             .ToListAsync();
     }
@@ -90,7 +90,7 @@ public class SqliteActivityRepository : IActivityRepository
     public async Task<UserSession?> GetSessionByIdAsync(string userId, string sessionId)
     {
         return await _context.Sessions
-            .Include(s => s.Source)
+            .Include(s => s.TargetSource)
             .Include(s => s.Activities)
             .FirstOrDefaultAsync(s => s.UserId == userId && s.Id == sessionId);
     }
@@ -112,7 +112,7 @@ public class SqliteActivityRepository : IActivityRepository
     public async Task<UserSession?> GetLastActiveSessionAsync(string userId, string sourceId)
     {
         return await _context.Sessions
-            .Where(s => s.UserId == userId && s.SourceId == sourceId && s.Status == SessionStatus.Active)
+            .Where(s => s.UserId == userId && s.TargetSourceId == sourceId && s.Status == SessionStatus.Active)
             .OrderByDescending(s => s.StartedAt)
             .FirstOrDefaultAsync();
     }
@@ -129,7 +129,7 @@ public class SqliteActivityRepository : IActivityRepository
             TotalActivities = activities.Count,
             TotalQuizzes = activities.Count(a => a.Type == ActivityType.Quiz),
             TotalReads = activities.Count(a => a.Type == ActivityType.Read),
-            UserFocusCount = await _context.FocusAreas.CountAsync(t => t.UserId == userId)
+            UserFocusCount = await _context.Sources.CountAsync(s => s.UserId == userId && s.IsTracked)
         };
 
         var last = activities.OrderByDescending(a => a.SessionDateStart).FirstOrDefault();

@@ -11,17 +11,24 @@ namespace DerotMyBrain.Core.Utils;
 public static class SourceHasher
 {
     /// <summary>
-    /// Generates a SHA-256 hash from its source type and id.
-    /// This is used to create a fixed-length identifier for potentially long URLs or file paths.
+    /// Generates a technical ID for a Source.
+    /// Documents return their original GUID ID.
+    /// Wikipedia and others return a deterministic SHA-256 hash.
     /// </summary>
     /// <param name="sourceType">The origin of the content.</param>
-    /// <param name="sourceId">The raw identifier (e.g., URL, File Path).</param>
-    /// <returns>A 64-character hexadecimal string representing the SHA-256 hash.</returns>
-    public static string GenerateHash(SourceType sourceType, string sourceId)
+    /// <param name="sourceId">The raw identifier (e.g., Page Title, GUID).</param>
+    /// <returns>A unique identifier string.</returns>
+    public static string GenerateId(SourceType sourceType, string sourceId)
     {
         if (string.IsNullOrWhiteSpace(sourceId)) throw new ArgumentException("SourceId cannot be empty", nameof(sourceId));
 
-        // Use enum name for consistent hashing
+        // For Documents, the sourceId IS the Guid we want to use as the Source's PK
+        if (sourceType == SourceType.Document)
+        {
+            return sourceId.Trim();
+        }
+
+        // For Wikipedia and others, we generate a deterministic hash
         var typeKey = sourceType.ToString().ToLowerInvariant();
         var idKey = sourceId.Trim().ToLowerInvariant();
         

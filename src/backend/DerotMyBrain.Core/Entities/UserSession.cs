@@ -21,9 +21,13 @@ public class UserSession
     [JsonIgnore]
     public User User { get; set; } = null!;
 
-    public string? SourceId { get; set; }
+    public string? TargetSourceId { get; set; }
     
-    public Source? Source { get; set; }
+    public Source? TargetSource { get; set; }
+
+    public string? TargetTopicId { get; set; }
+
+    public Topic? TargetTopic { get; set; }
 
     public DateTime StartedAt { get; set; }
 

@@ -45,22 +45,28 @@ public static class DbInitializer
         
         // --- SEED SOURCES ---
         
+        var qmId = SourceHasher.GenerateId(WikiType, "Quantum_mechanics");
         var quantumSource = new Source
         {
-            Id = SourceHasher.GenerateHash(WikiType, "https://en.wikipedia.org/wiki/Quantum_mechanics"),
+            Id = qmId,
+            UserId = testUserId,
             Type = WikiType,
             ExternalId = "Quantum_mechanics",
             DisplayTitle = "Quantum Mechanics",
-            Url = "https://en.wikipedia.org/wiki/Quantum_mechanics"
+            Url = "https://en.wikipedia.org/wiki/Quantum_mechanics",
+            IsTracked = true
         };
         
+        var relId = SourceHasher.GenerateId(WikiType, "Theory_of_relativity");
         var relativitySource = new Source
         {
-            Id = SourceHasher.GenerateHash(WikiType, "https://en.wikipedia.org/wiki/Theory_of_relativity"),
+            Id = relId,
+            UserId = testUserId,
             Type = WikiType,
             ExternalId = "Theory_of_relativity",
             DisplayTitle = "Theory of Relativity",
-            Url = "https://en.wikipedia.org/wiki/Theory_of_relativity"
+            Url = "https://en.wikipedia.org/wiki/Theory_of_relativity",
+            IsTracked = false
         };
         
         context.Sources.AddRange(quantumSource, relativitySource);
@@ -72,7 +78,7 @@ public static class DbInitializer
         var quantumSession1 = new UserSession
         {
             UserId = testUserId,
-            SourceId = quantumSource.Id,
+            TargetSourceId = quantumSource.Id,
             StartedAt = baseDate.AddDays(-5).AddHours(-1),
             EndedAt = baseDate.AddDays(-5),
             Status = SessionStatus.Stopped
@@ -81,41 +87,32 @@ public static class DbInitializer
         var quantumSession2 = new UserSession
         {
             UserId = testUserId,
-            SourceId = quantumSource.Id,
+            TargetSourceId = quantumSource.Id,
             StartedAt = baseDate.AddDays(-3).AddHours(-0.5),
             EndedAt = baseDate.AddDays(-3),
-            Status = SessionStatus.Stopped
-        };
-
-        var quantumSession3 = new UserSession
-        {
-            UserId = testUserId,
-            SourceId = quantumSource.Id,
-            StartedAt = baseDate.AddMinutes(-45),
-            EndedAt = baseDate,
             Status = SessionStatus.Stopped
         };
 
         var relativitySession = new UserSession
         {
             UserId = testUserId,
-            SourceId = relativitySource.Id,
+            TargetSourceId = relativitySource.Id,
             StartedAt = baseDate.AddDays(-1).AddHours(-1),
             EndedAt = baseDate.AddDays(-1),
             Status = SessionStatus.Stopped
         };
 
-        context.Sessions.AddRange(quantumSession1, quantumSession2, quantumSession3, relativitySession);
+        context.Sessions.AddRange(quantumSession1, quantumSession2, relativitySession);
 
         // --- SEED ACTIVITIES ---
 
         var activities = new List<UserActivity>
         {
-            // ===== Topic Evolution: Quantum Mechanics =====
             new UserActivity
             {
                 UserId = testUserId,
                 UserSessionId = quantumSession1.Id,
+                SourceId = quantumSource.Id,
                 Type = ActivityType.Read,
                 Title = "Quantum Mechanics",
                 Description = "Getting to know the basics of Quantum Physics.",
@@ -128,6 +125,7 @@ public static class DbInitializer
             {
                 UserId = testUserId,
                 UserSessionId = quantumSession2.Id,
+                SourceId = quantumSource.Id,
                 Type = ActivityType.Quiz,
                 Title = "Quantum Mechanics",
                 Description = "First evaluation of basic concepts.",
@@ -144,26 +142,8 @@ public static class DbInitializer
             new UserActivity
             {
                 UserId = testUserId,
-                UserSessionId = quantumSession3.Id,
-                Type = ActivityType.Quiz,
-                Title = "Quantum Mechanics",
-                Description = "Re-evaluation after further study.",
-                SessionDateStart = quantumSession3.StartedAt,
-                SessionDateEnd = quantumSession3.EndedAt,
-                ReadDurationSeconds = 600,
-                QuizDurationSeconds = 450,
-                Score = 9,
-                QuestionCount = 10,
-                ScorePercentage = 90.0,
-                IsNewBestScore = true,
-                IsCompleted = true
-            },
-
-            // ===== Theory of Relativity =====
-            new UserActivity
-            {
-                UserId = testUserId,
                 UserSessionId = relativitySession.Id,
+                SourceId = relativitySource.Id,
                 Type = ActivityType.Quiz,
                 Title = "Theory of Relativity",
                 Description = "General relativity quiz.",
@@ -180,26 +160,6 @@ public static class DbInitializer
         };
 
         context.Activities.AddRange(activities);
-
-        // --- SEED FOCUS AREAS ---
-
-        var focusAreas = new List<UserFocus>
-        {
-            new UserFocus
-            {
-                UserId = testUserId,
-                SourceId = quantumSource.Id,
-                DisplayTitle = "Quantum Mechanics Mastery",
-                BestScore = 90.0,
-                LastScore = 90.0,
-                LastAttemptDate = baseDate,
-                TotalReadTimeSeconds = 1200 + 300 + 600,
-                TotalQuizTimeSeconds = 600 + 450,
-                TotalStudyTimeSeconds = 1200 + 300 + 600 + 600 + 450
-            }
-        };
-
-        context.FocusAreas.AddRange(focusAreas);
 
         await context.SaveChangesAsync();
     }

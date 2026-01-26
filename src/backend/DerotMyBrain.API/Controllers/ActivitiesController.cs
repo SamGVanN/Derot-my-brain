@@ -12,16 +12,13 @@ namespace DerotMyBrain.API.Controllers;
 public class ActivitiesController : ControllerBase
 {
     private readonly IActivityService _activityService;
-    private readonly IUserFocusService _userFocusService;
     private readonly ILogger<ActivitiesController> _logger;
 
     public ActivitiesController(
         IActivityService activityService, 
-        IUserFocusService userFocusService,
         ILogger<ActivitiesController> logger)
     {
         _activityService = activityService;
-        _userFocusService = userFocusService;
         _logger = logger;
     }
 
@@ -52,10 +49,7 @@ public class ActivitiesController : ControllerBase
             var activity = await _activityService.GetActivityByIdAsync(userId, activityId);
             if (activity == null) return NotFound();
             
-            // sourceId is only present if the session is promoted
-            var sourceId = activity.UserSession?.SourceId;
-            var isTracked = sourceId != null && await _userFocusService.GetFocusAsync(userId, sourceId) != null;
-            return Ok(MapToDto(activity, isTracked));
+            return Ok(MapToDto(activity, activity.Source?.IsTracked ?? false));
         }
         catch (Exception ex)
         {
@@ -72,9 +66,7 @@ public class ActivitiesController : ControllerBase
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var activity = await _activityService.CreateActivityAsync(userId, dto);
-            var sourceId = activity.UserSession?.SourceId;
-            var isTracked = sourceId != null && await _userFocusService.GetFocusAsync(userId, sourceId) != null;
-            var resultDto = MapToDto(activity, isTracked);
+            var resultDto = MapToDto(activity, activity.Source?.IsTracked ?? false);
             
             return CreatedAtAction(nameof(GetActivity), new { userId, activityId = activity.Id }, resultDto);
         }
@@ -91,9 +83,7 @@ public class ActivitiesController : ControllerBase
         try
         {
             var activity = await _activityService.UpdateActivityAsync(userId, activityId, dto);
-            var sourceId = activity.UserSession?.SourceId;
-            var isTracked = sourceId != null && await _userFocusService.GetFocusAsync(userId, sourceId) != null;
-            return Ok(MapToDto(activity, isTracked));
+            return Ok(MapToDto(activity, activity.Source?.IsTracked ?? false));
         }
         catch (KeyNotFoundException)
         {
@@ -121,8 +111,6 @@ public class ActivitiesController : ControllerBase
         }
     }
 
-    // --- Statistics Endpoints ---
-
     [HttpGet("/api/users/{userId}/statistics")]
     public async Task<ActionResult<UserStatisticsDto>> GetStatistics([FromRoute] string userId)
     {
@@ -141,17 +129,13 @@ public class ActivitiesController : ControllerBase
         return Ok(await _activityService.GetTopScoresAsync(userId, limit));
     }
 
-    // --- Content Flow Endpoints ---
-
     [HttpPost("explore")]
     public async Task<ActionResult<UserActivityDto>> Explore([FromRoute] string userId, [FromBody] ExploreRequest req)
     {
         try
         {
             var activity = await _activityService.ExploreAsync(userId, req.Title, req.SourceId, req.SourceType);
-            var sourceId = activity.UserSession?.SourceId;
-            var isTracked = sourceId != null && await _userFocusService.GetFocusAsync(userId, sourceId) != null;
-            return Ok(MapToDto(activity, isTracked));
+            return Ok(MapToDto(activity, activity.Source?.IsTracked ?? false));
         }
         catch (Exception ex)
         {
@@ -175,9 +159,7 @@ public class ActivitiesController : ControllerBase
                 req.BacklogAddsCount,
                 req.ExploreDurationSeconds);
 
-            var sourceId = activity.UserSession?.SourceId;
-            var isTracked = sourceId != null && await _userFocusService.GetFocusAsync(userId, sourceId) != null;
-            return Ok(MapToDto(activity, isTracked));
+            return Ok(MapToDto(activity, activity.Source?.IsTracked ?? false));
         }
         catch (Exception ex)
         {
@@ -231,7 +213,7 @@ public class ActivitiesController : ControllerBase
     private UserActivityDto MapToDto(UserActivity a, bool isTracked)
     {
         var session = a.UserSession;
-        var source = session?.Source;
+        var source = a.Source ?? session?.TargetSource;
 
         return new UserActivityDto
         {

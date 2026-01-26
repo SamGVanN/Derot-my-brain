@@ -30,11 +30,12 @@ Les termes suivants sont **normatifs** et doivent être utilisés tels quels dan
 
 - **Derot Zone** : espace de session où se déroule une activité
 - **User Activity** : interaction unique d’un utilisateur avec un contenu (Read ou Quiz)
-- **User Focus** : agrégation de progression sur un sujet
-- **Content Source** : origine du contenu (Wikipédia ou Document utilisateur)
+- **Source** : hub central rattaché à un contenu (Wikipédia, YouTube ou Document)
+- **Topic** : regroupement logique de plusieurs Sources (ex: "Physique Quantique")
+- **Source Tracking** : action de "suivre" une Source pour qu'elle apparaisse dans la progression (anciennement User Focus)
 - **Backlog** : liste de contenus à traiter plus tard
 - **My Documents** : bibliothèque de documents uploadés
-- **Knowledge Area** : catégorie de connaissance utilisée pour filtrer
+- **Knowledge Area** : catégorie système (Wikipédia) utilisée pour le filtrage initial
 
 ---
 
@@ -48,8 +49,8 @@ Les termes suivants sont **normatifs** et doivent être utilisés tels quels dan
    - Lecture (Read)
    - Quiz (Quiz)
 4. Le système enregistre l’activité
-5. Les métriques du **User Focus** sont mises à jour
-6. L’utilisateur peut recommencer ou changer de sujet
+5. Les métriques de la **Source** sont mises à jour (si trackée)
+6. L’utilisateur peut recommencer ou changer de sujet via les **Topics** ou la recherche
 
 ---
 
@@ -145,12 +146,13 @@ Ces champs permettent :
 
 #### Recommandations techniques (DB / DTO)
 - `UserActivity` table / entity :
-  - `SourceType` (string) **non-nullable**
-  - `SourceId` (string) **non-nullable** — pour `Explore` utiliser la valeur horodatée décrite ci-dessus
-  - ajouter nullable columns : `ResultingReadActivityId` (GUID, FK nullable vers `UserActivity`), `BacklogAddsCount` (int nullable)
-  - `SourceHash` : calculer systématiquement à partir de `SourceType + SourceId` (concat deterministic + hashing). Pour les `Explore` rows, `SourceHash` restera déterministe et non-null.
-- DTOs : étendre `UserActivityDto` avec `ResultingReadActivityId` et `BacklogAddsCount` (nullable) et exposer `SourceType`/`SourceId` (non-nullable).
-- API : l'endpoint POST qui crée une `Explore` doit accepter `{ sourceHint?, sessionId?, backlogAddsCount? }`, mais le serveur doit générer et renvoyer la paire `SourceType`/`SourceId` finales (et l'ID de l'Explore créée).
+  - `SourceId` (string) **non-nullable** : Clé étrangère vers le hub `Source`.
+  - `SourceType` (enum) : Type de source (Wikipedia, Document, etc.).
+- `Source` Identification :
+  - **Deterministic Hash** : Pour les contenus web (Wikipedia, YouTube) afin d'éviter les doublons.
+  - **GUID** : Pour les Documents, permettant plusieurs versions distinctes d'un même fichier.
+- DTOs : étendre `UserActivityDto` avec `ResultingReadActivityId` et `BacklogAddsCount` (nullable) et exposer les métadonnées de la Source liée.
+- API : l'endpoint POST qui crée une `Explore` doit accepter `{ sourceHint?, sessionId? }`. Le serveur génère la `Source` si elle n'existe pas.
 
 #### Règles d'usage et validations
 - Toujours renseigner `SourceType`/`SourceId` — **ne pas** stocker des chaînes vides ni des valeurs `null`. Utiliser les constantes/horodatage définies pour les `Explore`.
@@ -177,69 +179,34 @@ Ces champs permettent :
 
 ---
 
-### 5.4 User Focus
+### 5.4 Source Tracking & Topics (ex-User Focus)
 
-#### Rôle réel (clarification clé)
-Un **User Focus** est une **entité de visibilité et d’agrégation**, dont le seul objectif est de permettre à l’utilisateur de *suivre* sa progression sur une **Content Source donnée**.
+#### Rôle
+Le **Source Tracking** remplace le concept de "User Focus" par un flag `IsTracked` sur l'entité `Source`. Une Source trackée devient un point focal de progression.
 
-Il ne représente **pas** une activité et **ne contient pas de données d’apprentissage propres**.
-
-Toutes les données affichées dans un User Focus proviennent exclusivement des **User Activities** associées au même **SourceHash**.
-
----
+#### Topic
+Un **Topic** est un dossier virtuel créé par l'utilisateur pour organiser ses Sources trackées.
+- Une Source peut être liée à **un seul Topic** (optionnel).
+- Les statistiques peuvent être agrégées au niveau du Topic.
 
 #### Identification technique
-Un User Focus est identifié par les mêmes propriétés qu’une User Activity :
-- **SourceType** *(enum)* : Wikipedia | Document
-- **SourceId** *(string)* : URL Wikipédia ou chemin logique du document
-- **SourceHash** *(string)* : hash déterministe basé sur `SourceType + SourceId`
+Toutes les activités et sessions pointent vers une `Source.Id` unique.
+- **Source.Id** est la clé de voûte de l'agrégation.
+- Si `IsTracked = true`, la source apparaît dans l'espace "Ma Progression".
 
-👉 `SourceHash` est la **clé primaire fonctionnelle** et le lien entre :
-- User Activities
-- User Focus
+#### Création / Tracking
+- Une Source est créée automatiquement lors d'un `Read`.
+- Le passage à `IsTracked = true` est explicite (via bouton "Track" ou promotion automatique).
+- Le *Untrack* (IsTracked = false) garde l'historique mais masque la source des vues de progression.
 
----
+#### Métriques (Calculées via le hub Source)
+- **Best Score** : meilleur score de quiz sur cette source.
+- **Total Time** : somme des durées `Explore + Read + Quiz`.
+- **Level** : progression calculée sur le volume d'activités.
 
-#### Création / Suppression
-- Un User Focus **n’est jamais créé automatiquement**
-- Il est créé **uniquement** via une action explicite de l’utilisateur :
-  - depuis une **User Activity** dans l’Historique
-  - ou depuis une **User Focus Card** (re-tracking)
-- Le *Untrack* supprime l’entité User Focus **sans supprimer aucune User Activity**
-
----
-
-#### Comportement fonctionnel
-- Un utilisateur peut avoir des **User Activities non trackées**
-- Le tracking agit uniquement sur la **visibilité dans la page My Focus Area**
-- Re-tracker un sujet restaure **l’intégralité de l’historique existant** lié au SourceHash
-
----
-
-#### Affichage (My Focus Area Page)
-- La page affiche la liste des **User Focus**
-- Chaque card correspond à **un SourceHash unique**
-- Le dépliage d’une card affiche :
-  - la timeline complète des User Activities filtrées par `SourceHash`
-  - triées par date décroissante
-
----
-
-#### Métriques dérivées (calculées, non stockées)
-- Best Score
-- Last Attempt Score
-- Last Activity Date
-
-Ces métriques sont calculées dynamiquement à partir des User Activities.
-
----
-
-#### Renommage / Display
-- Chaque entité dispose d’un champ **DisplayName**
-- Le DisplayName est modifiable sans impacter :
-  - le SourceHash
-  - l’agrégation
-  - l’historique
+#### Renommage
+- Le `DisplayTitle` de la Source est personnalisable.
+- Le titre du Topic est personnalisable.
 
 ---
 

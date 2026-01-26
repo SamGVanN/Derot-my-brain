@@ -46,8 +46,10 @@ public class Document
     public string DisplayTitle { get; set; } = string.Empty;
     
     /// <summary>
-    /// Deterministic hash for linking with UserActivity and UserFocus.
-    /// Generated from SourceType.Document and a unique identifier (e.g., relative StoragePath).
+    /// Foreign key to the Source entity.
     /// </summary>
-    public required string SourceHash { get; set; }
+    public required string SourceId { get; set; }
+
+    [JsonIgnore]
+    public Source Source { get; set; } = null!;
 }

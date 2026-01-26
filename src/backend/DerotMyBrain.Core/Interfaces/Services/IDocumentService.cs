@@ -27,7 +27,7 @@ public interface IDocumentService
     Task DeleteDocumentAsync(string userId, string documentId);
     
     /// <summary>
-    /// Gets the full text content of a document by its source hash (which acts as sourceId in some contexts).
+    /// Gets the full text content of a document by its source id.
     /// </summary>
-    Task<string> GetDocumentContentAsync(string userId, string sourceHash);
+    Task<string> GetDocumentContentAsync(string userId, string sourceId);
 }

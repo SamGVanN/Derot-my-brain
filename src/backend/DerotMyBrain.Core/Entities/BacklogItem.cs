@@ -16,20 +16,12 @@ public class BacklogItem
     public User User { get; set; } = null!;
     
     /// <summary>
-    /// Technical identifier for the source (Wikipedia URL or File ID).
+    /// Technical identifier for the source (FK to Source).
     /// </summary>
     public required string SourceId { get; set; }
-    
-    /// <summary>
-    /// Origin of the content.
-    /// </summary>
-    public SourceType SourceType { get; set; }
-    
-    /// <summary>
-    /// Deterministic hash of (SourceType + SourceId).
-    /// Used for duplicate prevention and linking.
-    /// </summary>
-    public required string SourceHash { get; set; }
+
+    [JsonIgnore]
+    public Source Source { get; set; } = null!;
     
     /// <summary>
     /// Title of the content for display in the backlog.

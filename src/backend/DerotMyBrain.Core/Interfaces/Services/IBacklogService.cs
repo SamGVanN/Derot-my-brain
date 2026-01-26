@@ -15,7 +15,7 @@ public interface IBacklogService
     /// <summary>
     /// Removes an item from the backlog.
     /// </summary>
-    Task RemoveFromBacklogAsync(string userId, string sourceHash);
+    Task RemoveFromBacklogAsync(string userId, string sourceId);
 
     /// <summary>
     /// Gets the user's backlog.
@@ -25,5 +25,5 @@ public interface IBacklogService
     /// <summary>
     /// Checks if a source is currently in the backlog.
     /// </summary>
-    Task<bool> IsInBacklogAsync(string userId, string sourceHash);
+    Task<bool> IsInBacklogAsync(string userId, string sourceId);
 }

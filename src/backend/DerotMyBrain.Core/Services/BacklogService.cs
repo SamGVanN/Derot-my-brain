@@ -21,22 +21,20 @@ public class BacklogService : IBacklogService
 
     public async Task<BacklogItem> AddToBacklogAsync(string userId, string sourceId, SourceType sourceType, string title)
     {
-        var sourceHash = SourceHasher.GenerateHash(sourceType, sourceId);
+        var technicalSourceId = SourceHasher.GenerateId(sourceType, sourceId);
 
         // Check if already exists to ensure idempotency
-        var existing = await _backlogRepository.GetBySourceHashAsync(userId, sourceHash);
+        var existing = await _backlogRepository.GetBySourceIdAsync(userId, technicalSourceId);
         if (existing != null)
         {
-            _logger.LogInformation("Item {SourceHash} (Title: {Title}) already in backlog for user {UserId}", sourceHash, title, userId);
+            _logger.LogInformation("Item {SourceId} (Title: {Title}) already in backlog for user {UserId}", technicalSourceId, title, userId);
             return existing;
         }
 
         var item = new BacklogItem
         {
             UserId = userId,
-            SourceId = sourceId,
-            SourceType = sourceType,
-            SourceHash = sourceHash,
+            SourceId = technicalSourceId,
             Title = title,
             AddedAt = DateTime.UtcNow
         };
@@ -44,9 +42,9 @@ public class BacklogService : IBacklogService
         return await _backlogRepository.CreateAsync(item);
     }
 
-    public async Task RemoveFromBacklogAsync(string userId, string sourceHash)
+    public async Task RemoveFromBacklogAsync(string userId, string sourceId)
     {
-        await _backlogRepository.DeleteAsync(userId, sourceHash);
+        await _backlogRepository.DeleteAsync(userId, sourceId);
     }
 
     public async Task<IEnumerable<BacklogItem>> GetUserBacklogAsync(string userId)
@@ -54,9 +52,9 @@ public class BacklogService : IBacklogService
         return await _backlogRepository.GetAllAsync(userId);
     }
 
-    public async Task<bool> IsInBacklogAsync(string userId, string sourceHash)
+    public async Task<bool> IsInBacklogAsync(string userId, string sourceId)
     {
-        var item = await _backlogRepository.GetBySourceHashAsync(userId, sourceHash);
+        var item = await _backlogRepository.GetBySourceIdAsync(userId, sourceId);
         return item != null;
     }
 }

@@ -25,6 +25,16 @@ public class UserActivity
 
     public UserSession UserSession { get; set; } = null!;
 
+    // --- Identification ---
+
+    /// <summary>
+    /// Foreign key to the Source entity.
+    /// Acts as a direct link for easier querying, separate from session link.
+    /// </summary>
+    public string? SourceId { get; set; }
+
+    public Source? Source { get; set; }
+
     // --- Activity Metadata ---
 
     /// <summary>

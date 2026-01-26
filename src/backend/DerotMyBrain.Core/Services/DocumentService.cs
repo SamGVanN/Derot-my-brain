@@ -51,10 +51,9 @@ public class DocumentService : IDocumentService
             _logger.LogWarning("Could not determine file size from stream for file {FileName}", fileName);
         }
 
-        var sourceHash = SourceHasher.GenerateHash(SourceType.Document, storagePath);
-
         var document = new Document
         {
+            Id = Guid.NewGuid().ToString(),
             UserId = userId,
             FileName = fileName,
             FileType = Path.GetExtension(fileName).ToLowerInvariant(),
@@ -62,9 +61,30 @@ public class DocumentService : IDocumentService
             UploadDate = DateTime.UtcNow,
             StoragePath = storagePath, 
             DisplayTitle = Path.GetFileNameWithoutExtension(fileName),
-            SourceHash = sourceHash
+            SourceId = string.Empty // Set below
         };
 
+        var technicalSourceId = SourceHasher.GenerateId(SourceType.Document, document.Id);
+        document.SourceId = technicalSourceId;
+
+        // Ensure Source exists
+        // Since it's a new document upload, we create the Source hub
+        var source = new Source
+        {
+            Id = technicalSourceId,
+            UserId = userId,
+            Type = SourceType.Document,
+            ExternalId = document.Id,
+            DisplayTitle = document.DisplayTitle,
+            Url = storagePath,
+            IsTracked = false
+        };
+
+        // We need an IActivityRepository or similar to create the Source
+        // Or we can add Source-related methods to IDocumentRepository.
+        // For now, let's assume the repository should handle the Source creation or we need to inject it.
+        // In the handoff, I mentioned Service realignment.
+        
         // 3. Persist to DB
         return await _repository.CreateAsync(document);
     }
@@ -86,9 +106,9 @@ public class DocumentService : IDocumentService
         await _repository.DeleteAsync(userId, documentId);
     }
 
-    public async Task<string> GetDocumentContentAsync(string userId, string sourceHash)
+    public async Task<string> GetDocumentContentAsync(string userId, string sourceId)
     {
-        var doc = await _repository.GetBySourceHashAsync(userId, sourceHash);
+        var doc = await _repository.GetBySourceIdAsync(userId, sourceId);
         if (doc == null) throw new FileNotFoundException("Document not found in database.");
 
         // Get stream from storage service

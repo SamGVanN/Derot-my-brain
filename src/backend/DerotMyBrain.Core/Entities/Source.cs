@@ -1,34 +1,38 @@
+using System.Text.Json.Serialization;
+
 namespace DerotMyBrain.Core.Entities;
 
 /// <summary>
-/// Represents a unique content source (Wikipedia article, Document, etc.).
-/// Deters duplicates by using a deterministic ID based on Type and ExternalId.
+/// Hub for content-related information. 
+/// Every activity/session/document is linked to a Source.
 /// </summary>
 public class Source
 {
-    /// <summary>
-    /// Deterministic ID (e.g., "Wikipedia:ArticleTitle" or composite hash).
-    /// </summary>
-    public string Id { get; set; } = string.Empty;
-
+    public string Id { get; set; } = string.Empty; // Deterministic Hash (or Guid for Docs)
+    public string UserId { get; set; } = string.Empty;
     public SourceType Type { get; set; }
-
-    /// <summary>
-    /// The ID used by the provider (e.g., Page Title for Wikipedia).
-    /// </summary>
-    public string ExternalId { get; set; } = string.Empty;
-
+    public string ExternalId { get; set; } = string.Empty; // e.g., Wiki Page title, Document Guid
     public string DisplayTitle { get; set; } = string.Empty;
-
     public string? Url { get; set; }
+    public bool IsTracked { get; set; } = false;
 
-    /// <summary>
-    /// Navigation property to sessions associated with this source.
-    /// </summary>
+    [JsonIgnore]
+    public User User { get; set; } = null!;
+
+    public string? TopicId { get; set; }
+
+    [JsonIgnore]
+    public Topic? Topic { get; set; }
+
+    [JsonIgnore]
+    public ICollection<UserActivity> Activities { get; set; } = new List<UserActivity>();
+
+    [JsonIgnore]
     public ICollection<UserSession> Sessions { get; set; } = new List<UserSession>();
-    
-    /// <summary>
-    /// Navigation property to focus areas associated with this source.
-    /// </summary>
-    public ICollection<UserFocus> UserFocuses { get; set; } = new List<UserFocus>();
+
+    [JsonIgnore]
+    public ICollection<Document> Documents { get; set; } = new List<Document>();
+
+    [JsonIgnore]
+    public ICollection<BacklogItem> BacklogItems { get; set; } = new List<BacklogItem>();
 }

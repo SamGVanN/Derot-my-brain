@@ -29,11 +29,11 @@ public class SqliteBacklogRepository : IBacklogRepository
             .ToListAsync();
     }
 
-    public async Task<BacklogItem?> GetBySourceHashAsync(string userId, string sourceHash)
+    public async Task<BacklogItem?> GetBySourceIdAsync(string userId, string sourceId)
     {
         return await _context.BacklogItems
             .AsNoTracking()
-            .FirstOrDefaultAsync(b => b.UserId == userId && b.SourceHash == sourceHash);
+            .FirstOrDefaultAsync(b => b.UserId == userId && b.SourceId == sourceId);
     }
 
     public async Task<BacklogItem> CreateAsync(BacklogItem item)
@@ -43,10 +43,10 @@ public class SqliteBacklogRepository : IBacklogRepository
         return item;
     }
 
-    public async Task DeleteAsync(string userId, string sourceHash)
+    public async Task DeleteAsync(string userId, string sourceId)
     {
         var item = await _context.BacklogItems
-            .FirstOrDefaultAsync(b => b.UserId == userId && b.SourceHash == sourceHash);
+            .FirstOrDefaultAsync(b => b.UserId == userId && b.SourceId == sourceId);
             
         if (item != null)
         {

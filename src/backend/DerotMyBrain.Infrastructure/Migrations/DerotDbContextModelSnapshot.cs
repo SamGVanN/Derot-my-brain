@@ -17,7 +17,6 @@ namespace DerotMyBrain.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
 
-            modelBuilder.Entity("DerotMyBrain.Core.Entities.Source", b =>
             modelBuilder.Entity("DerotMyBrain.Core.Entities.BacklogItem", b =>
                 {
                     b.Property<string>("Id")
@@ -26,16 +25,9 @@ namespace DerotMyBrain.Infrastructure.Migrations
                     b.Property<DateTime>("AddedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("SourceHash")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("SourceId")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("SourceType")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -47,7 +39,9 @@ namespace DerotMyBrain.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId", "SourceHash")
+                    b.HasIndex("SourceId");
+
+                    b.HasIndex("UserId", "SourceId")
                         .IsUnique();
 
                     b.ToTable("BacklogItems");
@@ -62,14 +56,6 @@ namespace DerotMyBrain.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ExternalId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Url")
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -81,7 +67,7 @@ namespace DerotMyBrain.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("SourceHash")
+                    b.Property<string>("SourceId")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -98,11 +84,75 @@ namespace DerotMyBrain.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sources");
-                    b.HasIndex("UserId", "SourceHash")
+                    b.HasIndex("SourceId");
+
+                    b.HasIndex("UserId", "SourceId")
                         .IsUnique();
 
                     b.ToTable("Documents");
+                });
+
+            modelBuilder.Entity("DerotMyBrain.Core.Entities.Source", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayTitle")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ExternalId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsTracked")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("TopicId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TopicId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Sources");
+                });
+
+            modelBuilder.Entity("DerotMyBrain.Core.Entities.Topic", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Topics");
                 });
 
             modelBuilder.Entity("DerotMyBrain.Core.Entities.User", b =>
@@ -185,6 +235,9 @@ namespace DerotMyBrain.Infrastructure.Migrations
                     b.Property<DateTime>("SessionDateStart")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("SourceId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -204,6 +257,8 @@ namespace DerotMyBrain.Infrastructure.Migrations
 
                     b.HasIndex("ResultingReadActivityId");
 
+                    b.HasIndex("SourceId");
+
                     b.HasIndex("UserSessionId");
 
                     b.HasIndex("UserId", "SessionDateEnd");
@@ -211,56 +266,6 @@ namespace DerotMyBrain.Infrastructure.Migrations
                     b.HasIndex("UserId", "SessionDateStart");
 
                     b.ToTable("Activities");
-                });
-
-            modelBuilder.Entity("DerotMyBrain.Core.Entities.UserFocus", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<double>("BestScore")
-                        .HasColumnType("REAL");
-
-                    b.Property<string>("DisplayTitle")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsArchived")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsPinned")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("LastAttemptDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<double>("LastScore")
-                        .HasColumnType("REAL");
-
-                    b.Property<string>("SourceId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("TotalQuizTimeSeconds")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TotalReadTimeSeconds")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TotalStudyTimeSeconds")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SourceId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("FocusAreas", (string)null);
                 });
 
             modelBuilder.Entity("DerotMyBrain.Core.Entities.UserPreferences", b =>
@@ -314,14 +319,17 @@ namespace DerotMyBrain.Infrastructure.Migrations
                     b.Property<DateTime?>("EndedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("SourceId")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("StartedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("TargetSourceId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TargetTopicId")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -329,26 +337,75 @@ namespace DerotMyBrain.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SourceId");
+                    b.HasIndex("TargetSourceId");
+
+                    b.HasIndex("TargetTopicId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Sessions");
+                });
+
             modelBuilder.Entity("DerotMyBrain.Core.Entities.BacklogItem", b =>
                 {
+                    b.HasOne("DerotMyBrain.Core.Entities.Source", "Source")
+                        .WithMany("BacklogItems")
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("DerotMyBrain.Core.Entities.User", "User")
                         .WithMany("BacklogItems")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Source");
+
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("DerotMyBrain.Core.Entities.Document", b =>
                 {
+                    b.HasOne("DerotMyBrain.Core.Entities.Source", "Source")
+                        .WithMany("Documents")
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("DerotMyBrain.Core.Entities.User", "User")
                         .WithMany("Documents")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Source");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DerotMyBrain.Core.Entities.Source", b =>
+                {
+                    b.HasOne("DerotMyBrain.Core.Entities.Topic", "Topic")
+                        .WithMany("Sources")
+                        .HasForeignKey("TopicId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DerotMyBrain.Core.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Topic");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DerotMyBrain.Core.Entities.Topic", b =>
+                {
+                    b.HasOne("DerotMyBrain.Core.Entities.User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -361,6 +418,11 @@ namespace DerotMyBrain.Infrastructure.Migrations
                     b.HasOne("DerotMyBrain.Core.Entities.UserActivity", "ResultingReadActivity")
                         .WithMany()
                         .HasForeignKey("ResultingReadActivityId");
+
+                    b.HasOne("DerotMyBrain.Core.Entities.Source", "Source")
+                        .WithMany("Activities")
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("DerotMyBrain.Core.Entities.User", "User")
                         .WithMany("Activities")
@@ -376,28 +438,11 @@ namespace DerotMyBrain.Infrastructure.Migrations
 
                     b.Navigation("ResultingReadActivity");
 
-                    b.Navigation("User");
-
-                    b.Navigation("UserSession");
-                });
-
-            modelBuilder.Entity("DerotMyBrain.Core.Entities.UserFocus", b =>
-                {
-                    b.HasOne("DerotMyBrain.Core.Entities.Source", "Source")
-                        .WithMany("UserFocuses")
-                        .HasForeignKey("SourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DerotMyBrain.Core.Entities.User", "User")
-                        .WithMany("FocusAreas")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Source");
 
                     b.Navigation("User");
+
+                    b.Navigation("UserSession");
                 });
 
             modelBuilder.Entity("DerotMyBrain.Core.Entities.UserPreferences", b =>
@@ -413,10 +458,15 @@ namespace DerotMyBrain.Infrastructure.Migrations
 
             modelBuilder.Entity("DerotMyBrain.Core.Entities.UserSession", b =>
                 {
-                    b.HasOne("DerotMyBrain.Core.Entities.Source", "Source")
+                    b.HasOne("DerotMyBrain.Core.Entities.Source", "TargetSource")
                         .WithMany("Sessions")
-                        .HasForeignKey("SourceId")
+                        .HasForeignKey("TargetSourceId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("DerotMyBrain.Core.Entities.Topic", "TargetTopic")
+                        .WithMany()
+                        .HasForeignKey("TargetTopicId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("DerotMyBrain.Core.Entities.User", "User")
                         .WithMany("Sessions")
@@ -424,23 +474,33 @@ namespace DerotMyBrain.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Source");
+                    b.Navigation("TargetSource");
+
+                    b.Navigation("TargetTopic");
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("DerotMyBrain.Core.Entities.Source", b =>
                 {
-                    b.Navigation("Sessions");
+                    b.Navigation("Activities");
 
-                    b.Navigation("UserFocuses");
+                    b.Navigation("BacklogItems");
+
+                    b.Navigation("Documents");
+
+                    b.Navigation("Sessions");
+                });
+
+            modelBuilder.Entity("DerotMyBrain.Core.Entities.Topic", b =>
+                {
+                    b.Navigation("Sources");
                 });
 
             modelBuilder.Entity("DerotMyBrain.Core.Entities.User", b =>
                 {
                     b.Navigation("Activities");
 
-                    b.Navigation("FocusAreas");
                     b.Navigation("BacklogItems");
 
                     b.Navigation("Documents");

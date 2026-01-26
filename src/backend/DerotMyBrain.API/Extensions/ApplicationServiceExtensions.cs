@@ -13,7 +13,6 @@ public static class ApplicationServiceExtensions
         // 3. Domain Services (Core)
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IActivityService, ActivityService>();
-        services.AddScoped<IUserFocusService, UserFocusService>();
         services.AddScoped<IWikipediaService, WikipediaService>();
         services.AddScoped<IDocumentService, DocumentService>();
         services.AddScoped<IBacklogService, BacklogService>();

@@ -40,11 +40,6 @@ public class User
     public ICollection<UserActivity> Activities { get; set; } = new List<UserActivity>();
 
     /// <summary>
-    /// Navigation property to user focus areas (1-to-many relationship).
-    /// </summary>
-    public List<UserFocus> FocusAreas { get; set; } = new();
-
-    /// <summary>
     /// Navigation property for user uploaded documents.
     /// </summary>
     public ICollection<Document> Documents { get; set; } = new List<Document>();

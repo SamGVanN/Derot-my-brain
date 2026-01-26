@@ -41,7 +41,7 @@ public class DocumentsController : ControllerBase
             FileSize = d.FileSize,
             UploadDate = d.UploadDate,
             DisplayTitle = d.DisplayTitle,
-            SourceHash = d.SourceHash,
+            SourceId = d.SourceId,
             StoragePath = Path.GetDirectoryName(_fileStorageService.GetAbsolutePath(d.StoragePath)) ?? string.Empty
         });
 
@@ -68,7 +68,7 @@ public class DocumentsController : ControllerBase
                 FileSize = doc.FileSize,
                 UploadDate = doc.UploadDate,
                 DisplayTitle = doc.DisplayTitle,
-                SourceHash = doc.SourceHash,
+                SourceId = doc.SourceId,
                 StoragePath = Path.GetDirectoryName(_fileStorageService.GetAbsolutePath(doc.StoragePath)) ?? string.Empty
             };
 
