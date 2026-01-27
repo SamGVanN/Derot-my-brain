@@ -18,12 +18,12 @@ The previous assessment was overly optimistic. A deep-dive audit reveals signifi
 | Core Architecture | ✅ Done | Hexagonal-ish frontend, Clean Architecture backend foundation. |
 | Authentication | ✅ Done | Local profile selection with persistence. |
 | i18n (FR/EN) | ✅ Done | Fully implemented across all pages. |
-| Derot Zone (UI) | 🟡 Mocked | UI exists but logic is hardcoded mocks and buggy. |
-| Wikipedia Service | 🔴 TODO | Infrastructure is present but integration is failing (no real content). |
+| Derot Zone (UI) | 🟡 Partial | Explore View is implemented but Read View is not. Quiz View is not implemented. Flow is partially implemented : ATM we can navigate from Explore to Read and from Read to Quiz but no quizz is being generated (need LLM implementation). |
+| Wikipedia Service | 🟡 Partial | Getting articles is working for exploration mode. We need now to fetch article and display it in Read View. |
 | LLM Integration | 🔴 Broken | Backend skeleton exists but liaison with Ollama is not validated/functional. connectivity issues and not implemented LLM interactions to get questions, answers and user answers validation. |
-| Workflow Integration | 🔴 Missing | The "Explore -> Read -> Quiz" loop is not functional. |
-| Backlog & Library | 🟡 Partial | UI exists but depends on functional content fetching. |
-| Focus Area | 🟡 Partial | UI exists but lacks real data from learning activities. |
+| Workflow Integration | 🔴 Partial (refere to Derot Zone UI) |
+| Backlog & Library | 🟡 Partial | UI exists but activity buttons (Read and go to quizz) only redirects without using Source data. |
+| Focus Area | 🟡 Partial | timeline is not showing dates |
 
 ## Immediate Roadmap (Corrected)
 1. **Stabilize Wikipedia Fetching**: Fix `WikipediaContentSource` and ensure `ReadView` displays real API data.

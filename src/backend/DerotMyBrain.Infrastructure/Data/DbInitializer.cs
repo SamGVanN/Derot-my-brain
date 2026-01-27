@@ -108,6 +108,7 @@ public static class DbInitializer
             UserId = userId, UserSessionId = session1.Id, SourceId = qmSourceId, Type = ActivityType.Quiz,
             Title = "Quantum Mechanics", Description = "Première évaluation.",
             SessionDateStart = session1.StartedAt, SessionDateEnd = session1.EndedAt,
+            DurationSeconds = 1800,
             Score = 6, QuestionCount = 10, ScorePercentage = 60.0, IsBaseline = true, IsNewBestScore = true, IsCompleted = true
         });
 
@@ -120,6 +121,7 @@ public static class DbInitializer
             UserId = userId, UserSessionId = session2.Id, SourceId = qmSourceId, Type = ActivityType.Quiz,
             Title = "Quantum Mechanics", Description = "Progression constatée.",
             SessionDateStart = session2.StartedAt, SessionDateEnd = session2.EndedAt,
+            DurationSeconds = 1200,
             Score = 8, QuestionCount = 10, ScorePercentage = 80.0, IsBaseline = false, IsNewBestScore = true, IsCompleted = true
         });
 
@@ -132,6 +134,7 @@ public static class DbInitializer
             UserId = userId, UserSessionId = session3.Id, SourceId = qmSourceId, Type = ActivityType.Quiz,
             Title = "Quantum Mechanics", Description = "Petite fatigue passante.",
             SessionDateStart = session3.StartedAt, SessionDateEnd = session3.EndedAt,
+            DurationSeconds = 900,
             Score = 6, QuestionCount = 10, ScorePercentage = 60.0, IsBaseline = false, IsNewBestScore = false, IsCompleted = true
         });
 
@@ -144,6 +147,7 @@ public static class DbInitializer
             UserId = userId, UserSessionId = session4.Id, SourceId = qmSourceId, Type = ActivityType.Quiz,
             Title = "Quantum Mechanics", Description = "Maîtrise totale !",
             SessionDateStart = session4.StartedAt, SessionDateEnd = session4.EndedAt,
+            DurationSeconds = 1500,
             Score = 10, QuestionCount = 10, ScorePercentage = 100.0, IsBaseline = false, IsNewBestScore = true, IsCompleted = true
         });
 
@@ -158,7 +162,7 @@ public static class DbInitializer
             UserId = userId, UserSessionId = sessionRel1.Id, SourceId = relSourceId, Type = ActivityType.Read,
             Title = "Theory of Relativity", Description = "Lecture approfondie.",
             SessionDateStart = sessionRel1.StartedAt, SessionDateEnd = sessionRel1.EndedAt,
-            ReadDurationSeconds = 2700, IsCompleted = true
+            DurationSeconds = 2700, IsCompleted = true
         });
 
         // 2. Jan 23: First Quiz (Baseline) - 90%
@@ -170,6 +174,7 @@ public static class DbInitializer
             UserId = userId, UserSessionId = sessionRel2.Id, SourceId = relSourceId, Type = ActivityType.Quiz,
             Title = "Theory of Relativity", Description = "Excellent résultat.",
             SessionDateStart = sessionRel2.StartedAt, SessionDateEnd = sessionRel2.EndedAt,
+            DurationSeconds = 1500,
             Score = 9, QuestionCount = 10, ScorePercentage = 90.0, IsBaseline = true, IsNewBestScore = true, IsCompleted = true
         });
 

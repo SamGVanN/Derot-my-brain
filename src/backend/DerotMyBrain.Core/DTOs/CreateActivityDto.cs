@@ -39,13 +39,7 @@ public class CreateActivityDto
 
     // Durations
     [Range(0, int.MaxValue)]
-    public int? ExploreDurationSeconds { get; set; }
-
-    [Range(0, int.MaxValue)]
-    public int? ReadDurationSeconds { get; set; }
-    
-    [Range(0, int.MaxValue)]
-    public int? QuizDurationSeconds { get; set; }
+    public int? DurationSeconds { get; set; }
 
     // Quiz Metrics
     [Range(0, int.MaxValue)]

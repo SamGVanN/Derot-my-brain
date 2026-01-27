@@ -236,6 +236,13 @@ public class ActivityBuilder
         return this;
     }
 
+    public ActivityBuilder WithLlm(string model, string version)
+    {
+        _llmModelName = model;
+        _llmVersion = version;
+        return this;
+    }
+
     public UserActivity Build()
     {
         double? percentage = null;
@@ -243,6 +250,9 @@ public class ActivityBuilder
         {
             percentage = (double)_score / _questionCount * 100.0;
         }
+
+        // Simplification for test builder: assume duration is sum of passed values or just use one
+        int duration = (_readDuration ?? 0) + (_quizDuration ?? 0);
 
         return new UserActivity
         {
@@ -254,8 +264,7 @@ public class ActivityBuilder
             Type = _type,
             SessionDateStart = _sessionDateStart,
             SessionDateEnd = _sessionDateEnd,
-            ReadDurationSeconds = _readDuration,
-            QuizDurationSeconds = _quizDuration,
+            DurationSeconds = duration,
             Score = _score,
             QuestionCount = _questionCount,
             ScorePercentage = percentage,

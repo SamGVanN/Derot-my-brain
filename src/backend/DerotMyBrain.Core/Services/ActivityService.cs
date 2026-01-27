@@ -69,8 +69,24 @@ public class ActivityService : IActivityService
             SessionDateStart = DateTime.UtcNow,
             OriginExploreId = originExploreId,
             BacklogAddsCount = backlogAddsCount,
-            ExploreDurationSeconds = exploreDurationSeconds
+            DurationSeconds = 0 // Initial read duration is 0
         };
+
+        if (!string.IsNullOrEmpty(originExploreId))
+        {
+            var exploreActivity = await _repository.GetByIdAsync(userId, originExploreId);
+            if (exploreActivity != null)
+            {
+                dto.UserSessionId = exploreActivity.UserSessionId;
+                
+                // If exploration duration was provided, update the explore activity
+                if (exploreDurationSeconds.HasValue) 
+                {
+                    exploreActivity.DurationSeconds = exploreDurationSeconds.Value;
+                    await _repository.UpdateAsync(exploreActivity);
+                }
+            }
+        }
 
         var activity = await CreateActivityAsync(userId, dto);
         
@@ -195,9 +211,7 @@ public class ActivityService : IActivityService
             Description = string.IsNullOrEmpty(dto.Description) ? $"Activity on {dto.Title}" : dto.Description,
             SessionDateStart = dto.SessionDateStart,
             SessionDateEnd = dto.SessionDateEnd,
-            ExploreDurationSeconds = dto.ExploreDurationSeconds,
-            ReadDurationSeconds = dto.ReadDurationSeconds,
-            QuizDurationSeconds = dto.QuizDurationSeconds,
+            DurationSeconds = dto.DurationSeconds ?? 0,
             Score = dto.Score ?? 0,
             QuestionCount = dto.QuestionCount ?? 0,
             ScorePercentage = scorePercentage,
@@ -250,9 +264,7 @@ public class ActivityService : IActivityService
 
         if (dto.Score.HasValue) activity.Score = dto.Score.Value;
         if (dto.QuestionCount.HasValue) activity.QuestionCount = dto.QuestionCount.Value;
-        if (dto.ReadDurationSeconds.HasValue) activity.ReadDurationSeconds = dto.ReadDurationSeconds.Value;
-        if (dto.ExploreDurationSeconds.HasValue) activity.ExploreDurationSeconds = dto.ExploreDurationSeconds.Value;
-        if (dto.QuizDurationSeconds.HasValue) activity.QuizDurationSeconds = dto.QuizDurationSeconds.Value;
+        if (dto.DurationSeconds.HasValue) activity.DurationSeconds = dto.DurationSeconds.Value; // New standard
         if (dto.SessionDateEnd.HasValue) activity.SessionDateEnd = dto.SessionDateEnd.Value;
         if (dto.IsCompleted.HasValue) activity.IsCompleted = dto.IsCompleted.Value;
 
@@ -294,9 +306,7 @@ public class ActivityService : IActivityService
             Type = a.Type,
             SessionDateStart = a.SessionDateStart,
             SessionDateEnd = a.SessionDateEnd,
-            ExploreDurationSeconds = a.ExploreDurationSeconds,
-            ReadDurationSeconds = a.ReadDurationSeconds,
-            QuizDurationSeconds = a.QuizDurationSeconds,
+            DurationSeconds = a.DurationSeconds,
             TotalDurationSeconds = a.TotalDurationSeconds,
             Score = a.Score,
             QuestionCount = a.QuestionCount,

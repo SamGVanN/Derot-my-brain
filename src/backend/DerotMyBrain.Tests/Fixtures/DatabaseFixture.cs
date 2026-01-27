@@ -118,8 +118,7 @@ public class DatabaseFixture
             Type = ActivityType.Quiz,
             SessionDateStart = physicsSession.StartedAt,
             SessionDateEnd = DateTime.UtcNow.AddMinutes(-50),
-            ReadDurationSeconds = 300,
-            QuizDurationSeconds = 300,
+            DurationSeconds = 600,
             Score = 8,
             QuestionCount = 10,
             ScorePercentage = 80.0,
@@ -137,8 +136,7 @@ public class DatabaseFixture
             Type = ActivityType.Read,
             SessionDateStart = historySession.StartedAt,
             SessionDateEnd = DateTime.UtcNow,
-            ReadDurationSeconds = 600,
-            QuizDurationSeconds = 0,
+            DurationSeconds = 600,
             IsCompleted = true
         };
 

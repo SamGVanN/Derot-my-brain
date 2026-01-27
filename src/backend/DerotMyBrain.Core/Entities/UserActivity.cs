@@ -23,6 +23,7 @@ public class UserActivity
     /// </summary>
     public required string UserSessionId { get; set; }
 
+    [JsonIgnore]
     public UserSession UserSession { get; set; } = null!;
 
     // --- Identification ---
@@ -33,6 +34,7 @@ public class UserActivity
     /// </summary>
     public string? SourceId { get; set; }
 
+    [JsonIgnore]
     public Source? Source { get; set; }
 
     // --- Activity Metadata ---
@@ -66,28 +68,16 @@ public class UserActivity
     public DateTime? SessionDateEnd { get; set; }
 
     /// <summary>
-    /// Time spent actively exploring the content (in seconds).
-    /// Nullable if the session hasn't finished the 'Explore' phase.
+    /// Duration of this specific activity in seconds.
+    /// Replaces separate Exlore/Read/Quiz duration fields as logic is now atomic per activity.
     /// </summary>
-    public int? ExploreDurationSeconds { get; set; }
-
-    /// <summary>
-    /// Time spent actively reading or exploring the content (in seconds).
-    /// Nullable if the session hasn't finished the 'Read' phase.
-    /// </summary>
-    public int? ReadDurationSeconds { get; set; }
-
-    /// <summary>
-    /// Time spent actively answering the quiz (in seconds).
-    /// Nullable if the session is Read-only or Quiz hasn't started.
-    /// </summary>
-    public int? QuizDurationSeconds { get; set; }
+    public int DurationSeconds { get; set; }
 
     /// <summary>
     /// Total active study time (Read + Quiz) in seconds.
-    /// Calculated dynamically.
+    /// For compatibility/calculation if needed, but primary storage is DurationSeconds.
     /// </summary>
-    public int TotalDurationSeconds => (ReadDurationSeconds ?? 0) + (QuizDurationSeconds ?? 0);
+    public int TotalDurationSeconds => DurationSeconds;
 
     // --- Metrics & Results ---
 
@@ -157,6 +147,7 @@ public class UserActivity
     /// Navigation property to the resulting Read activity (self-referencing).
     /// Nullable.
     /// </summary>
+    [JsonIgnore]
     public UserActivity? ResultingReadActivity { get; set; }
 
     /// <summary>

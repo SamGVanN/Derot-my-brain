@@ -27,9 +27,8 @@ public class UserActivityDto
     public DateTime? SessionDateEnd { get; set; }
     
     // Durations
-    public int? ExploreDurationSeconds { get; set; }
-    public int? ReadDurationSeconds { get; set; }
-    public int? QuizDurationSeconds { get; set; }
+    // Durations
+    public int DurationSeconds { get; set; }
     public int TotalDurationSeconds { get; set; }
     
     // Stats

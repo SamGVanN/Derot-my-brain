@@ -13,9 +13,7 @@ public class UpdateActivityDto
     public string? LlmModelName { get; set; }
     public string? LlmVersion { get; set; }
 
-    public int? ExploreDurationSeconds { get; set; }
-    public int? ReadDurationSeconds { get; set; }
-    public int? QuizDurationSeconds { get; set; }
+    public int? DurationSeconds { get; set; }
     public DateTime? SessionDateEnd { get; set; }
     public bool? IsCompleted { get; set; }
 

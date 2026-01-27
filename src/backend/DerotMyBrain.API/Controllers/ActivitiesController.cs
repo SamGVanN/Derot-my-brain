@@ -205,7 +205,7 @@ public class ActivitiesController : ControllerBase
         {
             var updates = new UpdateActivityDto
             {
-                ExploreDurationSeconds = req.DurationSeconds,
+                DurationSeconds = req.DurationSeconds,
                 BacklogAddsCount = req.BacklogAddsCount,
                 SessionDateEnd = DateTime.UtcNow,
                 IsCompleted = true
@@ -256,11 +256,10 @@ public class ActivitiesController : ControllerBase
             SourceType = source?.Type ?? SourceType.Custom,
             SourceHash = source?.Id ?? string.Empty,
             Type = a.Type,
+
             SessionDateStart = a.SessionDateStart,
             SessionDateEnd = a.SessionDateEnd,
-            ExploreDurationSeconds = a.ExploreDurationSeconds,
-            ReadDurationSeconds = a.ReadDurationSeconds,
-            QuizDurationSeconds = a.QuizDurationSeconds,
+            DurationSeconds = a.DurationSeconds,
             TotalDurationSeconds = a.TotalDurationSeconds,
             Score = a.Score,
             QuestionCount = a.QuestionCount,

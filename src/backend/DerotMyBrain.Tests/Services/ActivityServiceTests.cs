@@ -45,8 +45,7 @@ public class ActivityServiceTests
             SourceId = "https://test.com",
             SourceType = SourceType.Wikipedia,
             Type = ActivityType.Read,
-            ReadDurationSeconds = 100,
-            QuizDurationSeconds = 0,
+            DurationSeconds = 100,
             SessionDateStart = DateTime.UtcNow.AddMinutes(-2),
             SessionDateEnd = DateTime.UtcNow
         };
@@ -62,8 +61,7 @@ public class ActivityServiceTests
         
         // Assert
         Assert.Equal(ActivityType.Read, result.Type);
-        Assert.Equal(100, result.ReadDurationSeconds);
-        Assert.Equal(0, result.QuizDurationSeconds);
+        Assert.Equal(100, result.DurationSeconds);
         Assert.Equal(100, result.TotalDurationSeconds);
     }
     
@@ -80,8 +78,7 @@ public class ActivityServiceTests
             Type = ActivityType.Quiz,
             Score = 8,
             QuestionCount = 10,
-            ReadDurationSeconds = 50,
-            QuizDurationSeconds = 150,
+            DurationSeconds = 200,
             SessionDateStart = DateTime.UtcNow.AddMinutes(-5),
             SessionDateEnd = DateTime.UtcNow
         };

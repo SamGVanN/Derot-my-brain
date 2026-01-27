@@ -75,9 +75,9 @@ public class SourceService : ISourceService
             LastScore = lastQuiz != null ? (int)(lastQuiz.ScorePercentage ?? 0) : 0,
             LastAttemptDate = lastActivity?.SessionDateEnd ?? lastActivity?.SessionDateStart,
             
-            TotalReadTimeSeconds = reads.Sum(r => r.ReadDurationSeconds ?? 0) + reads.Sum(r => r.ExploreDurationSeconds ?? 0),
-            TotalQuizTimeSeconds = quizzes.Sum(q => q.QuizDurationSeconds ?? 0),
-            TotalStudyTimeSeconds = activities.Sum(a => a.TotalDurationSeconds + (a.ExploreDurationSeconds ?? 0)),
+            TotalReadTimeSeconds = reads.Sum(r => r.DurationSeconds) + activities.Where(a => a.Type == ActivityType.Explore).Sum(e => e.DurationSeconds),
+            TotalQuizTimeSeconds = quizzes.Sum(q => q.DurationSeconds),
+            TotalStudyTimeSeconds = activities.Sum(a => a.DurationSeconds),
             
             IsPinned = s.IsPinned,
             IsArchived = s.IsArchived

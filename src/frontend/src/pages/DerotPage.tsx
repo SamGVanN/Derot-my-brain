@@ -8,13 +8,17 @@ import { ReadView } from '@/components/DerotZone/ReadView';
 import { QuizView } from '@/components/DerotZone/QuizView';
 import { useSearchParams, useNavigate } from 'react-router';
 import { useWikipediaExplore } from '@/hooks/useWikipediaExplore';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { useActivities } from '@/hooks/useActivities';
 
 export function DerotPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { articles, isInitializing, refresh, error, stopExplore, readArticle, addToBacklog, loadingAction } = useWikipediaExplore();
+  const { updateActivity } = useActivities();
+
+  const [readStartTime, setReadStartTime] = useState<number | null>(null);
 
   const activityId = searchParams.get('activityId');
   const paramMode = searchParams.get('mode');
@@ -24,6 +28,24 @@ export function DerotPage() {
     if (paramMode === 'quiz') return 'QUIZ';
     return 'READ';
   }, [activityId, paramMode]);
+
+  useEffect(() => {
+    if (mode === 'READ') {
+      setReadStartTime(Date.now());
+    }
+  }, [mode]);
+
+  const saveReadDuration = async () => {
+    if (activityId && readStartTime) {
+      const duration = Math.floor((Date.now() - readStartTime) / 1000);
+      try {
+        await updateActivity(activityId, { durationSeconds: duration });
+      } catch (err) {
+        console.error('Failed to save read duration', err);
+      }
+      setReadStartTime(null);
+    }
+  };
 
   return (
     <Layout>
@@ -39,10 +61,16 @@ export function DerotPage() {
           <DerotZoneSubHeader
             mode={mode}
             onStopExplore={async () => {
+              if (mode === 'READ') {
+                await saveReadDuration();
+              }
               await stopExplore();
               navigate('/focus-area');
             }}
-            onGoToQuiz={() => setSearchParams({ activityId: activityId!, mode: 'quiz' })}
+            onGoToQuiz={async () => {
+              await saveReadDuration();
+              setSearchParams({ activityId: activityId!, mode: 'quiz' });
+            }}
             onSubmitQuiz={() => setSearchParams({})}
           />
 

@@ -21,9 +21,7 @@ export interface UserActivity {
     sessionDateEnd?: string;
 
     // Durations
-    exploreDurationSeconds?: number;
-    readDurationSeconds?: number;
-    quizDurationSeconds?: number;
+    durationSeconds: number;
     totalDurationSeconds: number;
 
     // Stats
