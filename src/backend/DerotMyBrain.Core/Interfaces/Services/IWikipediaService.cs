@@ -1,9 +1,10 @@
+using DerotMyBrain.Core.DTOs;
 using DerotMyBrain.Core.Entities;
 
 namespace DerotMyBrain.Core.Interfaces.Services;
 
 public interface IWikipediaService
 {
-    // Currently no methods needed as discovery is done via ContentSource directly for now,
-    // or we might add search/random here later.
+    Task<IEnumerable<WikipediaArticleDto>> GetDiscoveryArticlesAsync(int count = 6, string lang = "en");
+    Task<ContentResult> GetFullArticleAsync(string titleOrUrl);
 }

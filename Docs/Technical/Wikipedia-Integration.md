@@ -1,119 +1,78 @@
-# Wikipedia (MediaWiki) Integration — Derot Zone
+# Wikipedia API Integration
 
-Status: Draft
+This document outlines the technical implementation and compliance requirements for the Wikipedia integration in Derot My Brain.
 
-Purpose
--------
-Describe the design and API contract for integrating Wikipedia (MediaWiki) into the `Derot Zone` feature so that users can explore, read, and add articles to their backlog.
+## Overview
 
-High-level goals
-----------------
-- Surface Wikipedia article cards (summary, thumbnail, language link)
-- Allow adding an article to the user's Backlog
-- Provide a `Read` action which creates a `UserActivity` of Type `Read`
-- While browsing, activity is `Explore`
-- Provide UI controls: header with changeable categories (session-only), direct URL input, and a `Recycle` button for random/refetched articles
+The application integrates with the MediaWiki Action API to provide:
+1.  **Discovery**: Random articles with summaries and images for the "Derot Zone".
+2.  **Reading**: Full text extracts for active learning/reading sessions.
 
-UserActivity types
-------------------
-- `Explore` — user is browsing/searching articles; should be logged while the user is exploring
-- `Read` — user explicitly reads an article (via the `Read` button or direct URL); creates a `UserActivity` Type `Read`
-- `Quiz` — future: when user takes a quiz based on a source
+## Wikipedia API Compliance (Critical)
 
-Frontend requirements (Derot Zone)
----------------------------------
-- Header with session-only categories and filters:
-  - Categories are stored client-side for the current Derot session only (do not persist in `UserPreference` database)
-  - Category filter values affect search/random fetches
-- Text field for direct article URL:
-  - Accepts a Wikipedia article URL from any supported language subdomain, extracts title & lang, and triggers a `Read` flow
-- `Recycle` button:
-  - Refetches random articles using the current header filters (or search terms)
-  - Should call backend `/api/wikipedia/random` endpoint
-- Article card UI:
-  - Title, summary (short), thumbnail (if available), language, link to full article on Wikipedia
-  - Buttons: `Read`, `Add to Backlog`
-  - `Read` triggers a backend call that creates a `UserActivity` Type `Read` and returns article details
-  - `Add to Backlog` triggers a backend call to add the article to the user's backlog (or create a backlog entry)
-- State handling: loading, empty, error
+Wikipedia requires all API clients to follow their [User-Agent Policy](https://meta.wikimedia.org/wiki/User-Agent_policy). Failure to comply can result in IP blocks.
 
-Backend design
---------------
-MediaWiki endpoints to use (no API key required):
-- Summary: `https://{lang}.wikipedia.org/api/rest_v1/page/summary/{title}`
-- Search: `https://{lang}.wikipedia.org/w/rest.php/v1/search/title?q={q}&limit={n}` or the classic `action=query&list=search`
-- Random pages: `action=query&list=random` (MediaWiki API)
+### User-Agent Structure
+Our application sends a custom User-Agent in the following format:
+`DerotMyBrain/1.0 (https://github.com/SamGVanN/Derot-my-brain; <Optional Contact Email>)`
 
-Proposed API contract (DerotMyBrain.API)
----------------------------------------
-- GET `/api/wikipedia/search?q={q}&lang={lang}&limit={n}`
-  - Response: list of `WikipediaArticleDto` (id/title/summary/thumbnail/lang/url)
-- GET `/api/wikipedia/summary?title={title}&lang={lang}`
-  - Response: `WikipediaArticleDto` full summary
-- GET `/api/wikipedia/random?lang={lang}&count={n}&categories={csv}`
-  - Response: list of `WikipediaArticleDto`
-- POST `/api/wikipedia/read`
-  - Body: `ReadRequest { title, lang, sourceUrl? }`
-  - Action: fetch article summary, create `UserActivity` with Type=`Read` (attach article metadata), return created `UserActivity` id + article DTO
-- POST `/api/wikipedia/explore`
-  - Body: `ExploreEvent { query?, lang?, filters? }`
-  - Action: optionally log `UserActivity` Type=`Explore` (or aggregate client-side) — lightweight server-side logging
-- POST `/api/backlog` (if not present already)
-  - Body: `BacklogAddRequest { title, lang, url, summary? }`
-  - Action: add item to user's backlog (existing backlog APIs should be reused if available)
+### Configuration
+To keep your contact email private while complying with Wikipedia's request for a point of contact, configure it in `appsettings.json` or via environment variables.
 
-Data shapes (DTOs)
-------------------
-- `WikipediaArticleDto`:
-  - `string Title`
-  - `string PageId` (or numeric id)
-  - `string Summary`
-  - `string ThumbnailUrl` (nullable)
-  - `string Language`
-  - `string SourceUrl`
-- `ReadRequest`:
-  - `string Title`
-  - `string Language`
-  - `string SourceUrl` (optional)
+#### 1. Local Configuration (`appsettings.json`)
+```json
+{
+  "Wikipedia": {
+    "ContactEmail": "your-email@example.com"
+  }
+}
+```
 
-Implementation notes
---------------------
-- Core interface: add `IWikipediaService` in `DerotMyBrain.Core` with methods: `SearchAsync`, `GetSummaryAsync`, `GetRandomAsync`.
-- Infrastructure: implement `MediaWikiWikipediaService` in `DerotMyBrain.Infrastructure` using `HttpClient` and resilient patterns (timeouts, retries)
-- Controller: add `WikipediaController` in `DerotMyBrain.API/Controllers` to expose the endpoints above
-- Caching: cache summaries with configurable TTL (6–24h). Use `IMemoryCache` for dev, support Redis in production
-- Rate limiting: add basic safeguards (per-IP or per-user throttling) to avoid hitting MediaWiki limits
-- UserActivity creation:
-  - `Read` flow must create a `UserActivity` entity with Type=`Read` and attach article metadata (title, url, language, pageId)
-  - `Explore` flow: create `UserActivity` Type=`Explore` when user begins exploring or when the frontend sends explicit event
-- Backlog integration: reuse existing backlog service if present; otherwise add `IBacklogService` call from controller
+#### 2. Environment Variable (Recommended for Production/Public Repos)
+```bash
+Wikipedia__ContactEmail=your-email@example.com
+```
 
-Edge cases and UX
------------------
-- Disambiguation pages: surface disambiguation hint and provide links to options
-- Redirects: MediaWiki summary endpoint follows redirects; ensure title/url reflect final page
-- Missing images: show placeholder
-- Invalid direct URLs: validate and surface helpful errors
+> [!IMPORTANT]
+> If no email is provided (or if it matches the default placeholder), the application falls back to just the GitHub URL. Providing an email is recommended for high-volume usage.
 
-Testing
--------
-- Unit tests: mock `HttpClient` and test `IWikipediaService` implementation
-- Integration tests: optional live call to MediaWiki behind a feature flag
-- Frontend tests: component tests for `Derot Zone` UI, E2E for flows (Explore → Read → Backlog)
+## Endpoints and Parameters
 
-Security & Privacy
-------------------
-- No user credentials are sent to MediaWiki — calls are server-side to avoid leaking user IP via client when possible
-- Cache article summaries; do not store full user browsing behavior without consent
+All requests are `GET` requests to `https://{lang}.wikipedia.org/w/api.php`.
 
-Open decisions
---------------
-- Should `Explore` events be logged on every search/refetch, or only on explicit user actions? Current draft supports both; default: log lightweight `Explore` events when user opens Derot Zone and when they explicitly send `explore` events.
-- Backlog API shape: prefer reusing existing backlog model; if none exists we will add a minimal backlog entity.
+### 1. Discovery (Explore View)
+Used to fetch random articles for the teaser cards.
 
-Next steps
-----------
-1. Finalize API request/response DTOs and add them to `DerotMyBrain.Core/DTOs`.
-2. Add `IWikipediaService` to `DerotMyBrain.Core` and implement it in `DerotMyBrain.Infrastructure`.
-3. Add controller endpoints and wire DI in `Program.cs`.
-4. Implement frontend `Derot Zone` components and flows.
+-   **Base URL**: `https://{lang}.wikipedia.org/w/api.php`
+-   **Query Parameters**:
+    -   `action=query`: Core query module.
+    -   `format=json`: Response format.
+    -   `generator=random`: Fetches random pages.
+    -   `grnnamespace=0`: Limits to main articles (ignores talk pages, etc.).
+    -   `grnlimit={count}`: Number of articles to fetch.
+    -   `prop=extracts|pageimages`: Fetches both text summaries and images in one call.
+    -   `exintro=1`: Returns only the lead section.
+    -   `explaintext=1`: Returns plain text instead of HTML.
+    -   `exsentences=2`: Limits summary to 2 sentences for teaser consistency.
+    -   `pithumbsize=300`: Requests a 300px thumbnail.
+
+### 2. Full Content (Read View)
+Used to fetch the complete text of an article for reading.
+
+-   **Query Parameters**:
+    -   `action=query`
+    -   `format=json`
+    -   `prop=extracts`
+    -   `explaintext=1`: Plain text is required for LLM processing and clean UI rendering.
+    -   `titles={Title}`: The specific article title.
+
+## Technical Implementation
+
+-   **Infrastructure Layer**: [WikipediaClient.cs](file:///d:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Clients/WikipediaClient.cs) handles the `HttpClient` calls and JSON parsing using `System.Text.Json.Nodes`.
+-   **Core Layer**: `WikipediaService.cs` orchestrates the logic.
+-   **Frontend**: `wikipediaApi.ts` and `useWikipediaExplore.ts` manage state and user actions.
+
+## Best Practices Followed
+-   **Consolidated Calls**: Images and extracts are fetched in a single request to minimize latency.
+-   **Error Handling**: Logging is implemented to capture API limits or network issues.
+-   **Respect for Formatting**: Plain text extracts (`explaintext=1`) are favored over HTML to ensure compatibility with LLM quiz generation.

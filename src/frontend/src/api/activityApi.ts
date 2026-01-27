@@ -34,6 +34,13 @@ export const activityApi = {
         await client.delete(`/users/${userId}/activities/${activityId}`);
     },
 
+    getExploreArticles: async (userId: string, count: number = 6): Promise<any[]> => {
+        const response = await client.get<any[]>(`/users/${userId}/activities/explore/articles`, {
+            params: { count }
+        });
+        return response.data;
+    },
+
     explore: async (userId: string, request: { title?: string, sourceId?: string, sourceType: number }): Promise<UserActivity> => {
         const response = await client.post<UserActivity>(`/users/${userId}/activities/explore`, request);
         return response.data;

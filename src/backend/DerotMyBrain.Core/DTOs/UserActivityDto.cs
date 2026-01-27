@@ -50,6 +50,7 @@ public class UserActivityDto
     /// </summary>
     public bool IsTracked { get; set; }
     
+    public string? ArticleContent { get; set; }
     public string? Payload { get; set; }
     
     // --- Explore-specific fields ---

@@ -12,6 +12,7 @@ namespace DerotMyBrain.Tests.Services;
 public class ActivityServiceTests
 {
     private readonly Mock<IActivityRepository> _activityRepoMock;
+    private readonly Mock<IWikipediaService> _wikipediaServiceMock;
     private readonly Mock<ILlmService> _llmServiceMock;
     private readonly Mock<IJsonSerializer> _jsonSerializerMock;
     private readonly ActivityService _service;
@@ -19,6 +20,7 @@ public class ActivityServiceTests
     public ActivityServiceTests()
     {
         _activityRepoMock = new Mock<IActivityRepository>();
+        _wikipediaServiceMock = new Mock<IWikipediaService>();
         _llmServiceMock = new Mock<ILlmService>();
         _jsonSerializerMock = new Mock<IJsonSerializer>();
         
@@ -27,6 +29,7 @@ public class ActivityServiceTests
         _service = new ActivityService(
             _activityRepoMock.Object,
             contentSources,
+            _wikipediaServiceMock.Object,
             _llmServiceMock.Object,
             _jsonSerializerMock.Object);
     }

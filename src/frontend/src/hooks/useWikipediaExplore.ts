@@ -2,17 +2,38 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { activityApi } from '@/api/activityApi';
 import { wikipediaApi, type WikipediaArticle } from '@/api/wikipediaApi';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useWikipediaExploreStore } from '@/stores/useWikipediaExploreStore';
 
 export function useWikipediaExplore() {
     const { user } = useAuthStore();
     const userId = user?.id;
-    const [exploreId, setExploreId] = useState<string | null>(null);
-    const [backlogAddsCount, setBacklogAddsCount] = useState(0);
+
+    const {
+        exploreId, setExploreId,
+        articles, setArticles,
+        backlogAddsCount, setBacklogAddsCount,
+        startTime, setStartTime,
+        error, setError,
+        reset
+    } = useWikipediaExploreStore();
+
     const [isInitializing, setIsInitializing] = useState(false);
-    const [startTime, setStartTime] = useState<number | null>(null);
     const [loadingAction, setLoadingAction] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const hasAttemptedInit = useRef(false);
+
+    const fetchArticles = useCallback(async () => {
+        if (!userId) return;
+        try {
+            setIsInitializing(true);
+            const data = await activityApi.getExploreArticles(userId);
+            setArticles(data || []);
+        } catch (e) {
+            console.error('Failed to fetch articles', e);
+            setError('Erreur lors du chargement des articles');
+        } finally {
+            setIsInitializing(false);
+        }
+    }, [userId, setArticles, setError]);
 
     const initExplore = useCallback(async () => {
         if (!userId) return;
@@ -31,6 +52,7 @@ export function useWikipediaExplore() {
                 setExploreId(data.id);
                 setStartTime(Date.now());
                 setBacklogAddsCount(0);
+                await fetchArticles();
             } else {
                 setError('Impossible de démarrer la session (ID manquant)');
             }
@@ -40,19 +62,20 @@ export function useWikipediaExplore() {
         } finally {
             setIsInitializing(false);
         }
-    }, [userId]);
+    }, [userId, fetchArticles, setExploreId, setStartTime, setBacklogAddsCount, setError]);
 
-    // Initial load only if we have a user and haven't attempted yet
+    // Initial load only if we have a user and haven't attempted yet and have no articles
     useEffect(() => {
-        if (userId && !exploreId && !isInitializing && !error && !hasAttemptedInit.current) {
+        if (userId && !exploreId && !isInitializing && !error && !hasAttemptedInit.current && articles.length === 0) {
             initExplore();
         }
-    }, [userId, exploreId, isInitializing, initExplore, error]);
+    }, [userId, exploreId, isInitializing, initExplore, error, articles.length]);
 
     const addToBacklog = async (article: WikipediaArticle) => {
+        if (!userId) return false;
         try {
             setLoadingAction(`backlog-${article.title}`);
-            await wikipediaApi.addToBacklog(article);
+            await wikipediaApi.addToBacklog(userId, article);
             setBacklogAddsCount((c) => c + 1);
             return true;
         } catch (e) {
@@ -95,17 +118,17 @@ export function useWikipediaExplore() {
                 durationSeconds: duration,
                 backlogAddsCount
             });
-            setExploreId(null);
-            setStartTime(null);
+            reset();
         } catch (e) {
             console.error('Failed to stop explore session', e);
         } finally {
             setLoadingAction(null);
         }
-    }, [userId, exploreId, startTime, backlogAddsCount]);
+    }, [userId, exploreId, startTime, backlogAddsCount, reset]);
 
     return {
         exploreId,
+        articles,
         isInitializing,
         loadingAction,
         backlogAddsCount,

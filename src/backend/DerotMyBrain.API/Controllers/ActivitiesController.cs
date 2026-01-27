@@ -144,6 +144,21 @@ public class ActivitiesController : ControllerBase
         return Ok(await _activityService.GetTopScoresAsync(userId, limit));
     }
 
+    [HttpGet("explore/articles")]
+    public async Task<ActionResult<IEnumerable<WikipediaArticleDto>>> GetExploreArticles([FromRoute] string userId, [FromQuery] int count = 6)
+    {
+        try
+        {
+            var articles = await _activityService.GetExploreArticlesAsync(userId, count);
+            return Ok(articles);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting explore articles for user {UserId}", userId);
+            return StatusCode(500, "Internal Server Error");
+        }
+    }
+
     [HttpPost("explore")]
     public async Task<ActionResult<UserActivityDto>> Explore([FromRoute] string userId, [FromBody] ExploreRequest req)
     {

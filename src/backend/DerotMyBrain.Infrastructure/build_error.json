@@ -1,0 +1,793 @@
+{
+  "$schema": "http://json.schemastore.org/sarif-1.0.0",
+  "version": "1.0.0",
+  "runs": [
+    {
+      "tool": {
+        "name": "Compilateur Microsoft (R) Visual C#",
+        "version": "5.0.0.0",
+        "fileVersion": "5.0.0-2.25612.105 (44525024)",
+        "semanticVersion": "5.0.0",
+        "language": "fr-FR"
+      },
+      "results": [
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Le propriété « Users » non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le propriété comme pouvant accepter la valeur Null.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 12,
+                  "endLine": 17,
+                  "endColumn": 26
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 8,
+                  "startColumn": 24,
+                  "endLine": 8,
+                  "endColumn": 29
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Le propriété « UserPreferences » non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le propriété comme pouvant accepter la valeur Null.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 12,
+                  "endLine": 17,
+                  "endColumn": 26
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 35,
+                  "endLine": 9,
+                  "endColumn": 50
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Le propriété « Activities » non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le propriété comme pouvant accepter la valeur Null.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 12,
+                  "endLine": 17,
+                  "endColumn": 26
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 32,
+                  "endLine": 10,
+                  "endColumn": 42
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Le propriété « Sources » non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le propriété comme pouvant accepter la valeur Null.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 12,
+                  "endLine": 17,
+                  "endColumn": 26
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 26,
+                  "endLine": 11,
+                  "endColumn": 33
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Le propriété « Topics » non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le propriété comme pouvant accepter la valeur Null.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 12,
+                  "endLine": 17,
+                  "endColumn": 26
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 25,
+                  "endLine": 12,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Le propriété « Sessions » non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le propriété comme pouvant accepter la valeur Null.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 12,
+                  "endLine": 17,
+                  "endColumn": 26
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 31,
+                  "endLine": 13,
+                  "endColumn": 39
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Le propriété « Documents » non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le propriété comme pouvant accepter la valeur Null.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 12,
+                  "endLine": 17,
+                  "endColumn": 26
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 14,
+                  "startColumn": 28,
+                  "endLine": 14,
+                  "endColumn": 37
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8618",
+          "level": "warning",
+          "message": "Le propriété « BacklogItems » non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le propriété comme pouvant accepter la valeur Null.",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 12,
+                  "endLine": 17,
+                  "endColumn": 26
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Data/DerotDbContext.cs",
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 31,
+                  "endLine": 15,
+                  "endColumn": 43
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CS8602",
+          "level": "warning",
+          "message": "Déréférencement d'une éventuelle référence null.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Services/TextExtractor.cs",
+                "region": {
+                  "startLine": 81,
+                  "startColumn": 41,
+                  "endLine": 81,
+                  "endColumn": 50
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1050",
+          "level": "note",
+          "message": "Déclarer les types dans des espaces de noms",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/LLM/ILlmClient.cs",
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 18,
+                  "endLine": 1,
+                  "endColumn": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1869",
+          "level": "note",
+          "message": "Évitez de créer une instance « JsonSerializerOptions » pour chaque opération de sérialisation. Mettez en cache et réutilisez les instances à la place.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Services/CategoryService.cs",
+                "region": {
+                  "startLine": 35,
+                  "startColumn": 88,
+                  "endLine": 35,
+                  "endColumn": 152
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1862",
+          "level": "note",
+          "message": "Utilisez de préférence « string.Equals(string, StringComparison) » pour effectuer une comparaison sans respect de la casse, mais gardez à l’esprit que cela peut entraîner des modifications subtiles du comportement. Veillez donc à effectuer des tests approfondis après l’application de la suggestion ou, si la comparaison sensible à la culture n’est pas nécessaire, envisagez d’utiliser « StringComparison.OrdinalIgnoreCase »",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Repositories/SqliteUserRepository.cs",
+                "region": {
+                  "startLine": 39,
+                  "startColumn": 39,
+                  "endLine": 39,
+                  "endColumn": 73
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "LeftOffendingMethod": "ToLower",
+              "RightOffendingMethod": "ToLower"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1869",
+          "level": "note",
+          "message": "Évitez de créer une instance « JsonSerializerOptions » pour chaque opération de sérialisation. Mettez en cache et réutilisez les instances à la place.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Services/ConfigurationService.cs",
+                "region": {
+                  "startLine": 77,
+                  "startColumn": 77,
+                  "endLine": 77,
+                  "endColumn": 141
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1822",
+          "level": "note",
+          "message": "Le membre 'ExtractTxt' n'accède pas aux données d'instance et peut être marqué comme étant static",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Services/TextExtractor.cs",
+                "region": {
+                  "startLine": 59,
+                  "startColumn": 20,
+                  "endLine": 59,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1822",
+          "level": "note",
+          "message": "Le membre 'ExtractPdf' n'accède pas aux données d'instance et peut être marqué comme étant static",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Services/TextExtractor.cs",
+                "region": {
+                  "startLine": 67,
+                  "startColumn": 20,
+                  "endLine": 67,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1822",
+          "level": "note",
+          "message": "Le membre 'ExtractDocx' n'accède pas aux données d'instance et peut être marqué comme étant static",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Services/TextExtractor.cs",
+                "region": {
+                  "startLine": 78,
+                  "startColumn": 20,
+                  "endLine": 78,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1822",
+          "level": "note",
+          "message": "Le membre 'ExtractOdt' n'accède pas aux données d'instance et peut être marqué comme étant static",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Services/TextExtractor.cs",
+                "region": {
+                  "startLine": 85,
+                  "startColumn": 20,
+                  "endLine": 85,
+                  "endColumn": 30
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1869",
+          "level": "note",
+          "message": "Évitez de créer une instance « JsonSerializerOptions » pour chaque opération de sérialisation. Mettez en cache et réutilisez les instances à la place.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Services/ConfigurationService.cs",
+                "region": {
+                  "startLine": 186,
+                  "startColumn": 53,
+                  "endLine": 186,
+                  "endColumn": 103
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1822",
+          "level": "note",
+          "message": "Le membre 'GetApiUrl' n'accède pas aux données d'instance et peut être marqué comme étant static",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Clients/WikipediaClient.cs",
+                "region": {
+                  "startLine": 20,
+                  "startColumn": 20,
+                  "endLine": 20,
+                  "endColumn": 29
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1822",
+          "level": "note",
+          "message": "Le membre 'CreateDefaultConfiguration' n'accède pas aux données d'instance et peut être marqué comme étant static",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Services/ConfigurationService.cs",
+                "region": {
+                  "startLine": 193,
+                  "startColumn": 30,
+                  "endLine": 193,
+                  "endColumn": 56
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1822",
+          "level": "note",
+          "message": "Le membre 'ValidateLLMConfiguration' n'accède pas aux données d'instance et peut être marqué comme étant static",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Services/ConfigurationService.cs",
+                "region": {
+                  "startLine": 230,
+                  "startColumn": 18,
+                  "endLine": 230,
+                  "endColumn": 42
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "CA1861",
+          "level": "note",
+          "message": "Préférer les champs 'static readonly' aux arguments de tableau de constantes si la méthode appelée est appelée à plusieurs reprises et ne mute pas le tableau passé",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Migrations/20260126210023_Initial_Consolidated_Architecture.cs",
+                "region": {
+                  "startLine": 264,
+                  "startColumn": 26,
+                  "endLine": 264,
+                  "endColumn": 62
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "paramName": "columns"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1861",
+          "level": "note",
+          "message": "Préférer les champs 'static readonly' aux arguments de tableau de constantes si la méthode appelée est appelée à plusieurs reprises et ne mute pas le tableau passé",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Migrations/20260126210023_Initial_Consolidated_Architecture.cs",
+                "region": {
+                  "startLine": 269,
+                  "startColumn": 26,
+                  "endLine": 269,
+                  "endColumn": 64
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "paramName": "columns"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1861",
+          "level": "note",
+          "message": "Préférer les champs 'static readonly' aux arguments de tableau de constantes si la méthode appelée est appelée à plusieurs reprises et ne mute pas le tableau passé",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Migrations/20260126210023_Initial_Consolidated_Architecture.cs",
+                "region": {
+                  "startLine": 284,
+                  "startColumn": 26,
+                  "endLine": 284,
+                  "endColumn": 56
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "paramName": "columns"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1861",
+          "level": "note",
+          "message": "Préférer les champs 'static readonly' aux arguments de tableau de constantes si la méthode appelée est appelée à plusieurs reprises et ne mute pas le tableau passé",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/Repos/Derot-my-brain/src/backend/DerotMyBrain.Infrastructure/Migrations/20260126210023_Initial_Consolidated_Architecture.cs",
+                "region": {
+                  "startLine": 295,
+                  "startColumn": 26,
+                  "endLine": 295,
+                  "endColumn": 56
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1,
+            "customProperties": {
+              "paramName": "columns"
+            }
+          }
+        }
+      ],
+      "rules": {
+        "CA1050": {
+          "id": "CA1050",
+          "shortDescription": "Déclarer les types dans des espaces de noms",
+          "fullDescription": "Les types sont déclarés dans les espaces de noms pour empêcher les collisions de nommage, ainsi que pour organiser les types connexes dans une hiérarchie d'objets.",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1050",
+          "properties": {
+            "category": "Design",
+            "isEnabledByDefault": true,
+            "tags": [
+              "PortedFromFxCop",
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "CA1822": {
+          "id": "CA1822",
+          "shortDescription": "Marquer les membres comme étant static",
+          "fullDescription": "Les membres qui n'accèdent pas aux données d'instance ou qui n'appellent pas de méthodes d'instance peuvent être marqués comme étant static. Une fois que vous avez marqué les méthodes comme étant static, le compilateur émet des sites d'appel non virtuels pour ces membres. Cela peut apporter un gain de performances mesurable pour le code qui en dépend.",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822",
+          "properties": {
+            "category": "Performance",
+            "isEnabledByDefault": true,
+            "tags": [
+              "PortedFromFxCop",
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "CA1861": {
+          "id": "CA1861",
+          "shortDescription": "Éviter les tableaux constants en tant qu’arguments",
+          "fullDescription": "Les tableaux constants passés en argument ne sont pas réutilisés en cas d’appels répétés, ce qui implique la création d’un nouveau tableau à chaque fois. Envisagez de les extraire vers des champs « static readonly » pour améliorer le niveau de performance si le tableau passé n’est pas modifié au sein de la méthode appelée.",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1861",
+          "properties": {
+            "category": "Performance",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "CA1862": {
+          "id": "CA1862",
+          "shortDescription": "Utiliser les surcharges de méthode « StringComparison » pour effectuer des comparaisons de chaînes sans respect de la casse",
+          "fullDescription": "Évitez d’appeler « ToLower », « ToUpper », « ToLowerInvariant » et « ToUpperInvariant » pour effectuer des comparaisons de chaînes sans respect de la casse, comme dans « string.ToLower() == string.ToLower() », car elles entraînent une allocation. Utilisez plutôt « string.Equals(string, StringComparison) » pour effectuer des comparaisons qui ne respectent pas la casse. Le passage à l’utilisation d’une surcharge qui accepte « StringComparison » peut entraîner des modifications subtiles du comportement. Il est donc important d’effectuer des tests approfondis après l’application de la suggestion. En outre, si aucune comparaison sensible à la culture n’est nécessaire, envisagez d’utiliser « StringComparison.OrdinalIgnoreCase ».",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1862",
+          "properties": {
+            "category": "Performance",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "CA1869": {
+          "id": "CA1869",
+          "shortDescription": "Mettre en cache et réutiliser les instances « JsonSerializerOptions »",
+          "fullDescription": "Évitez de créer une instance « JsonSerializerOptions » pour chaque opération de sérialisation. Mettez en cache et réutilisez les instances à la place. Les instances « JsonSerializerOptions » à usage unique peuvent considérablement dégrader les performances de votre application.",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1869",
+          "properties": {
+            "category": "Performance",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "CS8602": {
+          "id": "CS8602",
+          "shortDescription": "Déréférencement d'une éventuelle référence null.",
+          "defaultLevel": "warning",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS8602)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry"
+            ]
+          }
+        },
+        "CS8618": {
+          "id": "CS8618",
+          "shortDescription": "Un champ non-nullable doit contenir une valeur autre que Null lors de la fermeture du constructeur. Envisagez d’ajouter le modificateur « required » ou de déclarer le champ comme pouvant accepter la valeur Null.",
+          "defaultLevel": "warning",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS8618)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

@@ -11,17 +11,40 @@ namespace DerotMyBrain.Core.Services;
 public class BacklogService : IBacklogService
 {
     private readonly IBacklogRepository _backlogRepository;
+    private readonly IActivityRepository _activityRepository;
     private readonly ILogger<BacklogService> _logger;
 
-    public BacklogService(IBacklogRepository backlogRepository, ILogger<BacklogService> logger)
+    public BacklogService(
+        IBacklogRepository backlogRepository, 
+        IActivityRepository activityRepository,
+        ILogger<BacklogService> logger)
     {
         _backlogRepository = backlogRepository;
+        _activityRepository = activityRepository;
         _logger = logger;
     }
 
     public async Task<BacklogItem> AddToBacklogAsync(string userId, string sourceId, SourceType sourceType, string title)
     {
         var technicalSourceId = SourceHasher.GenerateId(sourceType, sourceId);
+
+        // Ensure the Source entity exists because BacklogItem has a FK to it
+        var source = await _activityRepository.GetSourceByIdAsync(technicalSourceId);
+        if (source == null)
+        {
+            source = new Source
+            {
+                Id = technicalSourceId,
+                UserId = userId,
+                Type = sourceType,
+                ExternalId = sourceId,
+                DisplayTitle = title,
+                Url = (sourceType == SourceType.Wikipedia && !sourceId.StartsWith("http")) 
+                    ? $"https://en.wikipedia.org/wiki/{sourceId}" 
+                    : sourceId
+            };
+            await _activityRepository.CreateSourceAsync(source);
+        }
 
         // Check if already exists to ensure idempotency
         var existing = await _backlogRepository.GetBySourceIdAsync(userId, technicalSourceId);

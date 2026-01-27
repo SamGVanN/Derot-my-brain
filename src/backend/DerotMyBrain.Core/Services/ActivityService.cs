@@ -11,19 +11,29 @@ public class ActivityService : IActivityService
 {
     private readonly IActivityRepository _repository;
     private readonly IEnumerable<IContentSource> _contentSources;
+    private readonly IWikipediaService _wikipediaService;
     private readonly ILlmService _llmService;
     private readonly IJsonSerializer _jsonSerializer;
 
     public ActivityService(
         IActivityRepository repository,
         IEnumerable<IContentSource> contentSources,
+        IWikipediaService wikipediaService,
         ILlmService llmService,
         IJsonSerializer jsonSerializer)
     {
         _repository = repository;
         _contentSources = contentSources;
+        _wikipediaService = wikipediaService;
         _llmService = llmService;
         _jsonSerializer = jsonSerializer;
+    }
+
+    public async Task<IEnumerable<WikipediaArticleDto>> GetExploreArticlesAsync(string userId, int count = 6)
+    {
+        // For now, we just fetch random articles. 
+        // In the future, we could use user interests/categories.
+        return await _wikipediaService.GetDiscoveryArticlesAsync(count);
     }
 
     public async Task<UserActivity> ExploreAsync(string userId, string? title = null, string? sourceId = null, SourceType sourceType = SourceType.Custom)
@@ -100,7 +110,9 @@ public class ActivityService : IActivityService
                     Type = dto.SourceType,
                     ExternalId = dto.SourceId,
                     DisplayTitle = dto.Title,
-                    Url = dto.SourceType == SourceType.Wikipedia ? $"https://en.wikipedia.org/wiki/{dto.SourceId}" : dto.SourceId
+                    Url = (dto.SourceType == SourceType.Wikipedia && !dto.SourceId.StartsWith("http")) 
+                        ? $"https://en.wikipedia.org/wiki/{dto.SourceId}" 
+                        : dto.SourceId
                 };
                 await _repository.CreateSourceAsync(source);
             }
@@ -298,6 +310,7 @@ public class ActivityService : IActivityService
             LlmModelName = a.LlmModelName,
             LlmVersion = a.LlmVersion,
             IsTracked = isTracked,
+            ArticleContent = a.ArticleContent,
             Payload = a.Payload,
             ResultingReadActivityId = a.ResultingReadActivityId,
             BacklogAddsCount = a.BacklogAddsCount

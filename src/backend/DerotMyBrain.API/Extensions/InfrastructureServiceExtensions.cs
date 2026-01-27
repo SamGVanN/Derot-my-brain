@@ -1,5 +1,7 @@
+using DerotMyBrain.Core.Interfaces.Clients;
 using DerotMyBrain.Core.Interfaces.Services;
 using DerotMyBrain.Core.Services;
+using DerotMyBrain.Infrastructure.Clients;
 using DerotMyBrain.Infrastructure.Services;
 
 namespace DerotMyBrain.API.Extensions;
@@ -10,6 +12,7 @@ public static class InfrastructureServiceExtensions
     {
         // 2. External Services (Infrastructure)
         services.AddHttpClient();
+        services.AddScoped<IWikipediaClient, WikipediaClient>();
         
         // Note: IAuthService implementation is in Core (AuthService), but it's infrastructure-like. 
         // We'll keep it here or in Identity. Let's put it in Identity extensions as it relates to Auth.

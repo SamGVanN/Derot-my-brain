@@ -32,13 +32,24 @@ export default function DerotZone({ articles, onRead, onAddToBacklog, loadingAct
           <Card key={i} className="group relative overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            <CardHeader>
+            {article.imageUrl && (
+              <div className="relative h-48 w-full overflow-hidden">
+                <img
+                  src={article.imageUrl}
+                  alt={article.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+              </div>
+            )}
+
+            <CardHeader className={article.imageUrl ? "-mt-12 relative z-10" : ""}>
               <div className="flex justify-between items-start mb-2">
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300 backdrop-blur-md">
                   <Sparkles className="h-4 w-4" />
                 </div>
                 {article.lang && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted/80 text-muted-foreground backdrop-blur-md">
                     {article.lang}
                   </span>
                 )}
