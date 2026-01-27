@@ -90,14 +90,21 @@ export function usePreferences() {
         if (user?.id) {
             try {
                 // Check if this is a "Derot Zone" update (Question Count + Categories)
-                if ('questionCount' in prefs && 'selectedCategories' in prefs) {
+                if ('selectedCategories' in prefs) {
                     await userApi.updateDerotZonePreferences(user.id, {
-                        questionCount: prefs.questionCount,
+                        questionCount: prefs.questionCount ?? user.preferences.questionCount,
                         selectedCategories: prefs.selectedCategories
                     });
                 }
-                // Fallback to full update (existing behavior) if not strictly matching the new dedicated patch
-                // or if it contains other fields. Ideally we could split logic but this ensures backward compatibility
+                // Check if this is a "General" update (Language + Theme)
+                else if ('language' in prefs || 'preferredTheme' in prefs) {
+                    await userApi.updateGeneralPreferences(user.id, {
+                        language: prefs.language,
+                        preferredTheme: prefs.preferredTheme,
+                        questionCount: prefs.questionCount // can be undefined, backend handles it
+                    });
+                }
+                // Fallback to full update
                 else {
                     await userApi.updatePreferences(user.id, prefs);
                 }

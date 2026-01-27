@@ -1,3 +1,5 @@
+using DerotMyBrain.Core.Entities;
+
 namespace DerotMyBrain.Core.DTOs;
 
 public class UserDto
@@ -6,6 +8,7 @@ public class UserDto
     public string Name { get; set; } = string.Empty;
     public string CreatedAt { get; set; } = string.Empty;
     public string LastConnectionAt { get; set; } = string.Empty;
+    public UserPreferences? Preferences { get; set; }
 }
 
 public class UpdateUserDto

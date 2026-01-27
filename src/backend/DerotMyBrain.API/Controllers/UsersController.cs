@@ -3,6 +3,7 @@ using DerotMyBrain.Core.Interfaces.Services;
 using DerotMyBrain.Core.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Linq;
 
 namespace DerotMyBrain.API.Controllers;
 
@@ -48,21 +49,7 @@ public class UsersController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<LoginResponseDto>> CreateOrGetUser([FromBody] LoginDto request)
     {
-        // Since LoginDto only has Name, we might need default values for Language/Theme or update LoginDto
-        // Assuming the original request had these, we should probably update LoginDto to include them or keep using a request object that maps to creation params.
-        // But for "Login" essentially we just need the name if we are strict about "Identity".
-        // However, if it creates a user, it might need prefs.
-        // Let's stick to the current logic: CreateOrGet.
-        // If we switch to LoginDto (which only had Name), we lose Language/Theme.
-        // Let's update LoginDto/CreateUserRequest to be consistent. 
-        // For now, I'll use the existing request object but map it to LoginDto concepts.
-        
-        var user = await _userService.CreateOrGetUserAsync(request.Name, "auto", "derot-brain"); // Defaults if missing, or we update LoginDto.
-        // Actually, the previous code used CreateUserRequest. I should probably keep it or update LoginDto.
-        // Lets look at LoginDto again. It only has Name. 
-        // If I want to support prefs on creation, I should update LoginDto.
-        // For now, I will use "auto" and "derot-brain" as defaults if I use LoginDto.
-        
+        var user = await _userService.CreateOrGetUserAsync(request.Name, request.Language, request.PreferredTheme);
         var token = _authService.GenerateIdentityToken(user);
         
         return Ok(new LoginResponseDto
@@ -73,7 +60,8 @@ public class UsersController : ControllerBase
                Id = user.Id, 
                Name = user.Name, 
                CreatedAt = user.CreatedAt.ToString("O"), 
-               LastConnectionAt = user.LastConnectionAt.ToString("O") 
+               LastConnectionAt = user.LastConnectionAt.ToString("O"),
+               Preferences = user.Preferences
             }
         });
     }
@@ -108,52 +96,76 @@ public class UsersController : ControllerBase
         var user = await _userService.GetUserByIdAsync(id);
         if (user == null) return NotFound();
 
-        user.Preferences = preferences;
+        if (user.Preferences == null)
+        {
+            preferences.UserId = id;
+            user.Preferences = preferences;
+        }
+        else
+        {
+            // Merge properties from the request to avoid losing existing data
+            // This is safer than replacing the whole object if the client sends partial data
+            if (!string.IsNullOrEmpty(preferences.Language)) user.Preferences.Language = preferences.Language;
+            if (!string.IsNullOrEmpty(preferences.Theme)) user.Preferences.Theme = preferences.Theme;
+            if (preferences.QuestionsPerQuiz > 0) user.Preferences.QuestionsPerQuiz = preferences.QuestionsPerQuiz;
+            
+            if (preferences.FavoriteCategories != null && preferences.FavoriteCategories.Any())
+            {
+                user.Preferences.FavoriteCategories = preferences.FavoriteCategories;
+            }
+        }
+
         var updatedUser = await _userService.UpdateUserAsync(user);
         return Ok(updatedUser);
     }
 
-    [HttpPatch("{id}/preferences/general")]
+    [HttpPut("{id}/preferences/general")]
     public async Task<ActionResult<User>> UpdateGeneralPreferences(string id, [FromBody] GeneralPreferencesDto dto)
     {
         var user = await _userService.GetUserByIdAsync(id);
         if (user == null || user.Preferences == null) return NotFound();
 
-        user.Preferences.Language = dto.Language;
-        user.Preferences.Theme = dto.PreferredTheme;
-        user.Preferences.QuestionsPerQuiz = dto.QuestionCount;
+        if (dto.Language != null) user.Preferences.Language = dto.Language;
+        if (dto.PreferredTheme != null) user.Preferences.Theme = dto.PreferredTheme;
+        if (dto.QuestionCount.HasValue) user.Preferences.QuestionsPerQuiz = dto.QuestionCount.Value;
 
         var updatedUser = await _userService.UpdateUserAsync(user);
         return Ok(updatedUser);
     }
 
-    [HttpPatch("{id}/preferences/derot-zone")]
+    [HttpPut("{id}/preferences/derot-zone")]
     public async Task<ActionResult<User>> UpdateDerotZonePreferences(string id, [FromBody] DerotZonePreferencesDto dto)
     {
         var user = await _userService.GetUserByIdAsync(id);
         if (user == null || user.Preferences == null) return NotFound();
 
-        user.Preferences.QuestionsPerQuiz = dto.QuestionCount;
+        if (dto.QuestionCount.HasValue) user.Preferences.QuestionsPerQuiz = dto.QuestionCount.Value;
         
-        var allCategories = await _categoryService.GetAllCategoriesAsync();
-        user.Preferences.FavoriteCategories = allCategories
-            .Where(c => dto.SelectedCategories.Contains(c.Id))
-            .ToList();
+        if (dto.SelectedCategories != null)
+        {
+            var allCategories = await _categoryService.GetAllCategoriesAsync();
+            user.Preferences.FavoriteCategories = allCategories
+                .Where(c => dto.SelectedCategories.Contains(c.Id))
+                .ToList();
+        }
         
         var updatedUser = await _userService.UpdateUserAsync(user);
         return Ok(updatedUser);
     }
 
-    [HttpPatch("{id}/preferences/categories")]
+    [HttpPut("{id}/preferences/categories")]
     public async Task<ActionResult<User>> UpdateCategoryPreferences(string id, [FromBody] CategoryPreferencesDto dto)
     {
         var user = await _userService.GetUserByIdAsync(id);
         if (user == null || user.Preferences == null) return NotFound();
 
-        var allCategories = await _categoryService.GetAllCategoriesAsync();
-        user.Preferences.FavoriteCategories = allCategories
-            .Where(c => dto.SelectedCategories.Contains(c.Id))
-            .ToList();
+        if (dto.SelectedCategories != null)
+        {
+            var allCategories = await _categoryService.GetAllCategoriesAsync();
+            user.Preferences.FavoriteCategories = allCategories
+                .Where(c => dto.SelectedCategories.Contains(c.Id))
+                .ToList();
+        }
             
         var updatedUser = await _userService.UpdateUserAsync(user);
         return Ok(updatedUser);

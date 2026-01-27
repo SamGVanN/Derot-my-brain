@@ -36,7 +36,7 @@ export const usePreferencesStore = create<PreferencesState>()(
 
             setPreferences: (prefs) => set((state) => ({
                 theme: prefs.preferredTheme || state.theme,
-                language: prefs.language !== 'auto' ? (prefs.language || state.language) : state.language
+                language: prefs.language || state.language
             })),
         }),
         {

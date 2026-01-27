@@ -32,21 +32,21 @@ export const userApi = {
     },
 
     updateGeneralPreferences: async (userId: string, preferences: {
-        language: string;
-        preferredTheme: string;
-        questionCount: number;
+        language?: string;
+        preferredTheme?: string;
+        questionCount?: number;
     }): Promise<User> => {
-        const response = await client.patch<User>(`/users/${userId}/preferences/general`, preferences);
+        const response = await client.put<User>(`/users/${userId}/preferences/general`, preferences);
         return response.data;
     },
 
     updateCategoryPreferences: async (userId: string, selectedCategories: string[]): Promise<User> => {
-        const response = await client.patch<User>(`/users/${userId}/preferences/categories`, { selectedCategories });
+        const response = await client.put<User>(`/users/${userId}/preferences/categories`, { selectedCategories });
         return response.data;
     },
 
     updateDerotZonePreferences: async (userId: string, preferences: { questionCount: number; selectedCategories: string[] }): Promise<User> => {
-        const response = await client.patch<User>(`/users/${userId}/preferences/derot-zone`, preferences);
+        const response = await client.put<User>(`/users/${userId}/preferences/derot-zone`, preferences);
         return response.data;
     },
 
