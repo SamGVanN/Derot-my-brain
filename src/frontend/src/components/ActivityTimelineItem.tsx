@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { BookOpenText, NotebookPen, ExternalLink, Bookmark, BookmarkCheck, Trophy, Info, PartyPopper, Radar } from 'lucide-react';
+import { BookOpenText, NotebookPen, ExternalLink, Bookmark, BookmarkCheck, Trophy, Info, PartyPopper, Radar, Flag, TrendingUp } from 'lucide-react';
 import type { UserActivity } from '../models/UserActivity';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
@@ -16,9 +16,6 @@ import {
 interface ActivityTimelineItemProps {
     activity: UserActivity;
     isTracked: boolean;
-    bestScore?: { score: number; lastScore: number };
-    isCurrentBest?: boolean;
-    isBaseline?: boolean;
     onTrack: () => void;
     onUntrack: () => void;
     isLast?: boolean;
@@ -29,9 +26,6 @@ interface ActivityTimelineItemProps {
 export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
     activity,
     isTracked,
-    bestScore,
-    isCurrentBest = false,
-    isBaseline = false,
     onTrack,
     onUntrack,
     isLast = false,
@@ -63,11 +57,11 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                     <div className="relative flex flex-col items-center h-full mt-2">
                         <div className={cn(
                             "z-10 bg-background p-1 rounded-full border-2",
-                            isCurrentBest
+                            (activity.type === 'Quiz' && activity.isCurrentBest)
                                 ? "border-yellow-500 text-yellow-600 dark:text-yellow-400 bg-yellow-500/10"
                                 : "border-primary text-primary"
                         )}>
-                            {isCurrentBest ? (
+                            {(activity.type === 'Quiz' && activity.isCurrentBest) ? (
                                 <Trophy className="w-4 h-4" />
                             ) : activity.type === 'Quiz' ? (
                                 <NotebookPen className="w-4 h-4" />
@@ -100,67 +94,75 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                                 )}>
                                     {activity.type}
                                 </span>
-                                {activity.isNewBestScore && !isCurrentBest && !isBaseline && (
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-green-500/10 text-green-600 border border-green-500/20 flex items-center gap-1">
-                                                    <PartyPopper className="w-3 h-3" />
-                                                    {t('history.record', 'Record')}
-                                                </span>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p>{t('history.recordTooltip', 'This activity was a new personal best at that time!')}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-                                )}
-                                {isBaseline && !isCurrentBest && (
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-muted text-muted-foreground border border-transparent flex items-center gap-1">
-                                                    <Info className="w-3 h-3" />
-                                                    {t('history.baseline', 'Baseline')}
-                                                </span>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p>{t('history.baselineTooltip', 'This was your first assessment for this topic.')}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-                                )}
-                                {bestScore && (
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <span className={cn(
-                                                    "px-1.5 py-0.5 rounded-full text-[10px] border flex items-center gap-1",
-                                                    isCurrentBest
-                                                        ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20"
-                                                        : "bg-muted text-muted-foreground border-transparent"
-                                                )}>
-                                                    <Trophy className="w-3 h-3" />
-                                                    {isCurrentBest
-                                                        ? isBaseline
-                                                            ? t('history.personalBestInitial', 'Baseline (Best): {{score}}%', { score: Math.round(bestScore.score) })
-                                                            : t('history.personalBest', 'Personal Best: {{score}}%', { score: Math.round(bestScore.score) })
-                                                        : `${Math.round(bestScore.score)}%`
-                                                    }
-                                                </span>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p>
-                                                    {isCurrentBest
-                                                        ? isBaseline
-                                                            ? t('history.isInitialBestTooltip', 'This was your first attempt and is still your best score!')
-                                                            : t('history.isBestTooltip', 'This is your current best score for this topic!')
-                                                        : t('history.bestCompareTooltip', 'Your personal best for this topic is {{score}}%', { score: Math.round(bestScore.score) })
-                                                    }
-                                                </p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
+
+                                {activity.type === 'Quiz' && (
+                                    <>
+                                        {/* 1. Baseline Badge / First Attempt */}
+                                        {activity.isBaseline && (
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <span className={cn(
+                                                            "px-1.5 py-0.5 rounded-full text-[10px] border flex items-center gap-1 font-bold",
+                                                            activity.isCurrentBest
+                                                                ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20"
+                                                                : "bg-muted text-muted-foreground border-transparent"
+                                                        )}>
+                                                            <Flag className="w-3 h-3" />
+                                                            {activity.isCurrentBest ? t('history.personalBestInitial', { score: Math.round(activity.scorePercentage ?? 0) }) : t('history.baseline')}
+                                                        </span>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>{activity.isCurrentBest ? t('history.isInitialBestTooltip') : t('history.baselineTooltip')}</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        )}
+
+                                        {/* 2. Record Badge: New personal best at that specific time, NOT currently the best, and NOT baseline */}
+                                        {activity.isNewBestScore && !activity.isCurrentBest && !activity.isBaseline && (
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-green-500/10 text-green-600 border border-green-500/20 flex items-center gap-1 font-bold">
+                                                            <TrendingUp className="w-3 h-3" />
+                                                            {t('history.record')}
+                                                        </span>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>{t('history.recordTooltip')}</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        )}
+
+                                        {/* 3. Trophy Badge: Current personal best (if not baseline) */}
+                                        {activity.isCurrentBest && !activity.isBaseline && (
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <span className={cn(
+                                                            "px-1.5 py-0.5 rounded-full text-[10px] border flex items-center gap-1 font-bold",
+                                                            "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20"
+                                                        )}>
+                                                            <Trophy className="w-3 h-3" />
+                                                            {t('history.personalBest', { score: Math.round(activity.scorePercentage ?? 0) })}
+                                                        </span>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>{t('history.isBestTooltip')}</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        )}
+
+                                        {/* 4. Simple Score Badge: Not baseline, not current best, and not a past record */}
+                                        {!activity.isBaseline && !activity.isCurrentBest && !activity.isNewBestScore && (
+                                            <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-muted text-muted-foreground border border-transparent flex items-center gap-1 font-bold">
+                                                {`${Math.round(activity.scorePercentage ?? 0)}%`}
+                                            </span>
+                                        )}
+                                    </>
                                 )}
                             </div>
 
@@ -178,7 +180,7 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                             </a>
                         </div>
 
-                        {showTrackButton && (
+                        {showTrackButton && activity.type !== 'Explore' && (
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -197,6 +199,11 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                     {/* Stats & Info */}
                     <div className="flex items-end justify-between mt-4">
                         <div className="flex-1 pr-4">
+                            {activity.type === 'Explore' && (
+                                <div className="text-sm text-muted-foreground font-medium">
+                                    {t('history.sourcesAdded', { count: activity.backlogAddsCount || 0 })}
+                                </div>
+                            )}
                             {activity.type === 'Quiz' && (
                                 <div>
                                     <div className="flex justify-between text-xs mb-1.5">
@@ -245,12 +252,12 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
 
                         let messageKey = '';
                         let colorClass = 'text-muted-foreground';
-                        let Icon = null;
+                        let IconIcon = null;
 
                         if (percentage === 100) {
                             messageKey = 'history.motivational.perfect';
                             colorClass = 'text-green-600 dark:text-green-400 font-bold';
-                            Icon = PartyPopper;
+                            IconIcon = PartyPopper;
                         } else if (percentage > 90) {
                             messageKey = 'history.motivational.tier4';
                             colorClass = 'text-green-600 dark:text-green-400 font-medium';
@@ -267,7 +274,7 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
 
                         return (
                             <div className={cn("text-xs flex items-center gap-1.5 mt-3 pl-1", colorClass)}>
-                                {Icon && <Icon className="w-3.5 h-3.5" />}
+                                {IconIcon && <IconIcon className="w-3.5 h-3.5" />}
                                 <span>{t(messageKey)}</span>
                             </div>
                         );

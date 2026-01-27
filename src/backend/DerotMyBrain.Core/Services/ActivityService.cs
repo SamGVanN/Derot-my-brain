@@ -224,13 +224,13 @@ public class ActivityService : IActivityService
     public async Task<IEnumerable<UserActivityDto>> GetAllActivitiesAsync(string userId) 
     {
         var activities = await _repository.GetAllAsync(userId);
-        return activities.Select(a => MapToDto(a, false));
+        return ApplyUniversalRules(activities.Select(a => MapToDto(a, false)));
     }
 
     public async Task<IEnumerable<UserActivityDto>> GetAllForContentAsync(string userId, string sourceId)
     {
         var activities = await _repository.GetAllForContentAsync(userId, sourceId);
-        return activities.Select(a => MapToDto(a, false));
+        return ApplyUniversalRules(activities.Select(a => MapToDto(a, false)));
     }
 
     public async Task<UserActivity> UpdateActivityAsync(string userId, string activityId, UpdateActivityDto dto)
@@ -270,7 +270,7 @@ public class ActivityService : IActivityService
 
     private UserActivityDto MapToDto(UserActivity a, bool isTracked)
     {
-        var source = a.UserSession?.TargetSource;
+        var source = a.Source ?? a.UserSession?.TargetSource;
         return new UserActivityDto
         {
             Id = a.Id,
@@ -293,6 +293,7 @@ public class ActivityService : IActivityService
             ScorePercentage = a.ScorePercentage,
             IsNewBestScore = a.IsNewBestScore,
             IsBaseline = a.IsBaseline,
+            IsCurrentBest = false, // Will be set by ApplyUniversalRules
             IsCompleted = a.IsCompleted,
             LlmModelName = a.LlmModelName,
             LlmVersion = a.LlmVersion,
@@ -301,5 +302,76 @@ public class ActivityService : IActivityService
             ResultingReadActivityId = a.ResultingReadActivityId,
             BacklogAddsCount = a.BacklogAddsCount
         };
+    }
+
+    private IEnumerable<UserActivityDto> ApplyUniversalRules(IEnumerable<UserActivityDto> dtos)
+    {
+        var list = dtos.ToList();
+        var sourceGroups = list.GroupBy(d => d.SourceHash).Where(g => !string.IsNullOrEmpty(g.Key));
+
+        foreach (var group in sourceGroups)
+        {
+            var quizzes = group.Where(d => d.Type == ActivityType.Quiz && d.ScorePercentage.HasValue)
+                               .OrderBy(d => d.SessionDateStart)
+                               .ToList();
+
+            if (!quizzes.Any())
+            {
+                // Ensure no badges for non-quizzes (especially READ)
+                foreach (var item in group)
+                {
+                    item.IsBaseline = false;
+                    item.IsNewBestScore = false;
+                    item.IsCurrentBest = false;
+                }
+                continue;
+            }
+
+            // 1. Identify Baseline: The earliest quiz ever recorded for this source
+            var baselineQuiz = quizzes.First();
+
+            // 2. Identify Current Best score (overall)
+            var currentMaxOverall = quizzes.Max(q => q.ScorePercentage!.Value);
+
+            // 3. Track running best score to identify "New Records" at each step
+            double runningBest = -1.0;
+
+            foreach (var item in group.OrderBy(d => d.SessionDateStart))
+            {
+                if (item.Type == ActivityType.Quiz && item.ScorePercentage.HasValue)
+                {
+                    item.IsBaseline = item.Id == baselineQuiz.Id;
+                    
+                    // IsNewBestScore: True if THIS quiz is strictly better than any recorded BEFORE it
+                    // For the baseline, we can consider it true if it's the very first quiz.
+                    if (item.IsBaseline)
+                    {
+                        item.IsNewBestScore = true;
+                        runningBest = item.ScorePercentage.Value;
+                    }
+                    else if (item.ScorePercentage.Value > runningBest)
+                    {
+                        item.IsNewBestScore = true;
+                        runningBest = item.ScorePercentage.Value;
+                    }
+                    else
+                    {
+                        item.IsNewBestScore = false;
+                    }
+
+                    // IsCurrentBest: True if this matches the maximum score ever achieved for this topic
+                    item.IsCurrentBest = Math.Abs(item.ScorePercentage.Value - currentMaxOverall) < 0.01;
+                }
+                else
+                {
+                    // Universal rule: Only Quizzes get score-related badges
+                    item.IsBaseline = false;
+                    item.IsNewBestScore = false;
+                    item.IsCurrentBest = false;
+                }
+            }
+        }
+
+        return list;
     }
 }

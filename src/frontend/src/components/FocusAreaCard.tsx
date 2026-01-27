@@ -48,7 +48,7 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
         if (newExpandedState && !hasLoadedEntries) {
             setIsLoading(true);
             try {
-                const data = await userFocusApi.getFocusEvolution(focus.userId, focus.sourceId);
+                const data = await userFocusApi.getFocusEvolution(focus.userId, focus.id);
                 setActivities(data);
                 setHasLoadedEntries(true);
             } catch (error) {

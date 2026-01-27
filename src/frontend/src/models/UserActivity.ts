@@ -32,6 +32,7 @@ export interface UserActivity {
     scorePercentage?: number;
     isNewBestScore: boolean;
     isBaseline: boolean;
+    isCurrentBest: boolean;
     isCompleted: boolean;
 
     // LLM Info
@@ -41,4 +42,5 @@ export interface UserActivity {
     isTracked: boolean;
     articleContent?: string;
     payload?: string;
+    backlogAddsCount?: number;
 }

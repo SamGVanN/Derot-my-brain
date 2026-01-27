@@ -15,7 +15,17 @@
             "tier3": "Excellent ! Des connaissances impressionnantes.",
             "tier4": "Remarquable ! Presque parfait.",
             "perfect": "Parfait ! 🎉"
-        }
+        },
+        "sourcesAdded": "Articles ajoutés : {{count}}",
+        "baseline": "Première tentative",
+        "baselineTooltip": "C'était votre première évaluation pour ce sujet.",
+        "record": "Record battu",
+        "recordTooltip": "Cette activité était un nouveau record personnel à ce moment-là !",
+        "personalBest": "Meilleur score : {{score}}%",
+        "personalBestInitial": "Première tentative (Record) : {{score}}%",
+        "isBestTooltip": "C'est votre record actuel pour ce sujet !",
+        "isInitialBestTooltip": "C'était votre premier essai et c'est toujours votre meilleur score !",
+        "bestCompareTooltip": "Votre record personnel pour ce sujet est de {{score}}%"
     },
     "common": {
         "save": "Enregistrer",

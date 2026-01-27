@@ -15,7 +15,17 @@
             "tier3": "Excellent! Impressive knowledge.",
             "tier4": "Outstanding! Almost perfect.",
             "perfect": "Perfect! 🎉"
-        }
+        },
+        "sourcesAdded": "Articles added: {{count}}",
+        "baseline": "First Attempt",
+        "baselineTooltip": "This was your first assessment for this topic.",
+        "record": "New Record",
+        "recordTooltip": "This activity was a new personal best at that time!",
+        "personalBest": "Personal Best: {{score}}%",
+        "personalBestInitial": "First Attempt (Best): {{score}}%",
+        "isBestTooltip": "This is your current best score for this topic!",
+        "isInitialBestTooltip": "This was your first attempt and is still your best score!",
+        "bestCompareTooltip": "Your personal best for this topic is {{score}}%"
     },
     "common": {
         "save": "Save",

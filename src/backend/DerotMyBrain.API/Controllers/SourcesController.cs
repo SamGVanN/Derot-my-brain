@@ -106,6 +106,46 @@ public class SourcesController : ControllerBase
         }
     }
 
+    [HttpPatch("/api/users/{userId}/user-focus/{sourceId}/pin")]
+    public async Task<ActionResult<TrackedSourceDto>> TogglePin([FromRoute] string userId, [FromRoute] string sourceId)
+    {
+        try
+        {
+            var source = await _sourceService.TogglePinAsync(userId, sourceId);
+            var dto = await _sourceService.GetTrackedSourceAsync(userId, source.Id);
+            return Ok(dto);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound("Source not found");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error toggling pin for source {SourceId}", sourceId);
+            return StatusCode(500, "Internal Server Error");
+        }
+    }
+
+    [HttpPatch("/api/users/{userId}/user-focus/{sourceId}/archive")]
+    public async Task<ActionResult<TrackedSourceDto>> ToggleArchive([FromRoute] string userId, [FromRoute] string sourceId)
+    {
+        try
+        {
+            var source = await _sourceService.ToggleArchiveAsync(userId, sourceId);
+            var dto = await _sourceService.GetTrackedSourceAsync(userId, source.Id);
+            return Ok(dto);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound("Source not found");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error toggling archive for source {SourceId}", sourceId);
+            return StatusCode(500, "Internal Server Error");
+        }
+    }
+
     public class TrackTopicRequest
     {
         public required string SourceId { get; set; }

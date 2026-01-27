@@ -38,6 +38,7 @@ public class UserActivityDto
     public double? ScorePercentage { get; set; }
     public bool IsNewBestScore { get; set; }
     public bool IsBaseline { get; set; }
+    public bool IsCurrentBest { get; set; }
     public bool IsCompleted { get; set; }
 
     // LLM Info

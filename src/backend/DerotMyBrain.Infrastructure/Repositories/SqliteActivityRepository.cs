@@ -34,9 +34,11 @@ public class SqliteActivityRepository : IActivityRepository
     {
         return await _context.Activities
             .AsNoTracking()
+            .Include(a => a.Source)
             .Include(a => a.UserSession)
-            .Where(a => a.UserId == userId && a.UserSession.TargetSourceId == sourceId)
-            .OrderBy(a => a.SessionDateStart)
+                .ThenInclude(s => s.TargetSource)
+            .Where(a => a.UserId == userId && (a.UserSession.TargetSourceId == sourceId || a.SourceId == sourceId))
+            .OrderByDescending(a => a.SessionDateStart)
             .ToListAsync();
     }
     

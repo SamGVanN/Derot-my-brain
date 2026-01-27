@@ -111,6 +111,21 @@ public class ActivitiesController : ControllerBase
         }
     }
 
+    [HttpGet("/api/users/{userId}/user-focus/{sourceId}/evolution")]
+    public async Task<ActionResult<IEnumerable<UserActivityDto>>> GetFocusEvolution([FromRoute] string userId, [FromRoute] string sourceId)
+    {
+        try
+        {
+            var activities = await _activityService.GetAllForContentAsync(userId, sourceId);
+            return Ok(activities);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting evolution for user {UserId} and source {SourceId}", userId, sourceId);
+            return StatusCode(500, "Internal Server Error");
+        }
+    }
+
     [HttpGet("/api/users/{userId}/statistics")]
     public async Task<ActionResult<UserStatisticsDto>> GetStatistics([FromRoute] string userId)
     {

@@ -22,3 +22,8 @@ export const parseDate = (dateString: string): Date => {
 export const isValidDate = (date: Date): boolean => {
     return !isNaN(date.getTime());
 };
+
+export const formatDateKey = (date: Date): string => {
+    if (!isValidDate(date)) return 'unknown';
+    return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+};

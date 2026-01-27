@@ -79,8 +79,8 @@ public class SourceService : ISourceService
             TotalQuizTimeSeconds = quizzes.Sum(q => q.QuizDurationSeconds ?? 0),
             TotalStudyTimeSeconds = activities.Sum(a => a.TotalDurationSeconds + (a.ExploreDurationSeconds ?? 0)),
             
-            IsPinned = false,
-            IsArchived = false
+            IsPinned = s.IsPinned,
+            IsArchived = s.IsArchived
         };
     }
 
@@ -107,9 +107,34 @@ public class SourceService : ISourceService
         if (source.IsTracked != isTracked)
         {
             source.IsTracked = isTracked;
+            if (!isTracked)
+            {
+                source.IsPinned = false;
+                source.IsArchived = false;
+            }
             await _repository.UpdateSourceAsync(source);
         }
 
+        return source;
+    }
+
+    public async Task<Source> TogglePinAsync(string userId, string sourceId)
+    {
+        var source = await _repository.GetSourceByIdAsync(sourceId);
+        if (source == null || source.UserId != userId) throw new KeyNotFoundException("Source not found");
+
+        source.IsPinned = !source.IsPinned;
+        await _repository.UpdateSourceAsync(source);
+        return source;
+    }
+
+    public async Task<Source> ToggleArchiveAsync(string userId, string sourceId)
+    {
+        var source = await _repository.GetSourceByIdAsync(sourceId);
+        if (source == null || source.UserId != userId) throw new KeyNotFoundException("Source not found");
+
+        source.IsArchived = !source.IsArchived;
+        await _repository.UpdateSourceAsync(source);
         return source;
     }
 

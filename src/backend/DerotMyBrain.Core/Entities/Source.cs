@@ -15,6 +15,8 @@ public class Source
     public string DisplayTitle { get; set; } = string.Empty;
     public string? Url { get; set; }
     public bool IsTracked { get; set; } = false;
+    public bool IsPinned { get; set; } = false;
+    public bool IsArchived { get; set; } = false;
 
     [JsonIgnore]
     public User User { get; set; } = null!;
