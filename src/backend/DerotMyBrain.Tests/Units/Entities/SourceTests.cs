@@ -31,7 +31,6 @@ public class SourceTests
             Type = SourceType.Wikipedia,
             ExternalId = "wiki_page",
             DisplayTitle = "Wiki Page",
-            Url = "http://wiki.com",
             IsTracked = true
         };
 

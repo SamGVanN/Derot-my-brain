@@ -10,7 +10,7 @@ public interface IBacklogService
     /// Adds a source (Wikipedia article or Document) to the backlog.
     /// Idempotent: checks for existing items by SourceHash.
     /// </summary>
-    Task<BacklogItem> AddToBacklogAsync(string userId, string sourceId, SourceType sourceType, string title);
+    Task<BacklogItem> AddToBacklogAsync(string userId, string sourceId, SourceType sourceType, string title, string? url = null, string? provider = null);
 
     /// <summary>
     /// Removes an item from the backlog.

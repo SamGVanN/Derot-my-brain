@@ -69,7 +69,7 @@ public class SourceService : ISourceService
             SourceId = s.ExternalId,
             SourceType = s.Type,
             DisplayTitle = s.DisplayTitle,
-            Url = s.Url,
+            Url = s.OnlineResource?.URL ?? (s.Type == SourceType.Wikipedia ? $"https://en.wikipedia.org/wiki/{s.ExternalId}" : null),
             
             BestScore = bestQuiz != null ? (int)(bestQuiz.ScorePercentage ?? 0) : 0, 
             LastScore = lastQuiz != null ? (int)(lastQuiz.ScorePercentage ?? 0) : 0,
@@ -163,7 +163,6 @@ public class SourceService : ISourceService
                  Type = type,
                  ExternalId = sourceId,
                  DisplayTitle = title,
-                 Url = type == SourceType.Wikipedia ? $"https://en.wikipedia.org/wiki/{sourceId}" : sourceId,
                  IsTracked = false
              };
              await _repository.CreateSourceAsync(source);

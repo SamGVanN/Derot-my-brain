@@ -29,20 +29,28 @@ public enum ActivityType
 /// <summary>
 /// Defines the supported sources of content.
 /// </summary>
-public enum SourceType
-{
-    /// <summary>
-    /// Wikipedia article.
-    /// </summary>
-    Wikipedia = 1,
-
-    /// <summary>
-    /// Uploaded PDF or text document.
-    /// </summary>
-    Document = 2,
-
     /// <summary>
     /// Custom user-provided text.
     /// </summary>
-    Custom = 3
-}
+    public enum SourceType
+    {
+        /// <summary>
+        /// Wikipedia article.
+        /// </summary>
+        Wikipedia = 1,
+    
+        /// <summary>
+        /// Uploaded PDF or text document.
+        /// </summary>
+        Document = 2,
+    
+        /// <summary>
+        /// Custom user-provided text.
+        /// </summary>
+        Custom = 3,
+
+        /// <summary>
+        /// Generic web link (uses OnlineResource).
+        /// </summary>
+        WebLink = 4
+    }

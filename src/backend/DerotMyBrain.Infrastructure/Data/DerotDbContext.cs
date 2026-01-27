@@ -13,6 +13,7 @@ public class DerotDbContext : DbContext
     public DbSet<UserSession> Sessions { get; set; }
     public DbSet<Document> Documents { get; set; }
     public DbSet<BacklogItem> BacklogItems { get; set; }
+    public DbSet<OnlineResource> OnlineResources { get; set; }
     
     public DerotDbContext(DbContextOptions<DerotDbContext> options) : base(options)
     {
@@ -187,6 +188,27 @@ public class DerotDbContext : DbContext
             entity.HasOne(e => e.Source)
                 .WithMany(s => s.BacklogItems)
                 .HasForeignKey(e => e.SourceId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // OnlineResource configuration
+        modelBuilder.Entity<OnlineResource>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.URL).IsRequired();
+            entity.Property(e => e.SourceId).IsRequired();
+
+            entity.HasIndex(e => new { e.UserId, e.SourceId }).IsUnique();
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Source)
+                .WithOne(s => s.OnlineResource)
+                .HasForeignKey<OnlineResource>(e => e.SourceId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

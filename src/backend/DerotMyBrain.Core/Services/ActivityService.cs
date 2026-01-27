@@ -110,9 +110,7 @@ public class ActivityService : IActivityService
                     Type = dto.SourceType,
                     ExternalId = dto.SourceId,
                     DisplayTitle = dto.Title,
-                    Url = (dto.SourceType == SourceType.Wikipedia && !dto.SourceId.StartsWith("http")) 
-                        ? $"https://en.wikipedia.org/wiki/{dto.SourceId}" 
-                        : dto.SourceId
+                    IsTracked = false
                 };
                 await _repository.CreateSourceAsync(source);
             }

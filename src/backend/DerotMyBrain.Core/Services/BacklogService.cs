@@ -24,7 +24,7 @@ public class BacklogService : IBacklogService
         _logger = logger;
     }
 
-    public async Task<BacklogItem> AddToBacklogAsync(string userId, string sourceId, SourceType sourceType, string title)
+    public async Task<BacklogItem> AddToBacklogAsync(string userId, string sourceId, SourceType sourceType, string title, string? url = null, string? provider = null)
     {
         var technicalSourceId = SourceHasher.GenerateId(sourceType, sourceId);
 
@@ -38,12 +38,47 @@ public class BacklogService : IBacklogService
                 UserId = userId,
                 Type = sourceType,
                 ExternalId = sourceId,
-                DisplayTitle = title,
-                Url = (sourceType == SourceType.Wikipedia && !sourceId.StartsWith("http")) 
-                    ? $"https://en.wikipedia.org/wiki/{sourceId}" 
-                    : sourceId
+                DisplayTitle = title
             };
             await _activityRepository.CreateSourceAsync(source);
+        }
+
+        // Handle OnlineResource creation/update
+        if (!string.IsNullOrEmpty(url))
+        {
+            var onlineResource = await _activityRepository.GetOnlineResourceBySourceIdAsync(technicalSourceId);
+            if (onlineResource == null)
+            {
+                onlineResource = new OnlineResource
+                {
+                    UserId = userId,
+                    SourceId = technicalSourceId,
+                    URL = url,
+                    Title = title,
+                    Provider = provider,
+                    SavedAt = DateTime.UtcNow
+                };
+                await _activityRepository.CreateOnlineResourceAsync(onlineResource);
+            }
+        }
+        // Fallback for legacy Wikipedia flow where URL was inferred
+        else if (sourceType == SourceType.Wikipedia && !string.IsNullOrEmpty(sourceId))
+        {
+             var inferredUrl = sourceId.StartsWith("http") ? sourceId : $"https://en.wikipedia.org/wiki/{sourceId}";
+             var onlineResource = await _activityRepository.GetOnlineResourceBySourceIdAsync(technicalSourceId);
+             if (onlineResource == null)
+             {
+                 onlineResource = new OnlineResource
+                 {
+                     UserId = userId,
+                     SourceId = technicalSourceId,
+                     URL = inferredUrl,
+                     Title = title,
+                     Provider = "Wikipedia",
+                     SavedAt = DateTime.UtcNow
+                 };
+                 await _activityRepository.CreateOnlineResourceAsync(onlineResource);
+             }
         }
 
         // Check if already exists to ensure idempotency

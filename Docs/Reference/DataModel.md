@@ -9,10 +9,12 @@ erDiagram
     User ||--o{ Source : owns
     User ||--o{ Document : uploads
     User ||--o{ BacklogItem : queues
+    User ||--o{ OnlineResource : saves
 
     Topic ||--o{ Source : groups
 
     Source ||--o{ Document : contains
+    Source ||--o{ OnlineResource : contains
     Source ||--o{ BacklogItem : references
     Source ||--o{ UserActivity : subject-of
     Source ||--o{ UserSession : target-of
@@ -70,6 +72,11 @@ erDiagram
     }
 
     BacklogItem {
+        string Id
+        string Title
+    }
+
+    OnlineResource {
         string Id
         string Title
     }

@@ -13,4 +13,7 @@ public class AddToBacklogDto
     
     [Required]
     public string Title { get; set; } = string.Empty;
+
+    public string? Url { get; set; }
+    public string? Provider { get; set; }
 }

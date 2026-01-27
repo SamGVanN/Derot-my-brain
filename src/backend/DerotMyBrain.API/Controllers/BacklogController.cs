@@ -39,7 +39,7 @@ public class BacklogController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<BacklogItemDto>> AddToBacklog(string userId, [FromBody] AddToBacklogDto request)
     {
-        var item = await _backlogService.AddToBacklogAsync(userId, request.SourceId, request.SourceType, request.Title);
+        var item = await _backlogService.AddToBacklogAsync(userId, request.SourceId, request.SourceType, request.Title, request.Url, request.Provider);
         
         var dto = new BacklogItemDto
         {

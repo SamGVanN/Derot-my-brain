@@ -38,8 +38,8 @@ public class WikipediaClient : IWikipediaClient
 
     public async Task<IEnumerable<WikipediaArticleDto>> GetRandomArticlesWithTeasersAsync(int count, string lang = "en")
     {
-        // action=query&format=json&generator=random&grnnamespace=0&grnlimit=count&prop=extracts|pageimages&exintro=1&explaintext=1&exsentences=2&pithumbsize=300
-        var url = $"{GetApiUrl(lang)}?action=query&format=json&generator=random&grnnamespace=0&grnlimit={count}&prop=extracts|pageimages&exintro=1&explaintext=1&exsentences=2&pithumbsize=300";
+        // action=query&format=json&generator=random&grnnamespace=0&grnlimit=count&prop=extracts|pageimages&exintro=1&explaintext=1&exsentences=3&pithumbsize=300
+        var url = $"{GetApiUrl(lang)}?action=query&format=json&generator=random&grnnamespace=0&grnlimit={count}&prop=extracts|pageimages&exintro=1&explaintext=1&exsentences=3&pithumbsize=300";
 
         _logger.LogInformation("Fetching random Wikipedia articles from: {Url}", url);
         try

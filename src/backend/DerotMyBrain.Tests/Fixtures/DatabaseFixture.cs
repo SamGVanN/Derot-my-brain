@@ -55,7 +55,6 @@ public class DatabaseFixture
             Type = wikiType,
             ExternalId = "Physics",
             DisplayTitle = "Physics",
-            Url = "https://en.wikipedia.org/wiki/Physics",
             IsTracked = true
         };
         
@@ -65,9 +64,31 @@ public class DatabaseFixture
             UserId = userId,
             Type = wikiType,
             ExternalId = "History",
-            DisplayTitle = "History",
-            Url = "https://en.wikipedia.org/wiki/History"
+            DisplayTitle = "History"
         };
+
+        var physicsOnlineResource = new OnlineResource
+        {
+             UserId = userId,
+             SourceId = physicsSource.Id,
+             URL = "https://en.wikipedia.org/wiki/Physics",
+             Title = "Physics",
+             Provider = "Wikipedia",
+             SavedAt = DateTime.UtcNow
+        };
+        
+        var historyOnlineResource = new OnlineResource
+        {
+             UserId = userId,
+             SourceId = historySource.Id,
+             URL = "https://en.wikipedia.org/wiki/History",
+             Title = "History",
+             Provider = "Wikipedia",
+             SavedAt = DateTime.UtcNow
+        };
+
+        physicsSource.OnlineResource = physicsOnlineResource;
+        historySource.OnlineResource = historyOnlineResource;
 
         var physicsSession = new UserSession
         {
@@ -144,6 +165,7 @@ public class DatabaseFixture
         
         context.Activities.RemoveRange(context.Activities);
         context.Sessions.RemoveRange(context.Sessions);
+        context.OnlineResources.RemoveRange(context.OnlineResources);
         context.Sources.RemoveRange(context.Sources);
         context.UserPreferences.RemoveRange(context.UserPreferences);
         context.Users.RemoveRange(context.Users);

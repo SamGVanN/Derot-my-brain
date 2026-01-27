@@ -13,7 +13,7 @@ public class Source
     public SourceType Type { get; set; }
     public string ExternalId { get; set; } = string.Empty; // e.g., Wiki Page title, Document Guid
     public string DisplayTitle { get; set; } = string.Empty;
-    public string? Url { get; set; }
+    public string? Url { get; set; } // Deprecated: Use OnlineResource. kept for build compat.
     public bool IsTracked { get; set; } = false;
     public bool IsPinned { get; set; } = false;
     public bool IsArchived { get; set; } = false;
@@ -37,4 +37,7 @@ public class Source
 
     [JsonIgnore]
     public ICollection<BacklogItem> BacklogItems { get; set; } = new List<BacklogItem>();
+
+    [JsonIgnore]
+    public OnlineResource? OnlineResource { get; set; }
 }

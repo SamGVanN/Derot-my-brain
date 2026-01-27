@@ -80,6 +80,7 @@ public class SqliteActivityRepository : IActivityRepository
     {
         return await _context.Sources
             .Include(s => s.Activities)
+            .Include(s => s.OnlineResource)
             .FirstOrDefaultAsync(s => s.Id == sourceId);
     }
 
@@ -102,6 +103,7 @@ public class SqliteActivityRepository : IActivityRepository
         return await _context.Sources
             .AsNoTracking()
             .Include(s => s.Activities)
+            .Include(s => s.OnlineResource)
             .Where(s => s.UserId == userId && s.IsTracked)
             .ToListAsync();
     }
@@ -220,5 +222,19 @@ public class SqliteActivityRepository : IActivityRepository
             Percentage = a.ScorePercentage ?? 0,
             Date = a.SessionDateEnd ?? a.SessionDateStart
         });
+    }
+
+    // OnlineResource Operations
+    public async Task<OnlineResource> CreateOnlineResourceAsync(OnlineResource resource)
+    {
+        _context.OnlineResources.Add(resource);
+        await _context.SaveChangesAsync();
+        return resource;
+    }
+
+    public async Task<OnlineResource?> GetOnlineResourceBySourceIdAsync(string sourceId)
+    {
+        return await _context.OnlineResources
+            .FirstOrDefaultAsync(or => or.SourceId == sourceId);
     }
 }

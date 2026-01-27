@@ -32,6 +32,9 @@ public static class InfrastructureServiceExtensions
         // Register File Storage
         services.AddScoped<IFileStorageService, FileSystemStorageService>();
 
+        // Register Global Configuration Service (Singleton for thread-safe file access)
+        services.AddSingleton<IConfigurationService, ConfigurationService>();
+
         return services;
     }
 }

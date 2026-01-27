@@ -53,7 +53,7 @@ Used to fetch random articles for the teaser cards.
     -   `prop=extracts|pageimages`: Fetches both text summaries and images in one call.
     -   `exintro=1`: Returns only the lead section.
     -   `explaintext=1`: Returns plain text instead of HTML.
-    -   `exsentences=2`: Limits summary to 2 sentences for teaser consistency.
+    -   `exsentences=3`: Limits summary to 3 sentences for teaser consistency.
     -   `pithumbsize=300`: Requests a 300px thumbnail.
 
 ### 2. Full Content (Read View)

@@ -20,7 +20,7 @@
 - As a user, I want to stop tracking a Source (document or article) without loosing the history associated to this Source .
 
 ## User Session
-- As a user, I want to start exploring, add articles to my backlog, choose an article to start Reading activity. From Reading activity, I want to stop reading OR start a quizz Activity. From Quiz activity, I want to stop Quiz OR go back to Reading activity. When ending a Quizz, I want to be able to Try another quizz or go back to Reading activity. When ending a Reading activity, I want to be able to go back to Explore or start a Quiz activity.
+- As a user, I want to start exploring, add articles to my backlog, choose an article to start a Reading activity. From Reading activity, I want to stop reading OR start a Quiz activity. From Quiz activity, I want to stop Quiz OR go back to Reading activity. When ending a Quizz, I want to be able to Try another quizz or go back to Reading activity. When ending a Reading activity, I want to be able to go back to Explore or start a Quiz activity. While on Derot Zone, I want to be able to do as much Activity as I want. Session is ended when I leave Derot Zone OR go back to Explore Activity.
 
 ## Documents
 - As a user, I want to see my documents.

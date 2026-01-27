@@ -14,6 +14,8 @@ export interface AddToBacklogDto {
     sourceId: string;
     sourceType: 'Wikipedia' | 'Document' | 'Custom';
     title: string;
+    url?: string;
+    provider?: string;
 }
 
 export const backlogApi = {
