@@ -327,38 +327,16 @@ public class ActivityService : IActivityService
                 continue;
             }
 
-            // 1. Identify Baseline: The earliest quiz ever recorded for this source
-            var baselineQuiz = quizzes.First();
-
-            // 2. Identify Current Best score (overall)
+            // 1. Identify Current Best score (overall) for the Trophies
             var currentMaxOverall = quizzes.Max(q => q.ScorePercentage!.Value);
 
-            // 3. Track running best score to identify "New Records" at each step
-            double runningBest = -1.0;
-
-            foreach (var item in group.OrderBy(d => d.SessionDateStart))
+            foreach (var item in group)
             {
                 if (item.Type == ActivityType.Quiz && item.ScorePercentage.HasValue)
                 {
-                    item.IsBaseline = item.Id == baselineQuiz.Id;
+                    // IsBaseline and IsNewBestScore are NOT recalculated. 
+                    // They are snapshots of the state at creation time.
                     
-                    // IsNewBestScore: True if THIS quiz is strictly better than any recorded BEFORE it
-                    // For the baseline, we can consider it true if it's the very first quiz.
-                    if (item.IsBaseline)
-                    {
-                        item.IsNewBestScore = true;
-                        runningBest = item.ScorePercentage.Value;
-                    }
-                    else if (item.ScorePercentage.Value > runningBest)
-                    {
-                        item.IsNewBestScore = true;
-                        runningBest = item.ScorePercentage.Value;
-                    }
-                    else
-                    {
-                        item.IsNewBestScore = false;
-                    }
-
                     // IsCurrentBest: True if this matches the maximum score ever achieved for this topic
                     item.IsCurrentBest = Math.Abs(item.ScorePercentage.Value - currentMaxOverall) < 0.01;
                 }

@@ -11,14 +11,18 @@ import {
     Pin,
     Archive,
     Loader2,
-    BookmarkCheck
+    BookmarkCheck,
+    BookOpen,
+    GraduationCap
 } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import type { UserFocus } from '../models/UserFocus';
 import type { UserActivity } from '../models/UserActivity';
 import { userFocusApi } from '../api/userFocusApi';
+import { activityApi } from '../api/activityApi';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { ActivityTimelineItem } from './ActivityTimelineItem';
 import { parseDate, isValidDate } from '@/lib/dateUtils';
 
@@ -39,7 +43,9 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
     const [isExpanded, setIsExpanded] = useState(false);
     const [activities, setActivities] = useState<UserActivity[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isActionLoading, setIsActionLoading] = useState<string | null>(null);
     const [hasLoadedEntries, setHasLoadedEntries] = useState(false);
+    const navigate = useNavigate();
 
     const toggleExpand = async () => {
         const newExpandedState = !isExpanded;
@@ -56,6 +62,40 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
             } finally {
                 setIsLoading(false);
             }
+        }
+    };
+
+    const startAction = async (mode: 'read' | 'quiz') => {
+        setIsActionLoading(mode);
+        try {
+            // Both actions create a NEW activity via activityApi.read
+            // as requested by the user ("This action must create a NEW activity").
+            const getSourceTypeNumber = (type?: string) => {
+                switch (type) {
+                    case 'Wikipedia': return 1;
+                    case 'Document': return 2;
+                    case 'Custom': return 3;
+                    default: return 1;
+                }
+            };
+
+            const activity = await activityApi.read(focus.userId, {
+                title: focus.displayTitle,
+                sourceId: focus.sourceId,
+                sourceType: getSourceTypeNumber(focus.source?.type),
+                language: i18n.language
+            });
+
+            if (activity?.id) {
+                const url = mode === 'quiz'
+                    ? `/derot?activityId=${activity.id}&mode=quiz`
+                    : `/derot?activityId=${activity.id}`;
+                navigate(url);
+            }
+        } catch (error) {
+            console.error(`Failed to start ${mode}:`, error);
+        } finally {
+            setIsActionLoading(null);
         }
     };
 
@@ -100,8 +140,67 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
                             </a>
                         </CardTitle>
                     </div>
+
+                    <div className="flex gap-1 -mr-2">
+                        {onTogglePin && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={cn("h-8 w-8", focus.isPinned && "text-primary")}
+                                onClick={() => onTogglePin(focus)}
+                                title={focus.isPinned ? t('common.unpin', 'Unpin') : t('common.pin', 'Pin to top')}
+                            >
+                                <Pin className={cn("w-4 h-4", focus.isPinned && "fill-current")} />
+                            </Button>
+                        )}
+                        {onToggleArchive && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={cn("h-8 w-8", focus.isArchived && "text-yellow-600")}
+                                onClick={() => onToggleArchive(focus)}
+                                title={focus.isArchived ? t('common.unarchive', 'Unarchive') : t('common.archive', 'Archive')}
+                            >
+                                <Archive className={cn("w-4 h-4", focus.isArchived && "fill-current")} />
+                            </Button>
+                        )}
+                        {onUntrack && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-primary/60 hover:text-primary"
+                                onClick={() => onUntrack(focus)}
+                                title={t('history.untrack', 'Untrack topic')}
+                            >
+                                <BookmarkCheck className="w-4 h-4" />
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </CardHeader>
+
+            <div className="flex gap-2 px-6 mb-4">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-primary"
+                    onClick={() => startAction('read')}
+                    disabled={!!isActionLoading}
+                >
+                    {isActionLoading === 'read' ? <Loader2 className="w-4 h-4 animate-spin" /> : <BookOpen className="w-4 h-4" />}
+                    {t('focusArea.startRead', 'New Read')}
+                </Button>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-primary"
+                    onClick={() => startAction('quiz')}
+                    disabled={!!isActionLoading}
+                >
+                    {isActionLoading === 'quiz' ? <Loader2 className="w-4 h-4 animate-spin" /> : <GraduationCap className="w-4 h-4" />}
+                    {t('focusArea.startQuiz', 'New Quiz')}
+                </Button>
+            </div>
 
             <CardContent>
                 <div className="grid grid-cols-2 gap-4">
@@ -200,42 +299,6 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
                     )}
                 </div>
             </CardContent>
-
-            <CardFooter className="flex justify-end gap-2 pt-0 pb-3">
-                {onTogglePin && (
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className={cn("h-8 w-8", focus.isPinned && "text-primary")}
-                        onClick={() => onTogglePin(focus)}
-                        title={focus.isPinned ? t('common.unpin', 'Unpin') : t('common.pin', 'Pin to top')}
-                    >
-                        <Pin className={cn("w-4 h-4", focus.isPinned && "fill-current")} />
-                    </Button>
-                )}
-                {onToggleArchive && (
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className={cn("h-8 w-8", focus.isArchived && "text-yellow-600")}
-                        onClick={() => onToggleArchive(focus)}
-                        title={focus.isArchived ? t('common.unarchive', 'Unarchive') : t('common.archive', 'Archive')}
-                    >
-                        <Archive className={cn("w-4 h-4", focus.isArchived && "fill-current")} />
-                    </Button>
-                )}
-                {onUntrack && (
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-primary"
-                        onClick={() => onUntrack(focus)}
-                        title={t('history.untrack', 'Untrack topic')}
-                    >
-                        <BookmarkCheck className="w-4 h-4 fill-current" />
-                    </Button>
-                )}
-            </CardFooter>
         </Card>
     );
 };

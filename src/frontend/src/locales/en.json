@@ -185,6 +185,8 @@
         "viewEvolution": "View Evolution",
         "hideEvolution": "Hide Evolution",
         "evolutionTitle": "Topic Evolution",
+        "startRead": "New Read",
+        "startQuiz": "New Quiz",
         "metrics": {
             "read": "Read",
             "quiz": "Quiz",

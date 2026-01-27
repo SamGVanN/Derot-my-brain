@@ -180,6 +180,8 @@
         "viewEvolution": "Voir l'Évolution",
         "hideEvolution": "Masquer l'Évolution",
         "evolutionTitle": "Évolution du Sujet",
+        "startRead": "Nouvelle Lecture",
+        "startQuiz": "Nouveau Quiz",
         "metrics": {
             "read": "Lecture",
             "quiz": "Quiz",
