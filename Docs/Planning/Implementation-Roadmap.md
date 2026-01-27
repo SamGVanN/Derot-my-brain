@@ -1,53 +1,48 @@
-# Implementation Roadmap (Updated 2026-01-25)
+# Implementation Roadmap (Updated 2026-01-27)
 
-This document reflects the current state of **Derot My Brain** and outlines the remaining tasks to achieve a fully functional, non-mocked MVP.
+This document reflects the current technical debt and the path forward to move from a mocked POC to a functional MVP.
 
-## 🟢 Completed Phases
-- **Phase -1: Architecture Migration**: Centralized API client, Zustand stores, custom hooks, and component refactoring.
-- **Phase 0: Foundation**: SQLite setup, seed data (categories/themes), and global configuration.
-- **Phase 1: Core UX**: Session persistence, Welcome page, and local logging.
-- **Phase 2: Preferences & i18n**: User preferences (question count, theme, language) and full French/English support.
+## 🟢 Completed (Technical Foundation)
+- **Phase -1: Architecture Migration**: Centralized API client, Zustand stores, and component refactoring.
+- **Phase 0: Foundation**: SQLite setup, seed data, and global configuration.
+- **Phase 1: Core UX**: Session identity, Welcome page, and Navigation shell.
+- **Phase 2: Preferences & i18n**: Multi-language support and basic user settings.
 
-## 🟡 In Progress: Phase 6 (Wikipedia Integration)
-The goal is to move from a mocked POC to a real, integrated learning flow.
+## 🟡 In Progress: Phase 6 (Wikipedia & Real Content)
+**Goal**: Transition from mocked "sample articles" to real API data.
 
-### Task 6.1: Stable Explore-to-Read Transition (CURRENT)
-- **Objective**: Ensure exploration time is tracked and "Read" transition produces real content.
-- **Remaining**:
-    - [ ] Verify `WikipediaService.ReadAsync` correctly fetches content from `WikipediaContentSource`.
-    - [ ] Ensure `ReadView` displays the `ArticleContent` retrieved from the backend.
-    - [ ] Stabilize E2E tests (`DerotZone.e2e.spec.ts`).
-
-### Task 6.2: Real Quiz Generation (Next)
-- **Objective**: Connect the "Quiz" mode to the `OllamaLlmService`.
+### Task 6.1: Real Wikipedia Integration (CRITICAL)
+- **Objective**: Ensure the backend fetches real content and the frontend displays it.
+- **Status**: Backend infrastructure exists but is not functional in the end-to-end flow.
 - **Tasks**:
-    - [ ] Update `QuizView` to fetch questions from `GET /api/activities/{id}/quiz`.
-    - [ ] Ensure `ActivityService.GenerateQuizAsync` uses the article content stored during the Read phase.
-    - [ ] Implement quiz submission and score calculation.
+    - [ ] Debug and Validate `WikipediaContentSource.cs` with the real API.
+    - [ ] Remove hardcoded `sampleArticles` in `DerotPage.tsx`.
+    - [ ] Update `ExploreView` to fetch trending/random topics via the backend.
+    - [ ] Ensure `ReadView` displays the exact content retrieved during the Explore transition.
 
-## 🔴 Upcoming Phases
-
-### Phase 3: My Focus Area & Knowledge Depth
-- **Objective**: Implement the aggregation logic for subjects.
+### Task 6.2: Derot Zone Bug Bash
+- **Objective**: Fix navigation and state management issues in the Derot Zone.
 - **Tasks**:
-    - [ ] Finalize `UserFocusService` aggregation logic.
-    - [ ] Implement the Focus Area dashboard with evolution charts (My Focus Area Page).
+    - [ ] Fix broken transitions between Explore, Read, and Quiz modes.
+    - [ ] Ensure `useWikipediaExplore` correctly manages the backend `UserActivity` lifecycle.
 
-### Phase 4: Backlog & Navigation
-- **Objective**: Manage contents to be processed later.
-- **Tasks**:
-    - [ ] Implement the Backlog page.
-    - [ ] Enable starting an activity from the Backlog.
+## 🔴 Upcoming: Phase 7 (LLM / Quiz Validation)
+**Goal**: Connect the Quiz UI and validate the Ollama liaison.
 
-### Phase 5: Library & Document Upload
-- **Objective**: Support local PDF/Markdown/TXT files.
+### Task 7.1: Ollama Liaison Validation
+- **Objective**: Ensure the backend can talk to a local Ollama instance reliably.
 - **Tasks**:
-    - [ ] Implement File Upload in `FileContentSource`.
-    - [ ] Support text extraction from various formats.
+    - [ ] Configure `OllamaLlmService` with dynamic settings (Url, Model).
+    - [ ] Test and validate the JSON response format from Ollama.
+
+### Task 7.2: Quiz UI Connection
+- **Objective**: Connect `QuizView.tsx` to the backend.
+- **Tasks**:
+    - [ ] Fetch real questions from `GET /api/activities/{id}/quiz`.
+    - [ ] Implement answer submission and score tracking.
 
 ---
 
 ## 🛠️ Technical Debt & Stabilization
-- [ ] Fix port conflict in E2E tests (stabilize `scripts/kill-derot-api.ps1`).
-- [ ] Implement `admin` config updates for LLM URL in the UI.
-- [ ] Refine `PageHeader` usage across all dynamically created pages.
+- [ ] **E2E Stability**: Fix the process locking issue in `scripts/kill-derot-api.ps1`.
+- [ ] **Data Model Alignment**: Ensure `UserActivity` payload correctly stores diverse content types (Wikipedia vs Documents).

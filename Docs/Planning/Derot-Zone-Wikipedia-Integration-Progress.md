@@ -4,14 +4,14 @@ Status: Integrated — Ready for Quiz phase.
 
 ## Done
 - **Backend Flow**:
-    - `Explore` sessions created on entry.
+    - `Explore` session created on entry, UserActivity of type Explore.
     - `StopExplore` endpoint tracks duration and backlog counts.
     - `Read` transition fetches real Wikipedia content via `WikipediaContentSource`, creates a `Read` activity, and links it to the `Explore` session.
     - DTOs updated to carry `ExploreDurationSeconds`.
 - **Frontend Flow**:
     - `useWikipediaExplore` tracks session start time.
     - `StopExplore` called on exit (redirect to Focus Area).
-    - `Read` button on cards triggers real activity creation and URL update.
+    - `Read` button on cards triggers read activity creation and URL update, in same session than Explore.
     - `ReadView` fetches and displays the actual article content from the backend.
 - **Documentation**:
     - Overhauled `Implementation-Roadmap.md` and `Project-Status.md`.

@@ -1,32 +1,36 @@
 # Project Status - Derot My Brain
 
-**Last Updated**: 2026-01-25
-**Current Phase**: Phase 6 & Phase 1 Refinements
-**Overall Progress**: ~65% to V1 MVP
+**Last Updated**: 2026-01-27
+**Current Phase**: Phase 6 & Phase 1 Refinements (Corrected Assessment)
+**Overall Progress**: ~50% to V1 MVP (Technical Foundations present, but Features are mocked/broken)
 
-## Current Focus
-Finalizing the **Derot Zone** Wikipedia integration. We are transitioning from UI/UX mocks to a full backend-integrated flow including:
-- Real-time exploration tracking.
-- Transactional linkage between Exploration and Reading.
-- Real Wikipedia content fetching and storage in `UserActivity`.
+## Current Gaps & Blockers
+The previous assessment was overly optimistic. A deep-dive audit reveals significant functional gaps:
+- **Derot Zone**: The interactive session area is largely **mocked** (sample articles) and unstable.
+- **Wikipedia Integration**: Real content fetching from the Wikipedia API is not yet operational in the end-to-end flow.
+- **LLM / Ollama**: Implementation exists in the backend but is **broken/unvalidated**. No active connection to a running Ollama instance is confirmed.
+- **Workflow Mastery**: The "Explore -> Read -> Quiz" cycle is currently **non-functional**.
 
 ## High-Level Status
 
 | Feature | Status | Notes |
 | :--- | :--- | :--- |
-| Core Architecture | ✅ Done | Hexagonal-ish frontend, Service-based backend. |
+| Core Architecture | ✅ Done | Hexagonal-ish frontend, Clean Architecture backend foundation. |
 | Authentication | ✅ Done | Local profile selection with persistence. |
 | i18n (FR/EN) | ✅ Done | Fully implemented across all pages. |
-| Derot Zone (UI) | ✅ Done | Explore, Read, and Quiz views implemented. |
-| Wikipedia Service | 🟡 TODO | Integration logic for content fetching. |
-| Derot Zone (Full user story) | 🟡 TODO | Explore, Read, and Quiz views implemented. |
-| LLM Integration | 🟡 TODO | Ollama integration for quiz generation. |
-| Focus Area | 🔴 Backlog | Visual dashboard for subject mastery. |
+| Derot Zone (UI) | 🟡 Mocked | UI exists but logic is hardcoded mocks and buggy. |
+| Wikipedia Service | 🔴 TODO | Infrastructure is present but integration is failing (no real content). |
+| LLM Integration | 🔴 Broken | Backend skeleton exists but liaison with Ollama is not validated/functional. connectivity issues and not implemented LLM interactions to get questions, answers and user answers validation. |
+| Workflow Integration | 🔴 Missing | The "Explore -> Read -> Quiz" loop is not functional. |
+| Backlog & Library | 🟡 Partial | UI exists but depends on functional content fetching. |
+| Focus Area | 🟡 Partial | UI exists but lacks real data from learning activities. |
 
-## Immediate Roadmap
-1. **Stabilize E2E**: Resolve port 5005/5077 conflicts and unreliable cleanup.
-2. **Real Content Flow**: Ensure `ReadView` displays actual Wikipedia text.
-3. **Active Quiz**: Switch `QuizView` from demo questions to LLM-generated questions.
+## Immediate Roadmap (Corrected)
+1. **Stabilize Wikipedia Fetching**: Fix `WikipediaContentSource` and ensure `ReadView` displays real API data.
+2. **De-Mock Derot Zone**: Replace `sampleArticles` with real API calls from the Wikipedia service.
+3. **Fix Ollama Liaison**: Validate connection to local Ollama and update the backend service to handle dynamic configurations.
+4. **Fix E2E Stability**: Resolve process locking issues on Windows to allow reliable regression testing.
 
 ## Known Blockers
 - E2E testing environment instability on Windows (process locking).
+- Lack of real-world validation for LLM prompt results.
