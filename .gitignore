@@ -228,3 +228,10 @@ out/
 # Testing Agent Artifacts
 build_log*.txt
 user-test-*.json
+
+# Local Configuration Overrides
+*appsettings.Development.json
+*appsettings.Local.json
+[Aa]ppsettings.Development.json
+[Aa]ppsettings.Local.json
+src/backend/DerotMyBrain.API/appsettings.Development.json
