@@ -32,10 +32,14 @@ export function Header() {
                     to={user ? "/history" : "/"}
                     className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
                 >
-                    <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                        <span className="text-primary-foreground font-bold text-lg">D</span>
+                    <div className="h-12 w-12 overflow-hidden flex items-center justify-center">
+                        <img
+                            src="/images/logo.png"
+                            alt="Derot My Brain Logo"
+                            className="h-full w-full object-contain"
+                        />
                     </div>
-                    <span className="font-bold text-xl hidden sm:inline-block">
+                    <span className="font-bold text-xl hidden sm:inline-block tracking-tight">
                         Derot My Brain
                     </span>
                 </Link>
