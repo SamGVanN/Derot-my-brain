@@ -41,7 +41,7 @@ export const activityApi = {
         return response.data;
     },
 
-    explore: async (userId: string, request: { title?: string, sourceId?: string, sourceType: number }): Promise<UserActivity> => {
+    explore: async (userId: string, request: { title?: string, sourceId?: string, sourceType: number, sessionId?: string }): Promise<UserActivity> => {
         const response = await client.post<UserActivity>(`/users/${userId}/activities/explore`, request);
         return response.data;
     },
@@ -53,14 +53,19 @@ export const activityApi = {
         sourceType: number,
         originExploreId?: string,
         backlogAddsCount?: number,
+        refreshCount?: number,
         exploreDurationSeconds?: number
     }): Promise<UserActivity> => {
         const response = await client.post<UserActivity>(`/users/${userId}/activities/read`, request);
         return response.data;
     },
 
-    stopExplore: async (userId: string, activityId: string, request: { durationSeconds: number, backlogAddsCount?: number }): Promise<void> => {
+    stopExplore: async (userId: string, activityId: string, request: { durationSeconds: number, backlogAddsCount?: number, refreshCount?: number }): Promise<void> => {
         await client.post(`/users/${userId}/activities/${activityId}/stop-explore`, request);
+    },
+
+    stopSession: async (userId: string, sessionId: string): Promise<void> => {
+        await client.post(`/users/${userId}/sessions/${sessionId}/stop`);
     },
 
     // --- Statistics ---

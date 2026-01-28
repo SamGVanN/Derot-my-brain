@@ -10,10 +10,12 @@ import { useSearchParams, useNavigate } from 'react-router';
 import { useWikipediaExplore } from '@/hooks/useWikipediaExplore';
 import { useMemo, useState, useEffect } from 'react';
 import { useActivities } from '@/hooks/useActivities';
+import { useToast } from '@/hooks/use-toast';
 
 export function DerotPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const { articles, isInitializing, refresh, error, stopExplore, readArticle, addToBacklog, loadingAction } = useWikipediaExplore();
   const { updateActivity } = useActivities();
@@ -46,6 +48,19 @@ export function DerotPage() {
       setReadStartTime(null);
     }
   };
+
+  // Cleanup: Quitting DerotZone is quitting the UserSession
+  const stopExploreRef = useMemo(() => ({ current: stopExplore }), [stopExplore]);
+  useEffect(() => {
+    stopExploreRef.current = stopExplore;
+  }, [stopExplore]);
+
+  useEffect(() => {
+    return () => {
+      // This runs on unmount.
+      stopExploreRef.current();
+    };
+  }, []); // Only once on mount/unmount
 
   return (
     <Layout>
@@ -80,11 +95,21 @@ export function DerotPage() {
               onRefresh={refresh}
               onRead={async (article) => {
                 const activity = await readArticle(article);
-                if (activity?.id) {
-                  setSearchParams({ activityId: activity.id });
+                const id = activity?.id || (activity as any)?.Id;
+                if (id) {
+                  setSearchParams({ activityId: id });
                 }
               }}
-              onAddToBacklog={addToBacklog}
+              onAddToBacklog={async (article) => {
+                const success = await addToBacklog(article);
+                if (success) {
+                  toast({
+                    title: "Backlog",
+                    description: `"${article.title}" ajouté à votre backlog pour plus tard.`,
+                  });
+                }
+                return success;
+              }}
               loadingAction={loadingAction}
               isLoading={isInitializing}
             />
@@ -105,6 +130,8 @@ export function DerotPage() {
           )}
         </section>
 
+        {/* 
+      //Not implemented -> Not worth showing in that particular case
         <section className="bg-primary/5 rounded-3xl p-8 md:p-12 border border-primary/10 flex flex-col md:flex-row items-center gap-8 animate-in fade-in duration-1000">
           <div className="bg-primary/10 p-6 rounded-2xl">
             <Brain className="h-16 w-16 text-primary" />
@@ -115,7 +142,7 @@ export function DerotPage() {
               As you use Derot My Brain, we'll learn what you love and suggest articles that challenge and inspire you.
             </p>
           </div>
-        </section>
+        </section> */}
       </div>
     </Layout>
   );

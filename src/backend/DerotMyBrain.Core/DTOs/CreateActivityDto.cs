@@ -62,6 +62,12 @@ public class CreateActivityDto
     public int? BacklogAddsCount { get; set; }
 
     /// <summary>
+    /// Optional: number of discovery refreshes performed during an Explore session.
+    /// </summary>
+    [Range(0, int.MaxValue)]
+    public int? RefreshCount { get; set; }
+
+    /// <summary>
     /// Optional: when creating a Read that originates from a prior Explore session,
     /// provide the Explore activity Id so the service can link them transactionally.
     /// </summary>

@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace DerotMyBrain.Core.DTOs;
@@ -27,4 +28,9 @@ public class UpdateActivityDto
     /// Optional update to backlog additions count for Explore sessions.
     /// </summary>
     public int? BacklogAddsCount { get; set; }
+
+    /// <summary>
+    /// Optional update to refresh count for Explore sessions.
+    /// </summary>
+    public int? RefreshCount { get; set; }
 }

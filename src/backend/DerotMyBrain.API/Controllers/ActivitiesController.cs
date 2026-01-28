@@ -164,7 +164,7 @@ public class ActivitiesController : ControllerBase
     {
         try
         {
-            var activity = await _activityService.ExploreAsync(userId, req.Title, req.SourceId, req.SourceType);
+            var activity = await _activityService.ExploreAsync(userId, req.Title, req.SourceId, req.SourceType, req.SessionId);
             return Ok(MapToDto(activity, activity.Source?.IsTracked ?? false));
         }
         catch (Exception ex)
@@ -187,6 +187,7 @@ public class ActivitiesController : ControllerBase
                 req.SourceType,
                 req.OriginExploreId, 
                 req.BacklogAddsCount,
+                req.RefreshCount,
                 req.ExploreDurationSeconds);
 
             return Ok(MapToDto(activity, activity.Source?.IsTracked ?? false));
@@ -194,7 +195,7 @@ public class ActivitiesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error starting read activity");
-            return StatusCode(500, "Internal Server Error");
+            return StatusCode(500, ex.ToString());
         }
     }
 
@@ -207,6 +208,7 @@ public class ActivitiesController : ControllerBase
             {
                 DurationSeconds = req.DurationSeconds,
                 BacklogAddsCount = req.BacklogAddsCount,
+                RefreshCount = req.RefreshCount,
                 SessionDateEnd = DateTime.UtcNow,
                 IsCompleted = true
             };
@@ -217,6 +219,21 @@ public class ActivitiesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error stopping exploration activity");
+            return StatusCode(500, "Internal Server Error");
+        }
+    }
+
+    [HttpPost("/api/users/{userId}/sessions/{sessionId}/stop")]
+    public async Task<IActionResult> StopSession([FromRoute] string userId, [FromRoute] string sessionId)
+    {
+        try
+        {
+            await _activityService.StopSessionAsync(userId, sessionId);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error stopping session {SessionId}", sessionId);
             return StatusCode(500, "Internal Server Error");
         }
     }
@@ -252,9 +269,11 @@ public class ActivitiesController : ControllerBase
             UserSessionId = a.UserSessionId,
             Title = a.Title,
             Description = a.Description,
-            SourceId = source?.ExternalId ?? string.Empty,
+            SourceId = source?.Id ?? string.Empty,
+            ExternalId = source?.ExternalId ?? string.Empty,
             SourceType = source?.Type ?? SourceType.Custom,
-            SourceHash = source?.Id ?? string.Empty,
+            DisplayTitle = source?.DisplayTitle ?? string.Empty,
+            Url = source?.OnlineResource?.URL ?? (source?.Type == SourceType.Wikipedia ? $"https://en.wikipedia.org/wiki/{source.ExternalId}" : string.Empty),
             Type = a.Type,
 
             SessionDateStart = a.SessionDateStart,
@@ -272,7 +291,9 @@ public class ActivitiesController : ControllerBase
             IsTracked = isTracked,
             Payload = a.Payload,
             ResultingReadActivityId = a.ResultingReadActivityId,
-            BacklogAddsCount = a.BacklogAddsCount
+            ResultingReadSourceName = a.ResultingReadActivity?.Title,
+            BacklogAddsCount = a.BacklogAddsCount,
+            RefreshCount = a.RefreshCount
         };
     }
 
@@ -281,6 +302,7 @@ public class ActivitiesController : ControllerBase
         public string? Title { get; set; }
         public string? SourceId { get; set; }
         public SourceType SourceType { get; set; }
+        public string? SessionId { get; set; }
     }
 
     public class ReadRequest
@@ -291,6 +313,7 @@ public class ActivitiesController : ControllerBase
         public SourceType SourceType { get; set; }
         public string? OriginExploreId { get; set; }
         public int? BacklogAddsCount { get; set; }
+        public int? RefreshCount { get; set; }
         public int? ExploreDurationSeconds { get; set; }
     }
 
@@ -298,5 +321,6 @@ public class ActivitiesController : ControllerBase
     {
         public int DurationSeconds { get; set; }
         public int? BacklogAddsCount { get; set; }
+        public int? RefreshCount { get; set; }
     }
 }

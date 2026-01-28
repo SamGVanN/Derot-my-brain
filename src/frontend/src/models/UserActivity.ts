@@ -10,9 +10,9 @@ export interface UserActivity {
     userSessionId: string;
 
     // Content Identity (denormalized for convenience in UI)
-    sourceId: string;
+    sourceId: string; // GUID
+    externalId: string; // URL or Doc GUID
     sourceType: SourceType;
-    sourceHash: string;
 
     type: ActivityType;
 
@@ -40,5 +40,9 @@ export interface UserActivity {
     isTracked: boolean;
     articleContent?: string;
     payload?: string;
+    resultingReadActivityId?: string;
+    resultingReadSourceName?: string;
+    originExploreId?: string;
     backlogAddsCount?: number;
+    refreshCount?: number;
 }

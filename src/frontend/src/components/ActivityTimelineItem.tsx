@@ -167,7 +167,7 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                             </div>
 
                             <a
-                                href={activity.sourceId}
+                                href={activity.externalId}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className={cn(
@@ -200,8 +200,21 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                     <div className="flex items-end justify-between mt-4">
                         <div className="flex-1 pr-4">
                             {activity.type === 'Explore' && (
-                                <div className="text-sm text-muted-foreground font-medium">
-                                    {t('history.sourcesAdded', { count: activity.backlogAddsCount || 0 })}
+                                <div className="space-y-1">
+                                    <div className="text-sm text-muted-foreground font-medium flex items-center gap-2">
+                                        <span>{t('history.sourcesAdded', { count: activity.backlogAddsCount || 0 })}</span>
+                                        {(activity.refreshCount ?? 0) > 0 && (
+                                            <span className="text-xs opacity-70">
+                                                • {t('history.refreshes', { count: activity.refreshCount })}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {activity.resultingReadSourceName && (
+                                        <div className="text-xs text-primary/80 flex items-center gap-1 mt-1">
+                                            <BookOpenText className="w-3 h-3" />
+                                            <span>{t('history.readResult', 'Read:')} {activity.resultingReadSourceName}</span>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                             {activity.type === 'Quiz' && (

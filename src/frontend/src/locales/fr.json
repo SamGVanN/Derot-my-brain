@@ -25,7 +25,10 @@
         "personalBestInitial": "Première tentative (Record) : {{score}}%",
         "isBestTooltip": "C'est votre record actuel pour ce sujet !",
         "isInitialBestTooltip": "C'était votre premier essai et c'est toujours votre meilleur score !",
-        "bestCompareTooltip": "Votre record personnel pour ce sujet est de {{score}}%"
+        "bestCompareTooltip": "Votre record personnel pour ce sujet est de {{score}}%",
+        "refreshes_one": "{{count}} rafraîchissement",
+        "refreshes_other": "{{count}} rafraîchissements",
+        "readResult": "Article Lu :"
     },
     "common": {
         "save": "Enregistrer",

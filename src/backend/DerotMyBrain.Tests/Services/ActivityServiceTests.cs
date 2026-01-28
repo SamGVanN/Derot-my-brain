@@ -4,6 +4,7 @@ using DerotMyBrain.Core.Interfaces.Services;
 using DerotMyBrain.Core.Services;
 using DerotMyBrain.Core.DTOs;
 using DerotMyBrain.Core.Interfaces.Utils;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -15,6 +16,7 @@ public class ActivityServiceTests
     private readonly Mock<IWikipediaService> _wikipediaServiceMock;
     private readonly Mock<ILlmService> _llmServiceMock;
     private readonly Mock<IJsonSerializer> _jsonSerializerMock;
+    private readonly Mock<ILogger<ActivityService>> _loggerMock;
     private readonly ActivityService _service;
     
     public ActivityServiceTests()
@@ -23,6 +25,7 @@ public class ActivityServiceTests
         _wikipediaServiceMock = new Mock<IWikipediaService>();
         _llmServiceMock = new Mock<ILlmService>();
         _jsonSerializerMock = new Mock<IJsonSerializer>();
+        _loggerMock = new Mock<ILogger<ActivityService>>();
         
         var contentSources = new List<IContentSource>();
 
@@ -31,7 +34,8 @@ public class ActivityServiceTests
             contentSources,
             _wikipediaServiceMock.Object,
             _llmServiceMock.Object,
-            _jsonSerializerMock.Object);
+            _jsonSerializerMock.Object,
+            _loggerMock.Object);
     }
     
     [Fact]

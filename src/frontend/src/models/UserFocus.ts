@@ -5,8 +5,9 @@ export interface UserFocus {
     userId: string;
 
     // Identity
-    sourceId: string;
-    source?: import('./UserSession').Source;
+    sourceId: string; // GUID
+    externalId: string; // URL or DocId
+    source: import('./UserSession').Source;
     displayTitle: string;
 
     // Stats

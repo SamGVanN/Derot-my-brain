@@ -103,6 +103,13 @@ public class BacklogService : IBacklogService
     public async Task RemoveFromBacklogAsync(string userId, string sourceId)
     {
         await _backlogRepository.DeleteAsync(userId, sourceId);
+        
+        // Also remove source if it's not tracked and has no activities (Cleanup as requested)
+        var source = await _activityRepository.GetSourceByIdAsync(sourceId);
+        if (source != null && !source.IsTracked && (source.Activities == null || !source.Activities.Any()))
+        {
+            await _activityRepository.DeleteSourceAsync(sourceId);
+        }
     }
 
     public async Task<IEnumerable<BacklogItem>> GetUserBacklogAsync(string userId)

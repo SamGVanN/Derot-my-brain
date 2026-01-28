@@ -66,7 +66,8 @@ public class SourceService : ISourceService
         {
             Id = s.Id,
             UserId = s.UserId,
-            SourceId = s.ExternalId,
+            SourceId = s.Id, // Technical GUID
+            ExternalId = s.ExternalId, // URL or DocId
             SourceType = s.Type,
             DisplayTitle = s.DisplayTitle,
             Url = s.OnlineResource?.URL ?? (s.Type == SourceType.Wikipedia ? $"https://en.wikipedia.org/wiki/{s.ExternalId}" : null),
@@ -138,9 +139,17 @@ public class SourceService : ISourceService
         return source;
     }
 
-    public async Task<Source> TrackSourceAsync(string userId, string sourceId, string title, SourceType type)
+    public async Task<Source> TrackSourceAsync(string userId, string identifier, string title, SourceType type)
     {
-        var source = await GetOrCreateSourceAsync(userId, title, sourceId, type);
+        // 1. Try to find if the identifier is already a Technical ID (hashed)
+        var source = await _repository.GetSourceByIdAsync(identifier);
+        
+        if (source == null)
+        {
+            // 2. If not found, assume it is a Raw ID (external identifier) and use the creation logic (which hashes it)
+            source = await GetOrCreateSourceAsync(userId, title, identifier, type);
+        }
+
         if (!source.IsTracked)
         {
             source.IsTracked = true;

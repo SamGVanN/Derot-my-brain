@@ -4,6 +4,7 @@ using DerotMyBrain.Core.Interfaces.Repositories;
 using DerotMyBrain.Core.Interfaces.Services;
 using DerotMyBrain.Core.Interfaces.Utils;
 using DerotMyBrain.Core.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace DerotMyBrain.Core.Services;
 
@@ -14,19 +15,22 @@ public class ActivityService : IActivityService
     private readonly IWikipediaService _wikipediaService;
     private readonly ILlmService _llmService;
     private readonly IJsonSerializer _jsonSerializer;
+    private readonly ILogger<ActivityService> _logger;
 
     public ActivityService(
         IActivityRepository repository,
         IEnumerable<IContentSource> contentSources,
         IWikipediaService wikipediaService,
         ILlmService llmService,
-        IJsonSerializer jsonSerializer)
+        IJsonSerializer jsonSerializer,
+        ILogger<ActivityService> logger)
     {
         _repository = repository;
         _contentSources = contentSources;
         _wikipediaService = wikipediaService;
         _llmService = llmService;
         _jsonSerializer = jsonSerializer;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<WikipediaArticleDto>> GetExploreArticlesAsync(string userId, int count = 6)
@@ -36,10 +40,11 @@ public class ActivityService : IActivityService
         return await _wikipediaService.GetDiscoveryArticlesAsync(count);
     }
 
-    public async Task<UserActivity> ExploreAsync(string userId, string? title = null, string? sourceId = null, SourceType sourceType = SourceType.Custom)
+    public async Task<UserActivity> ExploreAsync(string userId, string? title = null, string? sourceId = null, SourceType sourceType = SourceType.Custom, string? sessionId = null)
     {
         var dto = new CreateActivityDto
         {
+            UserSessionId = sessionId,
             Title = title ?? "Exploration",
             Description = "Exploration session",
             SourceId = sourceId, 
@@ -51,13 +56,49 @@ public class ActivityService : IActivityService
         return await CreateActivityAsync(userId, dto);
     }
 
-    public async Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceId, SourceType sourceType, string? originExploreId = null, int? backlogAddsCount = null, int? exploreDurationSeconds = null)
+    public async Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceId, SourceType sourceType, string? originExploreId = null, int? backlogAddsCount = null, int? refreshCount = null, int? exploreDurationSeconds = null)
     {
         var sourceName = sourceType == SourceType.Wikipedia ? "Wikipedia" : "File"; 
-        var source = _contentSources.FirstOrDefault(s => s.CanHandle(sourceName));
-        if (source == null) throw new InvalidOperationException($"Content source for {sourceType} not found.");
+        var contentSource = _contentSources.FirstOrDefault(s => s.CanHandle(sourceName));
+        if (contentSource == null) throw new InvalidOperationException($"Content source for {sourceType} not found.");
 
-        var content = await source.GetContentAsync(sourceId ?? title);
+        // If sourceId is provided, check if it's a technical ID (GUID or Hash) first
+        string contentIdentifier = sourceId ?? title;
+        if (!string.IsNullOrEmpty(sourceId))
+        {
+            // If it's a URL, use it directly as identifier
+            if (sourceId.Contains("wikipedia.org") || sourceId.StartsWith("http"))
+            {
+                contentIdentifier = sourceId;
+            }
+            else 
+            {
+                var existingSource = await _repository.GetSourceByIdAsync(sourceId);
+                if (existingSource != null)
+                {
+                    contentIdentifier = existingSource.ExternalId;
+                }
+                else if (sourceId.Length == 64 && !string.IsNullOrEmpty(title))
+                {
+                    // If it looks like a hash (64 chars) but we don't know it, 
+                    // it might be a virtual ID from an explore session.
+                    // Fall back to title to be safe for Wikipedia.
+                    _logger.LogWarning("SourceId {SourceId} not found in DB and looks like a hash. Falling back to title: {Title}", sourceId, title);
+                    contentIdentifier = title;
+                }
+            }
+        }
+
+        ContentResult content;
+        try 
+        {
+            content = await contentSource.GetContentAsync(contentIdentifier);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to get content from {SourceType} for {Identifier}", sourceType, contentIdentifier);
+            throw;
+        }
 
         var dto = new CreateActivityDto
         {
@@ -69,6 +110,7 @@ public class ActivityService : IActivityService
             SessionDateStart = DateTime.UtcNow,
             OriginExploreId = originExploreId,
             BacklogAddsCount = backlogAddsCount,
+            RefreshCount = refreshCount,
             DurationSeconds = 0 // Initial read duration is 0
         };
 
@@ -79,7 +121,7 @@ public class ActivityService : IActivityService
             {
                 dto.UserSessionId = exploreActivity.UserSessionId;
                 
-                // If exploration duration was provided, update the explore activity
+                // Duration update for explore activity still needs to happen here or be passed to DTO
                 if (exploreDurationSeconds.HasValue) 
                 {
                     exploreActivity.DurationSeconds = exploreDurationSeconds.Value;
@@ -116,9 +158,12 @@ public class ActivityService : IActivityService
         if (!string.IsNullOrEmpty(dto.SourceId))
         {
             technicalSourceId = SourceHasher.GenerateId(dto.SourceType, dto.SourceId);
+        if (technicalSourceId != null)
+        {
             var source = await _repository.GetSourceByIdAsync(technicalSourceId);
             if (source == null)
             {
+                _logger.LogInformation("Creating new source with ID {SourceId} and ExternalId {ExternalId}", technicalSourceId, dto.SourceId);
                 source = new Source
                 {
                     Id = technicalSourceId,
@@ -130,6 +175,7 @@ public class ActivityService : IActivityService
                 };
                 await _repository.CreateSourceAsync(source);
             }
+        }
         }
 
         if (dto.Type != ActivityType.Explore && technicalSourceId == null && string.IsNullOrEmpty(dto.UserSessionId))
@@ -143,14 +189,19 @@ public class ActivityService : IActivityService
             session = await _repository.GetSessionByIdAsync(userId, dto.UserSessionId);
             if (session != null && session.TargetSourceId == null && technicalSourceId != null)
             {
+                _logger.LogInformation("Updating session {SessionId} TargetSourceId to {SourceId}", session.Id, technicalSourceId);
                 session.TargetSourceId = technicalSourceId;
                 await _repository.UpdateSessionAsync(session);
                 
-                var sessionActivities = await _repository.GetAllAsync(userId); 
-                foreach (var existingAct in sessionActivities.Where(a => a.UserSessionId == session.Id))
+                // Update all existing activities in this session to point to the now-known technical source
+                foreach (var existingAct in session.Activities)
                 {
-                    existingAct.SourceId = technicalSourceId;
-                    await _repository.UpdateAsync(existingAct);
+                    if (string.IsNullOrEmpty(existingAct.SourceId))
+                    {
+                        _logger.LogInformation("Updating activity {ActivityId} SourceId to {SourceId}", existingAct.Id, technicalSourceId);
+                        existingAct.SourceId = technicalSourceId;
+                        await _repository.UpdateAsync(existingAct);
+                    }
                 }
             }
         }
@@ -201,6 +252,34 @@ public class ActivityService : IActivityService
             }
         }
 
+        // Ensure OnlineResource exists for external sources (Wikipedia, etc.)
+        if (technicalSourceId != null && (dto.SourceType == SourceType.Wikipedia || dto.SourceId?.StartsWith("http") == true))
+        {
+            var existingResource = await _repository.GetOnlineResourceBySourceIdAsync(technicalSourceId);
+            if (existingResource == null)
+            {
+                var url = dto.SourceId ?? string.Empty;
+                if (dto.SourceType == SourceType.Wikipedia && !url.StartsWith("http"))
+                {
+                    url = $"https://en.wikipedia.org/wiki/{dto.SourceId}";
+                }
+
+                if (!string.IsNullOrEmpty(url))
+                {
+                    var onlineResource = new OnlineResource
+                    {
+                        UserId = userId,
+                        SourceId = technicalSourceId,
+                        URL = url,
+                        Title = dto.Title,
+                        Provider = dto.SourceType == SourceType.Wikipedia ? "Wikipedia" : null,
+                        SavedAt = DateTime.UtcNow
+                    };
+                    await _repository.CreateOnlineResourceAsync(onlineResource);
+                }
+            }
+        }
+
         var activity = new UserActivity
         {
             UserId = userId,
@@ -221,7 +300,9 @@ public class ActivityService : IActivityService
             LlmModelName = dto.LlmModelName,
             LlmVersion = dto.LlmVersion,
             Payload = dto.Payload,
-            BacklogAddsCount = dto.BacklogAddsCount
+            OriginExploreId = dto.OriginExploreId,
+            BacklogAddsCount = dto.BacklogAddsCount,
+            RefreshCount = dto.RefreshCount ?? 0
         };
 
         await _repository.CreateAsync(activity);
@@ -232,6 +313,14 @@ public class ActivityService : IActivityService
             if (explore != null)
             {
                 explore.ResultingReadActivityId = activity.Id;
+                
+                // Persist the stats from the exploration phase to the explore activity record
+                if (dto.BacklogAddsCount.HasValue) explore.BacklogAddsCount = dto.BacklogAddsCount.Value;
+                if (dto.RefreshCount.HasValue) explore.RefreshCount = dto.RefreshCount.Value;
+                
+                explore.IsCompleted = true;
+                explore.SessionDateEnd = DateTime.UtcNow;
+                
                 await _repository.UpdateAsync(explore);
             }
         }
@@ -245,16 +334,30 @@ public class ActivityService : IActivityService
     public async Task<UserActivity?> GetActivityByIdAsync(string userId, string activityId) => await _repository.GetByIdAsync(userId, activityId);
     public async Task DeleteActivityAsync(string userId, string activityId) => await _repository.DeleteAsync(userId, activityId);
 
+    public async Task StopSessionAsync(string userId, string sessionId)
+    {
+        var session = await _repository.GetSessionByIdAsync(userId, sessionId);
+        if (session == null) return;
+
+        session.Status = SessionStatus.Stopped;
+        session.EndedAt = DateTime.UtcNow;
+        await _repository.UpdateSessionAsync(session);
+
+        _logger.LogInformation("Session {SessionId} stopped for user {UserId}", sessionId, userId);
+    }
+
     public async Task<IEnumerable<UserActivityDto>> GetAllActivitiesAsync(string userId) 
     {
         var activities = await _repository.GetAllAsync(userId);
-        return ApplyUniversalRules(activities.Select(a => MapToDto(a, false)));
+        var dtos = activities.OrderByDescending(a => a.SessionDateStart).Select(a => MapToDto(a, a.Source?.IsTracked ?? false));
+        return ApplyUniversalRules(dtos);
     }
 
     public async Task<IEnumerable<UserActivityDto>> GetAllForContentAsync(string userId, string sourceId)
     {
         var activities = await _repository.GetAllForContentAsync(userId, sourceId);
-        return ApplyUniversalRules(activities.Select(a => MapToDto(a, false)));
+        var dtos = activities.OrderByDescending(a => a.SessionDateStart).Select(a => MapToDto(a, a.Source?.IsTracked ?? false));
+        return ApplyUniversalRules(dtos);
     }
 
     public async Task<UserActivity> UpdateActivityAsync(string userId, string activityId, UpdateActivityDto dto)
@@ -280,11 +383,11 @@ public class ActivityService : IActivityService
                 activity.IsNewBestScore = activity.ScorePercentage.Value > prevBest;
             }
         }
-
         if (!string.IsNullOrEmpty(dto.LlmModelName)) activity.LlmModelName = dto.LlmModelName;
         if (!string.IsNullOrEmpty(dto.LlmVersion)) activity.LlmVersion = dto.LlmVersion;
         if (!string.IsNullOrEmpty(dto.ResultingReadActivityId)) activity.ResultingReadActivityId = dto.ResultingReadActivityId;
         if (dto.BacklogAddsCount.HasValue) activity.BacklogAddsCount = dto.BacklogAddsCount.Value;
+        if (dto.RefreshCount.HasValue) activity.RefreshCount = dto.RefreshCount.Value;
 
         await _repository.UpdateAsync(activity);
         return activity;
@@ -300,9 +403,11 @@ public class ActivityService : IActivityService
             UserSessionId = a.UserSessionId,
             Title = a.Title,
             Description = a.Description,
-            SourceId = source?.ExternalId ?? string.Empty,
+            SourceId = source?.Id ?? string.Empty,
+            ExternalId = source?.ExternalId ?? string.Empty,
             SourceType = source?.Type ?? SourceType.Custom,
-            SourceHash = source?.Id ?? string.Empty,
+            DisplayTitle = source?.DisplayTitle ?? string.Empty,
+            Url = source?.OnlineResource?.URL ?? (source?.Type == SourceType.Wikipedia ? $"https://en.wikipedia.org/wiki/{source.ExternalId}" : string.Empty),
             Type = a.Type,
             SessionDateStart = a.SessionDateStart,
             SessionDateEnd = a.SessionDateEnd,
@@ -321,14 +426,17 @@ public class ActivityService : IActivityService
             ArticleContent = a.ArticleContent,
             Payload = a.Payload,
             ResultingReadActivityId = a.ResultingReadActivityId,
-            BacklogAddsCount = a.BacklogAddsCount
+            ResultingReadSourceName = a.ResultingReadActivity?.Title,
+            OriginExploreId = a.OriginExploreId,
+            BacklogAddsCount = a.BacklogAddsCount,
+            RefreshCount = a.RefreshCount
         };
     }
 
     private IEnumerable<UserActivityDto> ApplyUniversalRules(IEnumerable<UserActivityDto> dtos)
     {
         var list = dtos.ToList();
-        var sourceGroups = list.GroupBy(d => d.SourceHash).Where(g => !string.IsNullOrEmpty(g.Key));
+        var sourceGroups = list.GroupBy(d => d.SourceId).Where(g => !string.IsNullOrEmpty(g.Key));
 
         foreach (var group in sourceGroups)
         {

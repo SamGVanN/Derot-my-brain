@@ -63,9 +63,9 @@ export const HistoryTimeline: React.FC<HistoryTimelineProps> = ({
 
                         <div className="space-y-10">
                             {Object.entries(groupedByDateAndSession[dateKey]).map(([sessionId, sessionActivities]) => {
-                                // Sort session activities by start time
+                                // Sort session activities by start time (newest first)
                                 const sortedActivities = [...sessionActivities].sort((a, b) =>
-                                    parseDate(a.sessionDateStart).getTime() - parseDate(b.sessionDateStart).getTime()
+                                    parseDate(b.sessionDateStart).getTime() - parseDate(a.sessionDateStart).getTime()
                                 );
 
                                 return (
@@ -82,7 +82,7 @@ export const HistoryTimeline: React.FC<HistoryTimelineProps> = ({
                                                         sourceType: activity.sourceType,
                                                         displayTitle: activity.title
                                                     })}
-                                                    onUntrack={() => onUntrack(activity.sourceHash)}
+                                                    onUntrack={() => onUntrack(activity.sourceId)}
                                                     isLast={index === sortedActivities.length - 1}
                                                 />
                                             ))}

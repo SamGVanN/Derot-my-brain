@@ -18,7 +18,7 @@ The previous assessment was overly optimistic. A deep-dive audit reveals signifi
 | Core Architecture | ✅ Done | Hexagonal-ish frontend, Clean Architecture backend foundation. |
 | Authentication | ✅ Done | Local profile selection with persistence. |
 | i18n (FR/EN) | ✅ Done | Fully implemented across all pages. |
-| Derot Zone (UI) | 🟡 Partial | Explore View is implemented but Read View is not. Quiz View is not implemented. Flow is partially implemented : ATM we can navigate from Explore to Read and from Read to Quiz but no quizz is being generated (need LLM implementation). |
+| Derot Zone (UI) | 🟡 Partial | Explore View is implemented but Read View is only mocked. Quiz View is only mocked. Flow is partially implemented : ATM we can navigate from Explore to Read and from Read to Quiz but no quizz is being generated (need LLM implementation) and no reading material is being displayed. |
 | Wikipedia Service | 🟡 Partial | Getting articles is working for exploration mode. We need now to fetch article and display it in Read View. |
 | LLM Integration | 🔴 Broken | Backend skeleton exists but liaison with Ollama is not validated/functional. connectivity issues and not implemented LLM interactions to get questions, answers and user answers validation. |
 | Workflow Integration | 🔴 Partial (refere to Derot Zone UI) |

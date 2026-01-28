@@ -10,9 +10,19 @@ type Props = {
   onRead: (article: ArticleCard) => Promise<void>;
   onAddToBacklog: (article: ArticleCard) => Promise<boolean>;
   loadingAction: string | null;
+  isLoading?: boolean;
 };
 
-export default function DerotZone({ articles, onRead, onAddToBacklog, loadingAction }: Props) {
+export default function DerotZone({ articles, onRead, onAddToBacklog, loadingAction, isLoading }: Props) {
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-4">
+        <Loader2 className="w-10 h-10 animate-spin text-primary/40" />
+        <p className="text-muted-foreground animate-pulse">Recherche d'articles passionnants...</p>
+      </div>
+    );
+  }
 
   if (articles.length === 0) {
     return (

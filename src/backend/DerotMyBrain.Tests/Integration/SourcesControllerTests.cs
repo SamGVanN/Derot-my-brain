@@ -80,14 +80,11 @@ public class SourcesControllerTests : IClassFixture<CustomWebApplicationFactory>
         response.EnsureSuccessStatusCode();
         var trackedSource = await response.Content.ReadFromJsonAsync<TrackedSourceDto>(_jsonOptions);
         Assert.NotNull(trackedSource);
-        Assert.Equal("Quantum_Physics", trackedSource.SourceId); // Internal logic maps ExternalId to SourceId in DTO
-        // Assert.True(trackedSource.IsTracked); // TrackedSourceDto doesn't explicitly have IsTracked because it's implicit in being in the list, but our API returns it. 
-        // Wait, TrackedSourceDto doesn't have IsTracked boolean. It has IsPinned/IsArchived. 
-        // But verifying it appears in list:
+        Assert.Equal("Quantum_Physics", trackedSource.ExternalId); 
         
         var listResponse = await _client.GetAsync($"/api/users/{_userId}/sources?tracked=true");
         var list = await listResponse.Content.ReadFromJsonAsync<IEnumerable<TrackedSourceDto>>(_jsonOptions);
-        Assert.Contains(list, s => s.SourceId == "Quantum_Physics");
+        Assert.Contains(list, s => s.ExternalId == "Quantum_Physics");
     }
     
     [Fact]

@@ -151,8 +151,19 @@ public class UserActivity
     public UserActivity? ResultingReadActivity { get; set; }
 
     /// <summary>
+    /// If this activity is a Read activity that originated from an Explore session,
+    /// this field stores the Id of the corresponding Explore `UserActivity`.
+    /// </summary>
+    public string? OriginExploreId { get; set; }
+
+    /// <summary>
     /// Number of articles the user added to their Backlog during this Explore session.
     /// Nullable: `null` means "not recorded", `0` means recorded and none were added.
     /// </summary>
     public int? BacklogAddsCount { get; set; }
+
+    /// <summary>
+    /// Number of discovery refreshes performed during this Explore session.
+    /// </summary>
+    public int RefreshCount { get; set; }
 }

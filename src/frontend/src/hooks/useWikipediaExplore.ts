@@ -10,8 +10,10 @@ export function useWikipediaExplore() {
 
     const {
         exploreId, setExploreId,
+        sessionId, setSessionId,
         articles, setArticles,
         backlogAddsCount, setBacklogAddsCount,
+        refreshCount, setRefreshCount,
         startTime, setStartTime,
         error, setError,
         reset
@@ -45,13 +47,18 @@ export function useWikipediaExplore() {
 
             const data = await activityApi.explore(userId, {
                 title: "Wikipedia Exploration",
-                sourceType: 1 // Wikipedia
+                sourceType: 1, // Wikipedia
+                sessionId: sessionId || undefined
             });
 
             if (data?.id) {
                 setExploreId(data.id);
+                if (data.userSessionId) {
+                    setSessionId(data.userSessionId);
+                }
                 setStartTime(Date.now());
                 setBacklogAddsCount(0);
+                setRefreshCount(0);
                 await fetchArticles();
             } else {
                 setError('Impossible de démarrer la session (ID manquant)');
@@ -98,6 +105,7 @@ export function useWikipediaExplore() {
                 sourceType: 1, // Wikipedia
                 originExploreId: exploreId || undefined,
                 backlogAddsCount: backlogAddsCount || undefined,
+                refreshCount: refreshCount || undefined,
                 exploreDurationSeconds: duration
             });
             return data;
@@ -116,15 +124,22 @@ export function useWikipediaExplore() {
             const duration = Math.floor((Date.now() - startTime) / 1000);
             await activityApi.stopExplore(userId, exploreId, {
                 durationSeconds: duration,
-                backlogAddsCount
+                backlogAddsCount,
+                refreshCount
             });
+
+            // Also stop the backend session
+            if (sessionId) {
+                await activityApi.stopSession(userId, sessionId);
+            }
+
             reset();
         } catch (e) {
             console.error('Failed to stop explore session', e);
         } finally {
             setLoadingAction(null);
         }
-    }, [userId, exploreId, startTime, backlogAddsCount, reset]);
+    }, [userId, exploreId, startTime, backlogAddsCount, sessionId, reset]);
 
     return {
         exploreId,
@@ -136,6 +151,9 @@ export function useWikipediaExplore() {
         addToBacklog,
         readArticle,
         stopExplore,
-        refresh: initExplore
+        refresh: async () => {
+            setRefreshCount(c => c + 1);
+            await fetchArticles();
+        }
     };
 }

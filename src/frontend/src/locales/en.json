@@ -25,7 +25,10 @@
         "personalBestInitial": "First Attempt (Best): {{score}}%",
         "isBestTooltip": "This is your current best score for this topic!",
         "isInitialBestTooltip": "This was your first attempt and is still your best score!",
-        "bestCompareTooltip": "Your personal best for this topic is {{score}}%"
+        "bestCompareTooltip": "Your personal best for this topic is {{score}}%",
+        "refreshes_one": "{{count}} refresh",
+        "refreshes_other": "{{count}} refreshes",
+        "readResult": "Read article:"
     },
     "common": {
         "save": "Save",

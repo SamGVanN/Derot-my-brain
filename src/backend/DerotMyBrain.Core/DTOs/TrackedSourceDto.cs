@@ -6,7 +6,8 @@ public class TrackedSourceDto
 {
     public string Id { get; set; } = string.Empty;
     public string UserId { get; set; } = string.Empty;
-    public string SourceId { get; set; } = string.Empty; // For consistency with frontend UserFocus model (which names it sourceId, but it mimics Source.Id)
+    public string SourceId { get; set; } = string.Empty; // Technical GUID
+    public string ExternalId { get; set; } = string.Empty; // URL or DocId
     public SourceType SourceType { get; set; }
     public string DisplayTitle { get; set; } = string.Empty;
     public string? Url { get; set; }

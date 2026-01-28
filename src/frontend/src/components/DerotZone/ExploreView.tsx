@@ -43,6 +43,7 @@ export function ExploreView({
                 onRead={onRead}
                 onAddToBacklog={onAddToBacklog}
                 loadingAction={loadingAction}
+                isLoading={isLoading}
             />
         </div>
     );

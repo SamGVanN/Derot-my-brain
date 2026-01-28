@@ -25,6 +25,7 @@ public class SqliteActivityRepository : IActivityRepository
             .Include(a => a.UserSession)
                 .ThenInclude(s => s.TargetSource)
             .Include(a => a.Source)
+            .Include(a => a.ResultingReadActivity)
             .Where(a => a.UserId == userId)
             .OrderByDescending(a => a.SessionDateStart)
             .ToListAsync();
@@ -37,6 +38,7 @@ public class SqliteActivityRepository : IActivityRepository
             .Include(a => a.Source)
             .Include(a => a.UserSession)
                 .ThenInclude(s => s.TargetSource)
+            .Include(a => a.ResultingReadActivity)
             .Where(a => a.UserId == userId && (a.UserSession.TargetSourceId == sourceId || a.SourceId == sourceId))
             .OrderByDescending(a => a.SessionDateStart)
             .ToListAsync();
@@ -45,7 +47,7 @@ public class SqliteActivityRepository : IActivityRepository
     public async Task<UserActivity?> GetByIdAsync(string userId, string activityId)
     {
         return await _context.Activities
-            .AsNoTracking()
+            .Include(a => a.ResultingReadActivity)
             .FirstOrDefaultAsync(a => a.UserId == userId && a.Id == activityId);
     }
     
@@ -79,6 +81,7 @@ public class SqliteActivityRepository : IActivityRepository
     public async Task<Source?> GetSourceByIdAsync(string sourceId)
     {
         return await _context.Sources
+            .AsNoTracking()
             .Include(s => s.Activities)
             .Include(s => s.OnlineResource)
             .FirstOrDefaultAsync(s => s.Id == sourceId);
@@ -236,5 +239,18 @@ public class SqliteActivityRepository : IActivityRepository
     {
         return await _context.OnlineResources
             .FirstOrDefaultAsync(or => or.SourceId == sourceId);
+    }
+
+    public async Task DeleteSourceAsync(string sourceId)
+    {
+        var source = await _context.Sources.FindAsync(sourceId);
+        if (source != null)
+        {
+            var resource = await _context.OnlineResources.FirstOrDefaultAsync(r => r.SourceId == sourceId);
+            if (resource != null) _context.OnlineResources.Remove(resource);
+            
+            _context.Sources.Remove(source);
+            await _context.SaveChangesAsync();
+        }
     }
 }

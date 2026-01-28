@@ -62,6 +62,7 @@ public interface IActivityRepository
     Task<IEnumerable<Source>> GetTrackedSourcesAsync(string userId);
     Task<OnlineResource> CreateOnlineResourceAsync(OnlineResource resource);
     Task<OnlineResource?> GetOnlineResourceBySourceIdAsync(string sourceId);
+    Task DeleteSourceAsync(string sourceId);
 
     // Session Operations
     Task<UserSession?> GetSessionByIdAsync(string userId, string sessionId);
