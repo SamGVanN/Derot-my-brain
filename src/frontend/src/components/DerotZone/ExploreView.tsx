@@ -1,5 +1,5 @@
 import DerotZone, { type ArticleCard } from './DerotZone';
-import { TrendingUp, RefreshCw } from 'lucide-react';
+import { Radar, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ExploreViewProps {
@@ -14,34 +14,38 @@ interface ExploreViewProps {
 export function ExploreView({
     articles,
     onRefresh,
+    onStartExplore,
     onRead,
     onAddToBacklog,
     loadingAction,
     isLoading
-}: ExploreViewProps) {
+}: ExploreViewProps & { onStartExplore: () => Promise<void> }) {
     return (
         <div className="space-y-8 animate-in fade-in duration-1000">
-            <div className="flex items-center justify-between border-b pb-4 border-border/40 pt-4">
-                <div className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-primary" />
-                    <h2 className="text-2xl font-bold tracking-tight">Trending Topics</h2>
+            {articles.length > 0 && (
+                <div className="flex items-center justify-between border-b pb-4 border-border/40 pt-4">
+                    <div className="flex items-center gap-2">
+                        <Radar className="h-5 w-5 text-primary" />
+                        <h2 className="text-2xl font-bold tracking-tight">Suggestions d'exploration</h2>
+                    </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={onRefresh}
+                        disabled={isLoading}
+                        className="gap-2"
+                    >
+                        <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                        Rafraîchir
+                    </Button>
                 </div>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={onRefresh}
-                    disabled={isLoading}
-                    className="gap-2"
-                >
-                    <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-                    Rafraîchir
-                </Button>
-            </div>
+            )}
 
             <DerotZone
                 articles={articles}
                 onRead={onRead}
                 onAddToBacklog={onAddToBacklog}
+                onStartExplore={onStartExplore}
                 loadingAction={loadingAction}
                 isLoading={isLoading}
             />

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Layout } from '@/components/Layout';
-import { Brain } from 'lucide-react';
+import { BrainCircuit } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { DerotZoneSubHeader } from '@/components/DerotZone/DerotZoneSubHeader';
 import { ExploreView } from '@/components/DerotZone/ExploreView';
@@ -17,7 +17,7 @@ export function DerotPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { articles, isInitializing, refresh, error, stopExplore, readArticle, addToBacklog, loadingAction } = useWikipediaExplore();
+  const { articles, isInitializing, refresh, error, stopExplore, readArticle, addToBacklog, loadingAction, initExplore, exploreId } = useWikipediaExplore();
   const { updateActivity } = useActivities();
 
   const [readStartTime, setReadStartTime] = useState<number | null>(null);
@@ -69,30 +69,33 @@ export function DerotPage() {
           title={t('derot.title', 'Derot Zone')}
           subtitle={t('derot.subtitle', 'Derot Zone')}
           description={t('derot.description', "Explorez, lisez et testez vos connaissances. C'est ici que se passe l'essentiel de votre apprentissage.")}
-          icon={Brain}
+          icon={BrainCircuit}
         />
 
         <section className="space-y-6 animate-in fade-in duration-1000">
-          <DerotZoneSubHeader
-            mode={mode}
-            onStopExplore={async () => {
-              if (mode === 'READ') {
+          {(mode !== 'EXPLORE' || !!exploreId) && (
+            <DerotZoneSubHeader
+              mode={mode}
+              onStopExplore={async () => {
+                if (mode === 'READ') {
+                  await saveReadDuration();
+                }
+                await stopExplore();
+                navigate('/focus-area');
+              }}
+              onGoToQuiz={async () => {
                 await saveReadDuration();
-              }
-              await stopExplore();
-              navigate('/focus-area');
-            }}
-            onGoToQuiz={async () => {
-              await saveReadDuration();
-              setSearchParams({ activityId: activityId!, mode: 'quiz' });
-            }}
-            onSubmitQuiz={() => setSearchParams({})}
-          />
+                setSearchParams({ activityId: activityId!, mode: 'quiz' });
+              }}
+              onSubmitQuiz={() => setSearchParams({})}
+            />
+          )}
 
           {mode === 'EXPLORE' && (
             <ExploreView
               articles={articles}
               onRefresh={refresh}
+              onStartExplore={initExplore}
               onRead={async (article) => {
                 const activity = await readArticle(article);
                 const id = activity?.id || (activity as any)?.Id;

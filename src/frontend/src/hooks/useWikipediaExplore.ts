@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { activityApi } from '@/api/activityApi';
 import { wikipediaApi, type WikipediaArticle } from '@/api/wikipediaApi';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -71,12 +71,6 @@ export function useWikipediaExplore() {
         }
     }, [userId, fetchArticles, setExploreId, setStartTime, setBacklogAddsCount, setError]);
 
-    // Initial load only if we have a user and haven't attempted yet and have no articles
-    useEffect(() => {
-        if (userId && !exploreId && !isInitializing && !error && !hasAttemptedInit.current && articles.length === 0) {
-            initExplore();
-        }
-    }, [userId, exploreId, isInitializing, initExplore, error, articles.length]);
 
     const addToBacklog = async (article: WikipediaArticle) => {
         if (!userId) return false;
@@ -151,6 +145,7 @@ export function useWikipediaExplore() {
         addToBacklog,
         readArticle,
         stopExplore,
+        initExplore,
         refresh: async () => {
             setRefreshCount(c => c + 1);
             await fetchArticles();

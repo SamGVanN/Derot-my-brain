@@ -11,6 +11,7 @@ namespace DerotMyBrain.Core.Services;
 public class ActivityService : IActivityService
 {
     private readonly IActivityRepository _repository;
+    private readonly IUserRepository _userRepository;
     private readonly IEnumerable<IContentSource> _contentSources;
     private readonly IWikipediaService _wikipediaService;
     private readonly ILlmService _llmService;
@@ -19,6 +20,7 @@ public class ActivityService : IActivityService
 
     public ActivityService(
         IActivityRepository repository,
+        IUserRepository userRepository,
         IEnumerable<IContentSource> contentSources,
         IWikipediaService wikipediaService,
         ILlmService llmService,
@@ -26,6 +28,7 @@ public class ActivityService : IActivityService
         ILogger<ActivityService> logger)
     {
         _repository = repository;
+        _userRepository = userRepository;
         _contentSources = contentSources;
         _wikipediaService = wikipediaService;
         _llmService = llmService;
@@ -35,9 +38,15 @@ public class ActivityService : IActivityService
 
     public async Task<IEnumerable<WikipediaArticleDto>> GetExploreArticlesAsync(string userId, int count = 6)
     {
-        // For now, we just fetch random articles. 
-        // In the future, we could use user interests/categories.
-        return await _wikipediaService.GetDiscoveryArticlesAsync(count);
+        var language = "en";
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user?.Preferences != null)
+        {
+            language = user.Preferences.Language;
+        }
+
+        _logger.LogInformation("Fetching explore articles for user {UserId} in language {Language}", userId, language);
+        return await _wikipediaService.GetDiscoveryArticlesAsync(count, language);
     }
 
     public async Task<UserActivity> ExploreAsync(string userId, string? title = null, string? sourceId = null, SourceType sourceType = SourceType.Custom, string? sessionId = null)

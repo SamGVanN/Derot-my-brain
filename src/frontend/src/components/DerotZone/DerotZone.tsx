@@ -1,7 +1,7 @@
 import { type WikipediaArticle } from '@/api/wikipediaApi';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, ClockAlert, Loader2, Sparkles, ExternalLink, Brain } from 'lucide-react';
+import { BookOpen, ClockAlert, Loader2, Radar, ExternalLink, Brain, BrainCircuit } from 'lucide-react';
 
 export type ArticleCard = WikipediaArticle;
 
@@ -9,11 +9,12 @@ type Props = {
   articles: ArticleCard[];
   onRead: (article: ArticleCard) => Promise<void>;
   onAddToBacklog: (article: ArticleCard) => Promise<boolean>;
+  onStartExplore?: () => Promise<void>;
   loadingAction: string | null;
   isLoading?: boolean;
 };
 
-export default function DerotZone({ articles, onRead, onAddToBacklog, loadingAction, isLoading }: Props) {
+export default function DerotZone({ articles, onRead, onAddToBacklog, onStartExplore, loadingAction, isLoading }: Props) {
 
   if (isLoading) {
     return (
@@ -25,6 +26,31 @@ export default function DerotZone({ articles, onRead, onAddToBacklog, loadingAct
   }
 
   if (articles.length === 0) {
+    if (onStartExplore) {
+      return (
+        <div className="flex flex-col items-center justify-center py-20 animate-in fade-in zoom-in duration-700">
+          <div className="relative mb-8">
+            <div className="absolute -inset-4 bg-primary/20 rounded-full blur-2xl animate-pulse" />
+            <div className="relative bg-primary/10 p-8 rounded-3xl border border-primary/20">
+              <BrainCircuit className="w-16 h-16 text-primary" />
+            </div>
+          </div>
+          <h3 className="text-3xl font-bold tracking-tight mb-4">Prêt pour de nouvelles découvertes ?</h3>
+          <p className="text-muted-foreground max-w-md text-center mb-8 leading-relaxed">
+            Plongez dans un univers de connaissances avec des articles Wikipédia sélectionnés pour vous.
+          </p>
+          <Button
+            size="lg"
+            onClick={onStartExplore}
+            className="px-8 py-6 text-lg font-semibold rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 gap-3"
+          >
+            <Radar className="w-6 h-6" />
+            Start exploring
+          </Button>
+        </div>
+      );
+    }
+
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground">
         <p>No articles found for the current selection.</p>
@@ -69,7 +95,7 @@ export default function DerotZone({ articles, onRead, onAddToBacklog, loadingAct
             <CardHeader className="-mt-12 relative z-10">
               <div className="flex justify-between items-start mb-2">
                 <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300 backdrop-blur-md">
-                  <Sparkles className="h-4 w-4" />
+                  <Radar className="h-4 w-4" />
                 </div>
                 {article.lang && (
                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted/80 text-muted-foreground backdrop-blur-md">
