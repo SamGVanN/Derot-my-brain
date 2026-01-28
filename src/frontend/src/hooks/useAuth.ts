@@ -6,6 +6,29 @@ import type { User } from '../models/User';
 
 
 /**
+ * Normalizes user preferences by converting category objects to IDs.
+ * This ensures consistency with frontend UI state and prevents 400 errors
+ * when sending preferences back to the backend.
+ */
+const normalizeUser = (user: User): User => {
+    if (!user.preferences) return user;
+
+    const prefs = { ...user.preferences };
+
+    // Backend sends WikipediaCategory objects, but frontend expects IDs (strings)
+    if (prefs.selectedCategories &&
+        prefs.selectedCategories.length > 0 &&
+        typeof prefs.selectedCategories[0] === 'object') {
+        prefs.selectedCategories = (prefs.selectedCategories as any).map((c: any) => c.id);
+    }
+
+    return {
+        ...user,
+        preferences: prefs
+    };
+};
+
+/**
  * Custom hook for authentication logic.
  * Wraps useAuthStore and adds session validation logic.
  */
@@ -24,11 +47,12 @@ export function useAuth() {
     const userId = user?.id;
 
     const login = useCallback((data: { user: User; token: string }) => {
-        const { user, token } = data;
-        storeLogin(user, token);
+        const normalizedUser = normalizeUser(data.user);
+        storeLogin(normalizedUser, data.token);
+
         // Sync preferences store with user's saved preferences on login
-        if (user.preferences) {
-            setPreferences(user.preferences);
+        if (normalizedUser.preferences) {
+            setPreferences(normalizedUser.preferences);
         }
     }, [storeLogin, setPreferences]);
 
@@ -48,14 +72,14 @@ export function useAuth() {
         try {
             // Validate if user still exists in backend
             const validUser = await userApi.getUserById(userId);
-            // Updating the user will create a new object reference, 
-            // but userId (primitive) remains unstable if we don't depend on it specifically.
-            // By depending on userId primitive, we avoid the loop.
-            updateUser(validUser);
+            const normalizedUser = normalizeUser(validUser);
+
+            // Updating the user will create a new object reference
+            updateUser(normalizedUser);
 
             // Also sync preferences
-            if (validUser.preferences) {
-                setPreferences(validUser.preferences);
+            if (normalizedUser.preferences) {
+                setPreferences(normalizedUser.preferences);
             }
         } catch (error) {
             console.warn('Session validation failed (User presumably deleted):', error);
