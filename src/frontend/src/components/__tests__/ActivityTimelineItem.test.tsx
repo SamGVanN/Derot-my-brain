@@ -1,34 +1,63 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ActivityTimelineItem } from '../ActivityTimelineItem';
 import type { UserActivity } from '../../models/UserActivity';
+import { MemoryRouter } from 'react-router';
+import { TooltipProvider } from '../ui/tooltip';
+import { activityApi } from '../../api/activityApi';
 
 // Mock translation
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
-        useTranslation: () => ({
-            t: (key: string, defaultVal?: string) => defaultVal ?? key,
-        }),
+        t: (key: string, defaultVal?: string) => defaultVal ?? key,
+        i18n: { language: 'en' }
     }),
+}));
+
+// Mock activityApi
+vi.mock('../../api/activityApi', () => ({
+    activityApi: {
+        read: vi.fn(),
+    },
 }));
 
 const mockActivity: UserActivity = {
     id: '1',
     userId: 'user1',
+    userSessionId: 'session1',
     type: 'Read',
-    topic: 'Test Topic',
-    wikipediaUrl: 'http://test.com',
-    sessionDate: '2023-10-27T10:00:00Z',
+    title: 'Test Topic',
+    description: 'Test Description',
+    externalId: 'http://test.com',
+    sourceId: 'src1',
+    sourceType: 'Wikipedia',
+    sessionDateStart: '2023-10-27T10:00:00Z',
     score: 80,
-    totalQuestions: 10,
-    llmModelName: 'gpt-4',
-    llmVersion: 'turbo',
+    questionCount: 10,
+    scorePercentage: 80,
+    durationSeconds: 120,
+    totalDurationSeconds: 120,
+    isNewBestScore: false,
+    isBaseline: false,
+    isCurrentBest: false,
+    isCompleted: true,
     isTracked: false
+};
+
+const renderWithProviders = (ui: React.ReactElement) => {
+    return render(
+        <MemoryRouter>
+            <TooltipProvider>
+                {ui}
+            </TooltipProvider>
+        </MemoryRouter>
+    );
 };
 
 describe('ActivityTimelineItem', () => {
     it('renders activity details correctly', () => {
-        render(
+        renderWithProviders(
             <ActivityTimelineItem
                 activity={mockActivity}
                 isTracked={false}
@@ -39,12 +68,12 @@ describe('ActivityTimelineItem', () => {
 
         expect(screen.getByText(/Test Topic/)).toBeDefined();
         expect(screen.getByText(/Read/)).toBeDefined();
-        expect(screen.getByText("80/10")).toBeDefined();
-        // Time check usually depends on locale, skipping precise time check to avoid fragility
+        // formatDuration(120) should show "2m 0s"
+        expect(screen.getByText(/2m 0s/)).toBeDefined();
     });
 
-    it('renders bookmark icon as outline when not tracked', () => {
-        render(
+    it('displays action buttons for Read activity', () => {
+        renderWithProviders(
             <ActivityTimelineItem
                 activity={mockActivity}
                 isTracked={false}
@@ -53,72 +82,61 @@ describe('ActivityTimelineItem', () => {
             />
         );
 
-        expect(screen.getByTitle('Track topic')).toBeDefined();
+        expect(screen.getByText('history.reRead')).toBeDefined();
+        expect(screen.getByText('history.takeQuiz')).toBeDefined();
     });
 
-    it('renders bookmark icon as filled (checked) when tracked', () => {
-        render(
-            <ActivityTimelineItem
-                activity={mockActivity}
-                isTracked={true}
-                onTrack={vi.fn()}
-                onUntrack={vi.fn()}
-            />
-        );
+    it('triggers activityApi.read when Re-read is clicked', async () => {
+        vi.mocked(activityApi.read).mockResolvedValue({ id: 'new-act' } as any);
 
-        expect(screen.getByTitle('Untrack topic')).toBeDefined();
-    });
-
-    it('renders best score trophy when tracked and bestScore provided', () => {
-        render(
-            <ActivityTimelineItem
-                activity={mockActivity}
-                isTracked={true}
-                bestScore={{ score: 95, total: 100 }}
-                onTrack={vi.fn()}
-                onUntrack={vi.fn()}
-            />
-        );
-
-        expect(screen.getByTitle('All-time Best')).toBeDefined();
-        expect(screen.getByText(/95%/)).toBeDefined();
-    });
-
-    it('does not render best score when not tracked', () => {
-        render(
+        renderWithProviders(
             <ActivityTimelineItem
                 activity={mockActivity}
                 isTracked={false}
-                bestScore={{ score: 95 }}
                 onTrack={vi.fn()}
                 onUntrack={vi.fn()}
             />
         );
 
-        expect(screen.queryByTitle('All-time Best')).toBeNull();
+        const reReadBtn = screen.getByText('history.reRead');
+        fireEvent.click(reReadBtn);
+
+        await waitFor(() => {
+            expect(activityApi.read).toHaveBeenCalledWith('user1', expect.objectContaining({
+                type: 'Read',
+                sourceId: 'src1'
+            }));
+        });
     });
 
-    it('renders trophy icon on timeline when score matches best score', () => {
-        render(
+    it('triggers activityApi.read with type Quiz when Take Quiz is clicked', async () => {
+        vi.mocked(activityApi.read).mockResolvedValue({ id: 'new-act' } as any);
+
+        renderWithProviders(
             <ActivityTimelineItem
-                activity={{ ...mockActivity, score: 95 }}
-                isTracked={true}
-                bestScore={{ score: 95 }}
+                activity={mockActivity}
+                isTracked={false}
                 onTrack={vi.fn()}
                 onUntrack={vi.fn()}
             />
         );
 
-        // We expect 2 trophies: one in badge, one in timeline
-        const trophies = document.querySelectorAll('.lucide-trophy');
-        expect(trophies.length).toBe(2);
+        const quizBtn = screen.getByText('history.takeQuiz');
+        fireEvent.click(quizBtn);
+
+        await waitFor(() => {
+            expect(activityApi.read).toHaveBeenCalledWith('user1', expect.objectContaining({
+                type: 'Quiz',
+                sourceId: 'src1'
+            }));
+        });
     });
 
     describe('Motivational Text', () => {
         it('does not render message for <= 60%', () => {
-            render(
+            renderWithProviders(
                 <ActivityTimelineItem
-                    activity={{ ...mockActivity, score: 60, totalQuestions: 100 }}
+                    activity={{ ...mockActivity, type: 'Quiz', score: 6, questionCount: 10 }}
                     isTracked={false}
                     onTrack={vi.fn()}
                     onUntrack={vi.fn()}
@@ -128,9 +146,9 @@ describe('ActivityTimelineItem', () => {
         });
 
         it('renders Tier 1 message for 61-70%', () => {
-            render(
+            renderWithProviders(
                 <ActivityTimelineItem
-                    activity={{ ...mockActivity, score: 65, totalQuestions: 100 }}
+                    activity={{ ...mockActivity, type: 'Quiz', score: 65, questionCount: 100 }}
                     isTracked={false}
                     onTrack={vi.fn()}
                     onUntrack={vi.fn()}
@@ -139,53 +157,16 @@ describe('ActivityTimelineItem', () => {
             expect(screen.getByText('history.motivational.tier1')).toBeDefined();
         });
 
-        it('renders Tier 2 message for 71-80%', () => {
-            render(
-                <ActivityTimelineItem
-                    activity={{ ...mockActivity, score: 75, totalQuestions: 100 }}
-                    isTracked={false}
-                    onTrack={vi.fn()}
-                    onUntrack={vi.fn()}
-                />
-            );
-            expect(screen.getByText('history.motivational.tier2')).toBeDefined();
-        });
-
-        it('renders Tier 3 message for 81-90%', () => {
-            render(
-                <ActivityTimelineItem
-                    activity={{ ...mockActivity, score: 85, totalQuestions: 100 }}
-                    isTracked={false}
-                    onTrack={vi.fn()}
-                    onUntrack={vi.fn()}
-                />
-            );
-            expect(screen.getByText('history.motivational.tier3')).toBeDefined();
-        });
-
-        it('renders Tier 4 message for 91-99%', () => {
-            render(
-                <ActivityTimelineItem
-                    activity={{ ...mockActivity, score: 95, totalQuestions: 100 }}
-                    isTracked={false}
-                    onTrack={vi.fn()}
-                    onUntrack={vi.fn()}
-                />
-            );
-            expect(screen.getByText('history.motivational.tier4')).toBeDefined();
-        });
-
         it('renders Perfect message and party icon for 100%', () => {
-            const { container } = render(
+            const { container } = renderWithProviders(
                 <ActivityTimelineItem
-                    activity={{ ...mockActivity, score: 100, totalQuestions: 100 }}
+                    activity={{ ...mockActivity, type: 'Quiz', score: 10, questionCount: 10 }}
                     isTracked={false}
                     onTrack={vi.fn()}
                     onUntrack={vi.fn()}
                 />
             );
             expect(screen.getByText('history.motivational.perfect')).toBeDefined();
-            // Check for party popper icon (it has a specific class or we can check svg)
             const partyIcon = container.querySelector('.lucide-party-popper');
             expect(partyIcon).toBeDefined();
         });

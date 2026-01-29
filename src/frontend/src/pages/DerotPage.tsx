@@ -8,7 +8,7 @@ import { ReadView } from '@/components/DerotZone/ReadView';
 import { QuizView } from '@/components/DerotZone/QuizView';
 import { useSearchParams, useNavigate } from 'react-router';
 import { useWikipediaExplore } from '@/hooks/useWikipediaExplore';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { useActivities } from '@/hooks/useActivities';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,10 +20,19 @@ export function DerotPage() {
   const { articles, isInitializing, refresh, error, stopExplore, readArticle, addToBacklog, loadingAction, initExplore, exploreId } = useWikipediaExplore();
   const { updateActivity } = useActivities();
 
-  const [readStartTime, setReadStartTime] = useState<number | null>(null);
-
   const activityId = searchParams.get('activityId');
   const paramMode = searchParams.get('mode');
+
+  // Use refs to avoid stale closures in cleanup
+  const currentActivityIdRef = useRef<string | null>(null);
+  const startTimeRef = useRef<number | null>(null);
+  const stopExploreRef = useRef(stopExplore);
+  const updateActivityRef = useRef(updateActivity);
+
+  useEffect(() => {
+    stopExploreRef.current = stopExplore;
+    updateActivityRef.current = updateActivity;
+  }, [stopExplore, updateActivity]);
 
   const mode = useMemo(() => {
     if (!activityId) return 'EXPLORE';
@@ -31,11 +40,38 @@ export function DerotPage() {
     return 'READ';
   }, [activityId, paramMode]);
 
-  useEffect(() => {
-    if (mode === 'READ') {
-      setReadStartTime(Date.now());
+  const saveCurrentDuration = async () => {
+    if (currentActivityIdRef.current && startTimeRef.current) {
+      const duration = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      if (duration > 0) {
+        try {
+          await updateActivityRef.current(currentActivityIdRef.current, {
+            durationSeconds: duration,
+            sessionDateEnd: new Date().toISOString(),
+            isCompleted: true
+          });
+        } catch (err) {
+          console.error('Failed to save activity duration', err);
+        }
+      }
+      startTimeRef.current = null;
     }
-  }, [mode]);
+  };
+
+  useEffect(() => {
+    // If we're changing activity or mode, save the previous one's duration
+    if (currentActivityIdRef.current && currentActivityIdRef.current !== activityId) {
+      saveCurrentDuration();
+    }
+
+    currentActivityIdRef.current = activityId;
+
+    if (activityId && (mode === 'READ' || mode === 'QUIZ')) {
+      startTimeRef.current = Date.now();
+    } else {
+      startTimeRef.current = null;
+    }
+  }, [activityId, mode]);
 
   // Handle 'start' parameters (e.g. from Backlog)
   useEffect(() => {
@@ -65,27 +101,12 @@ export function DerotPage() {
     }
   }, [searchParams, setSearchParams, readArticle]);
 
-  const saveReadDuration = async () => {
-    if (activityId && readStartTime) {
-      const duration = Math.floor((Date.now() - readStartTime) / 1000);
-      try {
-        await updateActivity(activityId, { durationSeconds: duration });
-      } catch (err) {
-        console.error('Failed to save read duration', err);
-      }
-      setReadStartTime(null);
-    }
-  };
 
-  // Cleanup: Quitting DerotZone is quitting the UserSession
-  const stopExploreRef = useMemo(() => ({ current: stopExplore }), [stopExplore]);
-  useEffect(() => {
-    stopExploreRef.current = stopExplore;
-  }, [stopExplore]);
-
+  // Cleanup: Quitting DerotZone is quitting the UserSession and saving duration
   useEffect(() => {
     return () => {
       // This runs on unmount.
+      saveCurrentDuration();
       stopExploreRef.current();
     };
   }, []); // Only once on mount/unmount
@@ -105,17 +126,18 @@ export function DerotPage() {
             <DerotZoneSubHeader
               mode={mode}
               onStopExplore={async () => {
-                if (mode === 'READ') {
-                  await saveReadDuration();
-                }
+                await saveCurrentDuration();
                 await stopExplore();
                 navigate('/focus-area');
               }}
               onGoToQuiz={async () => {
-                await saveReadDuration();
+                await saveCurrentDuration();
                 setSearchParams({ activityId: activityId!, mode: 'quiz' });
               }}
-              onSubmitQuiz={() => setSearchParams({})}
+              onSubmitQuiz={async () => {
+                await saveCurrentDuration();
+                setSearchParams({});
+              }}
             />
           )}
 

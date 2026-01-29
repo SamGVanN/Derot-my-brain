@@ -3,10 +3,12 @@ import { activityApi } from '@/api/activityApi';
 import { wikipediaApi, type WikipediaArticle } from '@/api/wikipediaApi';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useWikipediaExploreStore } from '@/stores/useWikipediaExploreStore';
+import { useTranslation } from 'react-i18next';
 
 export function useWikipediaExplore() {
     const { user } = useAuthStore();
     const userId = user?.id;
+    const { t } = useTranslation();
 
     const {
         exploreId, setExploreId,
@@ -31,11 +33,11 @@ export function useWikipediaExplore() {
             setArticles(data || []);
         } catch (e) {
             console.error('Failed to fetch articles', e);
-            setError('Erreur lors du chargement des articles');
+            setError(t('derot.errors.fetchArticles', 'Erreur lors du chargement des articles'));
         } finally {
             setIsInitializing(false);
         }
-    }, [userId, setArticles, setError]);
+    }, [userId, setArticles, setError, t]);
 
     const initExplore = useCallback(async () => {
         if (!userId) return;
@@ -46,7 +48,7 @@ export function useWikipediaExplore() {
             hasAttemptedInit.current = true;
 
             const data = await activityApi.explore(userId, {
-                title: "Wikipedia Exploration",
+                title: t('derot.explore.defaultTitle', "Wikipedia Exploration"),
                 sourceType: 1, // Wikipedia
                 sessionId: sessionId || undefined
             });
@@ -61,15 +63,15 @@ export function useWikipediaExplore() {
                 setRefreshCount(0);
                 await fetchArticles();
             } else {
-                setError('Impossible de démarrer la session (ID manquant)');
+                setError(t('derot.errors.missingId', 'Impossible de démarrer la session (ID manquant)'));
             }
         } catch (e: any) {
             console.error('Failed to initialize explore session', e);
-            setError('Erreur lors de l’initialisation de la Zone Derot');
+            setError(t('derot.errors.initSession', 'Erreur lors de l’initialisation de la Zone Derot'));
         } finally {
             setIsInitializing(false);
         }
-    }, [userId, fetchArticles, setExploreId, setStartTime, setBacklogAddsCount, setError]);
+    }, [userId, fetchArticles, setExploreId, setStartTime, setBacklogAddsCount, setError, t, sessionId, setSessionId, setRefreshCount]);
 
 
     const addToBacklog = async (article: WikipediaArticle) => {
@@ -101,6 +103,12 @@ export function useWikipediaExplore() {
                 refreshCount: refreshCount || undefined,
                 exploreDurationSeconds: duration
             });
+
+            // Capture session ID if we're not already tracking one
+            if (data?.userSessionId && !sessionId) {
+                setSessionId(data.userSessionId);
+            }
+
             return data;
         } catch (e) {
             console.error('Failed to initiate reading', e);
@@ -111,27 +119,34 @@ export function useWikipediaExplore() {
     };
 
     const stopExplore = useCallback(async () => {
-        if (!userId || !exploreId || !startTime) return;
-        try {
-            setLoadingAction('stop-explore');
-            const duration = Math.floor((Date.now() - startTime) / 1000);
-            await activityApi.stopExplore(userId, exploreId, {
-                durationSeconds: duration,
-                backlogAddsCount,
-                refreshCount
-            });
+        if (!userId) return;
 
-            // Also stop the backend session
-            if (sessionId) {
-                await activityApi.stopSession(userId, sessionId);
+        // If we have an exploration activity, stop it explicitly
+        if (exploreId && startTime) {
+            try {
+                setLoadingAction('stop-explore');
+                const duration = Math.floor((Date.now() - startTime) / 1000);
+                await activityApi.stopExplore(userId, exploreId, {
+                    durationSeconds: duration,
+                    backlogAddsCount,
+                    refreshCount
+                });
+            } catch (e) {
+                console.error('Failed to stop explore activity', e);
             }
-
-            reset();
-        } catch (e) {
-            console.error('Failed to stop explore session', e);
-        } finally {
-            setLoadingAction(null);
         }
+
+        // ALWAYS stop the backend session if we have one
+        if (sessionId) {
+            try {
+                await activityApi.stopSession(userId, sessionId);
+            } catch (e) {
+                console.error('Failed to stop session', e);
+            }
+        }
+
+        reset();
+        setLoadingAction(null);
     }, [userId, exploreId, startTime, backlogAddsCount, sessionId, reset]);
 
     return {

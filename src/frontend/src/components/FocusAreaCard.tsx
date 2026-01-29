@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { ActivityTimelineItem } from './ActivityTimelineItem';
+import { TooltipProvider } from './ui/tooltip';
 import { parseDate, isValidDate } from '@/lib/dateUtils';
 
 interface FocusAreaCardProps {
@@ -277,18 +278,20 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
                                 </div>
                             ) : activities.length > 0 ? (
                                 <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                                    {activities.map((activity, idx) => (
-                                        <ActivityTimelineItem
-                                            key={activity.id}
-                                            activity={activity}
-                                            isTracked={true}
-                                            isCompact={true}
-                                            showTrackButton={false}
-                                            isLast={idx === activities.length - 1}
-                                            onTrack={() => { }}
-                                            onUntrack={() => { }}
-                                        />
-                                    ))}
+                                    <TooltipProvider>
+                                        {activities.map((activity, idx) => (
+                                            <ActivityTimelineItem
+                                                key={activity.id}
+                                                activity={activity}
+                                                isTracked={true}
+                                                isCompact={true}
+                                                showTrackButton={false}
+                                                isLast={idx === activities.length - 1}
+                                                onTrack={() => { }}
+                                                onUntrack={() => { }}
+                                            />
+                                        ))}
+                                    </TooltipProvider>
                                 </div>
                             ) : (
                                 <p className="text-xs text-center text-muted-foreground py-4">

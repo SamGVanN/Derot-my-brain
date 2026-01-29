@@ -185,6 +185,7 @@ public class ActivitiesController : ControllerBase
                 req.Language, 
                 req.SourceId, 
                 req.SourceType,
+                req.Type ?? ActivityType.Read,
                 req.OriginExploreId, 
                 req.BacklogAddsCount,
                 req.RefreshCount,
@@ -312,6 +313,7 @@ public class ActivitiesController : ControllerBase
         public string? Language { get; set; }
         public string? SourceId { get; set; }
         public SourceType? SourceType { get; set; }
+        public ActivityType? Type { get; set; }
         public string? OriginExploreId { get; set; }
         public int? BacklogAddsCount { get; set; }
         public int? RefreshCount { get; set; }

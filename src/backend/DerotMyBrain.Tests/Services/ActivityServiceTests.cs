@@ -331,4 +331,22 @@ public class ActivityServiceTests
         Assert.Equal(SourceType.Wikipedia, result.Source?.Type);
         _activityRepoMock.Verify(r => r.CreateSourceAsync(It.Is<Source>(s => s.Type == SourceType.Wikipedia)), Times.AtLeastOnce());
     }
+
+    [Fact]
+    public async Task ReadAsync_WithQuizType_CreatesQuizActivity()
+    {
+        // Arrange
+        var userId = "user1";
+        var wikiTitle = "Paris";
+        
+        _activityRepoMock.Setup(r => r.CreateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
+        _activityRepoMock.Setup(r => r.UpdateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
+
+        // Act
+        var result = await _service.ReadAsync(userId, "Paris Title", "fr", wikiTitle, SourceType.Wikipedia, ActivityType.Quiz);
+
+        // Assert
+        Assert.Equal(ActivityType.Quiz, result.Type);
+        Assert.Contains("Quiz session", result.Description);
+    }
 }

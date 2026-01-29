@@ -28,7 +28,19 @@
         "bestCompareTooltip": "Your personal best for this topic is {{score}}%",
         "refreshes_one": "{{count}} refresh",
         "refreshes_other": "{{count}} refreshes",
-        "readResult": "Read article:"
+        "readResult": "Read article:",
+        "noReadResult": "No article read",
+        "reRead": "Read Again",
+        "takeQuiz": "Take Quiz",
+        "tooltips": {
+            "activityType": "Activity Type: {{type}}",
+            "backlogAdds": "Articles added to your backlog",
+            "refreshes": "Suggestion refreshes",
+            "duration": "Total activity duration",
+            "readResult": "Article read during this session",
+            "noReadResult": "No article read during this session",
+            "score": "Quiz score"
+        }
     },
     "common": {
         "save": "Save",
@@ -59,7 +71,7 @@
     "layout": {
         "appName": "Derot My Brain",
         "footer": "© 2026 Derot My Brain. Local Learning.",
-        "version": "v0.7.2"
+        "version": "v0.7.4"
     },
     "theme": {
         "fallback": "Theme"
@@ -165,7 +177,25 @@
     "derot": {
         "title": "Derot Zone",
         "subtitle": "Derot Zone",
-        "description": "Explore, read, and test your knowledge. This is where most of your learning happens."
+        "description": "Explore, read, and test your knowledge. This is where most of your learning happens.",
+        "explore": {
+            "title": "Exploration Suggestions",
+            "refresh": "Refresh",
+            "defaultTitle": "Wikipedia Exploration"
+        },
+        "errors": {
+            "fetchArticles": "Error while loading articles",
+            "initSession": "Error while initializing the Derot Zone",
+            "missingId": "Unable to start session (Missing ID)"
+        },
+        "subheader": {
+            "stopExplore": "Stop Exploration",
+            "goToQuiz": "Go to Quiz",
+            "submitQuiz": "Submit my answers",
+            "modeExplore": "Exploration",
+            "modeRead": "Reading",
+            "modeQuiz": "Quiz"
+        }
     },
     "focusArea": {
         "title": "My Focus Area",

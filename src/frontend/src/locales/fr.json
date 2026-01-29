@@ -28,7 +28,19 @@
         "bestCompareTooltip": "Votre record personnel pour ce sujet est de {{score}}%",
         "refreshes_one": "{{count}} rafraîchissement",
         "refreshes_other": "{{count}} rafraîchissements",
-        "readResult": "Article Lu :"
+        "readResult": "Article Lu :",
+        "noReadResult": "Aucun article lu",
+        "reRead": "Relire",
+        "takeQuiz": "Passer un quiz",
+        "tooltips": {
+            "activityType": "Type d'activité : {{type}}",
+            "backlogAdds": "Articles ajoutés au backlog",
+            "refreshes": "Rafraîchissements des suggestions",
+            "duration": "Durée totale de l'activité",
+            "readResult": "Article lu lors de cette exploration",
+            "noReadResult": "Aucun article lu lors de cette exploration",
+            "score": "Score du quiz"
+        }
     },
     "common": {
         "save": "Enregistrer",
@@ -59,7 +71,7 @@
     "layout": {
         "appName": "Derot My Brain",
         "footer": "© 2026 Derot My Brain. Apprentissage Local.",
-        "version": "v0.7.2"
+        "version": "v0.7.4"
     },
     "theme": {
         "fallback": "Thème"
@@ -158,9 +170,27 @@
         "description": "Bienvenue sur Derot My Brain. Afficahge d'informations telles que la configuration de l'application, les 5 dernières activités, un rappel du nombre d'item dans le backlog, etc."
     },
     "derot": {
-        "title": "Derot Zone",
+        "title": "Zone Derot",
         "subtitle": "Derot Zone",
-        "description": "Explorez, lisez et testez vos connaissances. C'est ici que se passe l'essentiel de votre apprentissage."
+        "description": "Explorez, lisez et testez vos connaissances. C'est ici que se passe l'essentiel de votre apprentissage.",
+        "explore": {
+            "title": "Suggestions d'exploration",
+            "refresh": "Rafraîchir",
+            "defaultTitle": "Exploration Wikipédia"
+        },
+        "errors": {
+            "fetchArticles": "Erreur lors du chargement des articles",
+            "initSession": "Erreur lors de l’initialisation de la Zone Derot",
+            "missingId": "Impossible de démarrer la session (ID manquant)"
+        },
+        "subheader": {
+            "stopExplore": "Arrêter l'exploration",
+            "goToQuiz": "Passer au Quiz",
+            "submitQuiz": "Soumettre mes réponses",
+            "modeExplore": "Exploration",
+            "modeRead": "Lecture",
+            "modeQuiz": "Quiz"
+        }
     },
     "focusArea": {
         "title": "Mes Zones Focus",

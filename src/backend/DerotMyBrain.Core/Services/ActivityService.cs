@@ -65,7 +65,7 @@ public class ActivityService : IActivityService
         return await CreateActivityAsync(userId, dto);
     }
 
-    public async Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceId, SourceType? sourceType, string? originExploreId = null, int? backlogAddsCount = null, int? refreshCount = null, int? exploreDurationSeconds = null)
+    public async Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceId, SourceType? sourceType, ActivityType activityType = ActivityType.Read, string? originExploreId = null, int? backlogAddsCount = null, int? refreshCount = null, int? exploreDurationSeconds = null)
     {
         if (string.IsNullOrEmpty(sourceId))
              throw new ArgumentNullException(nameof(sourceId), "SourceId is required for Read activity.");
@@ -153,10 +153,10 @@ public class ActivityService : IActivityService
         var dto = new CreateActivityDto
         {
             Title = content.Title,
-            Description = source.Type == SourceType.Wikipedia ? "Read from Wikipedia" : "Read from Document",
+            Description = activityType == ActivityType.Quiz ? "Quiz session" : (source.Type == SourceType.Wikipedia ? "Read from Wikipedia" : "Read from Document"),
             SourceId = !string.IsNullOrEmpty(source.ExternalId) ? source.ExternalId : source.Id, // Fallback to Id if ExternalId is empty
             SourceType = source.Type,
-            Type = ActivityType.Read,
+            Type = activityType,
             SessionDateStart = DateTime.UtcNow,
             OriginExploreId = originExploreId,
             BacklogAddsCount = backlogAddsCount,
