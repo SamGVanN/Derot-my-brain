@@ -84,7 +84,8 @@ public class SourcesControllerTests : IClassFixture<CustomWebApplicationFactory>
         
         var listResponse = await _client.GetAsync($"/api/users/{_userId}/sources?tracked=true");
         var list = await listResponse.Content.ReadFromJsonAsync<IEnumerable<TrackedSourceDto>>(_jsonOptions);
-        Assert.Contains(list, s => s.ExternalId == "Quantum_Physics");
+        Assert.NotNull(list);
+        Assert.Contains(list!, s => s.ExternalId == "Quantum_Physics");
     }
     
     [Fact]
@@ -108,8 +109,9 @@ public class SourcesControllerTests : IClassFixture<CustomWebApplicationFactory>
         patchResponse.EnsureSuccessStatusCode();
         
         // Verify it's gone from tracked list
-        var listResponse = await _client.GetAsync($"/api/users/{_userId}/sources?tracked=true");
-        var list = await listResponse.Content.ReadFromJsonAsync<IEnumerable<TrackedSourceDto>>(_jsonOptions);
-        Assert.DoesNotContain(list, s => s.Id == technicalId);
+        var listResponse2 = await _client.GetAsync($"/api/users/{_userId}/sources?tracked=true");
+        var list2 = await listResponse2.Content.ReadFromJsonAsync<IEnumerable<TrackedSourceDto>>(_jsonOptions);
+        Assert.NotNull(list2);
+        Assert.DoesNotContain(list2!, s => s.Id == technicalId);
     }
 }

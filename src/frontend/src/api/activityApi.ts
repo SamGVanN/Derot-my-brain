@@ -41,7 +41,7 @@ export const activityApi = {
         return response.data;
     },
 
-    explore: async (userId: string, request: { title?: string, sourceId?: string, sourceType: number, sessionId?: string }): Promise<UserActivity> => {
+    explore: async (userId: string, request: { title?: string, sourceId?: string, sourceType?: number, sessionId?: string }): Promise<UserActivity> => {
         const response = await client.post<UserActivity>(`/users/${userId}/activities/explore`, request);
         return response.data;
     },
@@ -50,7 +50,7 @@ export const activityApi = {
         title: string,
         language?: string,
         sourceId?: string,
-        sourceType: number,
+        sourceType?: number,
         originExploreId?: string,
         backlogAddsCount?: number,
         refreshCount?: number,

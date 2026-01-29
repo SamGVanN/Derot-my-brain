@@ -26,7 +26,15 @@ public class BacklogService : IBacklogService
 
     public async Task<BacklogItem> AddToBacklogAsync(string userId, string sourceId, SourceType sourceType, string title, string? url = null, string? provider = null)
     {
-        var technicalSourceId = SourceHasher.GenerateId(sourceType, sourceId);
+        string technicalSourceId;
+        if (sourceType == SourceType.Document)
+        {
+            technicalSourceId = sourceId;
+        }
+        else
+        {
+             technicalSourceId = SourceHasher.GenerateId(sourceType, sourceId);
+        }
 
         // Ensure the Source entity exists because BacklogItem has a FK to it
         var source = await _activityRepository.GetSourceByIdAsync(technicalSourceId);

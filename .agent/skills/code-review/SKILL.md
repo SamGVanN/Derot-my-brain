@@ -17,7 +17,7 @@ Review code against these categories:
 ### 2. Testing & Quality
 - **TDD Verification**: Check if tests were added to `DerotMyBrain.Tests` or `src/frontend/src/**/*.test.tsx`.
 - **AAA Pattern**: Are tests structured with Arrange, Act, Assert?
-- **Mock Data**: Is there updated seed data for `TestUser` (`test-user-id-001`)?
+- **Mock Data**: Is there updated seed data for `TestUser` (`test-user-id`)?
 
 ### 3. Aesthetics & Theming
 - **Semantic Colors**: Search for hardcoded colors like `#ffffff`, `bg-white`, `text-black`. These should be `bg-background`, `text-foreground`.

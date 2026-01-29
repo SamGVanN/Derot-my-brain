@@ -37,6 +37,34 @@ export function DerotPage() {
     }
   }, [mode]);
 
+  // Handle 'start' parameters (e.g. from Backlog)
+  useEffect(() => {
+    const start = searchParams.get('start');
+    const id = searchParams.get('id');
+
+    if (start === 'true' && id) {
+      // Clear start param to avoid re-triggering
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('start');
+      setSearchParams(newParams);
+
+      const handleRead = async () => {
+        const article: any = {
+          title: searchParams.get('title') || "Article",
+          sourceUrl: id,
+          lang: searchParams.get('lang') || undefined
+        };
+        const activity = await readArticle(article);
+        const activityId = activity?.id || (activity as any)?.Id;
+        if (activityId) {
+          setSearchParams({ activityId });
+        }
+      };
+
+      handleRead();
+    }
+  }, [searchParams, setSearchParams, readArticle]);
+
   const saveReadDuration = async () => {
     if (activityId && readStartTime) {
       const duration = Math.floor((Date.now() - readStartTime) / 1000);

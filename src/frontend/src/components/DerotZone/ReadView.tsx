@@ -1,7 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { FileText, Loader2, AlertCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useActivities } from '@/hooks/useActivities';
+import { SourceTypes } from '@/models/Enums';
 import type { UserActivity } from '@/models/UserActivity';
 
 interface ReadViewProps {
@@ -56,7 +58,15 @@ export function ReadView({ activityId }: ReadViewProps) {
                     <FileText className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                    <CardTitle className="text-2xl">{title}</CardTitle>
+                    <div className="flex items-center gap-2">
+                        <CardTitle className="text-2xl">{title}</CardTitle>
+                        <Badge variant="outline" className="text-xs font-normal">
+                            {activity?.sourceType === SourceTypes.Wikipedia ? 'Wikipedia' : 'Document'}
+                        </Badge>
+                    </div>
+                    {activity?.displayTitle && (
+                        <p className="text-sm font-medium text-foreground/80">{activity.displayTitle}</p>
+                    )}
                     {activityId && <p className="text-xs text-muted-foreground opacity-50">ID : {activityId}</p>}
                 </div>
             </CardHeader>

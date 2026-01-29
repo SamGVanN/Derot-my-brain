@@ -28,7 +28,7 @@ public class WikipediaService : IWikipediaService
     public async Task<ContentResult> GetFullArticleAsync(string titleOrUrl)
     {
         string title = titleOrUrl;
-        string lang = "en";
+        string lang = "en"; //Needs fix : should be user profile language, and "en" only as fallback
 
         if (titleOrUrl.Contains("wikipedia.org"))
         {

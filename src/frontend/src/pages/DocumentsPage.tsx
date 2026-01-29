@@ -8,7 +8,7 @@ import { type DocumentDto } from '@/api/documentApi';
 import { DocumentUpload } from '@/components/Documents/DocumentUpload';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, FileText, Library, BookOpenText, NotebookPen, FolderOpen } from 'lucide-react';
+import { Trash2, FileText, Library, BookOpen, NotebookPen, FolderOpen } from 'lucide-react';
 import {
     Tooltip,
     TooltipContent,
@@ -27,7 +27,7 @@ import {
 export const DocumentsPage: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const { documents, isLoading, deleteDocument, refresh } = useDocuments(user?.id);
+    const { documents, isLoading, deleteDocument, readDocument, refresh } = useDocuments(user?.id);
     const [deleteDocId, setDeleteDocId] = useState<string | null>(null);
 
     const confirmDelete = (docId: string) => {
@@ -45,7 +45,7 @@ export const DocumentsPage: React.FC = () => {
     };
 
     const handleRead = (doc: DocumentDto) => {
-        navigate(`/zone?start=true&type=Document&id=${encodeURIComponent(doc.sourceHash)}`);
+        readDocument(doc);
     };
 
     const handleQuiz = (doc: DocumentDto) => {
@@ -115,7 +115,7 @@ export const DocumentsPage: React.FC = () => {
                                                                         onClick={() => handleRead(doc)}
                                                                         className="text-primary hover:text-primary/80 hover:bg-primary/10"
                                                                     >
-                                                                        <BookOpenText className="h-4 w-4" />
+                                                                        <BookOpen className="h-4 w-4" />
                                                                     </Button>
                                                                 </TooltipTrigger>
                                                                 <TooltipContent>

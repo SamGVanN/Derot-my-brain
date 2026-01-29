@@ -289,6 +289,7 @@ public class ActivitiesController : ControllerBase
             LlmModelName = a.LlmModelName,
             LlmVersion = a.LlmVersion,
             IsTracked = isTracked,
+            ArticleContent = a.ArticleContent,
             Payload = a.Payload,
             ResultingReadActivityId = a.ResultingReadActivityId,
             ResultingReadSourceName = a.ResultingReadActivity?.Title,
@@ -310,7 +311,7 @@ public class ActivitiesController : ControllerBase
         public string? Title { get; set; }
         public string? Language { get; set; }
         public string? SourceId { get; set; }
-        public SourceType SourceType { get; set; }
+        public SourceType? SourceType { get; set; }
         public string? OriginExploreId { get; set; }
         public int? BacklogAddsCount { get; set; }
         public int? RefreshCount { get; set; }

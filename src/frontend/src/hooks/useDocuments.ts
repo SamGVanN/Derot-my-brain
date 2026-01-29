@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { documentApi, type DocumentDto } from '@/api/documentApi';
+import { activityApi } from '@/api/activityApi';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router';
 
 export const useDocuments = (userId: string | undefined) => {
     const [documents, setDocuments] = useState<DocumentDto[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
+    const navigate = useNavigate();
 
     const loadDocuments = useCallback(async () => {
         if (!userId) {
@@ -54,11 +57,32 @@ export const useDocuments = (userId: string | undefined) => {
         }
     };
 
+    const readDocument = async (doc: DocumentDto) => {
+        if (!userId) return;
+        try {
+            // SourceType.Document = 2
+            const activity = await activityApi.read(userId, {
+                title: doc.fileName, // Or displayName if available
+                sourceId: doc.sourceId,
+                sourceType: 2,
+                exploreDurationSeconds: 0
+            });
+
+            if (activity && activity.id) {
+                navigate(`/derot?activityId=${activity.id}&mode=read`);
+            }
+        } catch (error) {
+            console.error("Failed to start reading document", error);
+            toast({ variant: "destructive", title: "Error", description: "Impossible d'ouvrir le document." });
+        }
+    };
+
     return {
         documents,
         isLoading,
         uploadDocument,
         deleteDocument,
+        readDocument,
         refresh: loadDocuments
     };
 };

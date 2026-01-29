@@ -65,62 +65,103 @@ public class ActivityService : IActivityService
         return await CreateActivityAsync(userId, dto);
     }
 
-    public async Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceId, SourceType sourceType, string? originExploreId = null, int? backlogAddsCount = null, int? refreshCount = null, int? exploreDurationSeconds = null)
+    public async Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceId, SourceType? sourceType, string? originExploreId = null, int? backlogAddsCount = null, int? refreshCount = null, int? exploreDurationSeconds = null)
     {
-        var sourceName = sourceType == SourceType.Wikipedia ? "Wikipedia" : "File"; 
-        var contentSource = _contentSources.FirstOrDefault(s => s.CanHandle(sourceName));
-        if (contentSource == null) throw new InvalidOperationException($"Content source for {sourceType} not found.");
+        if (string.IsNullOrEmpty(sourceId))
+             throw new ArgumentNullException(nameof(sourceId), "SourceId is required for Read activity.");
 
-        // If sourceId is provided, check if it's a technical ID (GUID or Hash) first
-        string contentIdentifier = sourceId ?? title;
-        if (!string.IsNullOrEmpty(sourceId))
+        Source? source = null;
+        string? technicalSourceId = null;
+
+        // 1. Try to resolve Source Entity by technical ID (if it's a GUID/Hash)
+        source = await _repository.GetSourceByIdAsync(sourceId);
+
+        if (source == null)
         {
-            // If it's a URL, use it directly as identifier
-            if (sourceId.Contains("wikipedia.org") || sourceId.StartsWith("http"))
+            // 2. If not found, deduce type and technical ID
+            SourceType effectiveType = sourceType ?? (sourceId.Contains("wikipedia.org") || !sourceId.Contains("-") ? SourceType.Wikipedia : SourceType.Document);
+            
+            if (effectiveType == SourceType.Wikipedia)
             {
-                contentIdentifier = sourceId;
+                 technicalSourceId = SourceHasher.GenerateId(effectiveType, sourceId);
+                 source = await _repository.GetSourceByIdAsync(technicalSourceId);
+                 
+                 if (source == null)
+                 {
+                     _logger.LogInformation("Auto-creating Source for Wikipedia Read: {Title} ({SourceId})", title, sourceId);
+                     source = new Source
+                     {
+                         Id = technicalSourceId,
+                         UserId = userId,
+                         Type = effectiveType,
+                         ExternalId = sourceId,
+                         DisplayTitle = title,
+                         IsTracked = false 
+                     };
+                     await _repository.CreateSourceAsync(source);
+                 }
             }
-            else 
+            else if (effectiveType == SourceType.Document)
             {
-                var existingSource = await _repository.GetSourceByIdAsync(sourceId);
-                if (existingSource != null)
-                {
-                    contentIdentifier = existingSource.ExternalId;
-                }
-                else if (sourceId.Length == 64 && !string.IsNullOrEmpty(title))
-                {
-                    // If it looks like a hash (64 chars) but we don't know it, 
-                    // it might be a virtual ID from an explore session.
-                    // Fall back to title to be safe for Wikipedia.
-                    _logger.LogWarning("SourceId {SourceId} not found in DB and looks like a hash. Falling back to title: {Title}", sourceId, title);
-                    contentIdentifier = title;
-                }
+                // For Documents, if Source not found by ID, it's an error because docs are local and must be known.
+                throw new KeyNotFoundException($"Source entity not found for Document ID: {sourceId}");
             }
         }
 
+        // 3. Ensure OnlineResource exists for Wikipedia/Web sources
+        if (source.Type == SourceType.Wikipedia)
+        {
+            var existingResource = await _repository.GetOnlineResourceBySourceIdAsync(source.Id);
+            if (existingResource == null)
+            {
+                var url = source.ExternalId;
+                if (!url.StartsWith("http"))
+                {
+                    var lang = language ?? "en";
+                    url = $"https://{lang}.wikipedia.org/wiki/{source.ExternalId}";
+                }
+
+                var onlineResource = new OnlineResource
+                {
+                    UserId = userId,
+                    SourceId = source.Id,
+                    URL = url,
+                    Title = source.DisplayTitle,
+                    Provider = "Wikipedia",
+                    SavedAt = DateTime.UtcNow
+                };
+                await _repository.CreateOnlineResourceAsync(onlineResource);
+            }
+        }
+
+        // 4. Select Content Source Handler
+        var contentSource = _contentSources.FirstOrDefault(s => s.CanHandle(source.Type));
+        if (contentSource == null) throw new InvalidOperationException($"No content source handler found for type {source.Type}");
+
+        // 5. Fetch Content
         ContentResult content;
         try 
         {
-            content = await contentSource.GetContentAsync(contentIdentifier);
+            content = await contentSource.GetContentAsync(source);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to get content from {SourceType} for {Identifier}", sourceType, contentIdentifier);
+            _logger.LogError(ex, "Failed to get content for source {SourceId}", source.Id);
             throw;
         }
 
         var dto = new CreateActivityDto
         {
             Title = content.Title,
-            Description = content.SourceType == "Wikipedia" ? "Read from Wikipedia" : "Read from Document",
-            SourceId = content.SourceUrl,
-            SourceType = sourceType,
+            Description = source.Type == SourceType.Wikipedia ? "Read from Wikipedia" : "Read from Document",
+            SourceId = !string.IsNullOrEmpty(source.ExternalId) ? source.ExternalId : source.Id, // Fallback to Id if ExternalId is empty
+            SourceType = source.Type,
             Type = ActivityType.Read,
             SessionDateStart = DateTime.UtcNow,
             OriginExploreId = originExploreId,
             BacklogAddsCount = backlogAddsCount,
             RefreshCount = refreshCount,
-            DurationSeconds = 0 // Initial read duration is 0
+            DurationSeconds = 0
         };
 
         if (!string.IsNullOrEmpty(originExploreId))
@@ -130,7 +171,6 @@ public class ActivityService : IActivityService
             {
                 dto.UserSessionId = exploreActivity.UserSessionId;
                 
-                // Duration update for explore activity still needs to happen here or be passed to DTO
                 if (exploreDurationSeconds.HasValue) 
                 {
                     exploreActivity.DurationSeconds = exploreDurationSeconds.Value;
@@ -140,9 +180,19 @@ public class ActivityService : IActivityService
         }
 
         var activity = await CreateActivityAsync(userId, dto);
-        
+        activity.Source = source; 
         activity.ArticleContent = content.TextContent;
-        await _repository.UpdateAsync(activity);
+        
+        try 
+        {
+            await _repository.UpdateAsync(activity);
+            _logger.LogInformation("Activity {ActivityId} updated with content. Content Length: {Length}", activity.Id, activity.ArticleContent?.Length ?? 0);
+        }
+        catch (Exception dbEx)
+        {
+            _logger.LogError(dbEx, "CRITICAL: Failed to persist ArticleContent to database for Activity {ActivityId}.", activity.Id);
+            // We still return the activity with in-memory content for the immediate UI response
+        }
 
         return activity;
     }
@@ -166,7 +216,15 @@ public class ActivityService : IActivityService
         string? technicalSourceId = null;
         if (!string.IsNullOrEmpty(dto.SourceId))
         {
-            technicalSourceId = SourceHasher.GenerateId(dto.SourceType, dto.SourceId);
+            // For Documents, the SourceId is already the Technical ID (GUID). Do not re-hash.
+            if (dto.SourceType == SourceType.Document)
+            {
+                technicalSourceId = dto.SourceId;
+            }
+            else
+            {
+                 technicalSourceId = SourceHasher.GenerateId(dto.SourceType, dto.SourceId);
+            }
         if (technicalSourceId != null)
         {
             var source = await _repository.GetSourceByIdAsync(technicalSourceId);
@@ -405,6 +463,12 @@ public class ActivityService : IActivityService
     private UserActivityDto MapToDto(UserActivity a, bool isTracked)
     {
         var source = a.Source ?? a.UserSession?.TargetSource;
+        if (source == null && !string.IsNullOrEmpty(a.SourceId))
+        {
+             // Try to resolve if missing but ID is present (last resort, though repo should have loaded it)
+             // _logger.LogWarning("Activity {Id} has SourceId {SourceId} but Source is null.", a.Id, a.SourceId);
+        }
+
         return new UserActivityDto
         {
             Id = a.Id,

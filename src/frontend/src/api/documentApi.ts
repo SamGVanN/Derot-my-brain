@@ -8,7 +8,7 @@ export interface DocumentDto {
     fileSize: number;
     uploadDate: string;
     displayTitle: string;
-    sourceHash: string;
+    sourceId: string;
     storagePath: string;
 }
 

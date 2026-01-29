@@ -96,7 +96,6 @@ export function useWikipediaExplore() {
                 title: article.title,
                 language: article.lang,
                 sourceId: article.sourceUrl, // Wikipedia uses URL as SourceId
-                sourceType: 1, // Wikipedia
                 originExploreId: exploreId || undefined,
                 backlogAddsCount: backlogAddsCount || undefined,
                 refreshCount: refreshCount || undefined,

@@ -4,6 +4,7 @@ using DerotMyBrain.Core.Interfaces.Services;
 using DerotMyBrain.Core.Services;
 using DerotMyBrain.Core.DTOs;
 using DerotMyBrain.Core.Interfaces.Utils;
+using DerotMyBrain.Core.Utils;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -13,24 +14,44 @@ namespace DerotMyBrain.Tests.Services;
 public class ActivityServiceTests
 {
     private readonly Mock<IActivityRepository> _activityRepoMock;
+    private readonly Mock<IUserRepository> _userRepoMock;
     private readonly Mock<IWikipediaService> _wikipediaServiceMock;
     private readonly Mock<ILlmService> _llmServiceMock;
     private readonly Mock<IJsonSerializer> _jsonSerializerMock;
     private readonly Mock<ILogger<ActivityService>> _loggerMock;
+    private readonly Mock<IContentSource> _contentSourceMock;
     private readonly ActivityService _service;
+    private readonly Dictionary<string, Source> _sourceDb = new();
     
     public ActivityServiceTests()
     {
         _activityRepoMock = new Mock<IActivityRepository>();
+        _userRepoMock = new Mock<IUserRepository>();
         _wikipediaServiceMock = new Mock<IWikipediaService>();
         _llmServiceMock = new Mock<ILlmService>();
         _jsonSerializerMock = new Mock<IJsonSerializer>();
         _loggerMock = new Mock<ILogger<ActivityService>>();
         
-        var contentSources = new List<IContentSource>();
+        _contentSourceMock = new Mock<IContentSource>();
+        _contentSourceMock.Setup(s => s.CanHandle(It.IsAny<SourceType>())).Returns(true);
+        _contentSourceMock.Setup(s => s.GetContentAsync(It.IsAny<Source>()))
+            .ReturnsAsync(new ContentResult { Title = "Test Title", TextContent = "Test Content" });
+
+        var contentSources = new List<IContentSource> { _contentSourceMock.Object };
+
+        // Setup stateful repository mocks for Source operations
+        _activityRepoMock.Setup(r => r.GetSourceByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync((string id) => _sourceDb.TryGetValue(id, out var s) ? s : null);
+        
+        _activityRepoMock.Setup(r => r.CreateSourceAsync(It.IsAny<Source>()))
+            .ReturnsAsync((Source s) => { _sourceDb[s.Id] = s; return s; });
+
+        _activityRepoMock.Setup(r => r.CreateOnlineResourceAsync(It.IsAny<OnlineResource>()))
+            .ReturnsAsync((OnlineResource o) => o);
 
         _service = new ActivityService(
             _activityRepoMock.Object,
+            _userRepoMock.Object,
             contentSources,
             _wikipediaServiceMock.Object,
             _llmServiceMock.Object,
@@ -249,5 +270,65 @@ public class ActivityServiceTests
         // Assert
         _activityRepoMock.Verify(r => r.UpdateAsync(It.Is<UserActivity>(u => u.Id == exploreId && u.ResultingReadActivityId == result.Id)), Times.Once);
         Assert.Equal(result.Id, (await _activityRepoMock.Object.CreateAsync(result)).Id);
+    }
+
+    [Fact]
+    public async Task ReadAsync_ExistingSource_UsesResolvedSource()
+    {
+        // Arrange
+        var userId = "user1";
+        var sourceId = "existing-guid";
+        var existingSource = new Source { Id = sourceId, Type = SourceType.Document, DisplayTitle = "Doc" };
+        _sourceDb[sourceId] = existingSource;
+        
+        _activityRepoMock.Setup(r => r.CreateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
+        _activityRepoMock.Setup(r => r.UpdateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
+
+        // Act
+        var result = await _service.ReadAsync(userId, "Title", "en", sourceId, SourceType.Document);
+
+        // Assert
+        Assert.Equal(sourceId, result.SourceId);
+        _activityRepoMock.Verify(r => r.GetSourceByIdAsync(sourceId), Times.AtLeastOnce());
+    }
+
+    [Fact]
+    public async Task ReadAsync_NewWikipediaSource_AutoCreatesSourceAndOnlineResource()
+    {
+        // Arrange
+        var userId = "user1";
+        var wikiTitle = "Paris";
+        var technicalId = SourceHasher.GenerateId(SourceType.Wikipedia, wikiTitle);
+        
+        _activityRepoMock.Setup(r => r.CreateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
+        _activityRepoMock.Setup(r => r.UpdateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
+
+        // Act
+        var result = await _service.ReadAsync(userId, "Paris Title", "fr", wikiTitle, SourceType.Wikipedia);
+
+        // Assert
+        Assert.Equal(technicalId, result.SourceId);
+        _activityRepoMock.Verify(r => r.CreateSourceAsync(It.Is<Source>(s => s.Id == technicalId)), Times.AtLeastOnce());
+        _activityRepoMock.Verify(r => r.CreateOnlineResourceAsync(It.Is<OnlineResource>(o => o.SourceId == technicalId)), Times.AtLeastOnce());
+        Assert.Equal("Test Content", result.ArticleContent);
+    }
+
+    [Fact]
+    public async Task ReadAsync_DeducesWikipediaTypeFromUrl()
+    {
+        // Arrange
+        var userId = "user1";
+        var wikiUrl = "https://en.wikipedia.org/wiki/France";
+        var technicalId = SourceHasher.GenerateId(SourceType.Wikipedia, wikiUrl);
+        
+        _activityRepoMock.Setup(r => r.CreateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
+        _activityRepoMock.Setup(r => r.UpdateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
+
+        // Act
+        var result = await _service.ReadAsync(userId, "France", "en", wikiUrl, null); // sourceType is null
+
+        // Assert
+        Assert.Equal(SourceType.Wikipedia, result.Source?.Type);
+        _activityRepoMock.Verify(r => r.CreateSourceAsync(It.Is<Source>(s => s.Type == SourceType.Wikipedia)), Times.AtLeastOnce());
     }
 }

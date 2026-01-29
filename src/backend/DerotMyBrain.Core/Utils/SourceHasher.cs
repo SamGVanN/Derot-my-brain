@@ -12,11 +12,18 @@ public static class SourceHasher
 {
     /// <summary>
     /// Generates a technical ID for a Source.
-    /// Documents return their original GUID ID.
-    /// Wikipedia and others return a deterministic SHA-256 hash.
+    /// <para>
+    /// Strategy:
+    /// <list type="bullet">
+    /// <item><b>Documents:</b> Returns the original raw identifier (usually a GUID generated at upload). 
+    /// This ensures each upload is treated as a unique resource.</item>
+    /// <item><b>Web Content (Wikipedia):</b> Returns a deterministic SHA-256 hash of the type and identifier.
+    /// This prevents duplicates: different users reading the same article will share the same Source hub.</item>
+    /// </list>
+    /// </para>
     /// </summary>
     /// <param name="sourceType">The origin of the content.</param>
-    /// <param name="sourceId">The raw identifier (e.g., Page Title, GUID).</param>
+    /// <param name="sourceId">The raw identifier (e.g., Page Title, URL, or GUID).</param>
     /// <returns>A unique identifier string.</returns>
     public static string GenerateId(SourceType sourceType, string sourceId)
     {

@@ -13,6 +13,7 @@ export interface UserActivity {
     sourceId: string; // GUID
     externalId: string; // URL or Doc GUID
     sourceType: SourceType;
+    displayTitle?: string;
 
     type: ActivityType;
 
