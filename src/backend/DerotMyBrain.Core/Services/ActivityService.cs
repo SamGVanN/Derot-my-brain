@@ -180,7 +180,6 @@ public class ActivityService : IActivityService
         }
 
         var activity = await CreateActivityAsync(userId, dto);
-        activity.Source = source; 
         activity.ArticleContent = content.TextContent;
         
         try 
@@ -194,6 +193,7 @@ public class ActivityService : IActivityService
             // We still return the activity with in-memory content for the immediate UI response
         }
 
+        activity.Source = source; // Assign after update to avoid EF tracking issues
         return activity;
     }
 

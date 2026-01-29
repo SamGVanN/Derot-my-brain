@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { Settings, LogOut, User, History, Brain } from 'lucide-react';
+import { Settings, LogOut, User, History, Brain, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -62,7 +62,7 @@ export function Header() {
                                 onClick={() => navigate('/configuration')}
                                 title={t('nav.configuration', 'Configuration')}
                             >
-                                <Settings className="h-5 w-5" />
+                                <Bot className="h-5 w-5" />
                             </Button>
 
                             {/* User Menu Dropdown */}

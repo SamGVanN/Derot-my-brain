@@ -42,7 +42,7 @@ public class DocumentsController : ControllerBase
             UploadDate = d.UploadDate,
             DisplayTitle = d.DisplayTitle,
             SourceId = d.SourceId,
-            StoragePath = Path.GetDirectoryName(_fileStorageService.GetAbsolutePath(d.StoragePath)) ?? string.Empty
+            StoragePath = d.StoragePath
         });
 
         return Ok(dtos);
@@ -69,7 +69,7 @@ public class DocumentsController : ControllerBase
                 UploadDate = doc.UploadDate,
                 DisplayTitle = doc.DisplayTitle,
                 SourceId = doc.SourceId,
-                StoragePath = Path.GetDirectoryName(_fileStorageService.GetAbsolutePath(doc.StoragePath)) ?? string.Empty
+                StoragePath = doc.StoragePath
             };
 
             return CreatedAtAction(nameof(GetDocuments), new { userId = userId }, dto);
