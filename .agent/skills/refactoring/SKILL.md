@@ -14,6 +14,8 @@ description: Improving code structure and readability while maintaining behavior
 3.  **Design System Compliance**:
     - Replace hardcoded hex colors or Tailwind absolute colors (e.g., `text-blue-500`) with semantic tokens (e.g., `text-primary`).
     - Verify dark mode using `dark:` variants or CSS variables defined in `index.css`.
+- **De-mocking**: Replace `sampleArticles` or hardcoded responses with real API/LLM calls.
+- **State Management**: Ensure Zustand stores are never accessed directly; use exported Custom Hooks.
 4.  **Clean Code**:
     - Apply SOLID principles.
     - Improve naming based on `d:\Repos\Derot-my-brain\Docs\Reference\Glossary.md`.

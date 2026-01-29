@@ -15,7 +15,9 @@ When planning a task:
     - Thin controllers, thick services (SOLID).
     - Dumb components (Presentation only), logic in Custom Hooks.
     - **Rich Aesthetics**: Ensure the plan includes polishing the UI for premium look and feel.
-    - **Local-First**: Ensure AI and storage remain local (Ollama / SQLite).
+    - **Active Learning**: Plan for both the full cycle and direct entry points (Activity/Source).
+- **De-mocking**: Ensure the plan includes replacing mocks with real service implementations (Wikipedia API, Ollama LLM).
+- **Local-First**: Ensure AI and storage remain local (Ollama / SQLite).
 5.  **Mock Data**: Always include a step to seed mock data for `TestUser` (`test-user-id-001`) in `d:\Repos\Derot-my-brain\src\backend\DerotMyBrain.Infrastructure\Data\DbInitializer.cs`.
 6.  **Structure**: Present the plan with clear checkboxes and logical dependencies.
 

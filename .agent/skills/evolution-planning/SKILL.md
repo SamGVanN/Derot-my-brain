@@ -12,7 +12,9 @@ description: Planning long-term application evolutions aligned with project visi
     - **API Surface**: Plan new endpoints and DTOs in the API layer.
     - **UX/UI**: Ensure the evolution follows the "Rich Aesthetics" guide and doesn't break existing dark/light modes.
 4.  **Phased Roadmap**: Break the evolution into manageable phases (e.g., Phase 1: Core/Infrastructure, Phase 2: UI/UX implementation).
-5.  **Technical Constraints**: Maintain "Local-First", "Offline-Ready", and "Local AI (Ollama)" principles.
+5.  **Technical Constraints**:
+    - Maintain "Local-First", "Offline-Ready", and "Local AI (Ollama)" principles.
+    - Support the flexible "Active Learning" flow (Activity or Source entry).
 
 ## Output Structure
 - **Requirement Analysis**: Why do we need this?

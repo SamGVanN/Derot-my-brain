@@ -5,13 +5,20 @@ description: Systematic approach to implementing new features with full technica
 
 ## Instructions
 1.  **Preparation**:
-    - Review `Docs/Technical/` for relevant guidelines.
-    - Check `Docs/Reference/Glossary.md` for consistent naming.
-    - Check `Docs/Reference/DataModel.md` for the database schema.
+- [ ] Review `Docs/ANTIGRAVITY_INSTRUCTIONS.md` for project-specific rules.
+    - [ ] Check `Docs/Technical/` for relevant guidelines.
+    - [ ] Check `Docs/Reference/Glossary.md` for consistent naming.
+    - [ ] Check `Docs/Reference/DataModel.md` for the database schema.
 2.  **TDD First**:
-    - Start by writing failing tests in `DerotMyBrain.Tests` (Backend) or `src/frontend/src/**/*.test.tsx` (Frontend).
+    - Start by writing failing tests in `DerotMyBrain.Tests` (Backend: xUnit/Moq) or `src/frontend/src/**/*.test.tsx` (Frontend: Vitest/RTL).
     - Ensure tests cover nominal, edge, and error cases.
-3.  **Backend Implementation**:
+3.  **Active Learning Workflow**:
+    - Implement the "Explore -> Read -> Quiz" cycle.
+    - **Flexibility**: Allow launching "Read" or "Quiz" directly from an existing **Activity** or any **Source** (Document, OnlineResource, Backlog).
+4.  **AI Integration (Ollama)**:
+    - Use the local Ollama API for text analysis and quiz generation.
+    - **De-mocking**: Do not use `sampleArticles` or mocked results if the goal is functional E2E.
+5.  **Backend Implementation**:
     - Follow Clean Architecture: Core -> Infrastructure -> API.
     - Use `PascalCase` for methods, `_camelCase` for fields.
     - Ensure thin controllers and thick services.

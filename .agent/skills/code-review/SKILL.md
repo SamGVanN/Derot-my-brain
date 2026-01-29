@@ -7,10 +7,12 @@ description: Rigorous checklist for reviewing code changes against architecture,
 Review code against these categories:
 
 ### 1. Architecture & Patterns
-- **Backend Cleanliness**: Is `DerotMyBrain.Core` free of external dependencies (No EF Core, No JSON)?
+- **Backend Cleanliness**: Is `DerotMyBrain.Core` free of external dependencies (No EF Core, No JSON, No Infrastructure references)?
+- **SQLite Policy**: Ensure no external DB dependencies (SQL Server, etc.) are introduced.
 - **Thin Controllers**: Do controllers only orchestrate services?
 - **Dumb Components**: Are components in `src/frontend/src/components` free of `useEffect` data fetching? (Logic should be in hooks).
 - **Zustand**: Is state accessed via custom hooks, not directly from stores?
+- **i18n (FR/EN)**: Check if new strings are added to both `en.json` and `fr.json`.
 
 ### 2. Testing & Quality
 - **TDD Verification**: Check if tests were added to `DerotMyBrain.Tests` or `src/frontend/src/**/*.test.tsx`.

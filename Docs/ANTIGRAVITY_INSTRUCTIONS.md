@@ -7,7 +7,14 @@
 - **Local hosting**: Run entirely on the user's machine (Windows/Linux/Homelab).
 - **SQLite**: Local embedded database for data persistence (No external SQL Server).
 - **Local AI**: Use Ollama (llama3, mistral, etc.) for generating questions and evaluating answers.
-- **Active Learning**: Read -> Quiz -> History/UserFocus loop.
+- **Active Learning**: Explore -> Read -> Quiz -> History/"Tracking Sources" loop.
+- **Flexibility**: Can launch Read/Quiz directly from an **Activity** or any **Source** (Document, OnlineResource, Backlog).
+
+## Current Project Status (Jan 2026)
+- **Core Architecture**: Done (Clean Arch Backend, Hexagonal-ish Frontend).
+- **i18n**: FR/EN fully implemented.
+- **Wikipedia**: Exploration works; Reading/Quiz requires stabilization.
+- **LLM**: Backend exists but liaison with Ollama is being de-mocked.
 
 ## Technology Stack
 - **Frontend**: React + TypeScript (using Vite).
@@ -28,6 +35,7 @@
   - **MUST respect Clean Architecture Regulations** (see `Docs/Technical/Backend-Guidelines.md`).
   - **Data**: SQLite (.db).
 - **AI**: Ollama exposing a local HTTP API.
+- **Critical Strategy**: De-mock features! Replace `sampleArticles` with real API calls and valid LLM prompts.
 
 ## Data Structures (SQLite Schema)
 
