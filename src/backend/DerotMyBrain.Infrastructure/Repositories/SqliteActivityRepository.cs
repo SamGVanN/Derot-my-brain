@@ -47,6 +47,9 @@ public class SqliteActivityRepository : IActivityRepository
     public async Task<UserActivity?> GetByIdAsync(string userId, string activityId)
     {
         return await _context.Activities
+            .Include(a => a.UserSession)
+                .ThenInclude(s => s.TargetSource)
+            .Include(a => a.Source)
             .Include(a => a.ResultingReadActivity)
             .FirstOrDefaultAsync(a => a.UserId == userId && a.Id == activityId);
     }

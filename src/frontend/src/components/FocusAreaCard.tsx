@@ -30,6 +30,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { ActivityTimelineItem } from './ActivityTimelineItem';
 import { parseDate, isValidDate } from '@/lib/dateUtils';
+import { mapSourceTypeToNumber } from '@/lib/sourceUtils';
 
 interface FocusAreaCardProps {
     focus: UserFocus;
@@ -75,19 +76,10 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
         try {
             // Both actions create a NEW activity via activityApi.read
             // as requested by the user ("This action must create a NEW activity").
-            const getSourceTypeNumber = (type?: string) => {
-                switch (type) {
-                    case 'Wikipedia': return 1;
-                    case 'Document': return 2;
-                    case 'Custom': return 3;
-                    default: return 1;
-                }
-            };
-
             const activity = await activityApi.read(focus.userId, {
                 title: focus.displayTitle,
                 sourceId: focus.sourceId,
-                sourceType: getSourceTypeNumber(focus.source?.type),
+                sourceType: mapSourceTypeToNumber(focus.source?.type),
                 language: i18n.language
             });
 

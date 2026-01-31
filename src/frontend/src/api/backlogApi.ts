@@ -1,10 +1,11 @@
+import { type SourceType } from '@/models/Enums';
 import { client } from './client';
 
 export interface BacklogItemDto {
     id: string;
     userId: string;
     sourceId: string;
-    sourceType: 'Wikipedia' | 'Document' | 'Custom';
+    sourceType: SourceType;
     sourceHash: string;
     title: string;
     addedAt: string;
@@ -12,7 +13,7 @@ export interface BacklogItemDto {
 
 export interface AddToBacklogDto {
     sourceId: string;
-    sourceType: 'Wikipedia' | 'Document' | 'Custom';
+    sourceType: SourceType;
     title: string;
     url?: string;
     provider?: string;

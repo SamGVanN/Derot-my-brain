@@ -4,6 +4,7 @@ import { wikipediaApi, type WikipediaArticle } from '@/api/wikipediaApi';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useWikipediaExploreStore } from '@/stores/useWikipediaExploreStore';
 import { useTranslation } from 'react-i18next';
+import { SourceTypes } from '@/models/Enums';
 
 export function useWikipediaExplore() {
     const { user } = useAuthStore();
@@ -98,6 +99,7 @@ export function useWikipediaExplore() {
                 title: article.title,
                 language: article.lang,
                 sourceId: article.sourceUrl, // Wikipedia uses URL as SourceId
+                sourceType: SourceTypes.Wikipedia,
                 originExploreId: exploreId || undefined,
                 backlogAddsCount: backlogAddsCount || undefined,
                 refreshCount: refreshCount || undefined,
