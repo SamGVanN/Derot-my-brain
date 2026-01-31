@@ -1,174 +1,100 @@
 # Derot My Brain 🧠
 
-> **Reclaim your attention. Rediscover your curiosity.**
+> **Reclaim your attention. Rediscover your curiosity. One topic at a time.**
+
+---
 
 ## 🌟 What is Derot My Brain?
 
-In a world where social media platforms compete for our attention with endless dopamine hits, it's easy to lose our ability to focus and dive deep into meaningful content. **Derot My Brain** is here to help you break free from that cycle.
+In an era of endless scrolling and 15-second videos, our ability to focus is under siege. **Derot My Brain** is your digital sanctuary—a place designed to help you rebuild your attention span and reignite your natural hunger for knowledge.
 
-This is a friendly companion app designed to help you rebuild your attention span and reignite your natural curiosity through **active learning**. Instead of passively scrolling, you'll engage with fascinating Wikipedia articles and test your understanding through AI-generated quizzes—making learning both fun and rewarding.
-
-Think of it as a gentle workout for your brain, helping you develop the focus and concentration that constant social media use can erode over time.
-
-**That said**, you don't need to be concerned about social media or attention issues to enjoy Derot My Brain! It's also simply a great tool for anyone who wants to learn new things, explore fascinating topics, or deepen their knowledge in areas that interest them. Whether you're looking to rebuild focus or just curious about the world—this app is for you.
+It's more than just a reading app; it's a **gentle workout for your brain**. By moving from passive consumption to *active learning*, you'll transform the way you interact with information. Whether you're a student preparing for exams, a professional aiming for a certification, or simply a curious soul wanting to explore the world, Derot My Brain offers a personalized Path to mastery.
 
 ---
 
-## ✨ Why Derot My Brain?
+## ✨ Why You'll Love It
 
-### The Problem
-Modern social media platforms are engineered to keep us hooked with short bursts of dopamine. Over time, this can:
-- Reduce our ability to concentrate on longer content
-- Diminish our curiosity and desire to learn deeply
-- Make it harder to engage with complex ideas
+### 🧠 The Attention Challenge
+Modern platforms are designed to keep us hooked on short dopamine hits, which can erode our deep-focus muscles. **Derot My Brain** helps you reverse this by encouraging deep dives into topics that actually matter to you.
 
-### The Solution
-**Derot My Brain** offers a different approach:
-- 📚 **Read freely** - Explore Wikipedia articles at your own pace, or even your own documents !
-- 🧩 **Test yourself** - Answer AI-generated questions to reinforce what you've learned
-- 📊 **Track progress** - See your improvement over time with tracked topics and detailed history
-- 🎯 **Stay focused** - Build a backlog of topics you want to revisit
-- 🎨 **Enjoy the journey** - Beautiful themes and smooth UX make learning pleasant
+### 🛡️ Privacy First, Local Always
+Your learning journey is personal. That's why Derot My Brain runs **entirely on your machine**. Your data, your documents, and even the AI that quizzes you stay private. No clouds, no tracking, just you and your curiosity.
+
+### 🎨 Learning as an Experience
+*   📚 **Immersive Reading**: Dive into Wikipedia or your own documents without distractions.
+*   🧩 **Active Recall**: Reinforce your memory with AI-generated quizzes tailored to what *you* just read.
+*   📊 **Growth Tracking**: Watch your progress unfold with detailed activity logs and performance medals.
+*   🎨 **Sleek & Customizable**: Choose a theme that fits your mood (from "Midnight" to "Lab") for a premium learning atmosphere.
 
 ---
 
-## 🚀 Key Features
+## 🚀 Experience the Features
 
-### Current Features ✅
-- **Simple User Identification** - No complex authentication, just pick a name and start
-- **Beautiful Theme System** - Choose from 5 carefully crafted color palettes
-- **User History & Progress** - Track your learning journey with detailed activity logs
-- **Responsive Design** - Works beautifully on any screen size
+### Ready to Use Right Now ✅
+- **Derot Zone**: Your dedicated space for focused reading and interactive testing.
+- **Wikipedia Explorer**: Effortlessly discover new worlds with built-in access to millions of articles in English and French.
+- **AI-Powered Quizzes**: Challenge yourself! Our local AI generates questions based on your reading to ensure you've truly mastered the subject.
+- **My Library**: Upload your own PDFs or Markdown files and turn them into interactive learning sessions.
+- **My Focus Area**: Keep your "tracked topics" front and center to monitor your best scores and long-term progress.
+- **Multilingual Support**: Learn in English or French, with more languages on the horizon.
+- **Knowledge Areas**: Customize your discovery by selecting your favorite Wikipedia categories (Science, History, Arts, etc.).
 
-### Coming Soon 🚧
-- **Wikipedia Integration** - Random article selection with category filtering
-- **AI-Powered Quizzes** - Dynamic question generation using local LLM (Ollama)
-- **Smart Backlog** - Save articles you want to revisit later
-- **Detailed Analytics** - Track scores, see your best performances, and monitor progress
-- **Multilingual Support** - Full internationalization (English & French)
-- **Category Preferences** - Filter articles by your interests (13 Wikipedia categories)
-- **Data Export/Import** - Download all your data anytime and impot it later or into another machine
-
-### Under investigation 🚧
-- **Online mode** - Compatibility with distant LLM (ChatGPT API etc.)
-- **Android and iOS deployment** - This would onbly be possible by using an online LLM, for now Derot-my-brain is focusing on being a local and private app.
+### Growing Every Day 🚧
+- **Smart Topics (V2)**: Group multiple sources into a single study plan (perfect for exam prep!).
+- **Advanced Analytics**: Deeper insights into your learning habits and retention trends.
+- **Fully Embedded AI (V3)**: Moving from local services to a 100% self-contained AI within the app.
 
 ---
 
-## 🎯 How It Works
+## 🎯 Your Journey in 3 Steps
 
-1. **Choose Your Identity** - Select or create a user profile
-2. **Discover Content** - Get a random Wikipedia article (optionally filtered by your interests)
-3. **Read Freely** - Take your time, no pressure, no timers
-4. **Take the Quiz** - Answer 5-20 AI-generated questions about what you just read
-5. **See Your Results** - Get immediate feedback and track your progress
-6. **Build Your Backlog** - Save topics you want to revisit or didn't fully master
+1.  **Select Your Source**: Pick a random Wikipedia article based on your interests or upload your own document to **My Library**.
+2.  **Enter the Derot Zone**: Immerse yourself in the content. No timers, no pressure—just quality reading time.
+3.  **Master the Topic**: Take the AI-generated quiz, review your results, and add the source to **My Focus Area** if you want to beat your high score later!
 
 ---
 
-## 🛠️ Technology Stack
+## 🛠️ Built for Performance
 
-### Frontend
-- **React 18** + **TypeScript** - Modern, type-safe UI development
-- **Vite** - Lightning-fast build tool
-- **shadcn/ui** - Beautiful, accessible components
-- **Tailwind CSS** - Utility-first styling
-
-### Backend
-- **ASP.NET Core 9.0** - Robust Web API
-- **C# 13** - Latest language features
-- **SQLite** - Embedded database for V1 (Entity Framework Core)
-
-### AI/LLM (Planned)
-- **Ollama** - Local LLM for quiz generation
-- **Supported Models** - any model your local LLM can run
+We use a modern, robust stack to ensure a smooth and private experience:
+- **Frontend**: React & TypeScript with a beautiful **shadcn/ui** design system and **Tailwind CSS**.
+- **Backend**: **ASP.NET Core 9** power, running locally on your system.
+- **Storage**: **SQLite** for a lightweight, zero-configuration database.
+- **AI Engines**: Powered by **Ollama** or any local LLM to keep your data close to home.
 
 ---
 
-## 📖 Documentation
+## 📖 Explore Further
 
-Comprehensive documentation is available in the [`/Docs`](./Docs) directory:
+Dive deep into our technical and functional documentation in the [`/Docs`](./Docs) directory:
 
-- **[Project Status](./Docs/Project-Status.md)** - Current implementation status and roadmap
-- **[Functional Specifications](./Docs/Specifications-fonctionnelles.md)** - Detailed feature specifications
-- **[Implementation Roadmap](./Docs/Implementation-Roadmap.md)** - Task breakdown for developers
-- **[Architecture Diagram](./Docs/ArchitectureDiagram.md)** - System architecture overview
-- **[Compilation & Execution Guide](./Docs/Guide-Compilation-Execution.md)** - How to build and run the project
-- **[Documentation Organization](./Docs/README.md)** - Guide to the documentation structure
+- **[Project Status](./Docs/Planning/Project-Status.md)** - What's implemented and what's next.
+- **[Functional Specs](./Docs/Planning/functional_specifications_derot_my_brain.md)** - A detailed look at the app's heart.
+- **[Glossary](./Docs/Reference/Glossary.md)** - The language we use to build this world.
+- **[Setup Guide](./Docs/Developer/Getting-Started.md)** - Get up and running in minutes.
 
 ---
 
 ## 🚦 Getting Started
 
-### Prerequisites
-- **Node.js** (v18 or higher)
-- **.NET 9.0 SDK**
-- **Ollama or any alternative local LLM** (for AI quiz generation and answer review)
-
 ### Quick Start
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/SamGVanN/Derot-my-brain.git
-   cd Derot-my-brain
-   ```
-
-2. **Start the backend**
-   ```bash
-   cd src/backend
-   dotnet restore
-   dotnet watch run --project DerotMyBrain.API
-   ```
-
-3. **Start the frontend** (in a new terminal)
-   ```bash
-   cd src/frontend
-   npm install
-   npm run dev
-   ```
-
-4. **Open your browser**
-   - Navigate to `http://localhost:5173`
-   - Start exploring!
-
-For detailed setup instructions, see the [Compilation & Execution Guide](./Docs/Guide-Compilation-Execution.md).
+1.  **Clone the Repository**: `git clone https://github.com/SamGVanN/Derot-my-brain.git`
+2.  **Launch the System**: Follow the simple steps in our [Setup Guide](./Docs/Developer/Getting-Started.md) to start your backend and frontend.
+3.  **Start Learning**: Open `http://localhost:5173` and reclaim your attention!
 
 ---
 
-## 🤝 Contributing
+## 🤝 Join the Community
 
-Contributions are welcome! Whether you want to:
-- Report a bug
-- Suggest a new feature
-- Improve documentation
-- Submit a pull request
-
-Feel free to open an issue or submit a PR. Let's make learning more engaging together!
+Whether you're fixing a bug, suggesting a feature, or helping with translations—your contribution matters. 
+- Open an **Issue** for ideas or bugs.
+- Submit a **Pull Request** to add your touch to the code.
+- Help us translate to new languages!
 
 ---
 
-## 📄 License
+## 📄 License & Author
 
-This project is licensed under the **MIT License**.
+Created with 🧠 and ❤️ by **Samuel Vannier**. Licensed under the **MIT License**.
 
-See [LICENSE](./LICENSE) for details.
-
----
-
-## 👤 Author
-
-**Samuel Vannier**
-
-Created with ❤️ to help people rediscover the joy of focused learning.
-
----
-
-## 🌈 Philosophy
-
-**Derot My Brain** is built on the belief that:
-- Learning should be **active**, not passive
-- Curiosity is a **skill** that can be rebuilt
-- Technology can help us **reclaim** our attention, not just steal it
-- Knowledge is more **rewarding** when we engage with it deeply
-
-Join us in building a healthier relationship with digital content—one Wikipedia article at a time. 🚀
+**Reclaim your brain. Join us.** 🚀
