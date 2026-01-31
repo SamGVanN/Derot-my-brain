@@ -49,7 +49,7 @@ export const DocumentsPage: React.FC = () => {
     };
 
     const handleQuiz = (doc: DocumentDto) => {
-        navigate(`/zone?start=true&type=Document&mode=quiz&id=${encodeURIComponent(doc.sourceHash)}`);
+        navigate(`/zone?start=true&type=Document&mode=quiz&id=${encodeURIComponent(doc.sourceId)}`);
     };
 
     return (
@@ -84,7 +84,7 @@ export const DocumentsPage: React.FC = () => {
                                             <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Type</th>
                                             <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Size</th>
                                             <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Uploaded</th>
-                                            <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Path</th>
+                                            {/* <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Path</th> */}
                                             <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Actions</th>
                                         </tr>
                                     </thead>
@@ -98,12 +98,12 @@ export const DocumentsPage: React.FC = () => {
                                                 <td className="p-4 align-middle">{doc.fileType}</td>
                                                 <td className="p-4 align-middle">{(doc.fileSize / 1024).toFixed(1)} KB</td>
                                                 <td className="p-4 align-middle">{new Date(doc.uploadDate).toLocaleDateString()}</td>
-                                                <td className="p-4 align-middle text-muted-foreground text-xs font-mono max-w-[200px] truncate" title={doc.storagePath}>
+                                                {/* <td className="p-4 align-middle text-muted-foreground text-xs font-mono max-w-[200px] truncate" title={doc.storagePath}>
                                                     <div className="flex items-center gap-1">
                                                         <FolderOpen className="h-3 w-3" />
                                                         {doc.storagePath}
                                                     </div>
-                                                </td>
+                                                </td> */}
                                                 <td className="p-4 align-middle text-right">
                                                     <div className="flex justify-end gap-1">
                                                         <TooltipProvider>
