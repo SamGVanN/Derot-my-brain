@@ -11,7 +11,6 @@ import { useNavigate } from 'react-router';
 import {
     Tooltip,
     TooltipContent,
-    TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
@@ -80,9 +79,9 @@ export const BacklogPage: React.FC = () => {
                     icon={ClockAlert}
                 />
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Committed Learning</CardTitle>
+                <Card className="border-border/30 bg-card/30 backdrop-blur-xl rounded-3xl overflow-hidden shadow-xl">
+                    <CardHeader className="p-8 border-b border-border/20">
+                        <CardTitle className="text-2xl font-bold tracking-tight">Committed Learning</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {isLoading ? (
@@ -111,41 +110,37 @@ export const BacklogPage: React.FC = () => {
                                                 <td className="p-4 align-middle">{new Date(item.addedAt).toLocaleDateString()}</td>
                                                 <td className="p-4 align-middle text-right">
                                                     <div className="flex justify-end gap-1">
-                                                        <TooltipProvider>
-                                                            <Tooltip>
-                                                                <TooltipTrigger asChild>
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="icon"
-                                                                        onClick={() => handleStart(item)}
-                                                                        className="text-primary hover:text-primary/80 hover:bg-primary/10"
-                                                                    >
-                                                                        {item.sourceType === 'Document' ? <BookOpenText className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                                                                    </Button>
-                                                                </TooltipTrigger>
-                                                                <TooltipContent>
-                                                                    <p>{item.sourceType === 'Document' ? 'Read' : 'Start Activity'}</p>
-                                                                </TooltipContent>
-                                                            </Tooltip>
-                                                        </TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    onClick={() => handleStart(item)}
+                                                                    className="text-primary hover:text-primary/80 hover:bg-primary/10"
+                                                                >
+                                                                    {item.sourceType === 'Document' ? <BookOpenText className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>{item.sourceType === 'Document' ? 'Read' : 'Start Activity'}</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
 
-                                                        <TooltipProvider>
-                                                            <Tooltip>
-                                                                <TooltipTrigger asChild>
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="icon"
-                                                                        onClick={() => confirmRemove(item.sourceHash)}
-                                                                        className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
-                                                                    >
-                                                                        <Trash2 className="h-4 w-4" />
-                                                                    </Button>
-                                                                </TooltipTrigger>
-                                                                <TooltipContent>
-                                                                    <p>Remove from Backlog</p>
-                                                                </TooltipContent>
-                                                            </Tooltip>
-                                                        </TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    onClick={() => confirmRemove(item.sourceHash)}
+                                                                    className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>Remove from Backlog</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
                                                     </div>
                                                 </td>
                                             </tr>

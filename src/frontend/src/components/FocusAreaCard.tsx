@@ -16,6 +16,11 @@ import {
     GraduationCap
 } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { UserFocus } from '../models/UserFocus';
 import type { UserActivity } from '../models/UserActivity';
 import { userFocusApi } from '../api/userFocusApi';
@@ -24,7 +29,6 @@ import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { ActivityTimelineItem } from './ActivityTimelineItem';
-import { TooltipProvider } from './ui/tooltip';
 import { parseDate, isValidDate } from '@/lib/dateUtils';
 
 interface FocusAreaCardProps {
@@ -144,63 +148,96 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
 
                     <div className="flex gap-1 -mr-2">
                         {onTogglePin && (
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className={cn("h-8 w-8", focus.isPinned && "text-primary")}
-                                onClick={() => onTogglePin(focus)}
-                                title={focus.isPinned ? t('common.unpin', 'Unpin') : t('common.pin', 'Pin to top')}
-                            >
-                                <Pin className={cn("w-4 h-4", focus.isPinned && "fill-current")} />
-                            </Button>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className={cn("h-8 w-8", focus.isPinned && "text-primary")}
+                                        onClick={() => onTogglePin(focus)}
+                                    >
+                                        <Pin className={cn("w-4 h-4", focus.isPinned && "fill-current")} />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>{focus.isPinned ? t('common.unpin', 'Unpin') : t('common.pin', 'Pin to top')}</p>
+                                </TooltipContent>
+                            </Tooltip>
                         )}
                         {onToggleArchive && (
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className={cn("h-8 w-8", focus.isArchived && "text-yellow-600")}
-                                onClick={() => onToggleArchive(focus)}
-                                title={focus.isArchived ? t('common.unarchive', 'Unarchive') : t('common.archive', 'Archive')}
-                            >
-                                <Archive className={cn("w-4 h-4", focus.isArchived && "fill-current")} />
-                            </Button>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className={cn("h-8 w-8", focus.isArchived && "text-yellow-600")}
+                                        onClick={() => onToggleArchive(focus)}
+                                    >
+                                        <Archive className={cn("w-4 h-4", focus.isArchived && "fill-current")} />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>{focus.isArchived ? t('common.unarchive', 'Unarchive') : t('common.archive', 'Archive')}</p>
+                                </TooltipContent>
+                            </Tooltip>
                         )}
                         {onUntrack && (
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-primary/60 hover:text-primary"
-                                onClick={() => onUntrack(focus)}
-                                title={t('history.untrack', 'Untrack topic')}
-                            >
-                                <BookmarkCheck className="w-4 h-4" />
-                            </Button>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-primary/60 hover:text-primary"
+                                        onClick={() => onUntrack(focus)}
+                                    >
+                                        <BookmarkCheck className="w-4 h-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>{t('history.untrack', 'Untrack topic')}</p>
+                                </TooltipContent>
+                            </Tooltip>
                         )}
                     </div>
                 </div>
             </CardHeader>
 
             <div className="flex gap-2 px-6 mb-4">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-primary"
-                    onClick={() => startAction('read')}
-                    disabled={!!isActionLoading}
-                >
-                    {isActionLoading === 'read' ? <Loader2 className="w-4 h-4 animate-spin" /> : <BookOpen className="w-4 h-4" />}
-                    {t('focusArea.startRead', 'New Read')}
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-primary"
-                    onClick={() => startAction('quiz')}
-                    disabled={!!isActionLoading}
-                >
-                    {isActionLoading === 'quiz' ? <Loader2 className="w-4 h-4 animate-spin" /> : <GraduationCap className="w-4 h-4" />}
-                    {t('focusArea.startQuiz', 'New Quiz')}
-                </Button>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 h-8 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-primary text-xs hover:text-primary"
+                            onClick={() => startAction('read')}
+                            disabled={!!isActionLoading}
+                        >
+                            {isActionLoading === 'read' ? <Loader2 className="w-4 h-4 animate-spin" /> : <BookOpen className="w-4 h-4" />}
+                            {t('focusArea.startRead', 'New Read')}
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>{t('focusArea.startRead', 'New Read')}</p>
+                    </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 h-8 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 text-primary text-xs hover:text-primary"
+                            onClick={() => startAction('quiz')}
+                            disabled={!!isActionLoading}
+                        >
+                            {isActionLoading === 'quiz' ? <Loader2 className="w-4 h-4 animate-spin" /> : <GraduationCap className="w-4 h-4" />}
+                            {t('focusArea.startQuiz', 'New Quiz')}
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>{t('focusArea.startQuiz', 'New Quiz')}</p>
+                    </TooltipContent>
+                </Tooltip>
             </div>
 
             <CardContent>
@@ -278,20 +315,18 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
                                 </div>
                             ) : activities.length > 0 ? (
                                 <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                                    <TooltipProvider>
-                                        {activities.map((activity, idx) => (
-                                            <ActivityTimelineItem
-                                                key={activity.id}
-                                                activity={activity}
-                                                isTracked={true}
-                                                isCompact={true}
-                                                showTrackButton={false}
-                                                isLast={idx === activities.length - 1}
-                                                onTrack={() => { }}
-                                                onUntrack={() => { }}
-                                            />
-                                        ))}
-                                    </TooltipProvider>
+                                    {activities.map((activity, idx) => (
+                                        <ActivityTimelineItem
+                                            key={activity.id}
+                                            activity={activity}
+                                            isTracked={true}
+                                            isCompact={true}
+                                            showTrackButton={false}
+                                            isLast={idx === activities.length - 1}
+                                            onTrack={() => { }}
+                                            onUntrack={() => { }}
+                                        />
+                                    ))}
                                 </div>
                             ) : (
                                 <p className="text-xs text-center text-muted-foreground py-4">

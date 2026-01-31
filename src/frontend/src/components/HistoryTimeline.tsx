@@ -4,7 +4,6 @@ import type { UserActivity } from '../models/UserActivity';
 import type { UserFocus, TrackTopicRequest } from '../models/UserFocus';
 import { ActivityTimelineItem } from './ActivityTimelineItem';
 import { parseDate, formatDateKey } from '@/lib/dateUtils';
-import { TooltipProvider } from './ui/tooltip';
 
 interface HistoryTimelineProps {
     activities: UserActivity[];
@@ -46,45 +45,43 @@ export const HistoryTimeline: React.FC<HistoryTimelineProps> = ({
     };
 
     return (
-        <TooltipProvider>
-            <div className="space-y-12" >
-                {
-                    dateKeys.map((dateKey) => {
-                        // Sort ALL activities for this date by start time (newest first)
-                        const sortedActivities = [...groupedByDate[dateKey]].sort((a, b) =>
-                            parseDate(b.sessionDateStart).getTime() - parseDate(a.sessionDateStart).getTime()
-                        );
+        <div className="space-y-12" >
+            {
+                dateKeys.map((dateKey) => {
+                    // Sort ALL activities for this date by start time (newest first)
+                    const sortedActivities = [...groupedByDate[dateKey]].sort((a, b) =>
+                        parseDate(b.sessionDateStart).getTime() - parseDate(a.sessionDateStart).getTime()
+                    );
 
-                        return (
-                            <div key={dateKey}>
-                                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6 pl-16">
-                                    {dateKey === 'unknown'
-                                        ? t('history.unknownDate', 'Unknown Date')
-                                        : parseDate(dateKey).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-                                    }
-                                </h3>
+                    return (
+                        <div key={dateKey}>
+                            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6 pl-16">
+                                {dateKey === 'unknown'
+                                    ? t('history.unknownDate', 'Unknown Date')
+                                    : parseDate(dateKey).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                                }
+                            </h3>
 
-                                <div className="space-y-0 relative">
-                                    {sortedActivities.map((activity, index) => (
-                                        <ActivityTimelineItem
-                                            key={activity.id}
-                                            activity={activity}
-                                            isTracked={isTopicFocused(activity.sourceId)}
-                                            onTrack={() => onTrack({
-                                                sourceId: activity.sourceId,
-                                                sourceType: activity.sourceType,
-                                                displayTitle: activity.title
-                                            })}
-                                            onUntrack={() => onUntrack(activity.sourceId)}
-                                            isLast={index === sortedActivities.length - 1}
-                                        />
-                                    ))}
-                                </div>
+                            <div className="space-y-0 relative">
+                                {sortedActivities.map((activity, index) => (
+                                    <ActivityTimelineItem
+                                        key={activity.id}
+                                        activity={activity}
+                                        isTracked={isTopicFocused(activity.sourceId)}
+                                        onTrack={() => onTrack({
+                                            sourceId: activity.sourceId,
+                                            sourceType: activity.sourceType,
+                                            displayTitle: activity.title
+                                        })}
+                                        onUntrack={() => onUntrack(activity.sourceId)}
+                                        isLast={index === sortedActivities.length - 1}
+                                    />
+                                ))}
                             </div>
-                        );
-                    })
-                }
-            </div>
-        </TooltipProvider>
+                        </div>
+                    );
+                })
+            }
+        </div>
     );
 };
