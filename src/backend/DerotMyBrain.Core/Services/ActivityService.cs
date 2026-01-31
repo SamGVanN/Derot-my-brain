@@ -154,7 +154,7 @@ public class ActivityService : IActivityService
         {
             Title = content.Title,
             Description = activityType == ActivityType.Quiz ? "Quiz session" : (source.Type == SourceType.Wikipedia ? "Read from Wikipedia" : "Read from Document"),
-            SourceId = !string.IsNullOrEmpty(source.ExternalId) ? source.ExternalId : source.Id, // Fallback to Id if ExternalId is empty
+            SourceId = source.Type == SourceType.Document ? source.Id : (!string.IsNullOrEmpty(source.ExternalId) ? source.ExternalId : source.Id),
             SourceType = source.Type,
             Type = activityType,
             SessionDateStart = DateTime.UtcNow,
@@ -427,6 +427,7 @@ public class ActivityService : IActivityService
         return ApplyUniversalRules(dtos);
     }
 
+
     public async Task<UserActivity> UpdateActivityAsync(string userId, string activityId, UpdateActivityDto dto)
     {
         var activity = await _repository.GetByIdAsync(userId, activityId);
@@ -485,7 +486,6 @@ public class ActivityService : IActivityService
             SessionDateStart = a.SessionDateStart,
             SessionDateEnd = a.SessionDateEnd,
             DurationSeconds = a.DurationSeconds,
-            TotalDurationSeconds = a.TotalDurationSeconds,
             Score = a.Score,
             QuestionCount = a.QuestionCount,
             ScorePercentage = a.ScorePercentage,

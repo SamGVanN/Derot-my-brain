@@ -39,4 +39,10 @@ public class UserSession
     /// Navigation property to activities performed during this session.
     /// </summary>
     public ICollection<UserActivity> Activities { get; set; } = new List<UserActivity>();
+
+    /// <summary>
+    /// Total duration of all activities in this session in seconds.
+    /// Calculated in-memory (not persisted to DB).
+    /// </summary>
+    public int TotalDurationSeconds => Activities?.Sum(a => a.DurationSeconds) ?? 0;
 }
