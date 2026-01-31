@@ -87,7 +87,6 @@ public class ActivityServiceTests
         // Assert
         Assert.Equal(ActivityType.Read, result.Type);
         Assert.Equal(100, result.DurationSeconds);
-        Assert.Equal(100, result.TotalDurationSeconds);
     }
     
     [Fact]

@@ -29,9 +29,7 @@ public class UserActivityDto
     public DateTime? SessionDateEnd { get; set; }
     
     // Durations
-    // Durations
     public int DurationSeconds { get; set; }
-    public int TotalDurationSeconds { get; set; }
     
     // Stats
     public int Score { get; set; }

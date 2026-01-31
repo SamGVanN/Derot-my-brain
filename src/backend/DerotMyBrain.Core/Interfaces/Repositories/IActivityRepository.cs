@@ -66,6 +66,7 @@ public interface IActivityRepository
 
     // Session Operations
     Task<UserSession?> GetSessionByIdAsync(string userId, string sessionId);
+    Task<IEnumerable<UserSession>> GetSessionsByUserIdAsync(string userId);
     Task<UserSession> CreateSessionAsync(UserSession session);
     Task<UserSession> UpdateSessionAsync(UserSession session);
     Task<UserSession?> GetLastActiveSessionAsync(string userId, string sourceId);

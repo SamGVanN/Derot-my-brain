@@ -280,7 +280,6 @@ public class ActivitiesController : ControllerBase
             SessionDateStart = a.SessionDateStart,
             SessionDateEnd = a.SessionDateEnd,
             DurationSeconds = a.DurationSeconds,
-            TotalDurationSeconds = a.TotalDurationSeconds,
             Score = a.Score,
             QuestionCount = a.QuestionCount,
             ScorePercentage = a.ScorePercentage,

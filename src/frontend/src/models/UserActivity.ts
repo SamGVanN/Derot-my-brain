@@ -23,7 +23,6 @@ export interface UserActivity {
 
     // Durations
     durationSeconds: number;
-    totalDurationSeconds: number;
 
     // Stats
     score: number;

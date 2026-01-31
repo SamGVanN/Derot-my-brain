@@ -120,6 +120,16 @@ public class SqliteActivityRepository : IActivityRepository
             .FirstOrDefaultAsync(s => s.UserId == userId && s.Id == sessionId);
     }
 
+    public async Task<IEnumerable<UserSession>> GetSessionsByUserIdAsync(string userId)
+    {
+        return await _context.Sessions
+            .Include(s => s.TargetSource)
+            .Include(s => s.Activities)
+            .Where(s => s.UserId == userId)
+            .OrderByDescending(s => s.StartedAt)
+            .ToListAsync();
+    }
+
     public async Task<UserSession> CreateSessionAsync(UserSession session)
     {
         _context.Sessions.Add(session);

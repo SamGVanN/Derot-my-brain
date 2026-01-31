@@ -73,11 +73,6 @@ public class UserActivity
     /// </summary>
     public int DurationSeconds { get; set; }
 
-    /// <summary>
-    /// Total active study time (Read + Quiz) in seconds.
-    /// For compatibility/calculation if needed, but primary storage is DurationSeconds.
-    /// </summary>
-    public int TotalDurationSeconds => DurationSeconds;
 
     // --- Metrics & Results ---
 

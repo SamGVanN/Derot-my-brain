@@ -27,4 +27,33 @@ public class UserSessionTests
         // Assert
         Assert.Equal(SessionStatus.Stopped, session.Status);
     }
+
+    [Fact]
+    public void TotalDurationSeconds_ShouldSumActivityDurations()
+    {
+        // Arrange
+        var session = new UserSession { UserId = "user1" };
+        session.Activities.Add(new UserActivity { UserId = "user1", UserSessionId = session.Id, Title = "A1", Description = "D1", DurationSeconds = 100 });
+        session.Activities.Add(new UserActivity { UserId = "user1", UserSessionId = session.Id, Title = "A2", Description = "D2", DurationSeconds = 200 });
+        session.Activities.Add(new UserActivity { UserId = "user1", UserSessionId = session.Id, Title = "A3", Description = "D3", DurationSeconds = 50 });
+
+        // Act
+        var total = session.TotalDurationSeconds;
+
+        // Assert
+        Assert.Equal(350, total);
+    }
+
+    [Fact]
+    public void TotalDurationSeconds_ShouldReturnZeroWhenNoActivities()
+    {
+        // Arrange
+        var session = new UserSession { UserId = "user1" };
+
+        // Act
+        var total = session.TotalDurationSeconds;
+
+        // Assert
+        Assert.Equal(0, total);
+    }
 }
