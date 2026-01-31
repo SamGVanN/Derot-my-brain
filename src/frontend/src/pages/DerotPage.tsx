@@ -114,12 +114,14 @@ export function DerotPage() {
   return (
     <Layout>
       <div className="container max-w-7xl mx-auto py-10 px-4 space-y-12">
-        <PageHeader
-          title={t('derot.title', 'Derot Zone')}
-          subtitle={t('derot.subtitle', 'Derot Zone')}
-          description={t('derot.description', "Explorez, lisez et testez vos connaissances. C'est ici que se passe l'essentiel de votre apprentissage.")}
-          icon={BrainCircuit}
-        />
+        {mode === 'EXPLORE' && !exploreId && (
+          <PageHeader
+            title={t('derot.title', 'Derot Zone')}
+            subtitle={t('derot.subtitle', 'Derot Zone')}
+            description={t('derot.description', "Explorez, lisez et testez vos connaissances. C'est ici que se passe l'essentiel de votre apprentissage.")}
+            icon={BrainCircuit}
+          />
+        )}
 
         <section className="space-y-6 animate-in fade-in duration-1000">
           {(mode !== 'EXPLORE' || !!exploreId) && (

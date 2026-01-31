@@ -38,6 +38,7 @@ const navigationGroups: NavigationGroup[] = [
         title: 'Welcome',
         items: [
             { path: '/homepage', icon: Home, labelKey: 'nav.home', label: 'Homepage' },
+            { path: '/dashboard', icon: ChartColumn, labelKey: 'nav.dashboard', label: 'Dashboard' },
             { path: '/guide', icon: BookOpen, labelKey: 'nav.guide', label: 'Guide' },
         ]
     },
@@ -49,7 +50,7 @@ const navigationGroups: NavigationGroup[] = [
         ]
     },
     {
-        title: 'Knowledge',
+        title: 'Knowledge Library',
         items: [
             { path: '/focus-area', icon: Brain, labelKey: 'nav.focusArea', label: 'My Focus Area' },
             { path: '/documents', icon: Library, labelKey: 'nav.documents', label: 'Documents' },
@@ -59,7 +60,6 @@ const navigationGroups: NavigationGroup[] = [
     {
         title: 'Personal',
         items: [
-            { path: '/dashboard', icon: ChartColumn, labelKey: 'nav.dashboard', label: 'Dashboard' },
             { path: '/profile', icon: User, labelKey: 'nav.profile', label: 'Profile' },
             { path: '/preferences', icon: Settings, labelKey: 'nav.preferences', label: 'Preferences' },
         ]
@@ -110,7 +110,7 @@ export function NavigationMenu() {
             >
                 <div className="flex flex-col h-full p-4">
                     {/* Navigation Groups */}
-                    <div className="flex-1 space-y-6 overflow-y-auto">
+                    <div className="flex-1 space-y-12 overflow-y-auto">
                         {navigationGroups.map((group, groupIndex) => (
                             <div key={groupIndex} className="space-y-2">
                                 {group.title && (
@@ -149,7 +149,7 @@ export function NavigationMenu() {
                     </div>
 
                     {/* Logout Button */}
-                    <div className="border-t pt-4 mt-auto">
+                    <div className="border-t pt-4 mt-auto mb-auto">
                         <Button
                             variant="ghost"
                             className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
