@@ -12,7 +12,7 @@ It's more than just a reading app; it's a **gentle workout for your brain**. By 
 
 ---
 
-## ✨ Why You'll Love It
+## Why You'll Love It
 
 ### 🧠 The Attention Challenge
 Modern platforms are designed to keep us hooked on short dopamine hits, which can erode our deep-focus muscles. **Derot My Brain** helps you reverse this by encouraging deep dives into topics that actually matter to you.
@@ -20,15 +20,15 @@ Modern platforms are designed to keep us hooked on short dopamine hits, which ca
 ### 🛡️ Privacy First, Local Always
 Your learning journey is personal. That's why Derot My Brain runs **entirely on your machine**. Your data, your documents, and even the AI that quizzes you stay private. No clouds, no tracking, just you and your curiosity.
 
-### 🎨 Learning as an Experience
-*   📚 **Immersive Reading**: Dive into Wikipedia or your own documents without distractions.
-*   🧩 **Active Recall**: Reinforce your memory with AI-generated quizzes tailored to what *you* just read.
-*   📊 **Growth Tracking**: Watch your progress unfold with detailed activity logs and performance medals.
-*   🎨 **Sleek & Customizable**: Choose a theme that fits your mood (from "Midnight" to "Lab") for a premium learning atmosphere.
+### ✨ Learning as an Experience
+*   **Immersive Reading**: Dive into Wikipedia or your own documents without distractions.
+*   **Active Recall**: Reinforce your memory with AI-generated quizzes tailored to what *you* just read.
+*   **Growth Tracking**: Watch your progress unfold with detailed activity logs and performance medals.
+*   **Sleek & Customizable**: Choose a theme that fits your mood (from "Midnight" to "Lab") for a premium learning atmosphere.
 
 ---
 
-## 🚀 Experience the Features
+## Experience the Features
 
 ### Ready to Use Right Now ✅
 - **Derot Zone**: Your dedicated space for focused reading and interactive testing.
@@ -97,4 +97,4 @@ Whether you're fixing a bug, suggesting a feature, or helping with translations�
 
 Created with 🧠 and ❤️ by **Samuel Vannier**. Licensed under the **MIT License**.
 
-**Reclaim your brain. Join us.** 🚀
+**Reclaim your brain. Join us.**
