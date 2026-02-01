@@ -23,8 +23,10 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<IContentSource, WikipediaContentSource>();
         services.AddScoped<IContentSource, FileContentSource>();
 
-        // Register LLM Service
-        services.AddScoped<ILlmService, OllamaLlmService>();
+        // Register LLM Service with extended timeout for slow local models
+        services.AddHttpClient<ILlmService, OllamaLlmService>(client => {
+            client.Timeout = TimeSpan.FromMinutes(5);
+        });
 
         // Register Utilities
         services.AddScoped<ITextExtractor, TextExtractor>();

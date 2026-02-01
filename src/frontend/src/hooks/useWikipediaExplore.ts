@@ -90,11 +90,14 @@ export function useWikipediaExplore() {
         }
     };
 
-    const readArticle = async (article: WikipediaArticle) => {
+    const readArticle = async (article: WikipediaArticle, durationOverride?: number) => {
         if (!userId) return null;
         try {
             setLoadingAction(`read-${article.title}`);
-            const duration = startTime ? Math.floor((Date.now() - startTime) / 1000) : undefined;
+            const duration = durationOverride !== undefined
+                ? durationOverride
+                : (startTime ? Math.floor((Date.now() - startTime) / 1000) : undefined);
+
             const data = await activityApi.read(userId, {
                 title: article.title,
                 language: article.lang,
@@ -120,14 +123,17 @@ export function useWikipediaExplore() {
         }
     };
 
-    const stopExplore = useCallback(async () => {
+    const stopExplore = useCallback(async (durationOverride?: number) => {
         if (!userId) return;
 
         // If we have an exploration activity, stop it explicitly
-        if (exploreId && startTime) {
+        if (exploreId) {
             try {
                 setLoadingAction('stop-explore');
-                const duration = Math.floor((Date.now() - startTime) / 1000);
+                const duration = durationOverride !== undefined
+                    ? durationOverride
+                    : (startTime ? Math.floor((Date.now() - startTime) / 1000) : 0);
+
                 await activityApi.stopExplore(userId, exploreId, {
                     durationSeconds: duration,
                     backlogAddsCount,

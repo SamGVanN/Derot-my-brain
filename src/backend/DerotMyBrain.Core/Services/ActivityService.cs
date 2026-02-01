@@ -5,11 +5,14 @@ using DerotMyBrain.Core.Interfaces.Services;
 using DerotMyBrain.Core.Interfaces.Utils;
 using DerotMyBrain.Core.Utils;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace DerotMyBrain.Core.Services;
 
 public class ActivityService : IActivityService
 {
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> _quizLocks = new();
     private readonly IActivityRepository _repository;
     private readonly IUserRepository _userRepository;
     private readonly IEnumerable<IContentSource> _contentSources;
@@ -65,7 +68,7 @@ public class ActivityService : IActivityService
         return await CreateActivityAsync(userId, dto);
     }
 
-    public async Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceId, SourceType? sourceType, ActivityType activityType = ActivityType.Read, string? originExploreId = null, int? backlogAddsCount = null, int? refreshCount = null, int? exploreDurationSeconds = null)
+    public async Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceId, SourceType? sourceType, ActivityType activityType = ActivityType.Read, string? originExploreId = null, string? sessionId = null, int? backlogAddsCount = null, int? refreshCount = null, int? exploreDurationSeconds = null)
     {
         if (string.IsNullOrEmpty(sourceId))
              throw new ArgumentNullException(nameof(sourceId), "SourceId is required for Read activity.");
@@ -152,6 +155,7 @@ public class ActivityService : IActivityService
 
         var dto = new CreateActivityDto
         {
+            UserSessionId = sessionId,
             Title = content.Title,
             Description = activityType == ActivityType.Quiz ? "Quiz session" : (source.Type == SourceType.Wikipedia ? "Read from Wikipedia" : "Read from Document"),
             SourceId = source.Type == SourceType.Document ? source.Id : (!string.IsNullOrEmpty(source.ExternalId) ? source.ExternalId : source.Id),
@@ -171,11 +175,15 @@ public class ActivityService : IActivityService
             {
                 dto.UserSessionId = exploreActivity.UserSessionId;
                 
+                // Mark exploration as completed
+                exploreActivity.IsCompleted = true;
+                exploreActivity.SessionDateEnd = DateTime.UtcNow;
+
                 if (exploreDurationSeconds.HasValue) 
                 {
                     exploreActivity.DurationSeconds = exploreDurationSeconds.Value;
-                    await _repository.UpdateAsync(exploreActivity);
                 }
+                await _repository.UpdateAsync(exploreActivity);
             }
         }
 
@@ -201,13 +209,165 @@ public class ActivityService : IActivityService
         var activity = await _repository.GetByIdAsync(userId, activityId);
         if (activity == null) throw new KeyNotFoundException("Activity not found");
 
+        if (activity.Type != ActivityType.Quiz)
+        {
+            _logger.LogWarning("Rejecting quiz generation for activity {ActivityId} of type {Type}. Only 'Quiz' activities are allowed.", activityId, activity.Type);
+            throw new InvalidOperationException("Quiz generation is only permitted for activities of type 'Quiz'.");
+        }
+
         var source = activity.Source ?? await _repository.GetSourceByIdAsync(activity.SourceId ?? string.Empty);
         if (source == null) throw new KeyNotFoundException("Source not found");
 
         string textToProcess = source.TextContent ?? string.Empty;
         if (string.IsNullOrEmpty(textToProcess)) throw new InvalidOperationException("No content available to generate quiz.");
 
-        return await _quizService.GenerateQuizAsync(textToProcess);
+        // Get user preferences for quiz generation
+        var user = await _userRepository.GetByIdAsync(userId);
+        var preferences = user?.Preferences ?? UserPreferences.Default(userId);
+        
+        var quizFormat = preferences.PreferredQuizFormat;
+        var questionCount = preferences.QuestionsPerQuiz;
+        var difficulty = preferences.DefaultDifficulty;
+        var language = preferences.Language ?? "en";
+
+        // Use a semaphore to ensure only one thread generates the quiz for this activity
+        var activityLock = _quizLocks.GetOrAdd(activityId, _ => new SemaphoreSlim(1, 1));
+        await activityLock.WaitAsync();
+
+        try 
+        {
+            // Re-check after acquiring the lock to see if another thread already finished
+            activity = await _repository.GetByIdAsync(userId, activityId);
+            if (activity == null) throw new KeyNotFoundException("Activity not found.");
+
+            if (!string.IsNullOrEmpty(activity.Payload))
+            {
+                try 
+                {
+                    var storedQuiz = _jsonSerializer.Deserialize<QuizDto>(activity.Payload);
+                    if (storedQuiz != null && storedQuiz.Questions.Count > 0)
+                    {
+                        _logger.LogInformation("Returning previously generated quiz from activity payload (post-lock) for activity {ActivityId}", activityId);
+                        return storedQuiz;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to deserialize stored quiz payload for activity {ActivityId}. Will regenerate.", activityId);
+                }
+            }
+
+            var quiz = await _quizService.GenerateQuizAsync(textToProcess, quizFormat, questionCount, difficulty, language);
+            
+            // Store the quiz in the activity payload for later validation
+            activity.Payload = _jsonSerializer.Serialize(quiz);
+            await _repository.UpdateAsync(activity);
+            
+            return quiz;
+        }
+        finally 
+        {
+            activityLock.Release();
+            // Optional: cleanup old locks if memory is a concern, but for now this is safer
+        }
+    }
+
+    public async Task<QuizResultDto> SubmitQuizAsync(string userId, string activityId, QuizSubmissionDto submission)
+    {
+        var activity = await _repository.GetByIdAsync(userId, activityId);
+        if (activity == null) throw new KeyNotFoundException("Activity not found");
+
+        // Get user preferences for language
+        var user = await _userRepository.GetByIdAsync(userId);
+        var preferences = user?.Preferences ?? UserPreferences.Default(userId);
+        var language = preferences.Language ?? "en";
+        
+        // Retrieve the stored quiz from the activity payload
+        if (string.IsNullOrEmpty(activity.Payload))
+        {
+            throw new InvalidOperationException("Quiz data not found. Please regenerate the quiz.");
+        }
+        
+        var quiz = _jsonSerializer.Deserialize<QuizDto>(activity.Payload);
+        if (quiz == null || quiz.Questions.Count == 0)
+        {
+            throw new InvalidOperationException("Invalid quiz data. Please regenerate the quiz.");
+        }
+        
+        var results = new List<QuestionResultDto>();
+        int correctCount = 0;
+
+        foreach (var answer in submission.Answers)
+        {
+            var question = quiz.Questions.FirstOrDefault(q => q.Id == answer.QuestionId);
+            if (question == null)
+            {
+                _logger.LogWarning("Question {QuestionId} not found in generated quiz", answer.QuestionId);
+                continue;
+            }
+
+            var result = new QuestionResultDto
+            {
+                QuestionId = answer.QuestionId,
+                Explanation = question.Explanation
+            };
+
+            if (question.Type == "MCQ")
+            {
+                // MCQ evaluation: simple comparison
+                var userAnswer = answer.SelectedOption ?? string.Empty;
+                var correctAnswer = question.Options?[question.CorrectOptionIndex ?? 0] ?? string.Empty;
+                
+                result.IsCorrect = string.Equals(userAnswer, correctAnswer, StringComparison.OrdinalIgnoreCase);
+                result.UserAnswer = userAnswer;
+                result.CorrectAnswer = correctAnswer;
+                
+                if (result.IsCorrect) correctCount++;
+            }
+            else if (question.Type == "OpenEnded")
+            {
+                // Open-ended evaluation: use LLM semantic comparison
+                var userAnswer = answer.TextAnswer ?? string.Empty;
+                var expectedAnswer = question.CorrectAnswer ?? string.Empty;
+                
+                var evaluation = await _quizService.EvaluateOpenAnswerAsync(question.Text, expectedAnswer, userAnswer, language);
+                
+                result.UserAnswer = userAnswer;
+                result.CorrectAnswer = expectedAnswer;
+                result.SemanticScore = evaluation.Score;
+                result.Explanation = evaluation.Explanation;
+                
+                // Consider correct if semantic score >= 0.7
+                result.IsCorrect = evaluation.Score >= 0.7;
+                
+                if (result.IsCorrect) correctCount++;
+            }
+
+            results.Add(result);
+        }
+
+        var totalQuestions = submission.Answers.Count;
+        var scorePercentage = totalQuestions > 0 ? (double)correctCount / totalQuestions * 100.0 : 0.0;
+
+        // Update the activity with quiz results
+        var updateDto = new UpdateActivityDto
+        {
+            Score = correctCount,
+            QuestionCount = totalQuestions,
+            DurationSeconds = submission.DurationSeconds,
+            SessionDateEnd = DateTime.UtcNow,
+            IsCompleted = true
+        };
+
+        await UpdateActivityAsync(userId, activityId, updateDto);
+
+        return new QuizResultDto
+        {
+            TotalQuestions = totalQuestions,
+            CorrectAnswers = correctCount,
+            ScorePercentage = scorePercentage,
+            Results = results
+        };
     }
 
     public async Task<UserActivity> CreateActivityAsync(string userId, CreateActivityDto dto)

@@ -30,12 +30,14 @@ type NavigationItem = {
 
 type NavigationGroup = {
     title?: string;
+    titleKey?: string;
     items: NavigationItem[];
 };
 
 const navigationGroups: NavigationGroup[] = [
     {
         title: 'Welcome',
+        titleKey: 'nav.groups.welcome',
         items: [
             { path: '/homepage', icon: Home, labelKey: 'nav.home', label: 'Homepage' },
             { path: '/dashboard', icon: ChartColumn, labelKey: 'nav.dashboard', label: 'Dashboard' },
@@ -44,6 +46,7 @@ const navigationGroups: NavigationGroup[] = [
     },
     {
         title: 'Derot my brain',
+        titleKey: 'nav.groups.derot',
         items: [
             { path: '/derot', icon: BrainCircuit, labelKey: 'nav.derot', label: 'Derot zone' },
             { path: '/history', icon: History, labelKey: 'nav.history', label: 'History' },
@@ -51,6 +54,7 @@ const navigationGroups: NavigationGroup[] = [
     },
     {
         title: 'Knowledge Library',
+        titleKey: 'nav.groups.library',
         items: [
             { path: '/focus-area', icon: Brain, labelKey: 'nav.focusArea', label: 'My Focus Area' },
             { path: '/documents', icon: Library, labelKey: 'nav.documents', label: 'Documents' },
@@ -59,6 +63,7 @@ const navigationGroups: NavigationGroup[] = [
     },
     {
         title: 'Personal',
+        titleKey: 'nav.groups.personal',
         items: [
             { path: '/profile', icon: User, labelKey: 'nav.profile', label: 'Profile' },
             { path: '/preferences', icon: Settings, labelKey: 'nav.preferences', label: 'Preferences' },
@@ -115,7 +120,7 @@ export function NavigationMenu() {
                             <div key={groupIndex} className="space-y-2">
                                 {group.title && (
                                     <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                        {group.title}
+                                        {group.titleKey ? t(group.titleKey, group.title) : group.title}
                                     </h3>
                                 )}
                                 <div className="space-y-1">

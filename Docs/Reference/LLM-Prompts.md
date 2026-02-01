@@ -4,7 +4,7 @@
 
 Tu es un assistant pédagogique.
 
-À partir de l’article Wikipédia suivant, génère EXACTEMENT 5 questions de quiz
+À partir de texte suivant, génère EXACTEMENT {nbQuestions} questions de quiz
 pour tester la compréhension du sujet.
 
 Contraintes :
@@ -26,7 +26,7 @@ Format de sortie STRICTEMENT en JSON, sans texte avant ou après :
   ]
 }
 
-Article Wikipédia :
+Texte :
 <<<
 {ARTICLE_TEXT}
 >>>

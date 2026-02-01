@@ -80,7 +80,8 @@ export const FocusAreaCard: React.FC<FocusAreaCardProps> = ({
                 title: focus.displayTitle,
                 sourceId: focus.sourceId,
                 sourceType: mapSourceTypeToNumber(focus.source?.type),
-                language: i18n.language
+                language: i18n.language,
+                type: mode === 'quiz' ? 'Quiz' : 'Read'
             });
 
             if (activity?.id) {

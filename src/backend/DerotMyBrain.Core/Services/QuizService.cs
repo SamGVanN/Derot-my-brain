@@ -22,18 +22,31 @@ public class QuizService : IQuizService
         _logger = logger;
     }
 
-    public async Task<QuizDto> GenerateQuizAsync(string content, QuizFormat format = QuizFormat.MCQ, int count = 5, string difficulty = "Medium")
+    public async Task<QuizDto> GenerateQuizAsync(string content, QuizFormat format = QuizFormat.MCQ, int count = 5, string difficulty = "Medium", string language = "en")
     {
-        _logger.LogInformation("Generating {Count} {Format} questions with {Difficulty} difficulty", count, format, difficulty);
+        _logger.LogInformation("Generating {Count} {Format} questions with {Difficulty} difficulty in {Language}", count, format, difficulty, language);
         
-        var questionsJson = await _llmService.GenerateQuestionsAsync(content, count, difficulty);
-        var questions = _jsonSerializer.Deserialize<List<QuestionDto>>(questionsJson) ?? new List<QuestionDto>();
+        try
+        {
+            var questionsJson = await _llmService.GenerateQuestionsAsync(content, count, difficulty, format, language);
+            
+            _logger.LogWarning("LLM returned JSON: {Json}", questionsJson);
+            
+            var questions = _jsonSerializer.Deserialize<List<QuestionDto>>(questionsJson) ?? new List<QuestionDto>();
+            
+            _logger.LogInformation("Successfully generated {Count} questions", questions.Count);
 
-        return new QuizDto { Questions = questions };
+            return new QuizDto { Questions = questions };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating quiz");
+            throw;
+        }
     }
 
-    public async Task<bool> EvaluateOpenAnswerAsync(string question, string expected, string actual)
+    public async Task<SemanticEvaluationResult> EvaluateOpenAnswerAsync(string question, string expected, string actual, string language = "en")
     {
-        return await _llmService.EvaluateAnswerAsync(question, expected, actual);
+        return await _llmService.EvaluateAnswerAsync(question, expected, actual, language);
     }
 }

@@ -58,20 +58,30 @@
         "global": "Global/Système"
     },
     "nav": {
+        "home": "Accueil",
+        "dashboard": "Tableau de Bord",
         "derot": "Derot Zone",
         "history": "Historique",
         "focusArea": "Mes Focus",
+        "documents": "Documents",
         "backlog": "Backlog",
         "profile": "Profil",
         "preferences": "Préférences",
         "guide": "Guide",
+        "configuration": "Configuration",
         "logout": "Déconnexion",
-        "myAccount": "Mon Compte"
+        "myAccount": "Mon Compte",
+        "groups": {
+            "welcome": "Bienvenue",
+            "derot": "Derot my brain",
+            "library": "Bibliothèque",
+            "personal": "Personnel"
+        }
     },
     "layout": {
         "appName": "Derot My Brain",
         "footer": "© 2026 Derot My Brain. Apprentissage Local.",
-        "version": "v0.7.4"
+        "version": "v0.8.0"
     },
     "theme": {
         "fallback": "Thème"
@@ -189,7 +199,11 @@
             "submitQuiz": "Soumettre mes réponses",
             "modeExplore": "Exploration",
             "modeRead": "Lecture",
-            "modeQuiz": "Quiz"
+            "modeQuiz": "Quiz",
+            "stopActivity": "Quitter l'activité"
+        },
+        "quiz": {
+            "validationWarning": "Veuillez répondre à toutes les questions avant de soumettre"
         }
     },
     "focusArea": {

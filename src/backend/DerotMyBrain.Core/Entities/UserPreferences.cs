@@ -28,6 +28,9 @@ public class UserPreferences
     [JsonPropertyName("defaultDifficulty")]
     public string DefaultDifficulty { get; set; } = "Medium";
 
+    [JsonPropertyName("preferredQuizFormat")]
+    public QuizFormat PreferredQuizFormat { get; set; } = QuizFormat.MCQ;
+
     
     public static UserPreferences Default(string userId) => new()
     {
@@ -35,6 +38,7 @@ public class UserPreferences
         Language = "en",
         Theme = "system",
         QuestionsPerQuiz = 5,
-        DefaultDifficulty = "Medium"
+        DefaultDifficulty = "Medium",
+        PreferredQuizFormat = QuizFormat.MCQ
     };
 }

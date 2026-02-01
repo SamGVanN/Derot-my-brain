@@ -1,23 +1,32 @@
 import { Button } from '@/components/ui/button';
-import { Radar, StopCircle, GraduationCap, Send, ArrowRight } from 'lucide-react';
+import { Radar, StopCircle, GraduationCap, ArrowRight, Send, Loader2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type DerotZoneMode = 'EXPLORE' | 'READ' | 'QUIZ';
 
 interface DerotZoneSubHeaderProps {
     mode: DerotZoneMode;
-    onStopExplore?: () => void;
+    onStopActivity?: () => void;
     onGoToQuiz?: () => void;
     onSubmitQuiz?: () => void;
+    isQuizSubmittable?: boolean;
+    isSubmitting?: boolean;
     children?: ReactNode; // For filters or other contextual content
 }
 
 export function DerotZoneSubHeader({
     mode,
-    onStopExplore,
+    onStopActivity,
     onGoToQuiz,
     onSubmitQuiz,
+    isQuizSubmittable = false,
+    isSubmitting = false,
     children
 }: DerotZoneSubHeaderProps) {
     const { t } = useTranslation();
@@ -64,21 +73,22 @@ export function DerotZoneSubHeader({
             </div>
 
             <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-                {mode === 'EXPLORE' && (
-                    <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={onStopExplore}
-                        className="gap-2"
-                    >
-                        <StopCircle className="h-4 w-4" />
-                        {t('derot.subheader.stopExplore', "Arrêter l'exploration")}
-                    </Button>
-                )}
+                {/* Universal Stop Button */}
+                <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={onStopActivity}
+                    className="gap-2"
+                >
+                    <StopCircle className="h-4 w-4" />
+                    {mode === 'EXPLORE'
+                        ? t('derot.subheader.stopExplore', "Arrêter l'exploration")
+                        : t('derot.subheader.stopActivity', "Quitter l'activité")}
+                </Button>
 
                 {mode === 'READ' && (
                     <Button
-                        variant="default" /* Used to be custom blue */
+                        variant="default"
                         size="sm"
                         onClick={onGoToQuiz}
                         className="gap-2"
@@ -89,15 +99,31 @@ export function DerotZoneSubHeader({
                 )}
 
                 {mode === 'QUIZ' && (
-                    <Button
-                        variant="default" /* Used to be custom purple */
-                        size="sm"
-                        onClick={onSubmitQuiz}
-                        className="gap-2"
-                    >
-                        {t('derot.subheader.submitQuiz', 'Soumettre mes réponses')}
-                        <Send className="h-4 w-4" />
-                    </Button>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="inline-block">
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={onSubmitQuiz}
+                                    disabled={!isQuizSubmittable || isSubmitting}
+                                    className="gap-2"
+                                >
+                                    {isSubmitting ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <Send className="h-4 w-4" />
+                                    )}
+                                    {t('derot.subheader.submitQuiz', 'Soumettre mes réponses')}
+                                </Button>
+                            </div>
+                        </TooltipTrigger>
+                        {!isQuizSubmittable && !isSubmitting && (
+                            <TooltipContent>
+                                <p>{t('derot.quiz.validationWarning', 'Veuillez répondre à toutes les questions avant de soumettre')}</p>
+                            </TooltipContent>
+                        )}
+                    </Tooltip>
                 )}
             </div>
         </div>
