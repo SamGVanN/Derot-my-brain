@@ -10,47 +10,66 @@ namespace DerotMyBrain.Infrastructure.Services;
 public class OllamaLlmService : ILlmService
 {
     private readonly HttpClient _httpClient;
+    private readonly IConfigurationService _configurationService;
     private readonly ILogger<OllamaLlmService> _logger;
-    private readonly string _baseUrl = "http://127.0.0.1:11434"; // Should be config
-    private readonly string _model = "mistral:latest"; // Should be config
 
-    public OllamaLlmService(HttpClient httpClient, ILogger<OllamaLlmService> logger) // Add Config injection later
+    public OllamaLlmService(HttpClient httpClient, IConfigurationService configurationService, ILogger<OllamaLlmService> logger)
     {
         _httpClient = httpClient;
+        _configurationService = configurationService;
         _logger = logger;
     }
 
-    public async Task<string> GenerateQuestionsAsync(string content, int numQuestions = 5, string difficulty = "Medium")
+    public async Task<string> GenerateQuestionsAsync(string content, int numQuestions = 5, string difficulty = "Medium", QuizFormat format = QuizFormat.MCQ)
     {
-        var prompt = $@"
-You are a quiz generator. Generate {numQuestions} multiple-choice questions based on the text below.
-Difficulty: {difficulty}.
-Return ONLY a valid JSON array of objects. No markdown formatting, no code blocks, just raw JSON.
+        var config = await _configurationService.GetLLMConfigurationAsync();
+        var baseUrl = config.GetFullUrl();
+        var model = config.DefaultModel;
+
+        string formatInstructions = format == QuizFormat.MCQ 
+            ? @"Return ONLY a valid JSON array of objects. No markdown formatting, no code blocks, just raw JSON.
 Format:
 [
-  {{
+  {
     ""id"": 1,
     ""text"": ""Question text here?"",
     ""options"": [""Option A"", ""Option B"", ""Option C"", ""Option D""],
     ""correctOptionIndex"": 0,
-    ""explanation"": ""Why A is correct.""
-  }}
-]
+    ""explanation"": ""Why A is correct."",
+    ""type"": ""MCQ""
+  }
+]"
+            : @"Return ONLY a valid JSON array of objects. No markdown formatting, no code blocks, just raw JSON.
+Format:
+[
+  {
+    ""id"": 1,
+    ""text"": ""Question text here?"",
+    ""correctAnswer"": ""Reference answer for the user to compare with."",
+    ""explanation"": ""Context or additional info."",
+    ""type"": ""OpenEnded""
+  }
+]";
+
+        var prompt = $@"
+You are a quiz generator. Generate {numQuestions} {format} questions based on the text below.
+Difficulty: {difficulty}.
+{formatInstructions}
 
 Text:
 {content.Substring(0, Math.Min(content.Length, 12000))} 
-"; // Truncate to avoid context limit if huge
+";
 
         var requestBody = new
         {
-            model = _model,
+            model = model,
             prompt = prompt,
             stream = false,
             format = "json" // Ollama JSON mode
         };
 
         var json = JsonSerializer.Serialize(requestBody);
-        var response = await _httpClient.PostAsync($"{_baseUrl}/api/generate", new StringContent(json, Encoding.UTF8, "application/json"));
+        var response = await _httpClient.PostAsync($"{baseUrl}/api/generate", new StringContent(json, Encoding.UTF8, "application/json"));
         
         if (!response.IsSuccessStatusCode)
         {

@@ -156,11 +156,7 @@ public class ConfigurationService : IConfigurationService
             var client = _httpClientFactory.CreateClient();
             client.Timeout = TimeSpan.FromSeconds(5); // Fast test timeout
 
-            var url = $"{config.Url}:{config.Port}";
-            if (!url.StartsWith("http://") && !url.StartsWith("https://"))
-            {
-                url = "http://" + url;
-            }
+            var url = config.GetFullUrl();
 
             _logger.LogInformation("Testing LLM connection at {Url}", url);
 
@@ -197,7 +193,7 @@ public class ConfigurationService : IConfigurationService
             Id = "global",
             LLM = new LLMConfiguration
             {
-                Url = "http://localhost:11434",
+                Url = "127.0.0.1",
                 Port = 11434,
                 Provider = "ollama",
                 DefaultModel = "llama3:8b",

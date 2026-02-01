@@ -18,6 +18,7 @@ public static class ApplicationServiceExtensions
         services.AddScoped<ISourceService, SourceService>();
         services.AddScoped<IBacklogService, BacklogService>();
         services.AddScoped<ISessionService, SessionService>();
+        services.AddScoped<IQuizService, QuizService>();
 
         // Infrastructure Utilities
         services.AddSingleton<IJsonSerializer, JsonSerializerWrapper>();

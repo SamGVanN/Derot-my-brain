@@ -14,7 +14,7 @@ public class ActivityService : IActivityService
     private readonly IUserRepository _userRepository;
     private readonly IEnumerable<IContentSource> _contentSources;
     private readonly IWikipediaService _wikipediaService;
-    private readonly ILlmService _llmService;
+    private readonly IQuizService _quizService;
     private readonly IJsonSerializer _jsonSerializer;
     private readonly ILogger<ActivityService> _logger;
 
@@ -23,7 +23,7 @@ public class ActivityService : IActivityService
         IUserRepository userRepository,
         IEnumerable<IContentSource> contentSources,
         IWikipediaService wikipediaService,
-        ILlmService llmService,
+        IQuizService quizService,
         IJsonSerializer jsonSerializer,
         ILogger<ActivityService> logger)
     {
@@ -31,7 +31,7 @@ public class ActivityService : IActivityService
         _userRepository = userRepository;
         _contentSources = contentSources;
         _wikipediaService = wikipediaService;
-        _llmService = llmService;
+        _quizService = quizService;
         _jsonSerializer = jsonSerializer;
         _logger = logger;
     }
@@ -180,17 +180,16 @@ public class ActivityService : IActivityService
         }
 
         var activity = await CreateActivityAsync(userId, dto);
-        activity.ArticleContent = content.TextContent;
         
         try 
         {
-            await _repository.UpdateAsync(activity);
-            _logger.LogInformation("Activity {ActivityId} updated with content. Content Length: {Length}", activity.Id, activity.ArticleContent?.Length ?? 0);
+            source.TextContent = content.TextContent;
+            await _repository.UpdateSourceAsync(source);
+            _logger.LogInformation("Source {SourceId} updated with content. Content Length: {Length}", source.Id, source.TextContent?.Length ?? 0);
         }
         catch (Exception dbEx)
         {
-            _logger.LogError(dbEx, "CRITICAL: Failed to persist ArticleContent to database for Activity {ActivityId}.", activity.Id);
-            // We still return the activity with in-memory content for the immediate UI response
+            _logger.LogError(dbEx, "CRITICAL: Failed to persist content to database for Source {SourceId}.", source.Id);
         }
 
         activity.Source = source; // Assign after update to avoid EF tracking issues
@@ -202,13 +201,13 @@ public class ActivityService : IActivityService
         var activity = await _repository.GetByIdAsync(userId, activityId);
         if (activity == null) throw new KeyNotFoundException("Activity not found");
 
-        string textToProcess = activity.ArticleContent ?? string.Empty;
+        var source = activity.Source ?? await _repository.GetSourceByIdAsync(activity.SourceId ?? string.Empty);
+        if (source == null) throw new KeyNotFoundException("Source not found");
+
+        string textToProcess = source.TextContent ?? string.Empty;
         if (string.IsNullOrEmpty(textToProcess)) throw new InvalidOperationException("No content available to generate quiz.");
 
-        var questionsJson = await _llmService.GenerateQuestionsAsync(textToProcess);
-        var questions = _jsonSerializer.Deserialize<List<QuestionDto>>(questionsJson) ?? new List<QuestionDto>();
-
-        return new QuizDto { Questions = questions };
+        return await _quizService.GenerateQuizAsync(textToProcess);
     }
 
     public async Task<UserActivity> CreateActivityAsync(string userId, CreateActivityDto dto)
@@ -496,7 +495,7 @@ public class ActivityService : IActivityService
             LlmModelName = a.LlmModelName,
             LlmVersion = a.LlmVersion,
             IsTracked = isTracked,
-            ArticleContent = a.ArticleContent,
+            ArticleContent = source?.TextContent,
             Payload = a.Payload,
             ResultingReadActivityId = a.ResultingReadActivityId,
             ResultingReadSourceName = a.ResultingReadActivity?.Title,

@@ -50,4 +50,18 @@ public class LLMConfiguration
     /// Request timeout in seconds
     /// </summary>
     public int TimeoutSeconds { get; set; } = 30;
+
+    /// <summary>
+    /// Constructs the full LLM endpoint URL.
+    /// </summary>
+    public string GetFullUrl()
+    {
+        var baseUrl = Url;
+        if (!baseUrl.StartsWith("http://") && !baseUrl.StartsWith("https://"))
+        {
+            baseUrl = "http://" + baseUrl;
+        }
+
+        return $"{baseUrl.TrimEnd('/')}:{Port}";
+    }
 }

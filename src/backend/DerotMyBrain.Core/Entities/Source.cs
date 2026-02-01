@@ -17,6 +17,7 @@ public class Source
     public bool IsTracked { get; set; } = false;
     public bool IsPinned { get; set; } = false;
     public bool IsArchived { get; set; } = false;
+    public string? TextContent { get; set; }
 
     [JsonIgnore]
     public User User { get; set; } = null!;

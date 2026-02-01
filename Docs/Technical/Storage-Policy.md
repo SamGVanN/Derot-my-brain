@@ -98,17 +98,36 @@ CREATE TABLE UserPreferences (
 CREATE TABLE Activities (
     Id TEXT PRIMARY KEY,
     UserId TEXT NOT NULL,
-    Topic TEXT NOT NULL,
-    WikipediaUrl TEXT NOT NULL,
-    FirstAttemptDate TEXT NOT NULL,
-    LastAttemptDate TEXT NOT NULL,
-    LastScore INTEGER NOT NULL,
-    BestScore INTEGER NOT NULL,
-    TotalQuestions INTEGER NOT NULL,
+    SourceId TEXT NOT NULL, -- FK to Sources
+    Title TEXT NOT NULL,
+    Description TEXT NOT NULL,
+    Type INTEGER NOT NULL,
+    SessionDateStart TEXT NOT NULL,
+    SessionDateEnd TEXT,
+    DurationSeconds INTEGER NOT NULL,
+    Score INTEGER NOT NULL,
+    QuestionCount INTEGER NOT NULL,
+    ScorePercentage REAL,
+    IsNewBestScore INTEGER DEFAULT 0,
+    IsCompleted INTEGER DEFAULT 0,
     LlmModelName TEXT,
     LlmVersion TEXT,
+    Payload TEXT,
+    FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE,
+    FOREIGN KEY (SourceId) REFERENCES Sources(Id) ON DELETE CASCADE
+);
+
+-- Table Sources
+CREATE TABLE Sources (
+    Id TEXT PRIMARY KEY,
+    UserId TEXT NOT NULL,
+    Type INTEGER NOT NULL,
+    ExternalId TEXT NOT NULL,
+    DisplayTitle TEXT NOT NULL,
+    TextContent TEXT,
     IsTracked INTEGER DEFAULT 0,
-    Type TEXT NOT NULL,
+    IsPinned INTEGER DEFAULT 0,
+    IsArchived INTEGER DEFAULT 0,
     FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
 );
 

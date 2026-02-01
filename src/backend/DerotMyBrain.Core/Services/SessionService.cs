@@ -88,7 +88,7 @@ public class SessionService : ISessionService
             LlmModelName = a.LlmModelName,
             LlmVersion = a.LlmVersion,
             IsTracked = isTracked,
-            ArticleContent = a.ArticleContent,
+            ArticleContent = source?.TextContent,
             Payload = a.Payload,
             ResultingReadActivityId = a.ResultingReadActivityId,
             ResultingReadSourceName = a.ResultingReadActivity?.Title

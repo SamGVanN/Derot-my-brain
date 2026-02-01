@@ -54,3 +54,19 @@ public enum ActivityType
         /// </summary>
         WebLink = 4
     }
+
+/// <summary>
+/// Defines the format of a quiz question.
+/// </summary>
+public enum QuizFormat
+{
+    /// <summary>
+    /// Multiple Choice Question.
+    /// </summary>
+    MCQ = 0,
+    
+    /// <summary>
+    /// Open-ended question.
+    /// </summary>
+    OpenEnded = 1
+}

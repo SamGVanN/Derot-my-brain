@@ -56,7 +56,7 @@ public class ReadDocumentIntegrationTests
             userRepository.Object,
             contentSources,
             new Mock<IWikipediaService>().Object,
-            new Mock<ILlmService>().Object,
+            new Mock<IQuizService>().Object,
             new Mock<IJsonSerializer>().Object,
             new NullLogger<ActivityService>()
         );
@@ -109,8 +109,8 @@ public class ReadDocumentIntegrationTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(expectedContent, result.ArticleContent);
-        Assert.True(result.ArticleContent.Length > 0);
+        Assert.Equal(expectedContent, result.Source?.TextContent);
+        Assert.True(result.Source?.TextContent != null && result.Source.TextContent.Length > 0);
 
         // Verify DB Persistence
         var activityInDb = await _context.Activities
@@ -118,7 +118,7 @@ public class ReadDocumentIntegrationTests
             .FirstOrDefaultAsync(a => a.Id == result.Id);
 
         Assert.NotNull(activityInDb);
-        Assert.Equal(expectedContent, activityInDb.ArticleContent);
+        Assert.Equal(expectedContent, activityInDb.Source.TextContent);
         // Assert correct Source association
         Assert.Equal(SourceType.Document, activityInDb.Source.Type);
         Assert.Equal(sourceId, activityInDb.SourceId);

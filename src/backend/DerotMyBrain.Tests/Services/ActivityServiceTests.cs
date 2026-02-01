@@ -16,7 +16,7 @@ public class ActivityServiceTests
     private readonly Mock<IActivityRepository> _activityRepoMock;
     private readonly Mock<IUserRepository> _userRepoMock;
     private readonly Mock<IWikipediaService> _wikipediaServiceMock;
-    private readonly Mock<ILlmService> _llmServiceMock;
+    private readonly Mock<IQuizService> _quizServiceMock;
     private readonly Mock<IJsonSerializer> _jsonSerializerMock;
     private readonly Mock<ILogger<ActivityService>> _loggerMock;
     private readonly Mock<IContentSource> _contentSourceMock;
@@ -28,7 +28,7 @@ public class ActivityServiceTests
         _activityRepoMock = new Mock<IActivityRepository>();
         _userRepoMock = new Mock<IUserRepository>();
         _wikipediaServiceMock = new Mock<IWikipediaService>();
-        _llmServiceMock = new Mock<ILlmService>();
+        _quizServiceMock = new Mock<IQuizService>();
         _jsonSerializerMock = new Mock<IJsonSerializer>();
         _loggerMock = new Mock<ILogger<ActivityService>>();
         
@@ -49,12 +49,15 @@ public class ActivityServiceTests
         _activityRepoMock.Setup(r => r.CreateOnlineResourceAsync(It.IsAny<OnlineResource>()))
             .ReturnsAsync((OnlineResource o) => o);
 
+        _activityRepoMock.Setup(r => r.UpdateSourceAsync(It.IsAny<Source>()))
+            .ReturnsAsync((Source s) => { _sourceDb[s.Id] = s; return s; });
+
         _service = new ActivityService(
             _activityRepoMock.Object,
             _userRepoMock.Object,
             contentSources,
             _wikipediaServiceMock.Object,
-            _llmServiceMock.Object,
+            _quizServiceMock.Object,
             _jsonSerializerMock.Object,
             _loggerMock.Object);
     }
@@ -309,7 +312,10 @@ public class ActivityServiceTests
         Assert.Equal(technicalId, result.SourceId);
         _activityRepoMock.Verify(r => r.CreateSourceAsync(It.Is<Source>(s => s.Id == technicalId)), Times.AtLeastOnce());
         _activityRepoMock.Verify(r => r.CreateOnlineResourceAsync(It.Is<OnlineResource>(o => o.SourceId == technicalId)), Times.AtLeastOnce());
-        Assert.Equal("Test Content", result.ArticleContent);
+        
+        var source = _sourceDb[technicalId];
+        Assert.Equal("Test Content", source.TextContent);
+        Assert.Equal("Test Content", result.Source?.TextContent); // DTO still has it
     }
 
     [Fact]

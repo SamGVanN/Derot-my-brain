@@ -11,7 +11,7 @@ public interface ILlmService
     /// <param name="numQuestions">Number of questions to generate.</param>
     /// <param name="difficulty">Difficulty level (Easy, Medium, Hard).</param>
     /// <returns>A JSON string representing the quiz questions.</returns>
-    Task<string> GenerateQuestionsAsync(string content, int numQuestions = 5, string difficulty = "Medium");
+    Task<string> GenerateQuestionsAsync(string content, int numQuestions = 5, string difficulty = "Medium", QuizFormat format = QuizFormat.MCQ);
     
     /// <summary>
     /// Evaluates a user answer (optional, if we want server-side evaluation later).

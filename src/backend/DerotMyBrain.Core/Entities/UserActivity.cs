@@ -110,11 +110,6 @@ public class UserActivity
     // --- Detailed Data ---
 
     /// <summary>
-    /// Cached article content used during this session.
-    /// </summary>
-    public string? ArticleContent { get; set; }
-
-    /// <summary>
     /// Name of the LLM model used for generating/evaluating the quiz.
     /// </summary>
     public string? LlmModelName { get; set; } 

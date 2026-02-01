@@ -28,6 +28,9 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 
+// Localization
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
 // 5. Documentation
 builder.Services.AddDocumentationServices();
 
@@ -84,6 +87,15 @@ app.UseCors(policy => policy
 app.UseRateLimiter(); // Add Rate Limiting Middleware
 app.UseAuthentication(); // Add Auth Middleware
 app.UseAuthorization(); // Add Authorization Middleware
+
+// Localization Middleware
+var supportedCultures = new[] { "en", "fr" };
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture(supportedCultures[0])
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+
+app.UseRequestLocalization(localizationOptions);
 
 // Security Headers Middleware
 app.Use(async (context, next) =>

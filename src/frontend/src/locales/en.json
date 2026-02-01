@@ -14,7 +14,7 @@
             "tier2": "Great job! You're doing well.",
             "tier3": "Excellent! Impressive knowledge.",
             "tier4": "Outstanding! Almost perfect.",
-            "perfect": "Perfect! 🎉"
+            "perfect": "Perfect! \ud83c\udf89"
         },
         "sourcesAdded": "Articles added: {{count}}",
         "baseline": "First Attempt",
@@ -70,7 +70,7 @@
     },
     "layout": {
         "appName": "Derot My Brain",
-        "footer": "© 2026 Derot My Brain. Local Learning.",
+        "footer": "\u00a9 2026 Derot My Brain. Local Learning.",
         "version": "v0.7.4"
     },
     "theme": {
@@ -244,6 +244,20 @@
     "configuration": {
         "title": "Configuration",
         "subtitle": "Global configuration",
+        "llm": {
+            "title": "AI Engine Configuration",
+            "description": "Configure the local AI model (LLM) used for generating quizzes.",
+            "provider": "Provider",
+            "model": "Default Model",
+            "modelHelp": "Must match a model installed in your provider.",
+            "url": "Server Host/IP",
+            "urlHelp": "Enter Host or IP only (without http/port)",
+            "port": "Port",
+            "timeout": "Timeout (seconds)",
+            "testConnection": "Test Connection",
+            "endpointPreview": "Calculated Endpoint Preview",
+            "resetDefault": "Reset to Default"
+        },
         "ai": {
             "valid_api_key_required": "A valid API key is required for the application to function correctly. Please ensure your LLM provider is reachable."
         }

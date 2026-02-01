@@ -244,6 +244,20 @@
     "configuration": {
         "title": "Configuration",
         "subtitle": "Configuration globale",
+        "llm": {
+            "title": "Configuration du Moteur IA",
+            "description": "Configurez le modèle d'IA local (LLM) utilisé pour la génération de quiz.",
+            "provider": "Fournisseur",
+            "model": "Modèle par défaut",
+            "modelHelp": "Doit correspondre à un modèle installé chez votre fournisseur.",
+            "url": "Hôte/IP du serveur",
+            "urlHelp": "Entrez l'hôte ou l'IP uniquement (sans http/port)",
+            "port": "Port",
+            "timeout": "Délai d'attente (secondes)",
+            "testConnection": "Tester la connexion",
+            "endpointPreview": "Aperçu de l'URL finale calculée",
+            "resetDefault": "Réinitialiser"
+        },
         "ai": {
             "valid_api_key_required": "Une clé API valide est requise pour le bon fonctionnement de l'application. Veuillez vérifier que votre fournisseur LLM est joignable."
         }
