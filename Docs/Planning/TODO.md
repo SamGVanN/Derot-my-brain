@@ -3,6 +3,7 @@
 # OllamaLlmService
 
 Il ne faut pas hardcoder num_ctx = 16384
+
 Mais plutôt :
 - exposer ça comme une option de stratégie
 - ou au moins une constante configurable

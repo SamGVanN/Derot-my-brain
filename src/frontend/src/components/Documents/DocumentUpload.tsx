@@ -7,7 +7,6 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 // Alert import removed
 import { documentApi } from '@/api/documentApi';
 import { backlogApi } from '@/api/backlogApi';
-import { activityApi } from '@/api/activityApi';
 import { useNavigate } from 'react-router';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -106,7 +105,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete
             // We need to create an activity or redirect to a "setup activity" page with context.
             // Or just call StartActivity directly?
             // "Derot Zone" usually means Explore/Read.
-            // Let's redirect to `/zone/read?sourceType=Document&sourceId=${doc.sourceHash}` (or whatever ID).
+            // Let's redirect to `/derot?start=true&type=Document&id=${doc.sourceId}`.
             // ActivityService.ReadAsync takes `sourceId`. If SourceType=Document, `sourceId` needs to be valid.
             // Again, is it Hash or Path?
             // FileContentSource.GetContentAsync takes `sourceId`.
@@ -116,7 +115,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete
             // But FileContentSource expects "file://"+Path?
             // I need to align these.
 
-            navigate(`/zone?start=true&type=Document&id=${doc.sourceId}`); // Simplified for now
+            navigate(`/derot?start=true&type=Document&id=${doc.sourceId}`); // Simplified for now
         } catch (err) {
             console.error(err);
             setError("Failed to upload and start.");

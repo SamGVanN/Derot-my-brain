@@ -8,7 +8,7 @@ import { type DocumentDto } from '@/api/documentApi';
 import { DocumentUpload } from '@/components/Documents/DocumentUpload';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, FileText, Library, BookOpen, NotebookPen, FolderOpen } from 'lucide-react';
+import { Trash2, FileText, Library, BookOpen, NotebookPen } from 'lucide-react';
 import {
     Tooltip,
     TooltipContent,
@@ -49,7 +49,7 @@ export const DocumentsPage: React.FC = () => {
     };
 
     const handleQuiz = (doc: DocumentDto) => {
-        navigate(`/zone?start=true&type=Document&mode=quiz&id=${encodeURIComponent(doc.sourceId)}`);
+        navigate(`/derot?start=true&type=Document&mode=quiz&id=${encodeURIComponent(doc.sourceId)}`);
     };
 
     return (

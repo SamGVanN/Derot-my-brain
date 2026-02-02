@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Trash2, Play, BookOpen, ClockAlert, BookOpenText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router';
+import { SourceTypes } from '@/models/Enums';
 import {
     Tooltip,
     TooltipContent,
@@ -66,7 +67,7 @@ export const BacklogPage: React.FC = () => {
     };
 
     const handleStart = (item: BacklogItemDto) => {
-        navigate(`/zone?start=true&type=${item.sourceType}&id=${encodeURIComponent(item.sourceId)}&hash=${item.sourceHash}`);
+        navigate(`/derot?start=true&type=${item.sourceType}&id=${encodeURIComponent(item.sourceId)}&hash=${item.sourceHash}`);
     };
 
     return (

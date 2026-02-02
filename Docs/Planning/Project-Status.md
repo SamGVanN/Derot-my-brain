@@ -11,9 +11,7 @@
 - ✅ **Wikipedia Stability**: Reliable fetching and processing of Wikipedia content for all activity modes.
 - ✅ **Workflow Mastery**: The "Explore -> Read -> Quiz" cycle is now fully functional and verified with tests.
 
-## Current Gaps & Blockers
-- **Refinement**: Better UX for long-text processing and LLM error handling.
-- **Frontend Refinement**: Adjusting UI to better handle Open-Ended quiz results.
+
 
 ## High-Level Status
 
@@ -35,9 +33,5 @@
 
 ## Immediate Roadmap (Corrected)
 1. **Performance Tuning**: Optimize large document processing.
-2. **User Focus UI**: Enhance the tracking/timeline visualizations.
-3. **Advanced LLM Features**: Evaluate semantic scoring for better Open-Ended question feedback.
+2. **Advanced LLM Features**: Better handling of LLM options (tokens, num_ctx, etc).
 
-## Known Blockers
-- E2E testing environment instability on Windows (process locking).
-- Lack of real-world validation for LLM prompt results.
