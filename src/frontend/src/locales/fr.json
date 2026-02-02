@@ -81,7 +81,7 @@
     "layout": {
         "appName": "Derot My Brain",
         "footer": "© 2026 Derot My Brain. Apprentissage Local.",
-        "version": "v0.8.0"
+        "version": "v0.9.1"
     },
     "theme": {
         "fallback": "Thème"
@@ -203,7 +203,16 @@
             "stopActivity": "Quitter l'activité"
         },
         "quiz": {
-            "validationWarning": "Veuillez répondre à toutes les questions avant de soumettre"
+            "validationWarning": "Veuillez répondre à toutes les questions avant de soumettre",
+            "semanticScore": "Score d'évaluation",
+            "threshold": "seuil",
+            "semanticScoreTooltip": "L'IA évalue la similarité entre votre réponse et la réponse attendue en utilisant l'analyse sémantique. Un score de 70% ou plus est considéré comme correct.",
+            "yourAnswer": "Votre réponse",
+            "noAnswer": "Aucune réponse fournie",
+            "expectedAnswer": "Réponse de référence",
+            "justification": "Justification de la correction",
+            "explanation": "Explication",
+            "semanticScoreDesc": "Correct si ≥ 70%"
         }
     },
     "focusArea": {

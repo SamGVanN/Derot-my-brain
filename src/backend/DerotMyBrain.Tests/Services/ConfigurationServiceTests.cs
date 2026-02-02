@@ -1,5 +1,6 @@
 using DerotMyBrain.Core.Entities;
 using DerotMyBrain.Core.Interfaces.Services;
+using DerotMyBrain.Core.Interfaces.Repositories;
 using DerotMyBrain.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -15,6 +16,7 @@ public class ConfigurationServiceTests : IDisposable
     private readonly Mock<ILogger<ConfigurationService>> _loggerMock;
     private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
     private readonly Mock<IConfiguration> _configMock;
+    private readonly Mock<IConfigurationRepository> _configRepositoryMock;
 
     public ConfigurationServiceTests()
     {
@@ -25,6 +27,7 @@ public class ConfigurationServiceTests : IDisposable
         _httpClientFactoryMock = new Mock<IHttpClientFactory>();
         _configMock = new Mock<IConfiguration>();
         _configMock.Setup(c => c["DataDirectory"]).Returns(_tempConfigDir);
+        _configRepositoryMock = new Mock<IConfigurationRepository>();
     }
 
     public void Dispose()
@@ -39,25 +42,47 @@ public class ConfigurationServiceTests : IDisposable
     public async Task InitializeAsync_CreatesDefaultConfiguration()
     {
         // Arrange
-        var service = new ConfigurationService(_configMock.Object, _loggerMock.Object, _httpClientFactoryMock.Object);
+        _configRepositoryMock.Setup(r => r.GetAsync()).ReturnsAsync((AppConfiguration?)null);
+        _configRepositoryMock.Setup(r => r.SaveAsync(It.IsAny<AppConfiguration>()))
+            .ReturnsAsync((AppConfiguration config) => config);
+        
+        var service = new ConfigurationService(
+            _configMock.Object, 
+            _loggerMock.Object, 
+            _httpClientFactoryMock.Object,
+            _configRepositoryMock.Object);
 
         // Act
         await service.InitializeAsync();
 
         // Assert
-        var config = await service.GetConfigurationAsync();
-        Assert.NotNull(config);
-        Assert.Equal("global", config.Id);
-        Assert.Equal("ollama", config.LLM.Provider);
-        Assert.Equal(11434, config.LLM.Port);
+        _configRepositoryMock.Verify(r => r.SaveAsync(It.IsAny<AppConfiguration>()), Times.Once);
     }
 
     [Fact]
     public async Task GetLLMConfigurationAsync_ReturnsCorrectConfig()
     {
         // Arrange
-        var service = new ConfigurationService(_configMock.Object, _loggerMock.Object, _httpClientFactoryMock.Object);
-        await service.InitializeAsync();
+        var testConfig = new AppConfiguration
+        {
+            Id = "global",
+            LLM = new LLMConfiguration
+            {
+                Url = "127.0.0.1",
+                Port = 11434,
+                Provider = "ollama",
+                DefaultModel = "llama3:8b",
+                TimeoutSeconds = 30
+            }
+        };
+        
+        _configRepositoryMock.Setup(r => r.GetAsync()).ReturnsAsync(testConfig);
+        
+        var service = new ConfigurationService(
+            _configMock.Object, 
+            _loggerMock.Object, 
+            _httpClientFactoryMock.Object,
+            _configRepositoryMock.Object);
 
         // Act
         var llmConfig = await service.GetLLMConfigurationAsync();

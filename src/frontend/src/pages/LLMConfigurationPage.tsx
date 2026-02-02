@@ -14,7 +14,7 @@ interface LLMConfigurationPageProps {
 
 export default function LLMConfigurationPage({ onCancel }: LLMConfigurationPageProps) {
     const { t } = useTranslation();
-    const { config: appConfig, loading: configLoading, updateLLMConfig, testLLMConnection } = useAppConfig();
+    const { config: appConfig, loading: configLoading, updateLLMConfig, testLLMConnection, resetConfig } = useAppConfig();
 
     return (
         <div className="container max-w-4xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-500">
@@ -46,6 +46,7 @@ export default function LLMConfigurationPage({ onCancel }: LLMConfigurationPageP
                     <LLMConfigurationForm
                         config={appConfig}
                         onSave={updateLLMConfig}
+                        onReset={resetConfig}
                         onTestConnection={testLLMConnection}
                         isLoading={configLoading}
                     />

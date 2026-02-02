@@ -3,7 +3,6 @@ namespace DerotMyBrain.Core.DTOs;
     {
         public string? Language { get; set; }
         public string? PreferredTheme { get; set; }
-        public int? QuestionCount { get; set; }
     }
 
     public class CategoryPreferencesDto
@@ -15,4 +14,5 @@ namespace DerotMyBrain.Core.DTOs;
     {
         public int? QuestionCount { get; set; }
         public List<string>? SelectedCategories { get; set; }
+        public int? PreferredQuizFormat { get; set; } // 0=MCQ, 1=OpenEnded
     }

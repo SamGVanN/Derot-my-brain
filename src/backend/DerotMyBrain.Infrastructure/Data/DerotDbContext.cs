@@ -14,6 +14,7 @@ public class DerotDbContext : DbContext
     public DbSet<Document> Documents { get; set; }
     public DbSet<BacklogItem> BacklogItems { get; set; }
     public DbSet<OnlineResource> OnlineResources { get; set; }
+    public DbSet<AppConfiguration> AppConfigurations { get; set; }
     
     public DerotDbContext(DbContextOptions<DerotDbContext> options) : base(options)
     {
@@ -210,6 +211,20 @@ public class DerotDbContext : DbContext
                 .WithOne(s => s.OnlineResource)
                 .HasForeignKey<OnlineResource>(e => e.SourceId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // AppConfiguration configuration
+        modelBuilder.Entity<AppConfiguration>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).IsRequired();
+            entity.Property(e => e.LastUpdated).IsRequired();
+            
+            // Store LLM configuration as JSON
+            entity.Property(e => e.LLM)
+                .HasConversion(
+                    v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                    v => System.Text.Json.JsonSerializer.Deserialize<LLMConfiguration>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new LLMConfiguration());
         });
     }
 }

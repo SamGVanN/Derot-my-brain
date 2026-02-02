@@ -13,4 +13,5 @@ public interface IConfigurationService
     Task<LLMConfiguration> GetLLMConfigurationAsync();
     Task<LLMConfiguration> UpdateLLMConfigurationAsync(LLMConfiguration llmConfig);
     Task<bool> TestLLMConnectionAsync(LLMConfiguration config);
+    Task<AppConfiguration> ResetToDefaultAsync();
 }

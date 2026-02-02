@@ -23,10 +23,9 @@ public static class ApplicationServiceExtensions
         // Infrastructure Utilities
         services.AddSingleton<IJsonSerializer, JsonSerializerWrapper>();
 
-        // Legacy / Helper Services
-        services.AddSingleton<ISeedDataService, SeedDataService>();
-        services.AddSingleton<IConfigurationService, ConfigurationService>();
-        services.AddSingleton<IInitializationService, InitializationService>();
+        // Legacy / Helper Services (Scoped because they depend on Scoped services like IConfigurationService)
+        services.AddScoped<ISeedDataService, SeedDataService>();
+        services.AddScoped<IInitializationService, InitializationService>();
 
         return services;
     }

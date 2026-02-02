@@ -1,6 +1,8 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, Info } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Question, QuestionResult } from '@/models/Quiz';
 
 interface QuizQuestionProps {
@@ -20,6 +22,7 @@ export function QuizQuestion({
     result,
     disabled
 }: QuizQuestionProps) {
+    const { t } = useTranslation();
     const showResult = !!result;
     const isCorrect = result?.isCorrect ?? false;
 
@@ -122,36 +125,73 @@ export function QuizQuestion({
 
                 {/* Result Feedback */}
                 {showResult && result && (
-                    <div className="pl-11 space-y-2">
+                    <div className="pl-11 space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* User's Answer */}
+                            <div className="p-3 rounded-lg bg-background/50 border border-border/40">
+                                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                                    {t('derot.quiz.yourAnswer')}
+                                </p>
+                                <p className={`text-sm font-medium ${isCorrect ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}`}>
+                                    {userAnswer || (t('derot.quiz.noAnswer'))}
+                                </p>
+                            </div>
+
+                            {/* Expected Answer */}
+                            <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                                <p className="text-xs font-bold text-primary/70 uppercase tracking-wider mb-2">
+                                    {t('derot.quiz.expectedAnswer')}
+                                </p>
+                                <p className="text-sm font-medium text-foreground">
+                                    {result.correctAnswer || question.correctAnswer || (question.type === 'MCQ' && question.options && question.correctOptionIndex !== undefined ? question.options[question.correctOptionIndex] : '')}
+                                </p>
+                            </div>
+                        </div>
+
                         {/* Semantic Score for Open-Ended */}
                         {question.type === 'OpenEnded' && result.semanticScore !== undefined && (
-                            <div className="flex items-center gap-2 text-sm">
-                                <AlertCircle className="w-4 h-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">
-                                    Similarity Score: <span className="font-semibold">{(result.semanticScore * 100).toFixed(0)}%</span>
-                                </span>
+                            <div className={`flex items-center gap-2 text-sm p-3 rounded-lg ${isCorrect
+                                ? 'bg-green-500/10 border border-green-500/20'
+                                : 'bg-amber-500/10 border border-amber-500/20'
+                                }`}>
+                                <AlertCircle className={`w-4 h-4 ${isCorrect ? 'text-green-600' : 'text-amber-600'}`} />
+                                <div className="flex-1 flex items-center gap-2">
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <span className="font-bold cursor-help border-b border-dotted border-current flex items-center gap-1.5">
+                                                {t('derot.quiz.semanticScore')}: {(result.semanticScore * 100).toFixed(0)}%
+                                                <Info className="w-3.5 h-3.5 opacity-70" />
+                                            </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent className="max-w-[300px]">
+                                            <p>{t('derot.quiz.semanticScoreTooltip')}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                    <span className="text-muted-foreground text-xs ml-1">
+                                        ({t('derot.quiz.semanticScoreDesc')})
+                                    </span>
+                                </div>
                             </div>
                         )}
 
-                        {/* Show correct answer if wrong */}
-                        {!isCorrect && result.correctAnswer && (
-                            <div className="p-3 rounded-lg bg-muted/50 border border-border/40">
-                                <p className="text-xs font-semibold text-muted-foreground mb-1">Correct Answer:</p>
-                                <p className="text-sm text-foreground">{result.correctAnswer}</p>
-                            </div>
-                        )}
-
-                        {/* Explanation */}
-                        {result.explanation && (
+                        {/* Explanation / Justification */}
+                        {(result.explanation || question.explanation) && (
                             <div className={`
-                p-3 rounded-lg border
+                p-4 rounded-lg border shadow-sm
                 ${isCorrect
                                     ? 'bg-green-500/5 border-green-500/20'
                                     : 'bg-blue-500/5 border-blue-500/20'
                                 }
               `}>
-                                <p className="text-xs font-semibold text-muted-foreground mb-1">Explanation:</p>
-                                <p className="text-sm text-foreground/90">{result.explanation}</p>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className={`w-1.5 h-4 rounded-full ${isCorrect ? 'bg-green-500' : 'bg-blue-500'}`} />
+                                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                                        {question.type === 'OpenEnded' ? t('derot.quiz.justification') : t('derot.quiz.explanation')}
+                                    </p>
+                                </div>
+                                <p className="text-sm text-foreground/90 leading-relaxed italic">
+                                    "{result.explanation || question.explanation}"
+                                </p>
                             </div>
                         )}
                     </div>

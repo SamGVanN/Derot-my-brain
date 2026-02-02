@@ -6,6 +6,7 @@ using DerotMyBrain.Core.Interfaces.Utils;
 using DerotMyBrain.Core.Utils;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading;
 
 namespace DerotMyBrain.Core.Services;
@@ -297,6 +298,33 @@ public class ActivityService : IActivityService
         var results = new List<QuestionResultDto>();
         int correctCount = 0;
 
+        // Collect all open-ended questions for batch evaluation
+        var openEndedRequests = new List<AnswerEvaluationRequest>();
+        var source = activity.Source ?? await _repository.GetSourceByIdAsync(activity.SourceId ?? string.Empty);
+        var sourceContext = source?.TextContent ?? string.Empty;
+
+        foreach (var answer in submission.Answers)
+        {
+            var question = quiz.Questions.FirstOrDefault(q => q.Id == answer.QuestionId);
+            if (question == null || question.Type != "OpenEnded") continue;
+
+            openEndedRequests.Add(new AnswerEvaluationRequest
+            {
+                QuestionId = answer.QuestionId,
+                Question = question.Text,
+                ExpectedAnswer = question.CorrectAnswer ?? string.Empty,
+                UserAnswer = answer.TextAnswer ?? string.Empty
+            });
+        }
+
+        // Perform batch evaluation if there are open-ended questions
+        var batchEvaluations = new List<QuestionEvaluationResult>();
+        if (openEndedRequests.Any())
+        {
+            _logger.LogInformation("Performing batch evaluation for {Count} open-ended questions in language: {Language}", openEndedRequests.Count, language);
+        batchEvaluations = await _quizService.EvaluateOpenAnswersBatchAsync(sourceContext, openEndedRequests, language);
+        }
+
         foreach (var answer in submission.Answers)
         {
             var question = quiz.Questions.FirstOrDefault(q => q.Id == answer.QuestionId);
@@ -326,19 +354,28 @@ public class ActivityService : IActivityService
             }
             else if (question.Type == "OpenEnded")
             {
-                // Open-ended evaluation: use LLM semantic comparison
+                // Open-ended evaluation: use LLM semantic comparison from batch result
                 var userAnswer = answer.TextAnswer ?? string.Empty;
                 var expectedAnswer = question.CorrectAnswer ?? string.Empty;
-                
-                var evaluation = await _quizService.EvaluateOpenAnswerAsync(question.Text, expectedAnswer, userAnswer, language);
+                var evaluation = batchEvaluations.FirstOrDefault(e => e.QuestionId == answer.QuestionId);
                 
                 result.UserAnswer = userAnswer;
                 result.CorrectAnswer = expectedAnswer;
-                result.SemanticScore = evaluation.Score;
-                result.Explanation = evaluation.Explanation;
-                
-                // Consider correct if semantic score >= 0.7
-                result.IsCorrect = evaluation.Score >= 0.7;
+
+                if (evaluation != null)
+                {
+                    result.SemanticScore = evaluation.Score;
+                    result.Explanation = evaluation.Explanation;
+                    
+                    // Consider correct if semantic score >= 0.7
+                    result.IsCorrect = evaluation.Score >= 0.7;
+                }
+                else
+                {
+                    _logger.LogWarning("Missing batch evaluation result for question {QuestionId}", answer.QuestionId);
+                    result.IsCorrect = false;
+                    result.Explanation = "Evaluation result missing.";
+                }
                 
                 if (result.IsCorrect) correctCount++;
             }

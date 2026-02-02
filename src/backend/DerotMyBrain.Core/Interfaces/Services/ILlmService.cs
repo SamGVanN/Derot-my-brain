@@ -1,3 +1,4 @@
+using DerotMyBrain.Core.DTOs;
 using DerotMyBrain.Core.Entities;
 
 namespace DerotMyBrain.Core.Interfaces.Services;
@@ -24,4 +25,13 @@ public interface ILlmService
     /// <param name="language">Language for evaluation feedback (e.g., "en", "fr").</param>
     /// <returns>Semantic evaluation result with score (0.0-1.0) and explanation.</returns>
     Task<SemanticEvaluationResult> EvaluateAnswerAsync(string question, string expectedAnswer, string userAnswer, string language = "en");
+
+    /// <summary>
+    /// Evaluates multiple user answers using semantic comparison in a single batch.
+    /// </summary>
+    /// <param name="sourceContext">The original text content used to generate the quiz.</param>
+    /// <param name="requests">List of answer evaluation requests.</param>
+    /// <param name="language">Language for evaluation feedback.</param>
+    /// <returns>A list of semantic evaluation results.</returns>
+    Task<List<QuestionEvaluationResult>> EvaluateAnswersBatchAsync(string sourceContext, List<AnswerEvaluationRequest> requests, string language = "en");
 }

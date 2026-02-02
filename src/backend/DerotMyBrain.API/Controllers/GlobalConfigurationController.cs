@@ -122,5 +122,25 @@ namespace DerotMyBrain.API.Controllers
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Reset configuration to default values from app-config.json
+        /// </summary>
+        [HttpPost("reset")]
+        [ProducesResponseType(typeof(AppConfiguration), StatusCodes.Status200OK)]
+        public async Task<ActionResult<AppConfiguration>> ResetToDefault()
+        {
+            try
+            {
+                var config = await _configurationService.ResetToDefaultAsync();
+                _logger.LogInformation("Configuration reset to defaults");
+                return Ok(config);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error resetting configuration to defaults");
+                return BadRequest(new { message = "Failed to reset configuration" });
+            }
+        }
     }
 }

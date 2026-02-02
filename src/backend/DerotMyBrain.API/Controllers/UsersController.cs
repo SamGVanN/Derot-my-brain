@@ -127,7 +127,6 @@ public class UsersController : ControllerBase
 
         if (dto.Language != null) user.Preferences.Language = dto.Language;
         if (dto.PreferredTheme != null) user.Preferences.Theme = dto.PreferredTheme;
-        if (dto.QuestionCount.HasValue) user.Preferences.QuestionsPerQuiz = dto.QuestionCount.Value;
 
         var updatedUser = await _userService.UpdateUserAsync(user);
         return Ok(updatedUser);
@@ -140,6 +139,11 @@ public class UsersController : ControllerBase
         if (user == null || user.Preferences == null) return NotFound();
 
         if (dto.QuestionCount.HasValue) user.Preferences.QuestionsPerQuiz = dto.QuestionCount.Value;
+        
+        if (dto.PreferredQuizFormat.HasValue) 
+        {
+            user.Preferences.PreferredQuizFormat = (QuizFormat)dto.PreferredQuizFormat.Value;
+        }
         
         if (dto.SelectedCategories != null)
         {

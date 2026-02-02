@@ -81,7 +81,7 @@
     "layout": {
         "appName": "Derot My Brain",
         "footer": "\u00a9 2026 Derot My Brain. Local Learning.",
-        "version": "v0.8.0"
+        "version": "v0.9.1"
     },
     "theme": {
         "fallback": "Theme"
@@ -208,7 +208,16 @@
             "stopActivity": "Stop Activity"
         },
         "quiz": {
-            "validationWarning": "Please answer all questions before submitting"
+            "validationWarning": "Please answer all questions before submitting",
+            "semanticScore": "Evaluation Score",
+            "threshold": "threshold",
+            "semanticScoreTooltip": "The AI evaluates the similarity between your answer and the expected answer using semantic analysis. A score of 70% or higher is considered correct.",
+            "yourAnswer": "Your Answer",
+            "noAnswer": "No answer provided",
+            "expectedAnswer": "Reference Answer",
+            "justification": "Correction Justification",
+            "explanation": "Explanation",
+            "semanticScoreDesc": "Correct if ≥ 70%"
         }
     },
     "focusArea": {

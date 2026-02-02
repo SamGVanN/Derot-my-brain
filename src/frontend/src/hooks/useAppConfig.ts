@@ -89,6 +89,25 @@ export function useAppConfig() {
         }
     }, []);
 
+    // Reset configuration to defaults
+    const resetConfig = useCallback(async (): Promise<boolean> => {
+        try {
+            setUpdating(true);
+            setError(null);
+
+            const response = await client.post<AppConfiguration>(`/global-config/reset`);
+            setConfig(response.data);
+            return true;
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to reset configuration';
+            setError(errorMessage);
+            console.error('Error resetting configuration:', err);
+            return false;
+        } finally {
+            setUpdating(false);
+        }
+    }, []);
+
     useEffect(() => {
         fetchConfig();
     }, [fetchConfig]);
@@ -101,6 +120,7 @@ export function useAppConfig() {
         updateConfig,
         updateLLMConfig,
         testLLMConnection,
+        resetConfig,
         refetch: fetchConfig
     };
 }

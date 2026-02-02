@@ -12,11 +12,12 @@ import type { AppConfiguration, LLMConfiguration } from '@/models/Configuration'
 interface LLMConfigurationFormProps {
     config: AppConfiguration | null;
     onSave: (llmConfig: LLMConfiguration) => Promise<boolean>;
+    onReset: () => Promise<boolean>;
     onTestConnection: (llmConfig: LLMConfiguration) => Promise<{ success: boolean; message: string }>;
     isLoading: boolean;
 }
 
-export function LLMConfigurationForm({ config, onSave, onTestConnection, isLoading }: LLMConfigurationFormProps) {
+export function LLMConfigurationForm({ config, onSave, onReset, onTestConnection, isLoading }: LLMConfigurationFormProps) {
     const { t } = useTranslation();
 
     // Local state for form fields - defaults match backend ConfigurationService.CreateDefaultConfiguration
@@ -91,29 +92,17 @@ export function LLMConfigurationForm({ config, onSave, onTestConnection, isLoadi
         setTestResult(null);
     };
 
-    const handleResetToDefault = () => {
-        const defaultLLM = {
-            url: '127.0.0.1',
-            port: 11434,
-            provider: 'ollama',
-            defaultModel: 'llama3:8b',
-            timeoutSeconds: 30
-        };
-        setLocalConfig(defaultLLM);
-
-        // Check if this is different from original config
-        if (config?.llm) {
-            const isDifferent =
-                defaultLLM.url !== config.llm.url ||
-                defaultLLM.port !== config.llm.port ||
-                defaultLLM.provider !== config.llm.provider ||
-                defaultLLM.defaultModel !== config.llm.defaultModel ||
-                defaultLLM.timeoutSeconds !== config.llm.timeoutSeconds;
-            setHasChanges(isDifferent);
-        } else {
-            setHasChanges(true);
+    const handleResetToDefault = async () => {
+        setIsSaving(true);
+        try {
+            const success = await onReset();
+            if (success) {
+                setHasChanges(false);
+                setTestResult(null);
+            }
+        } finally {
+            setIsSaving(false);
         }
-        setTestResult(null);
     };
 
     const handleTest = async () => {
