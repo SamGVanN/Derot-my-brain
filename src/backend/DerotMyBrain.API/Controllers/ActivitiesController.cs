@@ -298,7 +298,7 @@ public class ActivitiesController : ControllerBase
             ExternalId = source?.ExternalId ?? string.Empty,
             SourceType = source?.Type ?? SourceType.Custom,
             DisplayTitle = source?.DisplayTitle ?? string.Empty,
-            Url = source?.OnlineResource?.URL ?? (source?.Type == SourceType.Wikipedia ? $"https://en.wikipedia.org/wiki/{source.ExternalId}" : string.Empty),
+            Url = source?.OnlineResource?.URL ?? (source?.Type == SourceType.Wikipedia && !string.IsNullOrEmpty(source.ExternalId) && source.ExternalId.Length < 60 ? $"https://en.wikipedia.org/wiki/{source.ExternalId}" : string.Empty),
             Type = a.Type,
 
             SessionDateStart = a.SessionDateStart,

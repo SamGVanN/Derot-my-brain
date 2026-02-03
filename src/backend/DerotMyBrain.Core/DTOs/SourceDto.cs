@@ -9,4 +9,5 @@ public class SourceDto
     public string ExternalId { get; set; } = string.Empty;
     public string DisplayTitle { get; set; } = string.Empty;
     public string? Url { get; set; }
+    public bool IsInBacklog { get; set; }
 }

@@ -86,6 +86,12 @@ public class ContentExtractionService : BackgroundService
                 return;
             }
 
+            if (source.ContentExtractionStatus == ContentExtractionStatus.Completed && !string.IsNullOrEmpty(source.TextContent))
+            {
+                _logger.LogInformation("Source {SourceId} already has extracted content and status is Completed, skipping", sourceId);
+                return;
+            }
+
             _logger.LogDebug("Updating source {SourceId} status to Processing", sourceId);
             source.ContentExtractionStatus = ContentExtractionStatus.Processing;
             await activityRepository.UpdateSourceAsync(source);

@@ -73,8 +73,13 @@ public class QuizService : IQuizService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to parse wrapped JSON object from LLM");
+                throw new System.Text.Json.JsonException("Failed to parse wrapped JSON object from LLM", ex);
             }
         }
+            else
+            {
+                throw new System.Text.Json.JsonException("LLM returned non-JSON content");
+            }
             
             _logger.LogInformation("Successfully generated {Count} questions", questions.Count);
 

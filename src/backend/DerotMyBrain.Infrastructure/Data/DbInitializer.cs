@@ -68,7 +68,6 @@ public static class DbInitializer
             Type = WikiType,
             ExternalId = "Quantum_mechanics",
             DisplayTitle = "Quantum Mechanics",
-            Url = "https://en.wikipedia.org/wiki/Quantum_mechanics",
             IsTracked = true
         };
         context.Sources.Add(quantumSource);
@@ -81,10 +80,30 @@ public static class DbInitializer
             Type = WikiType,
             ExternalId = "Theory_of_relativity",
             DisplayTitle = "Theory of Relativity",
-            Url = "https://en.wikipedia.org/wiki/Theory_of_relativity",
             IsTracked = false
         };
         context.Sources.Add(relativitySource);
+
+        // Create OnlineResources for these sources
+        context.OnlineResources.Add(new OnlineResource
+        {
+            UserId = testUserId,
+            SourceId = qmId,
+            URL = "https://en.wikipedia.org/wiki/Quantum_mechanics",
+            Title = "Quantum Mechanics",
+            Provider = "Wikipedia",
+            SavedAt = DateTime.UtcNow
+        });
+
+        context.OnlineResources.Add(new OnlineResource
+        {
+            UserId = testUserId,
+            SourceId = relId,
+            URL = "https://en.wikipedia.org/wiki/Theory_of_relativity",
+            Title = "Theory of Relativity",
+            Provider = "Wikipedia",
+            SavedAt = DateTime.UtcNow
+        });
         
         await context.SaveChangesAsync();
 

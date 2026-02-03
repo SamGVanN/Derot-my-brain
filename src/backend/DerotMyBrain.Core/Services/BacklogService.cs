@@ -12,111 +12,145 @@ public class BacklogService : IBacklogService
 {
     private readonly IBacklogRepository _backlogRepository;
     private readonly IActivityRepository _activityRepository;
+    private readonly ISourceService _sourceService;
     private readonly ILogger<BacklogService> _logger;
 
     public BacklogService(
         IBacklogRepository backlogRepository, 
         IActivityRepository activityRepository,
+        ISourceService sourceService,
         ILogger<BacklogService> logger)
     {
         _backlogRepository = backlogRepository;
         _activityRepository = activityRepository;
+        _sourceService = sourceService;
         _logger = logger;
     }
 
     public async Task<BacklogItem> AddToBacklogAsync(string userId, string sourceId, SourceType sourceType, string title, string? url = null, string? provider = null)
     {
-        string technicalSourceId;
+        Source? source = null;
+        string? resourceId = null;
+
+        // 1. Resolve Technical Hub (Source)
         if (sourceType == SourceType.Document)
         {
-            technicalSourceId = sourceId;
-        }
-        else
-        {
-             technicalSourceId = SourceHasher.GenerateId(sourceType, sourceId);
-        }
-
-        // Ensure the Source entity exists because BacklogItem has a FK to it
-        var source = await _activityRepository.GetSourceByIdAsync(technicalSourceId);
-        if (source == null)
-        {
-            source = new Source
+            // For Documents, SourceId is the Guid
+            source = await _activityRepository.GetSourceByIdAsync(sourceId);
+            if (source == null)
             {
-                Id = technicalSourceId,
-                UserId = userId,
-                Type = sourceType,
-                ExternalId = sourceId,
-                DisplayTitle = title
-            };
-            await _activityRepository.CreateSourceAsync(source);
-        }
-
-        // Handle OnlineResource creation/update
-        if (!string.IsNullOrEmpty(url))
-        {
-            var onlineResource = await _activityRepository.GetOnlineResourceBySourceIdAsync(technicalSourceId);
-            if (onlineResource == null)
-            {
-                onlineResource = new OnlineResource
+                 // Handle new doc (should not happen for backlog usually as it's uploaded first)
+                source = new Source
                 {
+                    Id = sourceId, // GUID
                     UserId = userId,
-                    SourceId = technicalSourceId,
-                    URL = url,
-                    Title = title,
-                    Provider = provider,
-                    SavedAt = DateTime.UtcNow
+                    Type = sourceType,
+                    ExternalId = sourceId,
+                    DisplayTitle = title
                 };
-                await _activityRepository.CreateOnlineResourceAsync(onlineResource);
+                await _activityRepository.CreateSourceAsync(source);
             }
         }
-        // Fallback for legacy Wikipedia flow where URL was inferred
-        else if (sourceType == SourceType.Wikipedia && !string.IsNullOrEmpty(sourceId))
+        else // Wikipedia or other Web Content
         {
-             var inferredUrl = sourceId.StartsWith("http") ? sourceId : $"https://en.wikipedia.org/wiki/{sourceId}";
-             var onlineResource = await _activityRepository.GetOnlineResourceBySourceIdAsync(technicalSourceId);
-             if (onlineResource == null)
-             {
-                 onlineResource = new OnlineResource
-                 {
-                     UserId = userId,
-                     SourceId = technicalSourceId,
-                     URL = inferredUrl,
-                     Title = title,
-                     Provider = "Wikipedia",
-                     SavedAt = DateTime.UtcNow
-                 };
-                 await _activityRepository.CreateOnlineResourceAsync(onlineResource);
-             }
+            string targetUrl = url;
+            if (string.IsNullOrEmpty(targetUrl) && sourceType == SourceType.Wikipedia)
+            {
+                targetUrl = sourceId.StartsWith("http") ? sourceId : $"https://en.wikipedia.org/wiki/{sourceId}";
+            }
+            
+            if (!string.IsNullOrEmpty(targetUrl))
+            {
+                resourceId = SourceHasher.GenerateId(sourceType, targetUrl); // Hash of the URL
+                
+                // Lookup existing Source Hub for this content
+                source = await _activityRepository.GetSourceByExternalIdAsync(userId, resourceId);
+
+                if (source == null)
+                {
+                    // Create new Source Hub
+                    source = new Source
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        UserId = userId,
+                        Type = sourceType,
+                        ExternalId = resourceId,
+                        DisplayTitle = title
+                    };
+                    await _activityRepository.CreateSourceAsync(source);
+
+                    // Ensure OnlineResource exists
+                    var onlineResource = await _activityRepository.GetOnlineResourceByIdAsync(resourceId);
+                    if (onlineResource == null)
+                    {
+                        onlineResource = new OnlineResource
+                        {
+                            Id = resourceId,
+                            UserId = userId,
+                            SourceId = source.Id, 
+                            URL = targetUrl,
+                            Title = title,
+                            Provider = provider ?? (sourceType == SourceType.Wikipedia ? "Wikipedia" : null),
+                            SavedAt = DateTime.UtcNow
+                        };
+                        await _activityRepository.CreateOnlineResourceAsync(onlineResource);
+                    }
+                    source.OnlineResource = onlineResource;
+                }
+            }
+            else 
+            {
+                // Fallback: search by title or throw? Plan said to use Id.
+                source = await _activityRepository.GetSourceByIdAsync(sourceId);
+                if (source == null) throw new ArgumentException("Cannot resolve source for backlog without URL or valid ID.");
+            }
         }
 
-        // Check if already exists to ensure idempotency
-        var existing = await _backlogRepository.GetBySourceIdAsync(userId, technicalSourceId);
-        if (existing != null)
+        // Check if already exists in backlog to ensure idempotency
+        if (source.IsInBacklog)
         {
-            _logger.LogInformation("Item {SourceId} (Title: {Title}) already in backlog for user {UserId}", technicalSourceId, title, userId);
-            return existing;
+            _logger.LogInformation("Source {SourceId} (Title: {Title}) already in backlog for user {UserId}", source.Id, title, userId);
+            // If BacklogItem is missing but IsInBacklog is true, fix it
+            var existingItem = await _backlogRepository.GetBySourceIdAsync(userId, source.Id);
+            if (existingItem != null) return existingItem;
         }
+
+        // Set flag on source
+        source.IsInBacklog = true;
+        await _activityRepository.UpdateSourceAsync(source);
 
         var item = new BacklogItem
         {
             UserId = userId,
-            SourceId = technicalSourceId,
+            SourceId = source.Id,
             Title = title,
             AddedAt = DateTime.UtcNow
         };
 
-        return await _backlogRepository.CreateAsync(item);
+        var bItem = await _backlogRepository.CreateAsync(item);
+        
+        // Populate content in background or sequentially (centralized logic)
+        await _sourceService.PopulateSourceContentAsync(source);
+        
+        return bItem;
     }
 
     public async Task RemoveFromBacklogAsync(string userId, string sourceId)
     {
         await _backlogRepository.DeleteAsync(userId, sourceId);
         
-        // Also remove source if it's not tracked and has no activities (Cleanup as requested)
+        // Update flag on source
         var source = await _activityRepository.GetSourceByIdAsync(sourceId);
-        if (source != null && !source.IsTracked && (source.Activities == null || !source.Activities.Any()))
+        if (source != null)
         {
-            await _activityRepository.DeleteSourceAsync(sourceId);
+            source.IsInBacklog = false;
+            await _activityRepository.UpdateSourceAsync(source);
+            
+            // Also remove source if it's not tracked and has no activities (Cleanup as requested)
+            if (!source.IsTracked && (source.Activities == null || !source.Activities.Any()))
+            {
+                await _activityRepository.DeleteSourceAsync(sourceId);
+            }
         }
     }
 

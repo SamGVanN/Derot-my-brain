@@ -13,10 +13,10 @@ public class Source
     public SourceType Type { get; set; }
     public string ExternalId { get; set; } = string.Empty; // e.g., Wiki Page title, Document Guid
     public string DisplayTitle { get; set; } = string.Empty;
-    public string? Url { get; set; } // Deprecated: Use OnlineResource. kept for build compat.
     public bool IsTracked { get; set; } = false;
     public bool IsPinned { get; set; } = false;
     public bool IsArchived { get; set; } = false;
+    public bool IsInBacklog { get; set; } = false;
     public string? TextContent { get; set; }
     
     /// <summary>
@@ -49,10 +49,10 @@ public class Source
     public ICollection<UserSession> Sessions { get; set; } = new List<UserSession>();
 
     [JsonIgnore]
-    public ICollection<Document> Documents { get; set; } = new List<Document>();
-
+    public Document? Document { get; set; }
+    
     [JsonIgnore]
-    public ICollection<BacklogItem> BacklogItems { get; set; } = new List<BacklogItem>();
+    public BacklogItem? BacklogItem { get; set; }
 
     [JsonIgnore]
     public OnlineResource? OnlineResource { get; set; }

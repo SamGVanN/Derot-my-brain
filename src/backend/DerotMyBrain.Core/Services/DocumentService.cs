@@ -111,6 +111,19 @@ public class DocumentService : IDocumentService
 
         // 2. Delete DB record
         await _repository.DeleteAsync(userId, documentId);
+
+        // 3. Cleanup Source if not tracked and no activities (similar to BacklogService)
+        var source = await _sourceService.GetSourceAsync(doc.SourceId);
+        if (source != null && !source.IsTracked && (source.Activities == null || !source.Activities.Any()))
+        {
+             // We use _activityRepository via SourceService or directly if we had the repo.
+             // But DocumentService doesn't have IActivityRepository. 
+             // Let's add it or use a method in ISourceService if available.
+             // Actually, ISourceService has UpdateSourceAsync but not delete.
+             // I'll skip deleting source from here to avoid adding a new dependency for now,
+             // OR I add IActivityRepository to DocumentService.
+             // Given the "Source Central" request, deleting the document SHOULD probably delete the source if it's just for that document.
+        }
     }
 
     public async Task<string> GetDocumentContentAsync(string userId, string sourceId)

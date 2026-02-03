@@ -14,4 +14,5 @@ public interface ISourceService
     Task<Source> TrackSourceAsync(string userId, string sourceId, string title, SourceType type);
     Task<Source> GetOrCreateSourceAsync(string userId, string title, string sourceId, SourceType type);
     Task UpdateSourceAsync(Source source);
+    Task PopulateSourceContentAsync(Source source);
 }

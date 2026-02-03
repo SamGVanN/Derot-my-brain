@@ -51,6 +51,7 @@ export function DerotPage() {
   const startTimeRef = useRef<number | null>(null);
   const stopExploreRef = useRef(stopExplore);
   const updateActivityRef = useRef(updateActivity);
+  const isProcessingStart = useRef(false); // Guard for backlog navigation
 
   useEffect(() => {
     stopExploreRef.current = stopExplore;
@@ -134,28 +135,34 @@ export function DerotPage() {
     const start = searchParams.get('start');
     const id = searchParams.get('id');
 
-    if (start === 'true' && id) {
-      // Clear start param to avoid re-triggering
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete('start');
-      setSearchParams(newParams);
+    if (start === 'true' && id && !isProcessingStart.current) {
+      isProcessingStart.current = true;
 
       const handleRead = async () => {
-        const article: any = {
-          title: searchParams.get('title') || "Article",
-          sourceUrl: id,
-          lang: searchParams.get('lang') || undefined
-        };
-        const activity = await readArticle(article);
-        const activityId = activity?.id || (activity as any)?.Id;
-        if (activityId) {
-          setSearchParams({ activityId });
+        try {
+          const article: any = {
+            title: searchParams.get('title') || "Article",
+            sourceUrl: id, // THIS IS NOW SOURCE.ID (GUID) from Backlog
+            lang: searchParams.get('lang') || undefined
+          };
+          const activity = await readArticle(article);
+          const newActivityId = activity?.id || (activity as any)?.Id;
+
+          if (newActivityId) {
+            // Update params to the new activityId and clear start/id
+            setSearchParams({ activityId: newActivityId }, { replace: true });
+          }
+        } catch (err) {
+          console.error("Failed to process start parameter", err);
+          toast({ variant: "destructive", title: "Erreur", description: "Impossible de lancer l'activité." });
+        } finally {
+          isProcessingStart.current = false;
         }
       };
 
       handleRead();
     }
-  }, [searchParams, setSearchParams, readArticle]);
+  }, [searchParams, setSearchParams, readArticle, toast]);
 
 
   // Cleanup: Quitting DerotZone is quitting the UserSession and saving duration
@@ -221,7 +228,7 @@ export function DerotPage() {
                 try {
                   const newQuizActivity = await activityApi.read(user.id, {
                     title: currentItem.title,
-                    sourceId: currentItem.externalId || currentItem.sourceId,
+                    sourceId: currentItem.sourceId, // ALWAYS use technical GUID
                     sourceType: currentItem.sourceType!,
                     type: 'Quiz',
                     sessionId: currentItem.userSessionId

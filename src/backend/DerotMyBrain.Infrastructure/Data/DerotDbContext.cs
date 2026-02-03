@@ -67,7 +67,7 @@ public class DerotDbContext : DbContext
             entity.Property(e => e.IsTracked).HasDefaultValue(false);
 
             entity.HasOne(e => e.User)
-                .WithMany()
+                .WithMany(u => u.Sources)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -162,13 +162,13 @@ public class DerotDbContext : DbContext
             entity.HasIndex(e => new { e.UserId, e.SourceId }).IsUnique();
 
             entity.HasOne(e => e.User)
-                .WithMany(u => u.Documents)
+                .WithMany()
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(e => e.Source)
-                .WithMany(s => s.Documents)
-                .HasForeignKey(e => e.SourceId)
+                .WithOne(s => s.Document)
+                .HasForeignKey<Document>(e => e.SourceId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
@@ -182,13 +182,13 @@ public class DerotDbContext : DbContext
             entity.HasIndex(e => new { e.UserId, e.SourceId }).IsUnique();
 
             entity.HasOne(e => e.User)
-                .WithMany(u => u.BacklogItems)
+                .WithMany()
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(e => e.Source)
-                .WithMany(s => s.BacklogItems)
-                .HasForeignKey(e => e.SourceId)
+                .WithOne(s => s.BacklogItem)
+                .HasForeignKey<BacklogItem>(e => e.SourceId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

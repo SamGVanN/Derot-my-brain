@@ -29,31 +29,28 @@ public enum ActivityType
 /// <summary>
 /// Defines the supported sources of content.
 /// </summary>
+public enum SourceType
+{
+    /// <summary>
+    /// Wikipedia article.
+    /// </summary>
+    Wikipedia = 1,
+
+    /// <summary>
+    /// Uploaded PDF or text document.
+    /// </summary>
+    Document = 2,
+
     /// <summary>
     /// Custom user-provided text.
     /// </summary>
-    public enum SourceType
-    {
-        /// <summary>
-        /// Wikipedia article.
-        /// </summary>
-        Wikipedia = 1,
-    
-        /// <summary>
-        /// Uploaded PDF or text document.
-        /// </summary>
-        Document = 2,
-    
-        /// <summary>
-        /// Custom user-provided text.
-        /// </summary>
-        Custom = 3,
+    Custom = 3,
 
-        /// <summary>
-        /// Generic web link (uses OnlineResource).
-        /// </summary>
-        WebLink = 4
-    }
+    /// <summary>
+    /// Generic web link (uses OnlineResource).
+    /// </summary>
+    WebLink = 4
+}
 
 /// <summary>
 /// Defines the format of a quiz question.

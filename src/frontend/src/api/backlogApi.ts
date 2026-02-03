@@ -30,7 +30,7 @@ export const backlogApi = {
         return response.data;
     },
 
-    remove: async (userId: string, sourceHash: string): Promise<void> => {
-        await client.delete(`/users/${userId}/backlog/${sourceHash}`);
+    remove: async (userId: string, sourceId: string): Promise<void> => {
+        await client.delete(`/users/${userId}/backlog/${sourceId}`);
     }
 };

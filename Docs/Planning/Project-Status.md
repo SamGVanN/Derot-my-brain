@@ -29,8 +29,8 @@
 | Homepage | ✅ Done | Homepage is implemented |
 | Dashboard | TODO | Dashboard page is notimplemented |
 | Guide | ✅ Done | Guide page is implemented. |
-| Asynchronous document content extraction | DOING | Currently being implemented | 
-
+| Asynchronous document content extraction | ✅ Done | Extraction status shown in document grid. |
+    
 
 ## Immediate Roadmap (Corrected)
 1. **Performance Tuning**: Optimize large document processing.

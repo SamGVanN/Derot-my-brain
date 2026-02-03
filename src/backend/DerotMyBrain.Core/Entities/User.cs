@@ -40,12 +40,7 @@ public class User
     public ICollection<UserActivity> Activities { get; set; } = new List<UserActivity>();
 
     /// <summary>
-    /// Navigation property for user uploaded documents.
+    /// Navigation property for all content sources linked to the user.
     /// </summary>
-    public ICollection<Document> Documents { get; set; } = new List<Document>();
-
-    /// <summary>
-    /// Navigation property for user backlog items.
-    /// </summary>
-    public ICollection<BacklogItem> BacklogItems { get; set; } = new List<BacklogItem>();
+    public ICollection<Source> Sources { get; set; } = new List<Source>();
 }

@@ -29,7 +29,7 @@ export const BacklogPage: React.FC = () => {
     const navigate = useNavigate();
     const [items, setItems] = useState<BacklogItemDto[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [deleteItemHash, setDeleteItemHash] = useState<string | null>(null);
+    const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
 
     const loadBacklog = async () => {
         if (!user) return;
@@ -49,16 +49,16 @@ export const BacklogPage: React.FC = () => {
         loadBacklog();
     }, [user]);
 
-    const confirmRemove = (hash: string) => {
-        setDeleteItemHash(hash);
+    const confirmRemove = (id: string) => {
+        setDeleteItemId(id);
     };
 
     const handleRemove = async () => {
-        if (!user || !deleteItemHash) return;
+        if (!user || !deleteItemId) return;
         try {
-            await backlogApi.remove(user.id, deleteItemHash);
+            await backlogApi.remove(user.id, deleteItemId);
             toast({ title: "Removed", description: "Item removed from backlog." });
-            setDeleteItemHash(null);
+            setDeleteItemId(null);
             loadBacklog();
         } catch (error) {
             console.error("Failed to remove", error);
@@ -67,7 +67,7 @@ export const BacklogPage: React.FC = () => {
     };
 
     const handleStart = (item: BacklogItemDto) => {
-        navigate(`/derot?start=true&type=${item.sourceType}&id=${encodeURIComponent(item.sourceId)}&hash=${item.sourceHash}`);
+        navigate(`/derot?start=true&type=${item.sourceType}&id=${encodeURIComponent(item.sourceId)}`);
     };
 
     return (
@@ -133,7 +133,7 @@ export const BacklogPage: React.FC = () => {
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="icon"
-                                                                    onClick={() => confirmRemove(item.sourceHash)}
+                                                                    onClick={() => confirmRemove(item.sourceId)}
                                                                     className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
                                                                 >
                                                                     <Trash2 className="h-4 w-4" />
@@ -154,7 +154,7 @@ export const BacklogPage: React.FC = () => {
                     </CardContent>
                 </Card>
 
-                <Dialog open={!!deleteItemHash} onOpenChange={(open) => !open && setDeleteItemHash(null)}>
+                <Dialog open={!!deleteItemId} onOpenChange={(open) => !open && setDeleteItemId(null)}>
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Remove from Backlog?</DialogTitle>
@@ -163,7 +163,7 @@ export const BacklogPage: React.FC = () => {
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setDeleteItemHash(null)}>Cancel</Button>
+                            <Button variant="outline" onClick={() => setDeleteItemId(null)}>Cancel</Button>
                             <Button variant="destructive" onClick={handleRemove}>Remove</Button>
                         </DialogFooter>
                     </DialogContent>

@@ -50,13 +50,17 @@ public class ReadDocumentIntegrationTests
 
         var contentSources = new List<IContentSource> { fileContentSource };
 
-        // 4. Setup Activity Service
+        // 4. Setup Source Service
+        var sourceService = new SourceService(activityRepository, contentSources, new NullLogger<SourceService>());
+
+        // 5. Setup Activity Service
         _activityService = new ActivityService(
             activityRepository,
             userRepository.Object,
             contentSources,
             new Mock<IWikipediaService>().Object,
             new Mock<IQuizService>().Object,
+            sourceService,
             new Mock<IJsonSerializer>().Object,
             new NullLogger<ActivityService>()
         );
@@ -118,6 +122,7 @@ public class ReadDocumentIntegrationTests
             .FirstOrDefaultAsync(a => a.Id == result.Id);
 
         Assert.NotNull(activityInDb);
+        Assert.NotNull(activityInDb.Source);
         Assert.Equal(expectedContent, activityInDb.Source.TextContent);
         // Assert correct Source association
         Assert.Equal(SourceType.Document, activityInDb.Source.Type);
