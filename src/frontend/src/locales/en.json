@@ -1,6 +1,7 @@
 {
     "history": {
         "title": "Your Learning Journey",
+        "headerDescription": "Review your past activities, scores, and progress.",
         "loading": "Loading history...",
         "error": "Could not load history.",
         "empty": "No activities recorded yet. Start exploring!",
@@ -74,7 +75,7 @@
         "groups": {
             "welcome": "Welcome",
             "derot": "Derot my brain",
-            "library": "Knowledge Library",
+            "library": "Knowledge Sources",
             "personal": "Personal"
         }
     },
@@ -192,6 +193,7 @@
     },
     "guide": {
         "title": "User Guide",
+        "description": "Learn how to use Derot My Brain to its full potential.",
         "limitations": {
             "title": "Limitations & Prerequisites",
             "description": "This version of Derot My Brain requires a local LLM on your machine, but don't panic, it's extremely simple.",
@@ -210,6 +212,43 @@
             "images": {
                 "description": "Images are not yet supported by DerotMyBrain (our interaction with the LLM is purely text-based)",
                 "note": "In reality this depends on the model used by the LLM. For simplicity, this is not yet supported."
+            }
+        },
+        "tabs": {
+            "setup": "Configuration & Limitations",
+            "usage": "How to use",
+            "library": "Knowledge Sources"
+        },
+        "library": {
+            "focus": {
+                "title": "Focus Areas",
+                "description": "Find all the topics you decided to track here. Monitor your progress, scores, and plan your reviews."
+            },
+            "documents": {
+                "title": "Personal Documents",
+                "description": "Import your own documents (PDF, Text) to leverage Derot's power on your own content."
+            },
+            "backlog": {
+                "title": "The Backlog",
+                "description": "A queue for your curiosity. Save interesting articles found during exploration to read them later."
+            }
+        },
+        "usage": {
+            "step1": {
+                "title": "1. Explore & Discover",
+                "description": "Use 'Derot Zone' to find random Wikipedia articles or search for a specific topic."
+            },
+            "step2": {
+                "title": "2. Read Actively",
+                "description": "Take the time to read the article. This is the foundation of your learning."
+            },
+            "step3": {
+                "title": "3. Test Yourself (Quiz)",
+                "description": "Once reading is done, AI generates a quiz to validate your knowledge."
+            },
+            "step4": {
+                "title": "4. Anchor Knowledge (Focus)",
+                "description": "If you like a topic, add it to your 'Focus' to track your progress over time."
             }
         }
     },

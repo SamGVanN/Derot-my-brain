@@ -53,7 +53,7 @@ const navigationGroups: NavigationGroup[] = [
         ]
     },
     {
-        title: 'Knowledge Library',
+        title: 'Knowledge Sources',
         titleKey: 'nav.groups.library',
         items: [
             { path: '/focus-area', icon: Brain, labelKey: 'nav.focusArea', label: 'My Focus Area' },

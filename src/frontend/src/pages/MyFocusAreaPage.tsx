@@ -86,6 +86,7 @@ export function MyFocusAreaPage() {
                     subtitle={t('focusArea.subtitle')}
                     description={t('focusArea.description')}
                     icon={Brain}
+                    badgeIcon={Brain}
                 />
 
                 {/* Filters */}

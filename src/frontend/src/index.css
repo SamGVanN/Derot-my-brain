@@ -61,6 +61,10 @@
     @apply bg-background text-foreground transition-colors duration-300;
     /* Removed hardcoded radial gradient to fix readability and allow theming */
   }
+
+  button {
+    @apply cursor-pointer;
+  }
 }
 
 /*

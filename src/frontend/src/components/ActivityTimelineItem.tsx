@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BookOpenText, NotebookPen, ExternalLink, Bookmark, BookmarkCheck, Trophy, Info, PartyPopper, Radar, Flag, TrendingUp, BookOpen, GraduationCap, Loader2, Clock, ClockAlert } from 'lucide-react';
+import { BookOpenText, ExternalLink, Bookmark, BookmarkCheck, Trophy, Info, PartyPopper, Radar, Flag, TrendingUp, BookOpen, GraduationCap, Loader2, Clock, ClockAlert } from 'lucide-react';
 import type { UserActivity } from '../models/UserActivity';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
@@ -68,7 +68,7 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                             {(activity.type === 'Quiz' && activity.isCurrentBest) ? (
                                 <Trophy className="w-4 h-4" />
                             ) : activity.type === 'Quiz' ? (
-                                <NotebookPen className="w-4 h-4" />
+                                <GraduationCap className="w-4 h-4" />
                             ) : activity.type === 'Explore' ? (
                                 <Radar className="w-4 h-4" />
                             ) : (

@@ -8,7 +8,7 @@ import { type DocumentDto } from '@/api/documentApi';
 import { DocumentUpload } from '@/components/Documents/DocumentUpload';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, FileText, Library, BookOpen, NotebookPen } from 'lucide-react';
+import { Trash2, FileText, Library, BookOpen, GraduationCap } from 'lucide-react';
 import {
     Tooltip,
     TooltipContent,
@@ -60,6 +60,7 @@ export const DocumentsPage: React.FC = () => {
                     subtitle="Document Library"
                     description="Upload and manage your learning resources. Documents extracted here are available for adding to your backlog."
                     icon={Library}
+                    badgeIcon={Library}
                 />
 
                 <section className="max-w-xl">
@@ -133,7 +134,7 @@ export const DocumentsPage: React.FC = () => {
                                                                         onClick={() => handleQuiz(doc)}
                                                                         className="text-primary hover:text-primary/80 hover:bg-primary/10"
                                                                     >
-                                                                        <NotebookPen className="h-4 w-4" />
+                                                                        <GraduationCap className="h-4 w-4" />
                                                                     </Button>
                                                                 </TooltipTrigger>
                                                                 <TooltipContent>

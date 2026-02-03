@@ -176,6 +176,7 @@ export function DerotPage() {
             subtitle={t('derot.subtitle', 'Derot Zone')}
             description={t('derot.description', "Explorez, lisez et testez vos connaissances. C'est ici que se passe l'essentiel de votre apprentissage.")}
             icon={BrainCircuit}
+            badgeIcon={BrainCircuit}
           />
         )}
 

@@ -78,6 +78,7 @@ export const BacklogPage: React.FC = () => {
                     subtitle="Learning Backlog"
                     description="Items you have committed to learn later. Start an activity directly from here."
                     icon={ClockAlert}
+                    badgeIcon={ClockAlert}
                 />
 
                 <Card className="border-border/30 bg-card/30 backdrop-blur-xl rounded-3xl overflow-hidden shadow-xl">
@@ -104,7 +105,7 @@ export const BacklogPage: React.FC = () => {
                                         {items.map((item) => (
                                             <tr key={item.id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                                                 <td className="p-4 align-middle font-medium flex items-center gap-2">
-                                                    {item.sourceType === 'Document' ? <BookOpen className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                                                    {item.sourceType === SourceTypes.Document ? <BookOpen className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                                                     {item.title}
                                                 </td>
                                                 <td className="p-4 align-middle">{item.sourceType}</td>
@@ -119,11 +120,11 @@ export const BacklogPage: React.FC = () => {
                                                                     onClick={() => handleStart(item)}
                                                                     className="text-primary hover:text-primary/80 hover:bg-primary/10"
                                                                 >
-                                                                    {item.sourceType === 'Document' ? <BookOpenText className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                                                                    {item.sourceType === SourceTypes.Document ? <BookOpenText className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                                                                 </Button>
                                                             </TooltipTrigger>
                                                             <TooltipContent>
-                                                                <p>{item.sourceType === 'Document' ? 'Read' : 'Start Activity'}</p>
+                                                                <p>{item.sourceType === SourceTypes.Document ? 'Read' : 'Start Activity'}</p>
                                                             </TooltipContent>
                                                         </Tooltip>
 

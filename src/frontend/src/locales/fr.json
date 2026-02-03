@@ -1,6 +1,7 @@
 {
     "history": {
         "title": "Votre Parcours d'Apprentissage",
+        "headerDescription": "Consultez vos activités passées, vos scores et votre progression.",
         "loading": "Chargement de l'historique...",
         "error": "Impossible de charger l'historique.",
         "empty": "Aucune activité enregistrée. Commencez à explorer !",
@@ -272,6 +273,7 @@
     },
     "guide": {
         "title": "Guide Utilisateur",
+        "description": "Apprenez à utiliser Derot My Brain à son plein potentiel.",
         "limitations": {
             "title": "Limitations & Prérequis",
             "description": "Cette version de Derot My Brain nécessite un LLM local sur votre machine, mais pas de panique c'est extrêmement simple.",
@@ -290,6 +292,43 @@
             "images": {
                 "description": "Les images ne sont pas encore supportés par DerotMyBrain (notre interaction avec le LLM est uniquement basé sur du texte)",
                 "note": "en réalité cela dépend du model utilisé par le LLM. Pour des raisons de simplicité, cela n'est pas encore pris en charge."
+            }
+        },
+        "tabs": {
+            "setup": "Configuration & Limitations",
+            "usage": "Comment utiliser l'app",
+            "library": "Ma Bibliothèque"
+        },
+        "library": {
+            "focus": {
+                "title": "Zones Focus",
+                "description": "Retrouvez ici tous les sujets que vous avez décidé de suivre. Suivez votre progression, vos scores et planifiez vos révisions."
+            },
+            "documents": {
+                "title": "Documents Personnels",
+                "description": "Importez vos propres documents (PDF, Texte) pour utiliser la puissance de Derot sur vos propres contenus."
+            },
+            "backlog": {
+                "title": "Le Backlog",
+                "description": "Une file d'attente pour votre curiosité. Gardez de côté les articles intéressants découverts lors de vos explorations pour les lire plus tard."
+            }
+        },
+        "usage": {
+            "step1": {
+                "title": "1. Explorez & Découvrez",
+                "description": "Utilisez la 'Derot Zone' pour trouver des articles Wikipédia aléatoires ou cherchez un sujet précis."
+            },
+            "step2": {
+                "title": "2. Lisez Activement",
+                "description": "Prenez le temps de lire l'article. C'est la base de votre apprentissage."
+            },
+            "step3": {
+                "title": "3. Testez-vous (Quiz)",
+                "description": "Une fois la lecture terminée, l'IA génère un quiz pour valider vos connaissances."
+            },
+            "step4": {
+                "title": "4. Ancrez le Savoir (Focus)",
+                "description": "Si un sujet vous plaît, ajoutez-le à vos 'Focus' pour suivre votre progression dans le temps."
             }
         }
     },

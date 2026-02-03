@@ -62,8 +62,10 @@ export function HomepagePage() {
             <div className="container max-w-4xl mx-auto py-8 space-y-8 animate-in fade-in duration-500">
                 <PageHeader
                     title={t('homepage.title')}
+                    subtitle={`${t('welcome.title')} ${user?.name}!`}
                     icon={Home}
-                    description={t('homepage.description')}
+                    badgeIcon={Home}
+                    description={t('welcome.intro')}
                 />
 
                 <div className="grid gap-6 md:grid-cols-2">
