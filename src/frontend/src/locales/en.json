@@ -176,13 +176,42 @@
     },
     "homepage": {
         "title": "Home Page",
-        "comingSoon": "Coming soon in Phase 5",
-        "description": "Welcome to Derot My Brain. Displaying information such as application configuration, last 5 activities, reminder of the number of items in the backlog, etc."
+        "stats": {
+            "title": "Last 3 Sessions Summary",
+            "explorations": "Explorations",
+            "readings": "Readings",
+            "quizzes": "Quizzes",
+            "backlog": "Backlog Adds",
+            "avgScore": "Avg Score"
+        },
+        "actions": {
+            "bug": "Submit a bug",
+            "github": "Source Code"
+        },
+        "description": "Welcome to Derot My Brain. Your personal learning space."
     },
     "guide": {
         "title": "User Guide",
-        "comingSoon": "Coming soon in Phase 8",
-        "description": "This is where you will find helpful guides and tutorials on how to use Derot My Brain."
+        "limitations": {
+            "title": "Limitations & Prerequisites",
+            "description": "This version of Derot My Brain requires a local LLM on your machine, but don't panic, it's extremely simple.",
+            "steps": {
+                "intro": "Here are the 3 steps to follow to fully use Derot My Brain if you don't know how to configure a local LLM accessible via API:",
+                "step1": "A) Download and install ollama",
+                "step2": "B) Download a model (we recommend llama3:8b which is available in the ollama list). To do this, expand the list in the ollama \"chat zone\" and click the download icon.",
+                "step3": "C) Open the AI settings (top right of Derot My Brain -> robot icon) then test the configuration.",
+                "step3Note": "If you chose a model other than llama3:8b in step 2, please indicate it in the corresponding field."
+            },
+            "performance": {
+                "description": "Using an LLM can heavily impact user experience (your machine's power limits the LLM's capacity).",
+                "example": "For example, MCQ type Quizzes are less resource-intensive.",
+                "important": "We recommend allocating more context when you ask for \"Open-Ended\" type quizzes or when the Document is long."
+            },
+            "images": {
+                "description": "Images are not yet supported by DerotMyBrain (our interaction with the LLM is purely text-based)",
+                "note": "In reality this depends on the model used by the LLM. For simplicity, this is not yet supported."
+            }
+        }
     },
     "derot": {
         "title": "Derot Zone",

@@ -40,8 +40,8 @@ const navigationGroups: NavigationGroup[] = [
         titleKey: 'nav.groups.welcome',
         items: [
             { path: '/homepage', icon: Home, labelKey: 'nav.home', label: 'Homepage' },
-            { path: '/dashboard', icon: ChartColumn, labelKey: 'nav.dashboard', label: 'Dashboard' },
             { path: '/guide', icon: BookOpen, labelKey: 'nav.guide', label: 'Guide' },
+            { path: '/dashboard', icon: ChartColumn, labelKey: 'nav.dashboard', label: 'Dashboard' },
         ]
     },
     {

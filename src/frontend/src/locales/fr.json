@@ -176,8 +176,19 @@
     },
     "homepage": {
         "title": "Page d'Accueil",
-        "comingSoon": "Bientôt disponible dans la Phase 7 (à venir)",
-        "description": "Bienvenue sur Derot My Brain. Afficahge d'informations telles que la configuration de l'application, les 5 dernières activités, un rappel du nombre d'item dans le backlog, etc."
+        "stats": {
+            "title": "Synthèse des 3 Dernières Sessions",
+            "explorations": "Explorations",
+            "readings": "Lectures",
+            "quizzes": "Quiz",
+            "backlog": "Ajouts Backlog",
+            "avgScore": "Score Moyen"
+        },
+        "actions": {
+            "bug": "Soumettre un bug",
+            "github": "Code Source"
+        },
+        "description": "Bienvenue sur Derot My Brain. Votre espace personnel d'apprentissage."
     },
     "derot": {
         "title": "Zone Derot",
@@ -261,8 +272,26 @@
     },
     "guide": {
         "title": "Guide Utilisateur",
-        "comingSoon": "Bientôt disponible dans la Phase 8 (à venir)",
-        "description": "C'est ici que vous trouverez des guides utiles et des tutoriels sur l'utilisation de Derot My Brain."
+        "limitations": {
+            "title": "Limitations & Prérequis",
+            "description": "Cette version de Derot My Brain nécessite un LLM local sur votre machine, mais pas de panique c'est extrêmement simple.",
+            "steps": {
+                "intro": "Voici les 3 étapes à suivre pour utiliser pleinement Derot My Brain si vous ne savez pas configurer de LLM local, accessible via API :",
+                "step1": "A) Télécharger et installer ollama",
+                "step2": "B) Télécharger un model (nous recommandons llama3:8b qui est disponible dans la liste ollama). Pour cela dépliez la liste dans la \"zone de chat\" de ollama et cliquer sur l'icone de téléchargement.",
+                "step3": "C) Ouvrez le paramétrage d'IA (en haut à droite de Derot My Brain -> icone robot) puis tester la configuration.",
+                "step3Note": "Si vous avez choisit un autre model que llama3:8b dans l'étape 2, veuillez l'indiquer dans le champ correspondant."
+            },
+            "performance": {
+                "description": "L'utilisation d'un LLM peut fortement impacter l'expérience utilisateur (puissance de votre machine limite les capacité du LLM).",
+                "example": "Par exemple, les Quiz de type QCM sont moins gourmand en ressources.",
+                "important": "Nous recommandons d'allouer un plus grand contexte lorsque vous demandez des quiz de type \"Open-Ended\" ou lorsque le document est long."
+            },
+            "images": {
+                "description": "Les images ne sont pas encore supportés par DerotMyBrain (notre interaction avec le LLM est uniquement basé sur du texte)",
+                "note": "en réalité cela dépend du model utilisé par le LLM. Pour des raisons de simplicité, cela n'est pas encore pris en charge."
+            }
+        }
     },
     "configuration": {
         "title": "Configuration",
