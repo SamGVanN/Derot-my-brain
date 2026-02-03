@@ -89,19 +89,19 @@ export function usePreferences() {
 
         if (user?.id) {
             try {
-                // Check if this is a "Derot Zone" update (Question Count + Categories)
-                if ('selectedCategories' in prefs) {
+                // Check if this is a "Derot Zone" update (Question Count + Categories + Quiz Format)
+                if ('selectedCategories' in prefs || 'preferredQuizFormat' in prefs) {
                     await userApi.updateDerotZonePreferences(user.id, {
                         questionCount: prefs.questionCount ?? user.preferences.questionCount,
-                        selectedCategories: prefs.selectedCategories
+                        selectedCategories: prefs.selectedCategories ?? user.preferences.selectedCategories ?? [],
+                        preferredQuizFormat: prefs.preferredQuizFormat
                     });
                 }
                 // Check if this is a "General" update (Language + Theme)
                 else if ('language' in prefs || 'preferredTheme' in prefs) {
                     await userApi.updateGeneralPreferences(user.id, {
                         language: prefs.language,
-                        preferredTheme: prefs.preferredTheme,
-                        questionCount: prefs.questionCount // can be undefined, backend handles it
+                        preferredTheme: prefs.preferredTheme
                     });
                 }
                 // Fallback to full update

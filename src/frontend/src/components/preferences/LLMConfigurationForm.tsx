@@ -12,16 +12,17 @@ import type { AppConfiguration, LLMConfiguration } from '@/models/Configuration'
 interface LLMConfigurationFormProps {
     config: AppConfiguration | null;
     onSave: (llmConfig: LLMConfiguration) => Promise<boolean>;
+    onReset: () => Promise<boolean>;
     onTestConnection: (llmConfig: LLMConfiguration) => Promise<{ success: boolean; message: string }>;
     isLoading: boolean;
 }
 
-export function LLMConfigurationForm({ config, onSave, onTestConnection, isLoading }: LLMConfigurationFormProps) {
+export function LLMConfigurationForm({ config, onSave, onReset, onTestConnection, isLoading }: LLMConfigurationFormProps) {
     const { t } = useTranslation();
 
-    // Local state for form fields
+    // Local state for form fields - defaults match backend ConfigurationService.CreateDefaultConfiguration
     const [localConfig, setLocalConfig] = useState<LLMConfiguration>({
-        url: 'http://localhost:11434',
+        url: '127.0.0.1',
         port: 11434,
         provider: 'ollama',
         defaultModel: 'llama3:8b',
@@ -43,7 +44,36 @@ export function LLMConfigurationForm({ config, onSave, onTestConnection, isLoadi
 
     const handleChange = (key: keyof LLMConfiguration, value: string | number) => {
         setLocalConfig(prev => {
-            const next = { ...prev, [key]: value };
+            let processedValue = value;
+
+            // Sanitize URL field: if user pastes a full URL, try to extract Host and Port
+            if (key === 'url' && typeof value === 'string' && (value.includes('://') || value.includes(':'))) {
+                try {
+                    // Try parsing as URL first (handles http://host:port)
+                    const urlString = value.includes('://') ? value : `http://${value}`;
+                    const url = new URL(urlString);
+                    processedValue = url.hostname;
+
+                    // If we found a port in the string and it's not the default for the protocol
+                    if (url.port) {
+                        setTimeout(() => handleChange('port', parseInt(url.port)), 0);
+                    }
+                } catch (e) {
+                    // Fallback: manual split (handles host:port without protocol)
+                    const parts = value.split(':');
+                    if (parts.length > 0) {
+                        processedValue = parts[0].replace('//', '');
+                        if (parts.length > 1) {
+                            const port = parseInt(parts[1]);
+                            if (!isNaN(port)) {
+                                setTimeout(() => handleChange('port', port), 0);
+                            }
+                        }
+                    }
+                }
+            }
+
+            const next = { ...prev, [key]: processedValue };
 
             // Check changes against original config
             if (config?.llm) {
@@ -60,6 +90,19 @@ export function LLMConfigurationForm({ config, onSave, onTestConnection, isLoadi
         });
         // Clear previous test result on change
         setTestResult(null);
+    };
+
+    const handleResetToDefault = async () => {
+        setIsSaving(true);
+        try {
+            const success = await onReset();
+            if (success) {
+                setHasChanges(false);
+                setTestResult(null);
+            }
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleTest = async () => {
@@ -111,10 +154,10 @@ export function LLMConfigurationForm({ config, onSave, onTestConnection, isLoadi
             <CardHeader className="bg-blue-50/50 dark:bg-blue-950/10 pb-4 border-b border-blue-100 dark:border-blue-900/50">
                 <CardTitle className="text-xl flex items-center gap-2 text-blue-900 dark:text-blue-100">
                     <Server className="h-5 w-5" />
-                    {t('config.llm.title', 'AI Engine Configuration')}
+                    {t('configuration.llm.title', 'AI Engine Configuration')}
                 </CardTitle>
                 <CardDescription className="text-blue-700/80 dark:text-blue-300/80">
-                    {t('config.llm.description', 'Configure the local AI model (LLM) used for generating quizzes.')}
+                    {t('configuration.llm.description', 'Configure the local AI model (LLM) used for generating quizzes.')}
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
@@ -150,7 +193,7 @@ export function LLMConfigurationForm({ config, onSave, onTestConnection, isLoadi
                     {/* Provider & Model */}
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label>{t('config.llm.provider', 'Provider')}</Label>
+                            <Label>{t('configuration.llm.provider', 'Provider')}</Label>
                             <Select
                                 value={localConfig.provider}
                                 onValueChange={(val) => handleChange('provider', val)}
@@ -167,14 +210,14 @@ export function LLMConfigurationForm({ config, onSave, onTestConnection, isLoadi
                         </div>
 
                         <div className="space-y-2">
-                            <Label>{t('config.llm.model', 'Default Model')}</Label>
+                            <Label>{t('configuration.llm.model', 'Default Model')}</Label>
                             <Input
                                 value={localConfig.defaultModel}
                                 onChange={(e) => handleChange('defaultModel', e.target.value)}
                                 placeholder="e.g. llama3:8b, mistral"
                             />
-                            <p className="text-xs text-muted-foreground">
-                                {t('config.llm.modelHelp', 'Must match a model installed in your provider.')}
+                            <p className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">
+                                {t('configuration.llm.modelHelp', 'Must match a model installed in your provider.')}
                             </p>
                         </div>
                     </div>
@@ -183,31 +226,49 @@ export function LLMConfigurationForm({ config, onSave, onTestConnection, isLoadi
                     <div className="space-y-4">
                         <div className="grid grid-cols-3 gap-4">
                             <div className="col-span-2 space-y-2">
-                                <Label>{t('config.llm.url', 'Server URL')}</Label>
+                                <Label>{t('configuration.llm.url', 'Server Host/IP')}</Label>
                                 <Input
                                     value={localConfig.url}
                                     onChange={(e) => handleChange('url', e.target.value)}
-                                    placeholder="http://localhost"
+                                    placeholder="e.g. 127.0.0.1"
                                 />
+                                <p className="text-[10px] text-muted-foreground">
+                                    {t('configuration.llm.urlHelp', 'Enter Host or IP only (without http/port)')}
+                                </p>
                             </div>
                             <div className="space-y-2">
-                                <Label>{t('config.llm.port', 'Port')}</Label>
+                                <Label>{t('configuration.llm.port', 'Port')}</Label>
                                 <Input
                                     type="number"
                                     value={localConfig.port}
-                                    onChange={(e) => handleChange('port', parseInt(e.target.value))}
+                                    onChange={(e) => handleChange('port', parseInt(e.target.value) || 0)}
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <Label>{t('config.llm.timeout', 'Timeout (seconds)')}</Label>
+                            <div className="flex justify-between items-center">
+                                <Label>{t('configuration.llm.timeout', 'Timeout (seconds)')}</Label>
+                                <span className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">
+                                    {localConfig.timeoutSeconds}s
+                                </span>
+                            </div>
                             <Input
                                 type="number"
                                 value={localConfig.timeoutSeconds}
-                                onChange={(e) => handleChange('timeoutSeconds', parseInt(e.target.value))}
+                                onChange={(e) => handleChange('timeoutSeconds', parseInt(e.target.value) || 30)}
                             />
                         </div>
+                    </div>
+                </div>
+
+                {/* Final Endpoint Preview */}
+                <div className="bg-muted/50 p-3 rounded-md border border-dashed text-xs space-y-2">
+                    <p className="font-semibold text-muted-foreground uppercase tracking-widest text-[9px]">
+                        {t('configuration.llm.endpointPreview', 'Calculated Endpoint Preview')}
+                    </p>
+                    <div className="font-mono break-all text-blue-600 dark:text-blue-400">
+                        {localConfig.url.startsWith('http') ? localConfig.url : `http://${localConfig.url}`}:{localConfig.port}
                     </div>
                 </div>
 
@@ -221,10 +282,18 @@ export function LLMConfigurationForm({ config, onSave, onTestConnection, isLoadi
                         className="gap-2"
                     >
                         {isTesting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wifi className="h-4 w-4" />}
-                        {t('config.llm.testConnection', 'Test Connection')}
+                        {t('configuration.llm.testConnection', 'Test Connection')}
                     </Button>
 
                     <div className="flex gap-2">
+                        <Button
+                            variant="secondary"
+                            onClick={handleResetToDefault}
+                            disabled={isSaving || isTesting}
+                        >
+                            {t('configuration.llm.resetDefault', 'Reset to Default')}
+                        </Button>
+
                         {hasChanges && (
                             <Button variant="ghost" onClick={handleCancel} disabled={isSaving}>
                                 {t('common.cancel', 'Cancel')}

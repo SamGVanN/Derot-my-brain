@@ -13,8 +13,8 @@
 ## Current Project Status (Jan 2026)
 - **Core Architecture**: Done (Clean Arch Backend, Hexagonal-ish Frontend).
 - **i18n**: FR/EN fully implemented.
-- **Wikipedia**: Exploration works; Reading/Quiz requires stabilization.
-- **LLM**: Backend exists but liaison with Ollama is being de-mocked.
+- **Wikipedia**: Integration fully operational (Explore, Read, Quiz).
+- **LLM**: Functional and de-mocked. Ollama liaison handles dynamic configurations and multiple formats (MCQ, OpenEnded).
 
 ## Technology Stack
 - **Frontend**: React + TypeScript (using Vite).
@@ -78,10 +78,23 @@ CREATE TABLE Activities (
     ScorePercentage REAL,
     IsNewBestScore INTEGER DEFAULT 0,
     IsCompleted INTEGER DEFAULT 0,
-    ArticleContent TEXT,
     LlmModelName TEXT,
     LlmVersion TEXT,
     Payload TEXT,
+    FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+);
+
+-- Table Sources
+CREATE TABLE Sources (
+    Id TEXT PRIMARY KEY,
+    UserId TEXT NOT NULL,
+    Type INTEGER NOT NULL,
+    ExternalId TEXT NOT NULL,
+    DisplayTitle TEXT NOT NULL,
+    TextContent TEXT,
+    IsTracked INTEGER DEFAULT 0,
+    IsPinned INTEGER DEFAULT 0,
+    IsArchived INTEGER DEFAULT 0,
     FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
 );
 
@@ -120,10 +133,10 @@ CREATE TABLE UserFocuses (
 - `DELETE /api/users/{userId}/activities/{activityId}` - Delete activity.
 
 ### Active Learning Flow
-- `POST /api/users/{userId}/activities/start` - Start a new reading session (fetches content).
+- `POST /api/users/{userId}/activities/start` - Start a new reading session (fetches content and persists to Source).
   - Payload: `{ "url": "...", "sourceType": "Wikipedia" }`
-- `POST /api/users/{userId}/activities/{activityId}/quiz` - Generate quiz for an activity.
-- `POST /api/quiz/evaluate` - Evaluate answer (if not handled by frontend/local logic).
+- `POST /api/users/{userId}/activities/{activityId}/quiz` - Generate quiz for an activity (Orchestrated by QuizService).
+- `POST /api/quiz/evaluate` - Evaluate answer (Semantic evaluation for Open-ended questions).
 
 ### Statistics & Tracking
 - `GET /api/users/{userId}/statistics` - Get dashboard stats.
@@ -161,8 +174,19 @@ Format de sortie STRICTEMENT en JSON, sans texte avant ou après :
   "topic": "<titre de l'article>",
   "questions": [
     {
-      "question": "...",
-      "answer": "..."
+      "id": 1,
+      "text": "...",
+      "options": ["A", "B", "C", "D"],
+      "correctOptionIndex": 0,
+      "explanation": "...",
+      "type": "MCQ"
+    },
+    {
+      "id": 2,
+      "text": "...",
+      "correctAnswer": "...",
+      "explanation": "...",
+      "type": "OpenEnded"
     }
   ]
 }

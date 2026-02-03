@@ -53,6 +53,7 @@ export const activityApi = {
         sourceType?: number,
         type?: string,
         originExploreId?: string,
+        sessionId?: string,
         backlogAddsCount?: number,
         refreshCount?: number,
         exploreDurationSeconds?: number

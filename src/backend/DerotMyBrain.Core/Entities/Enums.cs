@@ -29,28 +29,67 @@ public enum ActivityType
 /// <summary>
 /// Defines the supported sources of content.
 /// </summary>
+public enum SourceType
+{
+    /// <summary>
+    /// Wikipedia article.
+    /// </summary>
+    Wikipedia = 1,
+
+    /// <summary>
+    /// Uploaded PDF or text document.
+    /// </summary>
+    Document = 2,
+
     /// <summary>
     /// Custom user-provided text.
     /// </summary>
-    public enum SourceType
-    {
-        /// <summary>
-        /// Wikipedia article.
-        /// </summary>
-        Wikipedia = 1,
-    
-        /// <summary>
-        /// Uploaded PDF or text document.
-        /// </summary>
-        Document = 2,
-    
-        /// <summary>
-        /// Custom user-provided text.
-        /// </summary>
-        Custom = 3,
+    Custom = 3,
 
-        /// <summary>
-        /// Generic web link (uses OnlineResource).
-        /// </summary>
-        WebLink = 4
-    }
+    /// <summary>
+    /// Generic web link (uses OnlineResource).
+    /// </summary>
+    WebLink = 4
+}
+
+/// <summary>
+/// Defines the format of a quiz question.
+/// </summary>
+public enum QuizFormat
+{
+    /// <summary>
+    /// Multiple Choice Question.
+    /// </summary>
+    MCQ = 0,
+    
+    /// <summary>
+    /// Open-ended question.
+    /// </summary>
+    OpenEnded = 1
+}
+
+/// <summary>
+/// Defines the status of content extraction for document sources.
+/// </summary>
+public enum ContentExtractionStatus
+{
+    /// <summary>
+    /// Document uploaded, extraction not started yet.
+    /// </summary>
+    Pending = 0,
+    
+    /// <summary>
+    /// Content extraction is currently in progress.
+    /// </summary>
+    Processing = 1,
+    
+    /// <summary>
+    /// Content extraction completed successfully.
+    /// </summary>
+    Completed = 2,
+    
+    /// <summary>
+    /// Content extraction failed with an error.
+    /// </summary>
+    Failed = 3
+}

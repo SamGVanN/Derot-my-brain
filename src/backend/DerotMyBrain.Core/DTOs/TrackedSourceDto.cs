@@ -22,4 +22,5 @@ public class TrackedSourceDto
 
     public bool IsPinned { get; set; }
     public bool IsArchived { get; set; }
+    public bool IsInBacklog { get; set; }
 }

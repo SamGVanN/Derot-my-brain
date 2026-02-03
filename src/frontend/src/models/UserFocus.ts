@@ -21,6 +21,7 @@ export interface UserFocus {
 
     isPinned: boolean;
     isArchived: boolean;
+    isInBacklog: boolean;
 }
 
 export interface TrackTopicRequest {

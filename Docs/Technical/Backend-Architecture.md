@@ -12,7 +12,7 @@ The system follows a strict **Onion / Clean Architecture** model. Dependencies f
 *   **Contents**:
     *   **Entities**: Pure domain objects (e.g., `User`, `UserActivity`).
     *   **Interfaces**: Contracts for *everything* external (e.g., `IRepository`, `ILlmService`, `IContentSource`).
-    *   **Domain Services**: Pure logic services (e.g., `QuizGeneratorService`).
+    *   **Domain Services**: Pure logic services (e.g., `ActivityService`, `QuizService`).
     *   **Exceptions**: Domain-specific exceptions (e.g., `DomainException`).
 
 ### **2. Infrastructure (DerotMyBrain.Infrastructure)**

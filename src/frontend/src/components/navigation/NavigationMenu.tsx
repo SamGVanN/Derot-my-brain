@@ -30,26 +30,31 @@ type NavigationItem = {
 
 type NavigationGroup = {
     title?: string;
+    titleKey?: string;
     items: NavigationItem[];
 };
 
 const navigationGroups: NavigationGroup[] = [
     {
         title: 'Welcome',
+        titleKey: 'nav.groups.welcome',
         items: [
             { path: '/homepage', icon: Home, labelKey: 'nav.home', label: 'Homepage' },
             { path: '/guide', icon: BookOpen, labelKey: 'nav.guide', label: 'Guide' },
+            { path: '/dashboard', icon: ChartColumn, labelKey: 'nav.dashboard', label: 'Dashboard' },
         ]
     },
     {
         title: 'Derot my brain',
+        titleKey: 'nav.groups.derot',
         items: [
             { path: '/derot', icon: BrainCircuit, labelKey: 'nav.derot', label: 'Derot zone' },
             { path: '/history', icon: History, labelKey: 'nav.history', label: 'History' },
         ]
     },
     {
-        title: 'Knowledge',
+        title: 'Knowledge Sources',
+        titleKey: 'nav.groups.library',
         items: [
             { path: '/focus-area', icon: Brain, labelKey: 'nav.focusArea', label: 'My Focus Area' },
             { path: '/documents', icon: Library, labelKey: 'nav.documents', label: 'Documents' },
@@ -58,8 +63,8 @@ const navigationGroups: NavigationGroup[] = [
     },
     {
         title: 'Personal',
+        titleKey: 'nav.groups.personal',
         items: [
-            { path: '/dashboard', icon: ChartColumn, labelKey: 'nav.dashboard', label: 'Dashboard' },
             { path: '/profile', icon: User, labelKey: 'nav.profile', label: 'Profile' },
             { path: '/preferences', icon: Settings, labelKey: 'nav.preferences', label: 'Preferences' },
         ]
@@ -110,12 +115,12 @@ export function NavigationMenu() {
             >
                 <div className="flex flex-col h-full p-4">
                     {/* Navigation Groups */}
-                    <div className="flex-1 space-y-6 overflow-y-auto">
+                    <div className="flex-1 space-y-12 overflow-y-auto">
                         {navigationGroups.map((group, groupIndex) => (
                             <div key={groupIndex} className="space-y-2">
                                 {group.title && (
                                     <h3 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                        {group.title}
+                                        {group.titleKey ? t(group.titleKey, group.title) : group.title}
                                     </h3>
                                 )}
                                 <div className="space-y-1">
@@ -149,7 +154,7 @@ export function NavigationMenu() {
                     </div>
 
                     {/* Logout Button */}
-                    <div className="border-t pt-4 mt-auto">
+                    <div className="border-t pt-4 mt-auto mb-auto">
                         <Button
                             variant="ghost"
                             className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10"

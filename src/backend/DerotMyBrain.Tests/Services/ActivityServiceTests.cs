@@ -16,19 +16,22 @@ public class ActivityServiceTests
     private readonly Mock<IActivityRepository> _activityRepoMock;
     private readonly Mock<IUserRepository> _userRepoMock;
     private readonly Mock<IWikipediaService> _wikipediaServiceMock;
-    private readonly Mock<ILlmService> _llmServiceMock;
+    private readonly Mock<IQuizService> _quizServiceMock;
+    private readonly Mock<ISourceService> _sourceServiceMock;
     private readonly Mock<IJsonSerializer> _jsonSerializerMock;
     private readonly Mock<ILogger<ActivityService>> _loggerMock;
     private readonly Mock<IContentSource> _contentSourceMock;
     private readonly ActivityService _service;
     private readonly Dictionary<string, Source> _sourceDb = new();
+    private readonly Dictionary<string, OnlineResource> _onlineResourceDb = new();
     
     public ActivityServiceTests()
     {
         _activityRepoMock = new Mock<IActivityRepository>();
         _userRepoMock = new Mock<IUserRepository>();
         _wikipediaServiceMock = new Mock<IWikipediaService>();
-        _llmServiceMock = new Mock<ILlmService>();
+        _quizServiceMock = new Mock<IQuizService>();
+        _sourceServiceMock = new Mock<ISourceService>();
         _jsonSerializerMock = new Mock<IJsonSerializer>();
         _loggerMock = new Mock<ILogger<ActivityService>>();
         
@@ -39,6 +42,13 @@ public class ActivityServiceTests
 
         var contentSources = new List<IContentSource> { _contentSourceMock.Object };
 
+        _sourceServiceMock.Setup(s => s.PopulateSourceContentAsync(It.IsAny<Source>()))
+            .Returns<Source>(async (s) => 
+            {
+                 var content = await _contentSourceMock.Object.GetContentAsync(s);
+                 s.TextContent = content.TextContent;
+            });
+
         // Setup stateful repository mocks for Source operations
         _activityRepoMock.Setup(r => r.GetSourceByIdAsync(It.IsAny<string>()))
             .ReturnsAsync((string id) => _sourceDb.TryGetValue(id, out var s) ? s : null);
@@ -46,15 +56,26 @@ public class ActivityServiceTests
         _activityRepoMock.Setup(r => r.CreateSourceAsync(It.IsAny<Source>()))
             .ReturnsAsync((Source s) => { _sourceDb[s.Id] = s; return s; });
 
+        _activityRepoMock.Setup(r => r.UpdateSourceAsync(It.IsAny<Source>()))
+            .ReturnsAsync((Source s) => { _sourceDb[s.Id] = s; return s; });
+
+        // Setup stateful repository mocks for OnlineResource operations
+        _activityRepoMock.Setup(r => r.GetOnlineResourceByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync((string id) => _onlineResourceDb.TryGetValue(id, out var r) ? r : null);
+
+        _activityRepoMock.Setup(r => r.GetOnlineResourceBySourceIdAsync(It.IsAny<string>()))
+            .ReturnsAsync((string sourceId) => _onlineResourceDb.Values.FirstOrDefault(r => r.SourceId == sourceId));
+
         _activityRepoMock.Setup(r => r.CreateOnlineResourceAsync(It.IsAny<OnlineResource>()))
-            .ReturnsAsync((OnlineResource o) => o);
+            .ReturnsAsync((OnlineResource r) => { _onlineResourceDb[r.Id] = r; return r; });
 
         _service = new ActivityService(
             _activityRepoMock.Object,
             _userRepoMock.Object,
             contentSources,
             _wikipediaServiceMock.Object,
-            _llmServiceMock.Object,
+            _quizServiceMock.Object,
+            _sourceServiceMock.Object,
             _jsonSerializerMock.Object,
             _loggerMock.Object);
     }
@@ -297,7 +318,8 @@ public class ActivityServiceTests
         // Arrange
         var userId = "user1";
         var wikiTitle = "Paris";
-        var technicalId = SourceHasher.GenerateId(SourceType.Wikipedia, wikiTitle);
+        var wikiUrl = "https://fr.wikipedia.org/wiki/Paris";
+        var expectedHash = SourceHasher.GenerateId(SourceType.Wikipedia, wikiUrl);
         
         _activityRepoMock.Setup(r => r.CreateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
         _activityRepoMock.Setup(r => r.UpdateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
@@ -306,10 +328,22 @@ public class ActivityServiceTests
         var result = await _service.ReadAsync(userId, "Paris Title", "fr", wikiTitle, SourceType.Wikipedia);
 
         // Assert
-        Assert.Equal(technicalId, result.SourceId);
-        _activityRepoMock.Verify(r => r.CreateSourceAsync(It.Is<Source>(s => s.Id == technicalId)), Times.AtLeastOnce());
-        _activityRepoMock.Verify(r => r.CreateOnlineResourceAsync(It.Is<OnlineResource>(o => o.SourceId == technicalId)), Times.AtLeastOnce());
-        Assert.Equal("Test Content", result.ArticleContent);
+        Assert.NotEqual(expectedHash, result.SourceId); // Should be a new GUID
+        
+        // Verify Source created with correct ExternalId (Hash)
+        _activityRepoMock.Verify(r => r.CreateSourceAsync(It.Is<Source>(s => s.ExternalId == expectedHash && s.Id != expectedHash)), Times.AtLeastOnce());
+        
+        // Verify OnlineResource created with correct ID (Hash)
+        _activityRepoMock.Verify(r => r.CreateOnlineResourceAsync(It.Is<OnlineResource>(o => o.Id == expectedHash && o.URL == wikiUrl)), Times.AtLeastOnce());
+        
+        // Verify content update on source (the mock captures the created source via callback in Setup, but we need to ensure test accesses the captured one if _sourceDb logic holds)
+        // In this test, we rely on _sourceDb being populated by CreateSourceAsync callback.
+        // However, since result.SourceId is random, we can't look it up by technicalId anymore.
+        // But we can check result.Source directly if populated in DTO or entity.
+        
+        // result is UserActivity, result.Source should be populated.
+        Assert.NotNull(result.Source);
+        Assert.Equal("Test Content", result.Source!.TextContent);
     }
 
     [Fact]
@@ -347,5 +381,40 @@ public class ActivityServiceTests
         // Assert
         Assert.Equal(ActivityType.Quiz, result.Type);
         Assert.Contains("Quiz session", result.Description);
+    }
+
+    [Fact]
+    public async Task ReadAsync_WikipediaShouldReuseExistingSourceByExternalId()
+    {
+        // Arrange
+        var userId = "user1";
+        var wikiTitle = "London";
+        var wikiUrl = "https://en.wikipedia.org/wiki/London";
+        var expectedHash = SourceHasher.GenerateId(SourceType.Wikipedia, wikiUrl);
+        
+        // 1. Pre-create a source with the hash as ExternalId but a random GUID as Id
+        var existingSource = new Source 
+        { 
+            Id = Guid.NewGuid().ToString(), 
+            UserId = userId, 
+            ExternalId = expectedHash, 
+            Type = SourceType.Wikipedia, 
+            DisplayTitle = "London" 
+        };
+        _sourceDb[existingSource.Id] = existingSource;
+        
+        // Setup mock to return this source when queried by ExternalId
+        _activityRepoMock.Setup(r => r.GetSourceByExternalIdAsync(userId, expectedHash))
+            .ReturnsAsync(existingSource);
+
+        _activityRepoMock.Setup(r => r.CreateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
+        _activityRepoMock.Setup(r => r.UpdateAsync(It.IsAny<UserActivity>())).ReturnsAsync((UserActivity a) => a);
+
+        // Act
+        var result = await _service.ReadAsync(userId, "London Title", "en", wikiTitle, SourceType.Wikipedia);
+
+        // Assert
+        Assert.Equal(existingSource.Id, result.SourceId); // Should use the EXISTING GUID
+        _activityRepoMock.Verify(r => r.CreateSourceAsync(It.IsAny<Source>()), Times.Never()); // Should NOT create a new source
     }
 }

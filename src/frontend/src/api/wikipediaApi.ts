@@ -1,3 +1,4 @@
+import { SourceTypes } from '@/models/Enums';
 import { client } from './client';
 
 export interface WikipediaArticle {
@@ -12,7 +13,7 @@ export const wikipediaApi = {
     addToBacklog: async (userId: string, article: WikipediaArticle): Promise<{ id: string }> => {
         const response = await client.post<{ id: string }>(`/users/${userId}/backlog`, {
             sourceId: article.sourceUrl || article.title,
-            sourceType: 1, // Wikipedia
+            sourceType: SourceTypes.Wikipedia,
             title: article.title,
             url: article.sourceUrl,
             provider: 'Wikipedia'

@@ -5,16 +5,21 @@ using DerotMyBrain.Core.Interfaces.Services;
 using DerotMyBrain.Core.Interfaces.Utils;
 using DerotMyBrain.Core.Utils;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
+using System.Linq;
+using System.Threading;
 
 namespace DerotMyBrain.Core.Services;
 
 public class ActivityService : IActivityService
 {
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> _quizLocks = new();
     private readonly IActivityRepository _repository;
     private readonly IUserRepository _userRepository;
     private readonly IEnumerable<IContentSource> _contentSources;
     private readonly IWikipediaService _wikipediaService;
-    private readonly ILlmService _llmService;
+    private readonly IQuizService _quizService;
+    private readonly ISourceService _sourceService;
     private readonly IJsonSerializer _jsonSerializer;
     private readonly ILogger<ActivityService> _logger;
 
@@ -23,7 +28,8 @@ public class ActivityService : IActivityService
         IUserRepository userRepository,
         IEnumerable<IContentSource> contentSources,
         IWikipediaService wikipediaService,
-        ILlmService llmService,
+        IQuizService quizService,
+        ISourceService sourceService,
         IJsonSerializer jsonSerializer,
         ILogger<ActivityService> logger)
     {
@@ -31,7 +37,8 @@ public class ActivityService : IActivityService
         _userRepository = userRepository;
         _contentSources = contentSources;
         _wikipediaService = wikipediaService;
-        _llmService = llmService;
+        _quizService = quizService;
+        _sourceService = sourceService;
         _jsonSerializer = jsonSerializer;
         _logger = logger;
     }
@@ -65,7 +72,7 @@ public class ActivityService : IActivityService
         return await CreateActivityAsync(userId, dto);
     }
 
-    public async Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceId, SourceType? sourceType, ActivityType activityType = ActivityType.Read, string? originExploreId = null, int? backlogAddsCount = null, int? refreshCount = null, int? exploreDurationSeconds = null)
+    public async Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceId, SourceType? sourceType, ActivityType activityType = ActivityType.Read, string? originExploreId = null, string? sessionId = null, int? backlogAddsCount = null, int? refreshCount = null, int? exploreDurationSeconds = null)
     {
         if (string.IsNullOrEmpty(sourceId))
              throw new ArgumentNullException(nameof(sourceId), "SourceId is required for Read activity.");
@@ -73,32 +80,54 @@ public class ActivityService : IActivityService
         Source? source = null;
         string? technicalSourceId = null;
 
-        // 1. Try to resolve Source Entity by technical ID (if it's a GUID/Hash)
+        // 1. Try to resolve Source Entity by ID (Input might be a Guid)
         source = await _repository.GetSourceByIdAsync(sourceId);
 
         if (source == null)
         {
-            // 2. If not found, deduce type and technical ID
+            // 2. If not found, it implies a new activity on a new source OR via URL
             SourceType effectiveType = sourceType ?? (sourceId.Contains("wikipedia.org") || !sourceId.Contains("-") ? SourceType.Wikipedia : SourceType.Document);
             
             if (effectiveType == SourceType.Wikipedia)
             {
-                 technicalSourceId = SourceHasher.GenerateId(effectiveType, sourceId);
-                 source = await _repository.GetSourceByIdAsync(technicalSourceId);
+                 // New Logic: Resolve Technical Hub
+                 var lang = language ?? "en";
+                 var targetUrl = sourceId.StartsWith("http") ? sourceId : $"https://{lang}.wikipedia.org/wiki/{sourceId}";
+                 var externalId = SourceHasher.GenerateId(effectiveType, targetUrl);
                  
+                 // Check if user already has a source for this content
+                 source = await _repository.GetSourceByExternalIdAsync(userId, externalId);
+
                  if (source == null)
                  {
-                     _logger.LogInformation("Auto-creating Source for Wikipedia Read: {Title} ({SourceId})", title, sourceId);
+                     _logger.LogInformation("Creating new Source (Hub) for Content {ExternalId}", externalId);
                      source = new Source
                      {
-                         Id = technicalSourceId,
+                         Id = Guid.NewGuid().ToString(),
                          UserId = userId,
                          Type = effectiveType,
-                         ExternalId = sourceId,
+                         ExternalId = externalId,
                          DisplayTitle = title,
                          IsTracked = false 
                      };
                      await _repository.CreateSourceAsync(source);
+
+                     // Ensure OnlineResource exists for this content
+                     var onlineResource = await _repository.GetOnlineResourceByIdAsync(externalId);
+                     if (onlineResource == null)
+                     {
+                         onlineResource = new OnlineResource
+                         {
+                             Id = externalId,
+                             UserId = userId,
+                             SourceId = source.Id, // Original creator
+                             URL = targetUrl,
+                             Title = title,
+                             Provider = "Wikipedia",
+                             SavedAt = DateTime.UtcNow
+                         };
+                         await _repository.CreateOnlineResourceAsync(onlineResource);
+                     }
                  }
             }
             else if (effectiveType == SourceType.Document)
@@ -108,53 +137,79 @@ public class ActivityService : IActivityService
             }
         }
 
-        // 3. Ensure OnlineResource exists for Wikipedia/Web sources
-        if (source.Type == SourceType.Wikipedia)
+        // 3. Ensure OnlineResource exists (Backfill for legacy data or direct calls)
+        if (source != null && source.Type == SourceType.Wikipedia)
         {
-            var existingResource = await _repository.GetOnlineResourceBySourceIdAsync(source.Id);
-            if (existingResource == null)
+            // Logic: Check by ExternalId (New Way) or SourceId (Legacy Way)
+            string? resourceId = source.ExternalId;
+            // If ExternalId doesn't look like a hash (e.g. it's a Title), fallback logic? 
+            // Current migration: we didn't migrate old ExternalIds. 
+            // Assuming for now ExternalId IS the link key if valid.
+            
+            // Try fetch by ID first (New Way)
+            var onlineResource = await _repository.GetOnlineResourceByIdAsync(resourceId);
+            
+            // Fallback: Fetch by SourceId (Legacy Way / 1:1)
+            if (onlineResource == null)
             {
-                var url = source.ExternalId;
-                if (!url.StartsWith("http"))
-                {
-                    var lang = language ?? "en";
-                    url = $"https://{lang}.wikipedia.org/wiki/{source.ExternalId}";
-                }
-
-                var onlineResource = new OnlineResource
-                {
-                    UserId = userId,
-                    SourceId = source.Id,
-                    URL = url,
-                    Title = source.DisplayTitle,
-                    Provider = "Wikipedia",
-                    SavedAt = DateTime.UtcNow
-                };
-                await _repository.CreateOnlineResourceAsync(onlineResource);
+                onlineResource = await _repository.GetOnlineResourceBySourceIdAsync(source.Id);
             }
+
+            if (onlineResource == null)
+            {
+                // Create missing resource (Backfill)
+                var url = source.ExternalId; // Might be URL or Title
+                if (!url.StartsWith("http") && !string.IsNullOrEmpty(url))
+                {
+                    // If it looks like a Hash, we can't reconstruct URL easily unless we stored it elsewhere?
+                    // But here we are in "Backfill". Let's assume input args act as recovery data.
+                    var lang = language ?? "en";
+                    url = $"https://{lang}.wikipedia.org/wiki/{url}";
+                }
+                
+                // If ExternalId was actually a Hash, we shouldn't use it as URL. 
+                // This backfill is tricky for purely new logic. 
+                // Let's assume valid URL construction for now.
+
+                if (!string.IsNullOrEmpty(url))
+                {
+                    var newResourceId = SourceHasher.GenerateId(SourceType.Wikipedia, url);
+                    
+                    // Update source to point to this hash if not already
+                    if (source.ExternalId != newResourceId)
+                    {
+                        source.ExternalId = newResourceId;
+                        await _repository.UpdateSourceAsync(source);
+                    }
+
+                    onlineResource = new OnlineResource
+                    {
+                        Id = newResourceId,
+                        UserId = userId,
+                        SourceId = source.Id,
+                        URL = url,
+                        Title = source.DisplayTitle,
+                        Provider = "Wikipedia",
+                        SavedAt = DateTime.UtcNow
+                    };
+                    await _repository.CreateOnlineResourceAsync(onlineResource);
+                }
+            }
+            source.OnlineResource = onlineResource;
         }
 
-        // 4. Select Content Source Handler
-        var contentSource = _contentSources.FirstOrDefault(s => s.CanHandle(source.Type));
-        if (contentSource == null) throw new InvalidOperationException($"No content source handler found for type {source.Type}");
-
-        // 5. Fetch Content
-        ContentResult content;
-        try 
+        // 4. Ensure Source Content is populated
+        if (string.IsNullOrEmpty(source.TextContent))
         {
-            content = await contentSource.GetContentAsync(source);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to get content for source {SourceId}", source.Id);
-            throw;
+            await _sourceService.PopulateSourceContentAsync(source);
         }
 
         var dto = new CreateActivityDto
         {
-            Title = content.Title,
+            UserSessionId = sessionId,
+            Title = source.DisplayTitle ?? "Activity", // Use source title
             Description = activityType == ActivityType.Quiz ? "Quiz session" : (source.Type == SourceType.Wikipedia ? "Read from Wikipedia" : "Read from Document"),
-            SourceId = source.Type == SourceType.Document ? source.Id : (!string.IsNullOrEmpty(source.ExternalId) ? source.ExternalId : source.Id),
+            SourceId = source.Id, // ALWAYS use technical GUID
             SourceType = source.Type,
             Type = activityType,
             SessionDateStart = DateTime.UtcNow,
@@ -171,29 +226,20 @@ public class ActivityService : IActivityService
             {
                 dto.UserSessionId = exploreActivity.UserSessionId;
                 
+                // Mark exploration as completed
+                exploreActivity.IsCompleted = true;
+                exploreActivity.SessionDateEnd = DateTime.UtcNow;
+
                 if (exploreDurationSeconds.HasValue) 
                 {
                     exploreActivity.DurationSeconds = exploreDurationSeconds.Value;
-                    await _repository.UpdateAsync(exploreActivity);
                 }
+                await _repository.UpdateAsync(exploreActivity);
             }
         }
 
         var activity = await CreateActivityAsync(userId, dto);
-        activity.ArticleContent = content.TextContent;
-        
-        try 
-        {
-            await _repository.UpdateAsync(activity);
-            _logger.LogInformation("Activity {ActivityId} updated with content. Content Length: {Length}", activity.Id, activity.ArticleContent?.Length ?? 0);
-        }
-        catch (Exception dbEx)
-        {
-            _logger.LogError(dbEx, "CRITICAL: Failed to persist ArticleContent to database for Activity {ActivityId}.", activity.Id);
-            // We still return the activity with in-memory content for the immediate UI response
-        }
-
-        activity.Source = source; // Assign after update to avoid EF tracking issues
+        activity.Source = source; // Ensure fully loaded for response
         return activity;
     }
 
@@ -202,13 +248,201 @@ public class ActivityService : IActivityService
         var activity = await _repository.GetByIdAsync(userId, activityId);
         if (activity == null) throw new KeyNotFoundException("Activity not found");
 
-        string textToProcess = activity.ArticleContent ?? string.Empty;
+        if (activity.Type != ActivityType.Quiz)
+        {
+            _logger.LogWarning("Rejecting quiz generation for activity {ActivityId} of type {Type}. Only 'Quiz' activities are allowed.", activityId, activity.Type);
+            throw new InvalidOperationException("Quiz generation is only permitted for activities of type 'Quiz'.");
+        }
+
+        var source = activity.Source ?? await _repository.GetSourceByIdAsync(activity.SourceId ?? string.Empty);
+        if (source == null) throw new KeyNotFoundException("Source not found");
+
+        string textToProcess = source.TextContent ?? string.Empty;
         if (string.IsNullOrEmpty(textToProcess)) throw new InvalidOperationException("No content available to generate quiz.");
 
-        var questionsJson = await _llmService.GenerateQuestionsAsync(textToProcess);
-        var questions = _jsonSerializer.Deserialize<List<QuestionDto>>(questionsJson) ?? new List<QuestionDto>();
+        // Get user preferences for quiz generation
+        var user = await _userRepository.GetByIdAsync(userId);
+        var preferences = user?.Preferences ?? UserPreferences.Default(userId);
+        
+        var quizFormat = preferences.PreferredQuizFormat;
+        var questionCount = preferences.QuestionsPerQuiz;
+        var difficulty = preferences.DefaultDifficulty;
+        var language = preferences.Language ?? "en";
 
-        return new QuizDto { Questions = questions };
+        // Use a semaphore to ensure only one thread generates the quiz for this activity
+        var activityLock = _quizLocks.GetOrAdd(activityId, _ => new SemaphoreSlim(1, 1));
+        await activityLock.WaitAsync();
+
+        try 
+        {
+            // Re-check after acquiring the lock to see if another thread already finished
+            activity = await _repository.GetByIdAsync(userId, activityId);
+            if (activity == null) throw new KeyNotFoundException("Activity not found.");
+
+            if (!string.IsNullOrEmpty(activity.Payload))
+            {
+                try 
+                {
+                    var storedQuiz = _jsonSerializer.Deserialize<QuizDto>(activity.Payload);
+                    if (storedQuiz != null && storedQuiz.Questions.Count > 0)
+                    {
+                        _logger.LogInformation("Returning previously generated quiz from activity payload (post-lock) for activity {ActivityId}", activityId);
+                        return storedQuiz;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to deserialize stored quiz payload for activity {ActivityId}. Will regenerate.", activityId);
+                }
+            }
+
+            var quiz = await _quizService.GenerateQuizAsync(textToProcess, quizFormat, questionCount, difficulty, language);
+            
+            // Store the quiz in the activity payload for later validation
+            activity.Payload = _jsonSerializer.Serialize(quiz);
+            await _repository.UpdateAsync(activity);
+            
+            return quiz;
+        }
+        finally 
+        {
+            activityLock.Release();
+            // Optional: cleanup old locks if memory is a concern, but for now this is safer
+        }
+    }
+
+    public async Task<QuizResultDto> SubmitQuizAsync(string userId, string activityId, QuizSubmissionDto submission)
+    {
+        var activity = await _repository.GetByIdAsync(userId, activityId);
+        if (activity == null) throw new KeyNotFoundException("Activity not found");
+
+        // Get user preferences for language
+        var user = await _userRepository.GetByIdAsync(userId);
+        var preferences = user?.Preferences ?? UserPreferences.Default(userId);
+        var language = preferences.Language ?? "en";
+        
+        // Retrieve the stored quiz from the activity payload
+        if (string.IsNullOrEmpty(activity.Payload))
+        {
+            throw new InvalidOperationException("Quiz data not found. Please regenerate the quiz.");
+        }
+        
+        var quiz = _jsonSerializer.Deserialize<QuizDto>(activity.Payload);
+        if (quiz == null || quiz.Questions.Count == 0)
+        {
+            throw new InvalidOperationException("Invalid quiz data. Please regenerate the quiz.");
+        }
+        
+        var results = new List<QuestionResultDto>();
+        int correctCount = 0;
+
+        // Collect all open-ended questions for batch evaluation
+        var openEndedRequests = new List<AnswerEvaluationRequest>();
+        var source = activity.Source ?? await _repository.GetSourceByIdAsync(activity.SourceId ?? string.Empty);
+        var sourceContext = source?.TextContent ?? string.Empty;
+
+        foreach (var answer in submission.Answers)
+        {
+            var question = quiz.Questions.FirstOrDefault(q => q.Id == answer.QuestionId);
+            if (question == null || question.Type != "OpenEnded") continue;
+
+            openEndedRequests.Add(new AnswerEvaluationRequest
+            {
+                QuestionId = answer.QuestionId,
+                Question = question.Text,
+                ExpectedAnswer = question.CorrectAnswer ?? string.Empty,
+                UserAnswer = answer.TextAnswer ?? string.Empty
+            });
+        }
+
+        // Perform batch evaluation if there are open-ended questions
+        var batchEvaluations = new List<QuestionEvaluationResult>();
+        if (openEndedRequests.Any())
+        {
+            _logger.LogInformation("Performing batch evaluation for {Count} open-ended questions in language: {Language}", openEndedRequests.Count, language);
+        batchEvaluations = await _quizService.EvaluateOpenAnswersBatchAsync(sourceContext, openEndedRequests, language);
+        }
+
+        foreach (var answer in submission.Answers)
+        {
+            var question = quiz.Questions.FirstOrDefault(q => q.Id == answer.QuestionId);
+            if (question == null)
+            {
+                _logger.LogWarning("Question {QuestionId} not found in generated quiz", answer.QuestionId);
+                continue;
+            }
+
+            var result = new QuestionResultDto
+            {
+                QuestionId = answer.QuestionId,
+                Explanation = question.Explanation
+            };
+
+            if (question.Type == "MCQ")
+            {
+                // MCQ evaluation: simple comparison
+                var userAnswer = answer.SelectedOption ?? string.Empty;
+                var correctAnswer = question.Options?[question.CorrectOptionIndex ?? 0] ?? string.Empty;
+                
+                result.IsCorrect = string.Equals(userAnswer, correctAnswer, StringComparison.OrdinalIgnoreCase);
+                result.UserAnswer = userAnswer;
+                result.CorrectAnswer = correctAnswer;
+                
+                if (result.IsCorrect) correctCount++;
+            }
+            else if (question.Type == "OpenEnded")
+            {
+                // Open-ended evaluation: use LLM semantic comparison from batch result
+                var userAnswer = answer.TextAnswer ?? string.Empty;
+                var expectedAnswer = question.CorrectAnswer ?? string.Empty;
+                var evaluation = batchEvaluations.FirstOrDefault(e => e.QuestionId == answer.QuestionId);
+                
+                result.UserAnswer = userAnswer;
+                result.CorrectAnswer = expectedAnswer;
+
+                if (evaluation != null)
+                {
+                    result.SemanticScore = evaluation.Score;
+                    result.Explanation = evaluation.Explanation;
+                    
+                    // Consider correct if semantic score >= 0.7
+                    result.IsCorrect = evaluation.Score >= 0.7;
+                }
+                else
+                {
+                    _logger.LogWarning("Missing batch evaluation result for question {QuestionId}", answer.QuestionId);
+                    result.IsCorrect = false;
+                    result.Explanation = "Evaluation result missing.";
+                }
+                
+                if (result.IsCorrect) correctCount++;
+            }
+
+            results.Add(result);
+        }
+
+        var totalQuestions = submission.Answers.Count;
+        var scorePercentage = totalQuestions > 0 ? (double)correctCount / totalQuestions * 100.0 : 0.0;
+
+        // Update the activity with quiz results
+        var updateDto = new UpdateActivityDto
+        {
+            Score = correctCount,
+            QuestionCount = totalQuestions,
+            DurationSeconds = submission.DurationSeconds,
+            SessionDateEnd = DateTime.UtcNow,
+            IsCompleted = true
+        };
+
+        await UpdateActivityAsync(userId, activityId, updateDto);
+
+        return new QuizResultDto
+        {
+            TotalQuestions = totalQuestions,
+            CorrectAnswers = correctCount,
+            ScorePercentage = scorePercentage,
+            Results = results
+        };
     }
 
     public async Task<UserActivity> CreateActivityAsync(string userId, CreateActivityDto dto)
@@ -216,33 +450,28 @@ public class ActivityService : IActivityService
         string? technicalSourceId = null;
         if (!string.IsNullOrEmpty(dto.SourceId))
         {
-            // For Documents, the SourceId is already the Technical ID (GUID). Do not re-hash.
-            if (dto.SourceType == SourceType.Document)
-            {
-                technicalSourceId = dto.SourceId;
-            }
-            else
-            {
-                 technicalSourceId = SourceHasher.GenerateId(dto.SourceType, dto.SourceId);
-            }
-        if (technicalSourceId != null)
-        {
+            technicalSourceId = dto.SourceId; // Assume GUID
             var source = await _repository.GetSourceByIdAsync(technicalSourceId);
+            
             if (source == null)
             {
-                _logger.LogInformation("Creating new source with ID {SourceId} and ExternalId {ExternalId}", technicalSourceId, dto.SourceId);
-                source = new Source
+                // Fallback for cases where frontend might still be sends ExternalId (Explore discovery)
+                if (dto.SourceType == SourceType.Wikipedia)
                 {
-                    Id = technicalSourceId,
-                    UserId = userId,
-                    Type = dto.SourceType,
-                    ExternalId = dto.SourceId,
-                    DisplayTitle = dto.Title,
-                    IsTracked = false
-                };
-                await _repository.CreateSourceAsync(source);
+                     var url = dto.SourceId.StartsWith("http") ? dto.SourceId : $"https://en.wikipedia.org/wiki/{dto.SourceId}";
+                     var externalId = SourceHasher.GenerateId(dto.SourceType, url);
+                     source = await _repository.GetSourceByExternalIdAsync(userId, externalId);
+                     if (source != null)
+                     {
+                         technicalSourceId = source.Id;
+                     }
+                }
             }
-        }
+            
+            if (source == null)
+            {
+                _logger.LogWarning("Source {SourceId} not found in CreateActivityAsync. This should be handled in ReadAsync/Explore discovery.", dto.SourceId);
+            }
         }
 
         if (dto.Type != ActivityType.Explore && technicalSourceId == null && string.IsNullOrEmpty(dto.UserSessionId))
@@ -496,7 +725,7 @@ public class ActivityService : IActivityService
             LlmModelName = a.LlmModelName,
             LlmVersion = a.LlmVersion,
             IsTracked = isTracked,
-            ArticleContent = a.ArticleContent,
+            ArticleContent = source?.TextContent,
             Payload = a.Payload,
             ResultingReadActivityId = a.ResultingReadActivityId,
             ResultingReadSourceName = a.ResultingReadActivity?.Title,

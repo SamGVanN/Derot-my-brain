@@ -10,10 +10,16 @@ namespace DerotMyBrain.Tests.Integration;
 public class SecurityIntegrationTests : IClassFixture<CustomWebApplicationFactory>
 {
     private readonly HttpClient _client;
+    private readonly System.Text.Json.JsonSerializerOptions _jsonOptions;
 
     public SecurityIntegrationTests(CustomWebApplicationFactory factory)
     {
         _client = factory.CreateClient();
+        _jsonOptions = new System.Text.Json.JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        _jsonOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     }
 
     [Fact]
@@ -35,7 +41,7 @@ public class SecurityIntegrationTests : IClassFixture<CustomWebApplicationFactor
         // Act 1: Login
         var loginResponse = await _client.PostAsJsonAsync("/api/users", loginDto);
         loginResponse.EnsureSuccessStatusCode();
-        var result = await loginResponse.Content.ReadFromJsonAsync<LoginResponseDto>();
+        var result = await loginResponse.Content.ReadFromJsonAsync<LoginResponseDto>(_jsonOptions);
         
         Assert.NotNull(result);
         Assert.NotNull(result.Token);

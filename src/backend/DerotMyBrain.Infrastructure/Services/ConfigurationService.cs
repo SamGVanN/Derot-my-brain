@@ -1,6 +1,7 @@
 using DerotMyBrain.Core.Entities;
 using System.Text.Json;
 using DerotMyBrain.Core.Interfaces.Services;
+using DerotMyBrain.Core.Interfaces.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -8,75 +9,56 @@ namespace DerotMyBrain.Infrastructure.Services;
 
 /// <summary>
 /// Service responsible for managing global application configuration.
-/// Configuration is shared across all users and stored in /Data/config/
+/// Configuration is stored in the database, with JSON file used only for defaults.
 /// </summary>
 public class ConfigurationService : IConfigurationService
 {
     private readonly string _configDirectory;
     private readonly ILogger<ConfigurationService> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IConfigurationRepository _configRepository;
     private const string ConfigFileName = "app-config.json";
-    private readonly SemaphoreSlim _semaphore = new(1, 1);
+    private static readonly SemaphoreSlim _semaphore = new(1, 1);
 
-    public ConfigurationService(IConfiguration configuration, ILogger<ConfigurationService> logger, IHttpClientFactory httpClientFactory)
+    public ConfigurationService(
+        IConfiguration configuration, 
+        ILogger<ConfigurationService> logger, 
+        IHttpClientFactory httpClientFactory,
+        IConfigurationRepository configRepository)
     {
         var dataDirectory = configuration["DataDirectory"] ?? "Data";
         _configDirectory = Path.Combine(dataDirectory, "config");
         _logger = logger;
         _httpClientFactory = httpClientFactory;
+        _configRepository = configRepository;
     }
 
     /// <summary>
-    /// Initialize configuration with default values if not present.
+    /// Initialize configuration with default values if not present in database.
     /// This method is idempotent - safe to call multiple times.
     /// </summary>
     public async Task InitializeAsync()
     {
         _logger.LogInformation("Starting configuration initialization...");
 
-        // Ensure config directory exists
-        if (!Directory.Exists(_configDirectory))
-        {
-            Directory.CreateDirectory(_configDirectory);
-            _logger.LogInformation("Created config directory: {Directory}", _configDirectory);
-        }
-
-        var filePath = Path.Combine(_configDirectory, ConfigFileName);
-
-        // Skip if already exists (idempotent)
-        if (File.Exists(filePath))
-        {
-            _logger.LogInformation("Configuration already initialized. Skipping.");
-            return;
-        }
-
-        // Create default configuration
-        var defaultConfig = CreateDefaultConfiguration();
-        await SaveConfigurationAsync(defaultConfig);
-
-        _logger.LogInformation("Configuration initialized with default values at {FilePath}", filePath);
-    }
-
-    /// <summary>
-    /// Get the global application configuration
-    /// </summary>
-    public async Task<AppConfiguration> GetConfigurationAsync()
-    {
         await _semaphore.WaitAsync();
         try
         {
-            var filePath = Path.Combine(_configDirectory, ConfigFileName);
-
-            if (!File.Exists(filePath))
+            // Check if configuration exists in database
+            var existingConfig = await _configRepository.GetAsync();
+            if (existingConfig != null)
             {
-                _logger.LogWarning("Configuration file not found. Creating default configuration...");
-                await InitializeAsync();
+                _logger.LogInformation("Configuration already exists in database. Skipping initialization.");
+                return;
             }
 
-            var json = await File.ReadAllTextAsync(filePath);
-            var config = JsonSerializer.Deserialize<AppConfiguration>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            return config ?? CreateDefaultConfiguration();
+            // Load default configuration from JSON file
+            var defaultConfig = await LoadDefaultConfigurationFromFileAsync();
+            
+            // Save to database
+            await _configRepository.SaveAsync(defaultConfig);
+            
+            _logger.LogInformation("Configuration initialized in database with default values");
         }
         finally
         {
@@ -85,7 +67,44 @@ public class ConfigurationService : IConfigurationService
     }
 
     /// <summary>
-    /// Update the global application configuration
+    /// Get the global application configuration from database
+    /// </summary>
+    public async Task<AppConfiguration> GetConfigurationAsync()
+    {
+        await _semaphore.WaitAsync();
+        try
+        {
+            return await GetConfigurationInternalAsync();
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
+    }
+
+    /// <summary>
+    /// Internal method to get configuration without semaphore.
+    /// Used by other methods that already hold the lock.
+    /// </summary>
+    private async Task<AppConfiguration> GetConfigurationInternalAsync()
+    {
+        // Try to get from database first
+        var config = await _configRepository.GetAsync();
+        
+        if (config == null)
+        {
+            _logger.LogWarning("Configuration not found in database. Loading defaults and saving...");
+            
+            // Load from JSON file and save to database
+            config = await LoadDefaultConfigurationFromFileAsync();
+            await _configRepository.SaveAsync(config);
+        }
+
+        return config;
+    }
+
+    /// <summary>
+    /// Update the global application configuration in database
     /// </summary>
     public async Task<AppConfiguration> UpdateConfigurationAsync(AppConfiguration config)
     {
@@ -98,9 +117,10 @@ public class ConfigurationService : IConfigurationService
             // Update timestamp
             config.LastUpdated = DateTime.UtcNow;
 
-            await SaveConfigurationAsync(config);
+            // Save to database
+            await _configRepository.SaveAsync(config);
 
-            _logger.LogInformation("Configuration updated successfully");
+            _logger.LogInformation("Configuration updated successfully in database");
             return config;
         }
         finally
@@ -129,13 +149,13 @@ public class ConfigurationService : IConfigurationService
             // Validate LLM configuration
             ValidateLLMConfiguration(llmConfig);
 
-            var config = await GetConfigurationAsync();
+            var config = await GetConfigurationInternalAsync();
             config.LLM = llmConfig;
             config.LastUpdated = DateTime.UtcNow;
 
-            await SaveConfigurationAsync(config);
+            await _configRepository.SaveAsync(config);
 
-            _logger.LogInformation("LLM configuration updated successfully");
+            _logger.LogInformation("LLM configuration updated successfully in database");
             return llmConfig;
         }
         finally
@@ -156,11 +176,7 @@ public class ConfigurationService : IConfigurationService
             var client = _httpClientFactory.CreateClient();
             client.Timeout = TimeSpan.FromSeconds(5); // Fast test timeout
 
-            var url = $"{config.Url}:{config.Port}";
-            if (!url.StartsWith("http://") && !url.StartsWith("https://"))
-            {
-                url = "http://" + url;
-            }
+            var url = config.GetFullUrl();
 
             _logger.LogInformation("Testing LLM connection at {Url}", url);
 
@@ -178,13 +194,62 @@ public class ConfigurationService : IConfigurationService
     }
 
     /// <summary>
-    /// Save configuration to file
+    /// Reset configuration to default values from JSON file
     /// </summary>
-    private async Task SaveConfigurationAsync(AppConfiguration config)
+    public async Task<AppConfiguration> ResetToDefaultAsync()
+    {
+        await _semaphore.WaitAsync();
+        try
+        {
+            _logger.LogInformation("Resetting configuration to defaults...");
+
+            // Delete existing configuration from database
+            await _configRepository.DeleteAsync();
+
+            // Load defaults from JSON file
+            var defaultConfig = await LoadDefaultConfigurationFromFileAsync();
+
+            // Save to database
+            await _configRepository.SaveAsync(defaultConfig);
+
+            _logger.LogInformation("Configuration reset to defaults successfully");
+            return defaultConfig;
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
+    }
+
+    /// <summary>
+    /// Load default configuration from JSON file
+    /// </summary>
+    private async Task<AppConfiguration> LoadDefaultConfigurationFromFileAsync()
     {
         var filePath = Path.Combine(_configDirectory, ConfigFileName);
-        var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
-        await File.WriteAllTextAsync(filePath, json);
+
+        // Ensure config directory exists
+        if (!Directory.Exists(_configDirectory))
+        {
+            Directory.CreateDirectory(_configDirectory);
+            _logger.LogInformation("Created config directory: {Directory}", _configDirectory);
+        }
+
+        // If JSON file doesn't exist, create it with defaults
+        if (!File.Exists(filePath))
+        {
+            _logger.LogWarning("Configuration file not found. Creating default configuration file...");
+            var defaultConfig = CreateDefaultConfiguration();
+            var json = JsonSerializer.Serialize(defaultConfig, new JsonSerializerOptions { WriteIndented = true });
+            await File.WriteAllTextAsync(filePath, json);
+            return defaultConfig;
+        }
+
+        // Read from JSON file
+        var jsonContent = await File.ReadAllTextAsync(filePath);
+        var config = JsonSerializer.Deserialize<AppConfiguration>(jsonContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        return config ?? CreateDefaultConfiguration();
     }
 
     /// <summary>
@@ -197,7 +262,7 @@ public class ConfigurationService : IConfigurationService
             Id = "global",
             LLM = new LLMConfiguration
             {
-                Url = "http://localhost:11434",
+                Url = "127.0.0.1",
                 Port = 11434,
                 Provider = "ollama",
                 DefaultModel = "llama3:8b",

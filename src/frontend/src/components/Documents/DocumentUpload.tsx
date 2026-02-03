@@ -7,10 +7,10 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 // Alert import removed
 import { documentApi } from '@/api/documentApi';
 import { backlogApi } from '@/api/backlogApi';
-import { activityApi } from '@/api/activityApi';
 import { useNavigate } from 'react-router';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { SourceTypes } from '@/models/Enums';
 
 interface DocumentUploadProps {
     onUploadComplete?: () => void;
@@ -55,7 +55,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete
             const doc = await documentApi.upload(user.id, file);
             // 2. Add to Backlog
             await backlogApi.add(user.id, {
-                sourceId: doc.sourceHash, // or doc.id? API expects sourceId. BacklogService expects sourceId. 
+                sourceId: doc.sourceId, // or doc.id? API expects sourceId. BacklogService expects sourceId. 
                 // Wait, BacklogService uses SourceType + SourceId to generate hash.
                 // For Document, SourceId is technically the StoragePath or SourceHash?
                 // In DocumentService.Upload, we set sourceHash.
@@ -81,7 +81,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete
                 // `SourceId` = `relativePath`.
                 // I should add `SourceId` to DocumentDto which maps to `StoragePath`.
 
-                sourceType: 'Document',
+                sourceType: SourceTypes.Document,
                 title: doc.displayTitle
             });
             toast({ title: "Success", description: "Uploaded and added to backlog." });
@@ -105,7 +105,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete
             // We need to create an activity or redirect to a "setup activity" page with context.
             // Or just call StartActivity directly?
             // "Derot Zone" usually means Explore/Read.
-            // Let's redirect to `/zone/read?sourceType=Document&sourceId=${doc.sourceHash}` (or whatever ID).
+            // Let's redirect to `/derot?start=true&type=Document&id=${doc.sourceId}`.
             // ActivityService.ReadAsync takes `sourceId`. If SourceType=Document, `sourceId` needs to be valid.
             // Again, is it Hash or Path?
             // FileContentSource.GetContentAsync takes `sourceId`.
@@ -115,7 +115,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete
             // But FileContentSource expects "file://"+Path?
             // I need to align these.
 
-            navigate(`/zone?start=true&type=Document&id=${doc.sourceHash}`); // Simplified for now
+            navigate(`/derot?start=true&type=Document&id=${doc.sourceId}`); // Simplified for now
         } catch (err) {
             console.error(err);
             setError("Failed to upload and start.");
@@ -149,7 +149,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ onUploadComplete
                         variant="secondary"
                         className="flex-1"
                     >
-                        <Upload className="mr-2 h-4 w-4" /> Just Upload
+                        <Upload className="mr-2 h-4 w-4" /> Upload
                     </Button>
                     <Button
                         onClick={handleUploadAndBacklog}

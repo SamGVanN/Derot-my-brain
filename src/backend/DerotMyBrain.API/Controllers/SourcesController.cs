@@ -146,6 +146,34 @@ public class SourcesController : ControllerBase
         }
     }
 
+    [HttpGet("{sourceId}/extraction-status")]
+    public async Task<ActionResult<ContentExtractionStatusDto>> GetExtractionStatus(
+        [FromRoute] string userId, 
+        [FromRoute] string sourceId)
+    {
+        try
+        {
+            var source = await _sourceService.GetSourceAsync(sourceId);
+            if (source == null || source.UserId != userId)
+            {
+                return NotFound("Source not found");
+            }
+
+            return Ok(new ContentExtractionStatusDto
+            {
+                SourceId = source.Id,
+                Status = source.ContentExtractionStatus,
+                Error = source.ContentExtractionError,
+                CompletedAt = source.ContentExtractionCompletedAt
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting extraction status for source {SourceId}", sourceId);
+            return StatusCode(500, "Internal Server Error");
+        }
+    }
+
     public class TrackTopicRequest
     {
         public required string SourceId { get; set; }
@@ -156,5 +184,13 @@ public class SourcesController : ControllerBase
     public class ToggleTrackingRequest
     {
         public bool IsTracked { get; set; }
+    }
+
+    public class ContentExtractionStatusDto
+    {
+        public required string SourceId { get; set; }
+        public ContentExtractionStatus Status { get; set; }
+        public string? Error { get; set; }
+        public DateTime? CompletedAt { get; set; }
     }
 }

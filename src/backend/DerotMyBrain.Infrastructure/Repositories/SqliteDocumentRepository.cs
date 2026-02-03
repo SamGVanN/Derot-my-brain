@@ -23,6 +23,7 @@ public class SqliteDocumentRepository : IDocumentRepository
     public async Task<IEnumerable<Document>> GetAllAsync(string userId)
     {
         return await _context.Documents
+            .Include(d => d.Source)
             .AsNoTracking()
             .Where(d => d.UserId == userId)
             .OrderByDescending(d => d.UploadDate)
@@ -32,6 +33,7 @@ public class SqliteDocumentRepository : IDocumentRepository
     public async Task<Document?> GetByIdAsync(string userId, string id)
     {
         return await _context.Documents
+            .Include(d => d.Source)
             .AsNoTracking()
             .FirstOrDefaultAsync(d => d.UserId == userId && d.Id == id);
     }
@@ -39,6 +41,7 @@ public class SqliteDocumentRepository : IDocumentRepository
     public async Task<Document?> GetBySourceIdAsync(string userId, string sourceId)
     {
         return await _context.Documents
+            .Include(d => d.Source)
             .AsNoTracking()
             .FirstOrDefaultAsync(d => d.UserId == userId && d.SourceId == sourceId);
     }

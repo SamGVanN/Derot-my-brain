@@ -68,9 +68,9 @@ public class SourceHasherTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData(null)]
-    public void GenerateId_EmptyInput_ThrowsArgumentException(string input)
+    public void GenerateId_EmptyInput_ThrowsArgumentException(string? input)
     {
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => SourceHasher.GenerateId(SourceType.Wikipedia, input));
+        Assert.Throws<ArgumentException>(() => SourceHasher.GenerateId(SourceType.Wikipedia, input!));
     }
 }

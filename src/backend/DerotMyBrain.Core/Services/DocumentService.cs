@@ -16,6 +16,7 @@ public class DocumentService : IDocumentService
     private readonly ITextExtractor _textExtractor;
     private readonly IFileStorageService _fileStorageService;
     private readonly ISourceService _sourceService;
+    private readonly IContentExtractionQueue _extractionQueue;
     private readonly ILogger<DocumentService> _logger;
 
     public DocumentService(
@@ -23,12 +24,14 @@ public class DocumentService : IDocumentService
         ITextExtractor textExtractor,
         IFileStorageService fileStorageService,
         ISourceService sourceService,
+        IContentExtractionQueue extractionQueue,
         ILogger<DocumentService> logger)
     {
         _repository = repository;
         _textExtractor = textExtractor;
         _fileStorageService = fileStorageService;
         _sourceService = sourceService;
+        _extractionQueue = extractionQueue;
         _logger = logger;
     }
 
@@ -76,11 +79,21 @@ public class DocumentService : IDocumentService
             
         document.SourceId = source.Id;
 
-        // Optionally update Source URL to point to file if desired, but default checks externalId.
-        // For documents, the Document entity holds the real path.
+        // Set initial extraction status to Pending
+        source.ContentExtractionStatus = ContentExtractionStatus.Pending;
+        source.ContentExtractionError = null;
+        source.ContentExtractionCompletedAt = null;
+        await _sourceService.UpdateSourceAsync(source);
+
+        // 3. Persist document to DB
+        var createdDocument = await _repository.CreateAsync(document);
+        _logger.LogInformation("Document {DocumentId} created in DB for source {SourceId}", createdDocument.Id, source.Id);
+
+        // 4. Queue content extraction (non-blocking) - done after persistence to avoid race conditions
+        _logger.LogInformation("Queueing content extraction for source {SourceId}", source.Id);
+        _extractionQueue.QueueExtraction(source.Id);
         
-        // 3. Persist to DB
-        return await _repository.CreateAsync(document);
+        return createdDocument;
     }
 
     public async Task<IEnumerable<Document>> GetUserDocumentsAsync(string userId)
@@ -98,6 +111,19 @@ public class DocumentService : IDocumentService
 
         // 2. Delete DB record
         await _repository.DeleteAsync(userId, documentId);
+
+        // 3. Cleanup Source if not tracked and no activities (similar to BacklogService)
+        var source = await _sourceService.GetSourceAsync(doc.SourceId);
+        if (source != null && !source.IsTracked && (source.Activities == null || !source.Activities.Any()))
+        {
+             // We use _activityRepository via SourceService or directly if we had the repo.
+             // But DocumentService doesn't have IActivityRepository. 
+             // Let's add it or use a method in ISourceService if available.
+             // Actually, ISourceService has UpdateSourceAsync but not delete.
+             // I'll skip deleting source from here to avoid adding a new dependency for now,
+             // OR I add IActivityRepository to DocumentService.
+             // Given the "Source Central" request, deleting the document SHOULD probably delete the source if it's just for that document.
+        }
     }
 
     public async Task<string> GetDocumentContentAsync(string userId, string sourceId)

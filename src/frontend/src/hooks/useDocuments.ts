@@ -3,6 +3,7 @@ import { documentApi, type DocumentDto } from '@/api/documentApi';
 import { activityApi } from '@/api/activityApi';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router';
+import { SourceTypes } from '@/models/Enums';
 
 export const useDocuments = (userId: string | undefined) => {
     const [documents, setDocuments] = useState<DocumentDto[]>([]);
@@ -64,7 +65,7 @@ export const useDocuments = (userId: string | undefined) => {
             const activity = await activityApi.read(userId, {
                 title: doc.fileName, // Or displayName if available
                 sourceId: doc.sourceId,
-                sourceType: 2,
+                sourceType: SourceTypes.Document,
                 exploreDurationSeconds: 0
             });
 

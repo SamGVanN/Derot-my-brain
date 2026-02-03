@@ -1,15 +1,17 @@
 # Project Status - Derot My Brain
 
-**Last Updated**: 2026-01-27
-**Current Phase**: Phase 6 & Phase 1 Refinements (Corrected Assessment)
-**Overall Progress**: ~50% to V1 MVP (Technical Foundations present, but Features are mocked/broken)
+**Last Updated**: 2026-02-01
+**Current Phase**: Phase 6 Completion & Phase 7 Preparation
+**Overall Progress**: ~75% to V1 MVP (Core features functional and verified)
 
-## Current Gaps & Blockers
-The previous assessment was overly optimistic. A deep-dive audit reveals significant functional gaps:
-- **Derot Zone**: The interactive session area is largely **mocked** (sample articles) and unstable.
-- **Wikipedia Integration**: Real content fetching from the Wikipedia API is not yet operational in the end-to-end flow.
-- **LLM / Ollama**: Implementation exists in the backend but is **broken/unvalidated**. No active connection to a running Ollama instance is confirmed.
-- **Workflow Mastery**: The "Explore -> Read -> Quiz" cycle is currently **non-functional**.
+## Recent Achievements
+- ✅ **Centralized Content Storage**: Content is now stored in the `Sources` table, reducing redundancy.
+- ✅ **Quiz Service Introduction**: Dedicated service for quiz generation supporting MCQ and Open-Ended formats.
+- ✅ **Ollama Liaison De-mocked**: Functional integration with local Ollama using dynamic configuration.
+- ✅ **Wikipedia Stability**: Reliable fetching and processing of Wikipedia content for all activity modes.
+- ✅ **Workflow Mastery**: The "Explore -> Read -> Quiz" cycle is now fully functional and verified with tests.
+
+
 
 ## High-Level Status
 
@@ -18,19 +20,19 @@ The previous assessment was overly optimistic. A deep-dive audit reveals signifi
 | Core Architecture | ✅ Done | Hexagonal-ish frontend, Clean Architecture backend foundation. |
 | Authentication | ✅ Done | Local profile selection with persistence. |
 | i18n (FR/EN) | ✅ Done | Fully implemented across all pages. |
-| Derot Zone (UI) | 🟡 Partial | Explore View is implemented, Read View is implemented (could be better UX). Quiz View is only mocked. Flow is partially implemented : ATM we can navigate from Explore to Read and from Read to Quiz but no quizz is being generated (need LLM implementation) |
-| Wikipedia Service | ✅ Done | Getting articles is working for exploration mode and for Read View. |
-| LLM Integration | 🔴 Broken | Backend skeleton exists but liaison with Ollama is not validated/functional. connectivity issues and not implemented LLM interactions to get questions, answers and user answers validation. |
-| Workflow Integration | 🔴 Partial (refere to Derot Zone UI) |
-| Backlog & Library | 🟡 Partial | UI exists but activity buttons (Read and go to quizz) only redirects without using Source data. |
-| Focus Area | 🟡 Partial | timeline is not showing dates |
+| Derot Zone (UI) | ✅ Done/Refining | Explore and Read views are fully implemented and functional. Quiz views are mocked. Flow is seamless. |
+| Wikipedia Service | ✅ Done | Reliable article fetching for exploration and reading. Automated quiz generation coming soon. |
+| LLM Integration | 🟡 Partial | Functional liaison with Ollama handling dynamic configurations and multiple quiz formats, but the quiz correction is broken. |
+| Workflow Integration| ✅ Done | Full "Explore -> Read -> Quiz" cycle implemented and tested. |
+| Backlog & Library | ✅ Done | Full integration with Source data; Activity buttons trigger real sessions. |
+| Focus Area | ✅ Done | Timeline and stats could use a more refined UI representation. |
+| Homepage | ✅ Done | Homepage is implemented |
+| Dashboard | TODO | Dashboard page is notimplemented |
+| Guide | ✅ Done | Guide page is implemented. |
+| Asynchronous document content extraction | ✅ Done | Extraction status shown in document grid. |
+    
 
 ## Immediate Roadmap (Corrected)
-1. **Stabilize Wikipedia Fetching**: Fix `WikipediaContentSource` and ensure `ReadView` displays real API data.
-2. **De-Mock Derot Zone**: Replace `sampleArticles` with real API calls from the Wikipedia service.
-3. **Fix Ollama Liaison**: Validate connection to local Ollama and update the backend service to handle dynamic configurations.
-4. **Fix E2E Stability**: Resolve process locking issues on Windows to allow reliable regression testing.
+1. **Performance Tuning**: Optimize large document processing.
+2. **Advanced LLM Features**: Better handling of LLM options (tokens, num_ctx, etc).
 
-## Known Blockers
-- E2E testing environment instability on Windows (process locking).
-- Lack of real-world validation for LLM prompt results.

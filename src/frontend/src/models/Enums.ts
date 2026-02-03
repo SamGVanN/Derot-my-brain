@@ -1,10 +1,11 @@
-export type SourceType = 'Wikipedia' | 'Document' | 'Custom';
-
 export const SourceTypes = {
-    Wikipedia: 'Wikipedia' as SourceType,
-    Document: 'Document' as SourceType,
-    Custom: 'Custom' as SourceType
+    Wikipedia: 1,
+    Document: 2,
+    Custom: 3,
+    WebLink: 4
 } as const;
+
+export type SourceType = typeof SourceTypes[keyof typeof SourceTypes];
 
 export type ActivityType = 'Explore' | 'Read' | 'Quiz' | 'Study';
 

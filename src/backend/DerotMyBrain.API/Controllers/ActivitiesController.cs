@@ -187,6 +187,7 @@ public class ActivitiesController : ControllerBase
                 req.SourceType,
                 req.Type ?? ActivityType.Read,
                 req.OriginExploreId, 
+                req.SessionId,
                 req.BacklogAddsCount,
                 req.RefreshCount,
                 req.ExploreDurationSeconds);
@@ -239,8 +240,8 @@ public class ActivitiesController : ControllerBase
         }
     }
 
-    [HttpPost("activities/{activityId}/quiz")]
-    public async Task<ActionResult<QuizDto>> GenerateQuiz(string userId, string activityId)
+    [HttpPost("{activityId}/quiz")]
+    public async Task<ActionResult<QuizDto>> GenerateQuiz([FromRoute] string userId, [FromRoute] string activityId)
     {
         try
         {
@@ -254,6 +255,29 @@ public class ActivitiesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error generating quiz");
+            return StatusCode(500, "Internal Server Error");
+        }
+    }
+
+    [HttpPost("{activityId}/quiz/submit")]
+    public async Task<ActionResult<QuizResultDto>> SubmitQuiz([FromRoute] string userId, [FromRoute] string activityId, [FromBody] QuizSubmissionDto submission)
+    {
+        try
+        {
+            var result = await _activityService.SubmitQuizAsync(userId, activityId, submission);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error submitting quiz");
             return StatusCode(500, "Internal Server Error");
         }
     }
@@ -274,7 +298,7 @@ public class ActivitiesController : ControllerBase
             ExternalId = source?.ExternalId ?? string.Empty,
             SourceType = source?.Type ?? SourceType.Custom,
             DisplayTitle = source?.DisplayTitle ?? string.Empty,
-            Url = source?.OnlineResource?.URL ?? (source?.Type == SourceType.Wikipedia ? $"https://en.wikipedia.org/wiki/{source.ExternalId}" : string.Empty),
+            Url = source?.OnlineResource?.URL ?? (source?.Type == SourceType.Wikipedia && !string.IsNullOrEmpty(source.ExternalId) && source.ExternalId.Length < 60 ? $"https://en.wikipedia.org/wiki/{source.ExternalId}" : string.Empty),
             Type = a.Type,
 
             SessionDateStart = a.SessionDateStart,
@@ -289,7 +313,7 @@ public class ActivitiesController : ControllerBase
             LlmModelName = a.LlmModelName,
             LlmVersion = a.LlmVersion,
             IsTracked = isTracked,
-            ArticleContent = a.ArticleContent,
+            ArticleContent = source?.TextContent,
             Payload = a.Payload,
             ResultingReadActivityId = a.ResultingReadActivityId,
             ResultingReadSourceName = a.ResultingReadActivity?.Title,
@@ -314,6 +338,7 @@ public class ActivitiesController : ControllerBase
         public SourceType? SourceType { get; set; }
         public ActivityType? Type { get; set; }
         public string? OriginExploreId { get; set; }
+        public string? SessionId { get; set; }
         public int? BacklogAddsCount { get; set; }
         public int? RefreshCount { get; set; }
         public int? ExploreDurationSeconds { get; set; }

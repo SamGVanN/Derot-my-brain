@@ -17,6 +17,23 @@ namespace DerotMyBrain.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
 
+            modelBuilder.Entity("DerotMyBrain.Core.Entities.AppConfiguration", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LLM")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AppConfigurations");
+                });
+
             modelBuilder.Entity("DerotMyBrain.Core.Entities.BacklogItem", b =>
                 {
                     b.Property<string>("Id")
@@ -39,7 +56,8 @@ namespace DerotMyBrain.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SourceId");
+                    b.HasIndex("SourceId")
+                        .IsUnique();
 
                     b.HasIndex("UserId", "SourceId")
                         .IsUnique();
@@ -84,7 +102,8 @@ namespace DerotMyBrain.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SourceId");
+                    b.HasIndex("SourceId")
+                        .IsUnique();
 
                     b.HasIndex("UserId", "SourceId")
                         .IsUnique();
@@ -135,6 +154,15 @@ namespace DerotMyBrain.Infrastructure.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("ContentExtractionCompletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContentExtractionError")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ContentExtractionStatus")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("DisplayTitle")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -146,6 +174,9 @@ namespace DerotMyBrain.Infrastructure.Migrations
                     b.Property<bool>("IsArchived")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsInBacklog")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsPinned")
                         .HasColumnType("INTEGER");
 
@@ -154,14 +185,14 @@ namespace DerotMyBrain.Infrastructure.Migrations
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(false);
 
+                    b.Property<string>("TextContent")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("TopicId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Type")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Url")
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -222,9 +253,6 @@ namespace DerotMyBrain.Infrastructure.Migrations
             modelBuilder.Entity("DerotMyBrain.Core.Entities.UserActivity", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ArticleContent")
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("BacklogAddsCount")
@@ -337,6 +365,10 @@ namespace DerotMyBrain.Infrastructure.Migrations
                         .HasDefaultValue("en")
                         .HasAnnotation("Relational:JsonPropertyName", "language");
 
+                    b.Property<int>("PreferredQuizFormat")
+                        .HasColumnType("INTEGER")
+                        .HasAnnotation("Relational:JsonPropertyName", "preferredQuizFormat");
+
                     b.Property<int>("QuestionsPerQuiz")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
@@ -393,13 +425,13 @@ namespace DerotMyBrain.Infrastructure.Migrations
             modelBuilder.Entity("DerotMyBrain.Core.Entities.BacklogItem", b =>
                 {
                     b.HasOne("DerotMyBrain.Core.Entities.Source", "Source")
-                        .WithMany("BacklogItems")
-                        .HasForeignKey("SourceId")
+                        .WithOne("BacklogItem")
+                        .HasForeignKey("DerotMyBrain.Core.Entities.BacklogItem", "SourceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DerotMyBrain.Core.Entities.User", "User")
-                        .WithMany("BacklogItems")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -412,13 +444,13 @@ namespace DerotMyBrain.Infrastructure.Migrations
             modelBuilder.Entity("DerotMyBrain.Core.Entities.Document", b =>
                 {
                     b.HasOne("DerotMyBrain.Core.Entities.Source", "Source")
-                        .WithMany("Documents")
-                        .HasForeignKey("SourceId")
+                        .WithOne("Document")
+                        .HasForeignKey("DerotMyBrain.Core.Entities.Document", "SourceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DerotMyBrain.Core.Entities.User", "User")
-                        .WithMany("Documents")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -455,7 +487,7 @@ namespace DerotMyBrain.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("DerotMyBrain.Core.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Sources")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -548,9 +580,9 @@ namespace DerotMyBrain.Infrastructure.Migrations
                 {
                     b.Navigation("Activities");
 
-                    b.Navigation("BacklogItems");
+                    b.Navigation("BacklogItem");
 
-                    b.Navigation("Documents");
+                    b.Navigation("Document");
 
                     b.Navigation("OnlineResource");
 
@@ -566,13 +598,11 @@ namespace DerotMyBrain.Infrastructure.Migrations
                 {
                     b.Navigation("Activities");
 
-                    b.Navigation("BacklogItems");
-
-                    b.Navigation("Documents");
-
                     b.Navigation("Preferences");
 
                     b.Navigation("Sessions");
+
+                    b.Navigation("Sources");
                 });
 
             modelBuilder.Entity("DerotMyBrain.Core.Entities.UserSession", b =>

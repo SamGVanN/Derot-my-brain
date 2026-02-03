@@ -23,6 +23,7 @@ public class SqliteBacklogRepository : IBacklogRepository
     public async Task<IEnumerable<BacklogItem>> GetAllAsync(string userId)
     {
         return await _context.BacklogItems
+            .Include(b => b.Source)
             .AsNoTracking()
             .Where(b => b.UserId == userId)
             .OrderByDescending(b => b.AddedAt)
@@ -32,6 +33,7 @@ public class SqliteBacklogRepository : IBacklogRepository
     public async Task<BacklogItem?> GetBySourceIdAsync(string userId, string sourceId)
     {
         return await _context.BacklogItems
+            .Include(b => b.Source)
             .AsNoTracking()
             .FirstOrDefaultAsync(b => b.UserId == userId && b.SourceId == sourceId);
     }

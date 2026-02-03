@@ -51,3 +51,9 @@ When starting a Read Activity from the **Explore View** (Wikipedia), the backend
 2. Computes the hash.
 3. Checks if a `Source` already exists with this hash.
 4. If not, creates it automatically before starting the activity.
+
+## Content Storage
+Once a source is identified and its content is fetched (from Wikipedia, local file, etc.), the extracted text is persisted in the `TextContent` property of the `Source` entity.
+
+- **Centralization**: All activities (Read, Quiz) linked to the same `SourceId` use this shared content.
+- **Redundancy Reduction**: Content is stored once per source, regardless of how many times a user reads or takes a quiz on it.

@@ -3,16 +3,26 @@ using DerotMyBrain.Core.Entities;
 using DerotMyBrain.Core.Interfaces.Repositories;
 using DerotMyBrain.Core.Interfaces.Services;
 using DerotMyBrain.Core.Utils;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DerotMyBrain.Core.Services;
 
 public class SourceService : ISourceService
 {
     private readonly IActivityRepository _repository;
+    private readonly IEnumerable<IContentSource> _contentSources;
+    private readonly ILogger<SourceService> _logger;
 
-    public SourceService(IActivityRepository repository)
+    public SourceService(
+        IActivityRepository repository, 
+        IEnumerable<IContentSource> contentSources,
+        ILogger<SourceService> logger)
     {
         _repository = repository;
+        _contentSources = contentSources;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<TrackedSourceDto>> GetTrackedSourcesAsync(string userId)
@@ -70,7 +80,7 @@ public class SourceService : ISourceService
             ExternalId = s.ExternalId, // URL or DocId
             SourceType = s.Type,
             DisplayTitle = s.DisplayTitle,
-            Url = s.OnlineResource?.URL ?? (s.Type == SourceType.Wikipedia ? $"https://en.wikipedia.org/wiki/{s.ExternalId}" : null),
+            Url = s.OnlineResource?.URL ?? (s.Type == SourceType.Wikipedia && !string.IsNullOrEmpty(s.ExternalId) && s.ExternalId.Length < 60 ? $"https://en.wikipedia.org/wiki/{s.ExternalId}" : null),
             
             BestScore = bestQuiz != null ? (int)(bestQuiz.ScorePercentage ?? 0) : 0, 
             LastScore = lastQuiz != null ? (int)(lastQuiz.ScorePercentage ?? 0) : 0,
@@ -81,7 +91,8 @@ public class SourceService : ISourceService
             TotalStudyTimeSeconds = activities.Sum(a => a.DurationSeconds),
             
             IsPinned = s.IsPinned,
-            IsArchived = s.IsArchived
+            IsArchived = s.IsArchived,
+            IsInBacklog = s.IsInBacklog
         };
     }
 
@@ -139,15 +150,20 @@ public class SourceService : ISourceService
         return source;
     }
 
-    public async Task<Source> TrackSourceAsync(string userId, string identifier, string title, SourceType type)
+    public async Task<Source> TrackSourceAsync(string userId, string sourceId, string title, SourceType type)
     {
-        // 1. Try to find if the identifier is already a Technical ID (hashed)
-        var source = await _repository.GetSourceByIdAsync(identifier);
+        // sourceId here MUST be the Technical ID (GUID)
+        var source = await _repository.GetSourceByIdAsync(sourceId);
         
         if (source == null)
         {
-            // 2. If not found, assume it is a Raw ID (external identifier) and use the creation logic (which hashes it)
-            source = await GetOrCreateSourceAsync(userId, title, identifier, type);
+             // FALLBACK: If not found, maybe it's a first-time track from discovery
+             source = await GetOrCreateSourceAsync(userId, title, sourceId, type);
+        }
+
+        if (source.UserId != userId)
+        {
+             throw new UnauthorizedAccessException("User does not own this source");
         }
 
         if (!source.IsTracked)
@@ -160,23 +176,102 @@ public class SourceService : ISourceService
 
     public async Task<Source> GetOrCreateSourceAsync(string userId, string title, string sourceId, SourceType type)
     {
-         var technicalId = SourceHasher.GenerateId(type, sourceId);
-         var source = await _repository.GetSourceByIdAsync(technicalId);
+         string externalId;
+         string? url = null;
+
+         if (type == SourceType.Document)
+         {
+             externalId = sourceId; // Documents use their GUID as ExternalId
+         }
+         else
+         {
+             // Wikipedia or Web: generate hash
+             url = sourceId.StartsWith("http") ? sourceId : $"https://en.wikipedia.org/wiki/{sourceId}";
+             externalId = SourceHasher.GenerateId(type, url);
+         }
+
+         // 1. Check if user already has a source for this content
+         var source = await _repository.GetSourceByExternalIdAsync(userId, externalId);
          
          if (source == null)
          {
+             // 2. Create new Source (GUID PK)
              source = new Source
              {
-                 Id = technicalId,
+                 Id = Guid.NewGuid().ToString(),
                  UserId = userId,
                  Type = type,
-                 ExternalId = sourceId,
+                 ExternalId = externalId,
                  DisplayTitle = title,
                  IsTracked = false
              };
              await _repository.CreateSourceAsync(source);
+
+             // 3. Ensure OnlineResource exists for the content
+             if (type == SourceType.Wikipedia || !string.IsNullOrEmpty(url))
+             {
+                 var onlineResource = await _repository.GetOnlineResourceByIdAsync(externalId);
+                 if (onlineResource == null)
+                 {
+                     onlineResource = new OnlineResource
+                     {
+                         Id = externalId,
+                         UserId = userId,
+                         SourceId = source.Id, // Original creator
+                         URL = url!,
+                         Title = title,
+                         Provider = type == SourceType.Wikipedia ? "Wikipedia" : null,
+                         SavedAt = DateTime.UtcNow
+                     };
+                     await _repository.CreateOnlineResourceAsync(onlineResource);
+                 }
+                 source.OnlineResource = onlineResource;
+             }
          }
          
          return source;
+    }
+
+    public async Task UpdateSourceAsync(Source source)
+    {
+        await _repository.UpdateSourceAsync(source);
+    }
+
+    public async Task PopulateSourceContentAsync(Source source)
+    {
+        if (source == null) return;
+        if (!string.IsNullOrEmpty(source.TextContent)) return;
+
+        var contentSource = _contentSources.FirstOrDefault(s => s.CanHandle(source.Type));
+        if (contentSource == null)
+        {
+            _logger.LogWarning("No content source found for type {Type}", source.Type);
+            return;
+        }
+
+        try
+        {
+            _logger.LogInformation("Populating content for source {SourceId} ({Type})", source.Id, source.Type);
+            var content = await contentSource.GetContentAsync(source);
+            if (content != null && !string.IsNullOrEmpty(content.TextContent))
+            {
+                source.TextContent = content.TextContent;
+                
+                // If it's a document, reflect that extraction is completed
+                if (source.Type == SourceType.Document)
+                {
+                    source.ContentExtractionStatus = ContentExtractionStatus.Completed;
+                    source.ContentExtractionCompletedAt = DateTime.UtcNow;
+                    source.ContentExtractionError = null;
+                }
+                
+                await _repository.UpdateSourceAsync(source);
+                _logger.LogInformation("Source {SourceId} content populated. Length: {Length}", source.Id, source.TextContent.Length);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error populating content for source {SourceId}", source.Id);
+        }
     }
 }

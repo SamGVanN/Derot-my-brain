@@ -8,8 +8,9 @@ public interface IActivityService
     // New Two-Phase Workflow
     Task<IEnumerable<WikipediaArticleDto>> GetExploreArticlesAsync(string userId, int count = 6);
     Task<UserActivity> ExploreAsync(string userId, string? title = null, string? sourceId = null, SourceType sourceType = SourceType.Custom, string? sessionId = null);
-    Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceId, SourceType? sourceType, ActivityType activityType = ActivityType.Read, string? originExploreId = null, int? backlogAddsCount = null, int? refreshCount = null, int? exploreDurationSeconds = null);
+    Task<UserActivity> ReadAsync(string userId, string title, string? language, string? sourceId, SourceType? sourceType, ActivityType activityType = ActivityType.Read, string? originExploreId = null, string? sessionId = null, int? backlogAddsCount = null, int? refreshCount = null, int? exploreDurationSeconds = null);
     Task<QuizDto> GenerateQuizAsync(string userId, string activityId);
+    Task<QuizResultDto> SubmitQuizAsync(string userId, string activityId, QuizSubmissionDto submission);
     Task<UserActivity> CreateActivityAsync(string userId, CreateActivityDto dto);
     
     // Existing Operations (Refactored)

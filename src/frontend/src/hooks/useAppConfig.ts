@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { client } from '../api/client';
 import type { AppConfiguration, LLMConfiguration } from '../models/Configuration';
-
-const API_URL = 'http://localhost:5077/api';
 
 /**
  * React hook to fetch and update global application configuration.
@@ -20,7 +18,7 @@ export function useAppConfig() {
             setLoading(true);
             setError(null);
 
-            const response = await axios.get<AppConfiguration>(`${API_URL}/global-config`);
+            const response = await client.get<AppConfiguration>(`/global-config`);
             setConfig(response.data);
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to fetch configuration';
@@ -37,7 +35,7 @@ export function useAppConfig() {
             setUpdating(true);
             setError(null);
 
-            const response = await axios.put<AppConfiguration>(`${API_URL}/global-config`, newConfig);
+            const response = await client.put<AppConfiguration>(`/global-config`, newConfig);
             setConfig(response.data);
             return true;
         } catch (err) {
@@ -56,7 +54,7 @@ export function useAppConfig() {
             setUpdating(true);
             setError(null);
 
-            const response = await axios.put<LLMConfiguration>(`${API_URL}/global-config/llm`, llmConfig);
+            const response = await client.put<LLMConfiguration>(`/global-config/llm`, llmConfig);
 
             // Update local state
             if (config) {
@@ -82,12 +80,31 @@ export function useAppConfig() {
     const testLLMConnection = useCallback(async (llmConfig: LLMConfiguration): Promise<{ success: boolean; message: string }> => {
         try {
             // We use POST here as per backend implementation
-            const response = await axios.post<{ success: boolean; message: string }>(`${API_URL}/global-config/llm/test`, llmConfig);
+            const response = await client.post<{ success: boolean; message: string }>(`/global-config/llm/test`, llmConfig);
             return response.data;
         } catch (err: any) {
             console.error('Error testing LLM connection:', err);
             const message = err.response?.data?.message || err.message || 'Failed to test connection';
             return { success: false, message };
+        }
+    }, []);
+
+    // Reset configuration to defaults
+    const resetConfig = useCallback(async (): Promise<boolean> => {
+        try {
+            setUpdating(true);
+            setError(null);
+
+            const response = await client.post<AppConfiguration>(`/global-config/reset`);
+            setConfig(response.data);
+            return true;
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to reset configuration';
+            setError(errorMessage);
+            console.error('Error resetting configuration:', err);
+            return false;
+        } finally {
+            setUpdating(false);
         }
     }, []);
 
@@ -103,6 +120,7 @@ export function useAppConfig() {
         updateConfig,
         updateLLMConfig,
         testLLMConnection,
+        resetConfig,
         refetch: fetchConfig
     };
 }

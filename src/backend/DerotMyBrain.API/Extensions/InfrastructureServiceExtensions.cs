@@ -23,8 +23,10 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<IContentSource, WikipediaContentSource>();
         services.AddScoped<IContentSource, FileContentSource>();
 
-        // Register LLM Service
-        services.AddScoped<ILlmService, OllamaLlmService>();
+        // Register LLM Service with extended timeout for slow local models
+        services.AddHttpClient<ILlmService, OllamaLlmService>(client => {
+            client.Timeout = TimeSpan.FromMinutes(5);
+        });
 
         // Register Utilities
         services.AddScoped<ITextExtractor, TextExtractor>();
@@ -32,8 +34,8 @@ public static class InfrastructureServiceExtensions
         // Register File Storage
         services.AddScoped<IFileStorageService, FileSystemStorageService>();
 
-        // Register Global Configuration Service (Singleton for thread-safe file access)
-        services.AddSingleton<IConfigurationService, ConfigurationService>();
+        // Register Global Configuration Service (Scoped because it now depends on a Scoped repository)
+        services.AddScoped<IConfigurationService, ConfigurationService>();
 
         return services;
     }

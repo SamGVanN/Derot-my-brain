@@ -1,10 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { FileText, Loader2, AlertCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useActivities } from '@/hooks/useActivities';
-import { SourceTypes } from '@/models/Enums';
 import type { UserActivity } from '@/models/UserActivity';
+import { SourceTypeBadge } from '../SourceTypeBadge';
 
 interface ReadViewProps {
     activityId?: string;
@@ -52,26 +51,24 @@ export function ReadView({ activityId }: ReadViewProps) {
     const content = activity?.articleContent || (activity as any)?.payload || "Aucun contenu disponible.";
 
     return (
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <CardHeader className="flex flex-row items-center gap-4 border-b border-border/40 pb-6">
-                <div className="p-3 rounded-xl bg-blue-500/10 text-blue-500">
-                    <FileText className="h-6 w-6" />
+        <Card className="border-border/30 bg-card/30 backdrop-blur-xl rounded-3xl overflow-hidden shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <CardHeader className="flex flex-row items-center gap-6 border-b border-border/20 p-8">
+                <div className="p-4 rounded-2xl bg-primary/10 text-primary shadow-sm">
+                    <FileText className="h-8 w-8" />
                 </div>
-                <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                        <CardTitle className="text-2xl">{title}</CardTitle>
-                        <Badge variant="outline" className="text-xs font-normal">
-                            {activity?.sourceType === SourceTypes.Wikipedia ? 'Wikipedia' : 'Document'}
-                        </Badge>
+                <div className="space-y-1.5 flex-1">
+                    <div className="flex items-center justify-between gap-4">
+                        <CardTitle className="text-3xl font-bold tracking-tight">{title}</CardTitle>
+                        <SourceTypeBadge type={activity?.sourceType} />
                     </div>
                     {activity?.displayTitle && (
-                        <p className="text-sm font-medium text-foreground/80">{activity.displayTitle}</p>
+                        <p className="text-base font-medium text-foreground/70">{activity.displayTitle}</p>
                     )}
-                    {activityId && <p className="text-xs text-muted-foreground opacity-50">ID : {activityId}</p>}
+                    {activityId && <p className="text-[10px] font-mono text-muted-foreground/40 uppercase tracking-widest pt-1">ID : {activityId}</p>}
                 </div>
             </CardHeader>
-            <CardContent className="pt-8 prose prose-invert max-w-none">
-                <div className="text-lg leading-relaxed text-foreground/90 whitespace-pre-wrap">
+            <CardContent className="p-8 prose prose-neutral dark:prose-invert max-w-none">
+                <div className="text-xl leading-relaxed text-foreground/90 whitespace-pre-wrap font-serif">
                     {content}
                 </div>
             </CardContent>

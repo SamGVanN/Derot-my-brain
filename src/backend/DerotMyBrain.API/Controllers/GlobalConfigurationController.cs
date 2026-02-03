@@ -3,6 +3,8 @@ using DerotMyBrain.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Localization;
+using DerotMyBrain.API;
 
 namespace DerotMyBrain.API.Controllers
 {
@@ -17,11 +19,16 @@ namespace DerotMyBrain.API.Controllers
     {
         private readonly IConfigurationService _configurationService;
         private readonly ILogger<GlobalConfigurationController> _logger;
+        private readonly IStringLocalizer<SharedResource> _localizer;
 
-        public GlobalConfigurationController(IConfigurationService configurationService, ILogger<GlobalConfigurationController> logger)
+        public GlobalConfigurationController(
+            IConfigurationService configurationService, 
+            ILogger<GlobalConfigurationController> logger,
+            IStringLocalizer<SharedResource> localizer)
         {
             _configurationService = configurationService;
             _logger = logger;
+            _localizer = localizer;
         }
 
         /// <summary>
@@ -88,7 +95,7 @@ namespace DerotMyBrain.API.Controllers
                 var success = await _configurationService.TestLLMConnectionAsync(config);
                 if (success)
                 {
-                    return Ok(new { success = true, message = "Connection successful" });
+                    return Ok(new { success = true, message = _localizer["LlmConnectionSuccess"].Value });
                 }
                 else
                 {
@@ -107,12 +114,32 @@ namespace DerotMyBrain.API.Controllers
                     // Returning BadRequest is semantically "The config is invalid" or "The request failed".
                     // Returning Ok with false means "Test executed, result is failure".
                     // I will return Ok with success:false for connection failures, and BadRequest for validation errors.
-                    return Ok(new { success = false, message = "Connection failed. Please check URL and that the server is running." });
+                    return Ok(new { success = false, message = _localizer["LlmConnectionFailed"].Value });
                 }
             }
             catch (ArgumentException ex)
             {
                 return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Reset configuration to default values from app-config.json
+        /// </summary>
+        [HttpPost("reset")]
+        [ProducesResponseType(typeof(AppConfiguration), StatusCodes.Status200OK)]
+        public async Task<ActionResult<AppConfiguration>> ResetToDefault()
+        {
+            try
+            {
+                var config = await _configurationService.ResetToDefaultAsync();
+                _logger.LogInformation("Configuration reset to defaults");
+                return Ok(config);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error resetting configuration to defaults");
+                return BadRequest(new { message = "Failed to reset configuration" });
             }
         }
     }

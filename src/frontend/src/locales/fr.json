@@ -1,6 +1,7 @@
 {
     "history": {
         "title": "Votre Parcours d'Apprentissage",
+        "headerDescription": "Consultez vos activités passées, vos scores et votre progression.",
         "loading": "Chargement de l'historique...",
         "error": "Impossible de charger l'historique.",
         "empty": "Aucune activité enregistrée. Commencez à explorer !",
@@ -58,20 +59,30 @@
         "global": "Global/Système"
     },
     "nav": {
+        "home": "Accueil",
+        "dashboard": "Tableau de Bord",
         "derot": "Derot Zone",
         "history": "Historique",
         "focusArea": "Mes Focus",
+        "documents": "Documents",
         "backlog": "Backlog",
         "profile": "Profil",
         "preferences": "Préférences",
         "guide": "Guide",
+        "configuration": "Configuration",
         "logout": "Déconnexion",
-        "myAccount": "Mon Compte"
+        "myAccount": "Mon Compte",
+        "groups": {
+            "welcome": "Bienvenue",
+            "derot": "Derot my brain",
+            "library": "Bibliothèque",
+            "personal": "Personnel"
+        }
     },
     "layout": {
         "appName": "Derot My Brain",
         "footer": "© 2026 Derot My Brain. Apprentissage Local.",
-        "version": "v0.7.4"
+        "version": "v0.9.2"
     },
     "theme": {
         "fallback": "Thème"
@@ -166,8 +177,19 @@
     },
     "homepage": {
         "title": "Page d'Accueil",
-        "comingSoon": "Bientôt disponible dans la Phase 7 (à venir)",
-        "description": "Bienvenue sur Derot My Brain. Afficahge d'informations telles que la configuration de l'application, les 5 dernières activités, un rappel du nombre d'item dans le backlog, etc."
+        "stats": {
+            "title": "Synthèse des 3 Dernières Sessions",
+            "explorations": "Explorations",
+            "readings": "Lectures",
+            "quizzes": "Quiz",
+            "backlog": "Ajouts Backlog",
+            "avgScore": "Score Moyen"
+        },
+        "actions": {
+            "bug": "Soumettre un bug",
+            "github": "Code Source"
+        },
+        "description": "Bienvenue sur Derot My Brain. Votre espace personnel d'apprentissage."
     },
     "derot": {
         "title": "Zone Derot",
@@ -189,7 +211,20 @@
             "submitQuiz": "Soumettre mes réponses",
             "modeExplore": "Exploration",
             "modeRead": "Lecture",
-            "modeQuiz": "Quiz"
+            "modeQuiz": "Quiz",
+            "stopActivity": "Quitter l'activité"
+        },
+        "quiz": {
+            "validationWarning": "Veuillez répondre à toutes les questions avant de soumettre",
+            "semanticScore": "Score d'évaluation",
+            "threshold": "seuil",
+            "semanticScoreTooltip": "L'IA évalue la similarité entre votre réponse et la réponse attendue en utilisant l'analyse sémantique. Un score de 70% ou plus est considéré comme correct.",
+            "yourAnswer": "Votre réponse",
+            "noAnswer": "Aucune réponse fournie",
+            "expectedAnswer": "Réponse de référence",
+            "justification": "Justification de la correction",
+            "explanation": "Explication",
+            "semanticScoreDesc": "Correct si ≥ 70%"
         }
     },
     "focusArea": {
@@ -238,12 +273,82 @@
     },
     "guide": {
         "title": "Guide Utilisateur",
-        "comingSoon": "Bientôt disponible dans la Phase 8 (à venir)",
-        "description": "C'est ici que vous trouverez des guides utiles et des tutoriels sur l'utilisation de Derot My Brain."
+        "description": "Apprenez à utiliser Derot My Brain à son plein potentiel.",
+        "limitations": {
+            "title": "Limitations & Prérequis",
+            "description": "Cette version de Derot My Brain nécessite un LLM local sur votre machine, mais pas de panique c'est extrêmement simple.",
+            "steps": {
+                "intro": "Voici les 3 étapes à suivre pour utiliser pleinement Derot My Brain si vous ne savez pas configurer de LLM local, accessible via API :",
+                "step1": "A) Télécharger et installer ollama",
+                "step2": "B) Télécharger un model (nous recommandons llama3:8b qui est disponible dans la liste ollama). Pour cela dépliez la liste dans la \"zone de chat\" de ollama et cliquer sur l'icone de téléchargement.",
+                "step3": "C) Ouvrez le paramétrage d'IA (en haut à droite de Derot My Brain -> icone robot) puis tester la configuration.",
+                "step3Note": "Si vous avez choisit un autre model que llama3:8b dans l'étape 2, veuillez l'indiquer dans le champ correspondant."
+            },
+            "performance": {
+                "description": "L'utilisation d'un LLM peut fortement impacter l'expérience utilisateur (puissance de votre machine limite les capacité du LLM).",
+                "example": "Par exemple, les Quiz de type QCM sont moins gourmand en ressources.",
+                "important": "Nous recommandons d'allouer un plus grand contexte lorsque vous demandez des quiz de type \"Open-Ended\" ou lorsque le document est long."
+            },
+            "images": {
+                "description": "Les images ne sont pas encore supportés par DerotMyBrain (notre interaction avec le LLM est uniquement basé sur du texte)",
+                "note": "en réalité cela dépend du model utilisé par le LLM. Pour des raisons de simplicité, cela n'est pas encore pris en charge."
+            }
+        },
+        "tabs": {
+            "setup": "Configuration & Limitations",
+            "usage": "Comment utiliser l'app",
+            "library": "Ma Bibliothèque"
+        },
+        "library": {
+            "focus": {
+                "title": "Zones Focus",
+                "description": "Retrouvez ici tous les sujets que vous avez décidé de suivre. Suivez votre progression, vos scores et planifiez vos révisions."
+            },
+            "documents": {
+                "title": "Documents Personnels",
+                "description": "Importez vos propres documents (PDF, Texte) pour utiliser la puissance de Derot sur vos propres contenus."
+            },
+            "backlog": {
+                "title": "Le Backlog",
+                "description": "Une file d'attente pour votre curiosité. Gardez de côté les articles intéressants découverts lors de vos explorations pour les lire plus tard."
+            }
+        },
+        "usage": {
+            "step1": {
+                "title": "1. Explorez & Découvrez",
+                "description": "Utilisez la 'Derot Zone' pour trouver des articles Wikipédia aléatoires ou cherchez un sujet précis."
+            },
+            "step2": {
+                "title": "2. Lisez Activement",
+                "description": "Prenez le temps de lire l'article. C'est la base de votre apprentissage."
+            },
+            "step3": {
+                "title": "3. Testez-vous (Quiz)",
+                "description": "Une fois la lecture terminée, l'IA génère un quiz pour valider vos connaissances."
+            },
+            "step4": {
+                "title": "4. Ancrez le Savoir (Focus)",
+                "description": "Si un sujet vous plaît, ajoutez-le à vos 'Focus' pour suivre votre progression dans le temps."
+            }
+        }
     },
     "configuration": {
         "title": "Configuration",
         "subtitle": "Configuration globale",
+        "llm": {
+            "title": "Configuration du Moteur IA",
+            "description": "Configurez le modèle d'IA local (LLM) utilisé pour la génération de quiz.",
+            "provider": "Fournisseur",
+            "model": "Modèle par défaut",
+            "modelHelp": "Doit correspondre à un modèle installé chez votre fournisseur.",
+            "url": "Hôte/IP du serveur",
+            "urlHelp": "Entrez l'hôte ou l'IP uniquement (sans http/port)",
+            "port": "Port",
+            "timeout": "Délai d'attente (secondes)",
+            "testConnection": "Tester la connexion",
+            "endpointPreview": "Aperçu de l'URL finale calculée",
+            "resetDefault": "Réinitialiser"
+        },
         "ai": {
             "valid_api_key_required": "Une clé API valide est requise pour le bon fonctionnement de l'application. Veuillez vérifier que votre fournisseur LLM est joignable."
         }

@@ -1,7 +1,13 @@
 import { type WikipediaArticle } from '@/api/wikipediaApi';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, ClockAlert, Loader2, Radar, ExternalLink, Brain, BrainCircuit } from 'lucide-react';
+import { BookOpen, ClockAlert, Loader2, Radar, Brain, BrainCircuit } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useTranslation } from 'react-i18next';
 
 export type ArticleCard = WikipediaArticle;
 
@@ -15,6 +21,7 @@ type Props = {
 };
 
 export default function DerotZone({ articles, onRead, onAddToBacklog, onStartExplore, loadingAction, isLoading }: Props) {
+  const { t } = useTranslation();
 
   if (isLoading) {
     return (
@@ -65,60 +72,60 @@ export default function DerotZone({ articles, onRead, onAddToBacklog, onStartExp
         const isAddingToBacklog = loadingAction === `backlog-${article.title}`;
 
         return (
-          <Card key={i} className="group relative overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          <Card key={i} className="group relative overflow-hidden border-border/20 bg-card/30 backdrop-blur-xl rounded-3xl hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 hover:-translate-y-2">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
             {/* Image or Placeholder */}
-            <div className="relative h-48 w-full overflow-hidden bg-muted/30">
+            <div className="relative h-56 w-full overflow-hidden bg-muted/20">
               {article.imageUrl ? (
                 <img
                   src={article.imageUrl}
                   alt={article.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               ) : article.sourceUrl?.includes('wikipedia.org') ? (
-                <div className="w-full h-full flex items-center justify-center bg-muted/10 group-hover:scale-105 transition-transform duration-500">
+                <div className="w-full h-full flex items-center justify-center bg-muted/5 group-hover:scale-105 transition-transform duration-700">
                   <img
                     src="/images/wikipedia-logo.png"
                     alt="Wikipedia"
-                    className="h-24 w-24 opacity-30 object-contain grayscale"
+                    className="h-28 w-28 opacity-20 object-contain grayscale"
                   />
                 </div>
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 group-hover:scale-105 transition-transform duration-500">
-                  <Brain className="h-16 w-16 text-primary/20" />
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 group-hover:scale-105 transition-transform duration-700">
+                  <Brain className="h-20 w-20 text-primary/10" />
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
             </div>
 
-            <CardHeader className="-mt-12 relative z-10">
-              <div className="flex justify-between items-start mb-2">
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300 backdrop-blur-md">
-                  <Radar className="h-4 w-4" />
+            <CardHeader className="-mt-14 relative z-10 p-6">
+              <div className="flex justify-between items-start mb-3">
+                <div className="h-10 w-10 rounded-2xl bg-primary/20 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground shadow-lg transition-all duration-500 backdrop-blur-xl border border-primary/20">
+                  <Radar className="h-5 w-5" />
                 </div>
                 {article.lang && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted/80 text-muted-foreground backdrop-blur-md">
+                  <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-lg bg-background/80 text-primary border border-primary/10 backdrop-blur-md shadow-sm">
                     {article.lang}
                   </span>
                 )}
               </div>
-              <CardTitle className="text-xl group-hover:text-primary transition-colors duration-300">
+              <CardTitle className="text-2xl font-bold tracking-tight group-hover:text-primary transition-colors duration-300 line-clamp-2 min-h-[4rem]">
                 {article.title}
               </CardTitle>
             </CardHeader>
 
-            <CardContent>
-              <CardDescription className="line-clamp-3 text-sm leading-relaxed min-h-[4.5rem]">
+            <CardContent className="px-6 pb-2">
+              <CardDescription className="line-clamp-3 text-sm leading-relaxed text-muted-foreground/80 min-h-[4.5rem]">
                 {article.summary || "No summary available for this Wikipedia article. Explore to learn more!"}
               </CardDescription>
             </CardContent>
 
-            <CardFooter className="flex gap-3 pt-2">
+            <CardFooter className="p-6 pt-2 flex gap-3">
               <Button
                 onClick={() => onRead(article)}
                 disabled={loadingAction !== null}
-                className="flex-1 gap-2 shadow-lg shadow-primary/20"
+                className="flex-1 gap-2 rounded-xl shadow-lg shadow-primary/20 h-11 text-sm font-bold uppercase tracking-wider"
               >
                 {isReading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -127,27 +134,26 @@ export default function DerotZone({ articles, onRead, onAddToBacklog, onStartExp
                 )}
                 Read
               </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => onAddToBacklog(article)}
-                disabled={loadingAction !== null}
-                title="Add to Backlog"
-                className="group/btn relative"
-              >
-                {isAddingToBacklog ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <ClockAlert className="h-4 w-4 group-hover/btn:scale-110 transition-transform" />
-                )}
-              </Button>
-              {article.sourceUrl && (
-                <Button variant="ghost" size="icon" asChild title="View on Wikipedia">
-                  <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </Button>
-              )}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onAddToBacklog(article)}
+                    disabled={loadingAction !== null}
+                    className="group/btn relative rounded-xl h-11 w-11 border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all"
+                  >
+                    {isAddingToBacklog ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <ClockAlert className="h-5 w-5 group-hover/btn:scale-110 transition-transform text-muted-foreground group-hover/btn:text-primary" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{t('derot.explore.addToBacklog', 'Add to Backlog')}</p>
+                </TooltipContent>
+              </Tooltip>
             </CardFooter>
           </Card>
         );

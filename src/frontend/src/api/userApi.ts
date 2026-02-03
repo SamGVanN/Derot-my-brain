@@ -34,7 +34,6 @@ export const userApi = {
     updateGeneralPreferences: async (userId: string, preferences: {
         language?: string;
         preferredTheme?: string;
-        questionCount?: number;
     }): Promise<User> => {
         const response = await client.put<User>(`/users/${userId}/preferences/general`, preferences);
         return response.data;
@@ -45,8 +44,22 @@ export const userApi = {
         return response.data;
     },
 
-    updateDerotZonePreferences: async (userId: string, preferences: { questionCount: number; selectedCategories: string[] }): Promise<User> => {
-        const response = await client.put<User>(`/users/${userId}/preferences/derot-zone`, preferences);
+    updateDerotZonePreferences: async (userId: string, preferences: {
+        questionCount: number;
+        selectedCategories: string[];
+        preferredQuizFormat?: 'MCQ' | 'OpenEnded';
+    }): Promise<User> => {
+        // Convert quiz format string to integer for backend
+        const payload: any = {
+            questionCount: preferences.questionCount,
+            selectedCategories: preferences.selectedCategories
+        };
+
+        if (preferences.preferredQuizFormat) {
+            payload.preferredQuizFormat = preferences.preferredQuizFormat === 'MCQ' ? 0 : 1;
+        }
+
+        const response = await client.put<User>(`/users/${userId}/preferences/derot-zone`, payload);
         return response.data;
     },
 

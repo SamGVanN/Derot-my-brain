@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BookOpenText, NotebookPen, ExternalLink, Bookmark, BookmarkCheck, Trophy, Info, PartyPopper, Radar, Flag, TrendingUp, BookOpen, GraduationCap, Loader2, Clock, ClockAlert } from 'lucide-react';
+import { BookOpenText, ExternalLink, Bookmark, BookmarkCheck, Trophy, Info, PartyPopper, Radar, Flag, TrendingUp, BookOpen, GraduationCap, Loader2, Clock, ClockAlert } from 'lucide-react';
 import type { UserActivity } from '../models/UserActivity';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
@@ -68,7 +68,7 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
                             {(activity.type === 'Quiz' && activity.isCurrentBest) ? (
                                 <Trophy className="w-4 h-4" />
                             ) : activity.type === 'Quiz' ? (
-                                <NotebookPen className="w-4 h-4" />
+                                <GraduationCap className="w-4 h-4" />
                             ) : activity.type === 'Explore' ? (
                                 <Radar className="w-4 h-4" />
                             ) : (
@@ -85,8 +85,8 @@ export const ActivityTimelineItem: React.FC<ActivityTimelineItemProps> = ({
             {/* Content Card */}
             <div className={cn("flex-1 min-w-0", !isCompact && "pb-8")}>
                 <div className={cn(
-                    "p-3.5 rounded-lg bg-card border border-border/50 hover:border-border transition-all shadow-sm",
-                    isCompact && "p-3 bg-muted/30"
+                    "p-5 rounded-2xl bg-card/30 backdrop-blur-xl border border-border/20 hover:border-primary/30 transition-all duration-500 shadow-sm hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
+                    isCompact && "p-3 bg-muted/20"
                 )}>
                     {/* Header: Link & Actions */}
                     <div className="flex justify-between items-start gap-4 mb-2">

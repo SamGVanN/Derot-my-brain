@@ -9,7 +9,6 @@ import { PreferencesPage } from './pages/PreferencesPage';
 import { UserProfilePage } from './pages/UserProfilePage';
 import { HistoryPage } from './pages/HistoryPage';
 import { DerotPage } from './pages/DerotPage';
-import { ActivityPage } from './pages/ActivityPage';
 import { MyFocusAreaPage } from './pages/MyFocusAreaPage';
 import { GuidePage } from './pages/GuidePage';
 import { WelcomePage } from './features/welcome/WelcomePage';
@@ -122,15 +121,6 @@ function AppContent() {
       />
 
 
-
-      <Route
-        path="/activity"
-        element={
-          <ProtectedRoute>
-            <ActivityPage />
-          </ProtectedRoute>
-        }
-      />
       <Route
         path="/derot"
         element={

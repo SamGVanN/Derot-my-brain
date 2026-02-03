@@ -80,12 +80,12 @@ public class SourcesControllerTests : IClassFixture<CustomWebApplicationFactory>
         response.EnsureSuccessStatusCode();
         var trackedSource = await response.Content.ReadFromJsonAsync<TrackedSourceDto>(_jsonOptions);
         Assert.NotNull(trackedSource);
-        Assert.Equal("Quantum_Physics", trackedSource.ExternalId); 
+        Assert.Contains("Quantum_Physics", trackedSource.Url); 
         
         var listResponse = await _client.GetAsync($"/api/users/{_userId}/sources?tracked=true");
         var list = await listResponse.Content.ReadFromJsonAsync<IEnumerable<TrackedSourceDto>>(_jsonOptions);
         Assert.NotNull(list);
-        Assert.Contains(list!, s => s.ExternalId == "Quantum_Physics");
+        Assert.Contains(list!, s => s.Url != null && s.Url.Contains("Quantum_Physics"));
     }
     
     [Fact]
@@ -100,6 +100,7 @@ public class SourcesControllerTests : IClassFixture<CustomWebApplicationFactory>
         };
         var setupResponse = await _client.PostAsJsonAsync($"/api/users/{_userId}/sources", request);
         var dto = await setupResponse.Content.ReadFromJsonAsync<TrackedSourceDto>(_jsonOptions);
+        Assert.NotNull(dto);
         var technicalId = dto.Id;
 
         // Act - Untrack

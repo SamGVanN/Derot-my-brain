@@ -25,9 +25,11 @@ export function DerotZonePreferencesForm({ preferences, onSave, isSaving }: Dero
     // Local state
     const [localPrefs, setLocalPrefs] = useState<{
         questionCount: number;
+        preferredQuizFormat: 'MCQ' | 'OpenEnded';
         selectedCategories: string[];
     }>({
         questionCount: preferences.questionCount,
+        preferredQuizFormat: preferences.preferredQuizFormat || 'MCQ',
         selectedCategories: preferences.selectedCategories || []
     });
 
@@ -37,6 +39,7 @@ export function DerotZonePreferencesForm({ preferences, onSave, isSaving }: Dero
     useEffect(() => {
         setLocalPrefs({
             questionCount: preferences.questionCount,
+            preferredQuizFormat: preferences.preferredQuizFormat || 'MCQ',
             selectedCategories: preferences.selectedCategories || []
         });
         setHasChanges(false);
@@ -47,6 +50,14 @@ export function DerotZonePreferencesForm({ preferences, onSave, isSaving }: Dero
         const newVal = parseInt(val);
         setLocalPrefs(prev => {
             const next = { ...prev, questionCount: newVal };
+            checkChanges(next);
+            return next;
+        });
+    };
+
+    const handleQuizFormatChange = (val: 'MCQ' | 'OpenEnded') => {
+        setLocalPrefs(prev => {
+            const next = { ...prev, preferredQuizFormat: val };
             checkChanges(next);
             return next;
         });
@@ -85,13 +96,14 @@ export function DerotZonePreferencesForm({ preferences, onSave, isSaving }: Dero
 
     const checkChanges = (next: typeof localPrefs) => {
         const questionsChanged = next.questionCount !== preferences.questionCount;
+        const formatChanged = next.preferredQuizFormat !== (preferences.preferredQuizFormat || 'MCQ');
 
         const initialCats = preferences.selectedCategories || [];
         const nextCats = next.selectedCategories;
         const categoriesChanged = nextCats.length !== initialCats.length ||
             !nextCats.every(id => initialCats.includes(id));
 
-        setHasChanges(questionsChanged || categoriesChanged);
+        setHasChanges(questionsChanged || formatChanged || categoriesChanged);
     };
 
     const handleSave = async () => {
@@ -102,6 +114,7 @@ export function DerotZonePreferencesForm({ preferences, onSave, isSaving }: Dero
     const handleCancel = () => {
         setLocalPrefs({
             questionCount: preferences.questionCount,
+            preferredQuizFormat: preferences.preferredQuizFormat || 'MCQ',
             selectedCategories: preferences.selectedCategories || []
         });
         setHasChanges(false);
@@ -147,6 +160,36 @@ export function DerotZonePreferencesForm({ preferences, onSave, isSaving }: Dero
                                 <Label htmlFor={`q-${count}`}>{count}</Label>
                             </div>
                         ))}
+                    </RadioGroup>
+                </div>
+
+                <Separator />
+
+                {/* Quiz Format Section */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                        <HelpCircle className="h-5 w-5 text-primary" />
+                        <div>
+                            <Label className="text-base font-semibold block">{t('preferences.quiz.format', 'Question Type')}</Label>
+                            <p className="text-xs text-muted-foreground font-normal">
+                                {t('preferences.quiz.formatDescription', 'Choose between multiple choice or open-ended questions.')}
+                            </p>
+                        </div>
+                    </div>
+
+                    <RadioGroup
+                        value={localPrefs.preferredQuizFormat}
+                        onValueChange={(val) => handleQuizFormatChange(val as 'MCQ' | 'OpenEnded')}
+                        className="flex gap-4 ml-7"
+                    >
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="MCQ" id="format-mcq" />
+                            <Label htmlFor="format-mcq">{t('preferences.quiz.mcq', 'Multiple Choice (MCQ)')}</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="OpenEnded" id="format-open" />
+                            <Label htmlFor="format-open">{t('preferences.quiz.openEnded', 'Open-Ended')}</Label>
+                        </div>
                     </RadioGroup>
                 </div>
 

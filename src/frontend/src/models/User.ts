@@ -11,6 +11,7 @@ export interface UserPreferences {
     preferredTheme: string;
     language: string;
     selectedCategories: string[];
+    preferredQuizFormat: 'MCQ' | 'OpenEnded';
 }
 
 

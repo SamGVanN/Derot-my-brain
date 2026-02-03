@@ -1,4 +1,5 @@
 import axios from 'axios';
+import i18n from '../i18n';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5077/api';
 
@@ -12,6 +13,9 @@ export const client = axios.create({
 // Add token to requests
 client.interceptors.request.use((config) => {
     try {
+        // Add Language header
+        config.headers['Accept-Language'] = i18n.language || 'en';
+
         const storage = localStorage.getItem('auth-storage');
         if (storage) {
             const { state } = JSON.parse(storage);

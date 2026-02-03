@@ -16,10 +16,8 @@ public class EntityTests
         Assert.Empty(source.Activities);
         Assert.NotNull(source.Sessions);
         Assert.Empty(source.Sessions);
-        Assert.NotNull(source.Documents);
-        Assert.Empty(source.Documents);
-        Assert.NotNull(source.BacklogItems);
-        Assert.Empty(source.BacklogItems);
+        Assert.Null(source.Document);
+        Assert.Null(source.BacklogItem);
         Assert.False(source.IsTracked);
         Assert.Equal(string.Empty, source.Id); // Default string
     }

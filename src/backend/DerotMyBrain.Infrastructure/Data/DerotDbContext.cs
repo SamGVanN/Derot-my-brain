@@ -14,6 +14,7 @@ public class DerotDbContext : DbContext
     public DbSet<Document> Documents { get; set; }
     public DbSet<BacklogItem> BacklogItems { get; set; }
     public DbSet<OnlineResource> OnlineResources { get; set; }
+    public DbSet<AppConfiguration> AppConfigurations { get; set; }
     
     public DerotDbContext(DbContextOptions<DerotDbContext> options) : base(options)
     {
@@ -66,7 +67,7 @@ public class DerotDbContext : DbContext
             entity.Property(e => e.IsTracked).HasDefaultValue(false);
 
             entity.HasOne(e => e.User)
-                .WithMany()
+                .WithMany(u => u.Sources)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -161,13 +162,13 @@ public class DerotDbContext : DbContext
             entity.HasIndex(e => new { e.UserId, e.SourceId }).IsUnique();
 
             entity.HasOne(e => e.User)
-                .WithMany(u => u.Documents)
+                .WithMany()
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(e => e.Source)
-                .WithMany(s => s.Documents)
-                .HasForeignKey(e => e.SourceId)
+                .WithOne(s => s.Document)
+                .HasForeignKey<Document>(e => e.SourceId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
@@ -181,13 +182,13 @@ public class DerotDbContext : DbContext
             entity.HasIndex(e => new { e.UserId, e.SourceId }).IsUnique();
 
             entity.HasOne(e => e.User)
-                .WithMany(u => u.BacklogItems)
+                .WithMany()
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(e => e.Source)
-                .WithMany(s => s.BacklogItems)
-                .HasForeignKey(e => e.SourceId)
+                .WithOne(s => s.BacklogItem)
+                .HasForeignKey<BacklogItem>(e => e.SourceId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
@@ -210,6 +211,20 @@ public class DerotDbContext : DbContext
                 .WithOne(s => s.OnlineResource)
                 .HasForeignKey<OnlineResource>(e => e.SourceId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // AppConfiguration configuration
+        modelBuilder.Entity<AppConfiguration>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).IsRequired();
+            entity.Property(e => e.LastUpdated).IsRequired();
+            
+            // Store LLM configuration as JSON
+            entity.Property(e => e.LLM)
+                .HasConversion(
+                    v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                    v => System.Text.Json.JsonSerializer.Deserialize<LLMConfiguration>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new LLMConfiguration());
         });
     }
 }

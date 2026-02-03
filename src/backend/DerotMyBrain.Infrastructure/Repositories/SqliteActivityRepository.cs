@@ -47,6 +47,9 @@ public class SqliteActivityRepository : IActivityRepository
     public async Task<UserActivity?> GetByIdAsync(string userId, string activityId)
     {
         return await _context.Activities
+            .Include(a => a.UserSession)
+                .ThenInclude(s => s.TargetSource)
+            .Include(a => a.Source)
             .Include(a => a.ResultingReadActivity)
             .FirstOrDefaultAsync(a => a.UserId == userId && a.Id == activityId);
     }
@@ -84,7 +87,20 @@ public class SqliteActivityRepository : IActivityRepository
             .AsNoTracking()
             .Include(s => s.Activities)
             .Include(s => s.OnlineResource)
+            .Include(s => s.Document)
+            .Include(s => s.BacklogItem)
             .FirstOrDefaultAsync(s => s.Id == sourceId);
+    }
+
+    public async Task<Source?> GetSourceByExternalIdAsync(string userId, string externalId)
+    {
+        return await _context.Sources
+            .AsNoTracking()
+            .Include(s => s.Activities)
+            .Include(s => s.OnlineResource)
+            .Include(s => s.Document)
+            .Include(s => s.BacklogItem)
+            .FirstOrDefaultAsync(s => s.UserId == userId && s.ExternalId == externalId);
     }
 
     public async Task<Source> CreateSourceAsync(Source source)
@@ -96,6 +112,11 @@ public class SqliteActivityRepository : IActivityRepository
 
     public async Task<Source> UpdateSourceAsync(Source source)
     {
+        var existing = _context.Sources.Local.FirstOrDefault(s => s.Id == source.Id);
+        if (existing != null && !ReferenceEquals(existing, source))
+        {
+            _context.Entry(existing).State = EntityState.Detached;
+        }
         _context.Sources.Update(source);
         await _context.SaveChangesAsync();
         return source;
@@ -107,6 +128,8 @@ public class SqliteActivityRepository : IActivityRepository
             .AsNoTracking()
             .Include(s => s.Activities)
             .Include(s => s.OnlineResource)
+            .Include(s => s.Document)
+            .Include(s => s.BacklogItem)
             .Where(s => s.UserId == userId && s.IsTracked)
             .ToListAsync();
     }
@@ -249,6 +272,12 @@ public class SqliteActivityRepository : IActivityRepository
     {
         return await _context.OnlineResources
             .FirstOrDefaultAsync(or => or.SourceId == sourceId);
+    }
+    
+    public async Task<OnlineResource?> GetOnlineResourceByIdAsync(string id)
+    {
+        return await _context.OnlineResources
+            .FirstOrDefaultAsync(or => or.Id == id);
     }
 
     public async Task DeleteSourceAsync(string sourceId)
