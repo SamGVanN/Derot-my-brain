@@ -13,15 +13,18 @@ public class DocumentsController : ControllerBase
 {
     private readonly IDocumentService _documentService;
     private readonly IFileStorageService _fileStorageService;
+    private readonly ISourceService _sourceService;
     private readonly ILogger<DocumentsController> _logger;
 
     public DocumentsController(
         IDocumentService documentService,
         IFileStorageService fileStorageService,
+        ISourceService sourceService,
         ILogger<DocumentsController> logger)
     {
         _documentService = documentService;
         _fileStorageService = fileStorageService;
+        _sourceService = sourceService;
         _logger = logger;
     }
 
@@ -32,18 +35,29 @@ public class DocumentsController : ControllerBase
         // (Middleware usually handles this, or consistent policy)
         
         var docs = await _documentService.GetUserDocumentsAsync(userId);
-        var dtos = docs.Select(d => new DocumentDto
+        var dtos = new List<DocumentDto>();
+
+        foreach (var d in docs)
         {
-            Id = d.Id,
-            UserId = d.UserId,
-            FileName = d.FileName,
-            FileType = d.FileType,
-            FileSize = d.FileSize,
-            UploadDate = d.UploadDate,
-            DisplayTitle = d.DisplayTitle,
-            SourceId = d.SourceId,
-            StoragePath = d.StoragePath
-        });
+            // Fetch source to get extraction status
+            var source = await _sourceService.GetSourceAsync(d.SourceId);
+            
+            dtos.Add(new DocumentDto
+            {
+                Id = d.Id,
+                UserId = d.UserId,
+                FileName = d.FileName,
+                FileType = d.FileType,
+                FileSize = d.FileSize,
+                UploadDate = d.UploadDate,
+                DisplayTitle = d.DisplayTitle,
+                SourceId = d.SourceId,
+                StoragePath = d.StoragePath,
+                ContentExtractionStatus = source?.ContentExtractionStatus,
+                ContentExtractionError = source?.ContentExtractionError,
+                ContentExtractionCompletedAt = source?.ContentExtractionCompletedAt
+            });
+        }
 
         return Ok(dtos);
     }
@@ -59,6 +73,9 @@ public class DocumentsController : ControllerBase
             using var stream = file.OpenReadStream();
             var doc = await _documentService.UploadDocumentAsync(userId, file.FileName, stream, file.ContentType);
             
+            // Fetch source to get extraction status
+            var source = await _sourceService.GetSourceAsync(doc.SourceId);
+            
             var dto = new DocumentDto
             {
                 Id = doc.Id,
@@ -69,7 +86,10 @@ public class DocumentsController : ControllerBase
                 UploadDate = doc.UploadDate,
                 DisplayTitle = doc.DisplayTitle,
                 SourceId = doc.SourceId,
-                StoragePath = doc.StoragePath
+                StoragePath = doc.StoragePath,
+                ContentExtractionStatus = source?.ContentExtractionStatus,
+                ContentExtractionError = source?.ContentExtractionError,
+                ContentExtractionCompletedAt = source?.ContentExtractionCompletedAt
             };
 
             return CreatedAtAction(nameof(GetDocuments), new { userId = userId }, dto);

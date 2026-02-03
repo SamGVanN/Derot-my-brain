@@ -70,3 +70,29 @@ public enum QuizFormat
     /// </summary>
     OpenEnded = 1
 }
+
+/// <summary>
+/// Defines the status of content extraction for document sources.
+/// </summary>
+public enum ContentExtractionStatus
+{
+    /// <summary>
+    /// Document uploaded, extraction not started yet.
+    /// </summary>
+    Pending = 0,
+    
+    /// <summary>
+    /// Content extraction is currently in progress.
+    /// </summary>
+    Processing = 1,
+    
+    /// <summary>
+    /// Content extraction completed successfully.
+    /// </summary>
+    Completed = 2,
+    
+    /// <summary>
+    /// Content extraction failed with an error.
+    /// </summary>
+    Failed = 3
+}

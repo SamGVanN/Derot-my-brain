@@ -1,4 +1,6 @@
 import { client } from './client';
+import { ContentExtractionStatus } from '@/models/ContentExtractionStatus';
+import type { ContentExtractionStatusDto } from '@/models/ContentExtractionStatus';
 
 export interface DocumentDto {
     id: string;
@@ -10,6 +12,9 @@ export interface DocumentDto {
     displayTitle: string;
     sourceId: string;
     storagePath: string;
+    contentExtractionStatus?: ContentExtractionStatus;
+    contentExtractionError?: string | null;
+    contentExtractionCompletedAt?: string | null;
 }
 
 export const documentApi = {
@@ -32,5 +37,10 @@ export const documentApi = {
 
     delete: async (userId: string, documentId: string): Promise<void> => {
         await client.delete(`/users/${userId}/documents/${documentId}`);
+    },
+
+    getExtractionStatus: async (userId: string, sourceId: string): Promise<ContentExtractionStatusDto> => {
+        const response = await client.get<ContentExtractionStatusDto>(`/users/${userId}/sources/${sourceId}/extraction-status`);
+        return response.data;
     }
 };

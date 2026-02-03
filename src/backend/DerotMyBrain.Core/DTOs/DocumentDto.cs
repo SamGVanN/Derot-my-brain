@@ -1,4 +1,5 @@
 using System;
+using DerotMyBrain.Core.Entities;
 
 namespace DerotMyBrain.Core.DTOs;
 
@@ -13,4 +14,7 @@ public class DocumentDto
     public string DisplayTitle { get; set; } = string.Empty;
     public string SourceId { get; set; } = string.Empty;
     public string StoragePath { get; set; } = string.Empty;
+    public ContentExtractionStatus? ContentExtractionStatus { get; set; }
+    public string? ContentExtractionError { get; set; }
+    public DateTime? ContentExtractionCompletedAt { get; set; }
 }

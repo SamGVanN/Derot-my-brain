@@ -179,4 +179,9 @@ public class SourceService : ISourceService
          
          return source;
     }
+
+    public async Task UpdateSourceAsync(Source source)
+    {
+        await _repository.UpdateSourceAsync(source);
+    }
 }

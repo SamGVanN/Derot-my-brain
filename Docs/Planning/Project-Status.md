@@ -22,13 +22,14 @@
 | i18n (FR/EN) | ✅ Done | Fully implemented across all pages. |
 | Derot Zone (UI) | ✅ Done/Refining | Explore and Read views are fully implemented and functional. Quiz views are mocked. Flow is seamless. |
 | Wikipedia Service | ✅ Done | Reliable article fetching for exploration and reading. Automated quiz generation coming soon. |
-| LLM Integration | 🟡 Partial | Functional liaison with Ollama handling dynamic configurations and multiple quiz formats is broken. |
+| LLM Integration | 🟡 Partial | Functional liaison with Ollama handling dynamic configurations and multiple quiz formats, but the quiz correction is broken. |
 | Workflow Integration| ✅ Done | Full "Explore -> Read -> Quiz" cycle implemented and tested. |
 | Backlog & Library | ✅ Done | Full integration with Source data; Activity buttons trigger real sessions. |
-| Focus Area | 🟡 Partial | Timeline and stats need more refined UI representation. |
-| Homepage | TODO | Homepage is not implemented |
-| Dashboard | TODO | Dashboard page is not implemented |
-| Guide | TODO | Guide page is not implemented. To start, the page should just show the same as the welcome page on first connection. |
+| Focus Area | ✅ Done | Timeline and stats could use a more refined UI representation. |
+| Homepage | ✅ Done | Homepage is implemented |
+| Dashboard | TODO | Dashboard page is notimplemented |
+| Guide | ✅ Done | Guide page is implemented. |
+| Asynchronous document content extraction | DOING | Currently being implemented | 
 
 
 ## Immediate Roadmap (Corrected)

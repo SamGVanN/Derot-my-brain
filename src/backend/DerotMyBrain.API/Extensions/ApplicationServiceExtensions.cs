@@ -22,6 +22,10 @@ public static class ApplicationServiceExtensions
 
         // Infrastructure Utilities
         services.AddSingleton<IJsonSerializer, JsonSerializerWrapper>();
+        
+        // Content Extraction Queue and Background Service
+        services.AddSingleton<IContentExtractionQueue, ContentExtractionQueue>();
+        services.AddHostedService<ContentExtractionService>();
 
         // Legacy / Helper Services (Scoped because they depend on Scoped services like IConfigurationService)
         services.AddScoped<ISeedDataService, SeedDataService>();

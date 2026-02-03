@@ -18,6 +18,21 @@ public class Source
     public bool IsPinned { get; set; } = false;
     public bool IsArchived { get; set; } = false;
     public string? TextContent { get; set; }
+    
+    /// <summary>
+    /// Status of content extraction for document sources.
+    /// </summary>
+    public ContentExtractionStatus ContentExtractionStatus { get; set; } = ContentExtractionStatus.Completed;
+    
+    /// <summary>
+    /// Error message if content extraction failed.
+    /// </summary>
+    public string? ContentExtractionError { get; set; }
+    
+    /// <summary>
+    /// Timestamp when content extraction completed (success or failure).
+    /// </summary>
+    public DateTime? ContentExtractionCompletedAt { get; set; }
 
     [JsonIgnore]
     public User User { get; set; } = null!;

@@ -16,6 +16,7 @@ public class DocumentService : IDocumentService
     private readonly ITextExtractor _textExtractor;
     private readonly IFileStorageService _fileStorageService;
     private readonly ISourceService _sourceService;
+    private readonly IContentExtractionQueue _extractionQueue;
     private readonly ILogger<DocumentService> _logger;
 
     public DocumentService(
@@ -23,12 +24,14 @@ public class DocumentService : IDocumentService
         ITextExtractor textExtractor,
         IFileStorageService fileStorageService,
         ISourceService sourceService,
+        IContentExtractionQueue extractionQueue,
         ILogger<DocumentService> logger)
     {
         _repository = repository;
         _textExtractor = textExtractor;
         _fileStorageService = fileStorageService;
         _sourceService = sourceService;
+        _extractionQueue = extractionQueue;
         _logger = logger;
     }
 
@@ -76,11 +79,21 @@ public class DocumentService : IDocumentService
             
         document.SourceId = source.Id;
 
-        // Optionally update Source URL to point to file if desired, but default checks externalId.
-        // For documents, the Document entity holds the real path.
+        // Set initial extraction status to Pending
+        source.ContentExtractionStatus = ContentExtractionStatus.Pending;
+        source.ContentExtractionError = null;
+        source.ContentExtractionCompletedAt = null;
+        await _sourceService.UpdateSourceAsync(source);
+
+        // 3. Persist document to DB
+        var createdDocument = await _repository.CreateAsync(document);
+        _logger.LogInformation("Document {DocumentId} created in DB for source {SourceId}", createdDocument.Id, source.Id);
+
+        // 4. Queue content extraction (non-blocking) - done after persistence to avoid race conditions
+        _logger.LogInformation("Queueing content extraction for source {SourceId}", source.Id);
+        _extractionQueue.QueueExtraction(source.Id);
         
-        // 3. Persist to DB
-        return await _repository.CreateAsync(document);
+        return createdDocument;
     }
 
     public async Task<IEnumerable<Document>> GetUserDocumentsAsync(string userId)

@@ -13,4 +13,5 @@ public interface ISourceService
     Task<Source> ToggleArchiveAsync(string userId, string sourceId);
     Task<Source> TrackSourceAsync(string userId, string sourceId, string title, SourceType type);
     Task<Source> GetOrCreateSourceAsync(string userId, string title, string sourceId, SourceType type);
+    Task UpdateSourceAsync(Source source);
 }
