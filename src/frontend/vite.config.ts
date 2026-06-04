@@ -10,5 +10,10 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // Output to project root dist/ for Tauri bundling
+    outDir: '../../dist',
+    emptyOutDir: true,
+  },
 })
 // Trigger restart

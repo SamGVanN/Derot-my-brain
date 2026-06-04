@@ -235,3 +235,10 @@ user-test-*.json
 [Aa]ppsettings.Development.json
 [Aa]ppsettings.Local.json
 src/backend/DerotMyBrain.API/appsettings.Development.json
+
+# Deployment Build Artifacts
+publish/
+published-backend/
+dist/
+src/backend/DerotMyBrain.API/wwwroot/
+

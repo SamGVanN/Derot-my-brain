@@ -1,7 +1,13 @@
 import axios from 'axios';
 import i18n from '../i18n';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5077/api';
+// In production builds (npm run build → Tauri bundle), always point directly to
+// the local backend. The __TAURI__ detection is unreliable at module load time
+// depending on injection timing.
+// In development (npm run dev), use VITE_API_URL env var or relative /api path.
+const API_URL = import.meta.env.PROD
+    ? 'http://127.0.0.1:45123/api'
+    : (import.meta.env.VITE_API_URL || '/api');
 
 export const client = axios.create({
     baseURL: API_URL,

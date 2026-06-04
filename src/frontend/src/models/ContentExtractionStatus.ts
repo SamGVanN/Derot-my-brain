@@ -6,3 +6,10 @@ export const ContentExtractionStatus = {
 } as const;
 
 export type ContentExtractionStatus = typeof ContentExtractionStatus[keyof typeof ContentExtractionStatus];
+
+export interface ContentExtractionStatusDto {
+    status: ContentExtractionStatus;
+    error?: string | null;
+}
+
+

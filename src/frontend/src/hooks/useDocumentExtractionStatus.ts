@@ -24,7 +24,7 @@ export const useDocumentExtractionStatus = (
         initialStatus ?? ContentExtractionStatus.Completed
     );
     const [error, setError] = useState<string | null>(null);
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const intervalRef = useRef<number | null>(null);
 
     useEffect(() => {
         // Only poll if we have a sourceId, userId, and status is Pending or Processing
@@ -50,7 +50,7 @@ export const useDocumentExtractionStatus = (
             try {
                 const result = await documentApi.getExtractionStatus(user.id, sourceId);
                 setStatus(result.status);
-                setError(result.error);
+                setError(result.error ?? null);
 
                 // Stop polling if completed or failed
                 if (result.status === ContentExtractionStatus.Completed ||

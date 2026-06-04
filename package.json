@@ -1,0 +1,14 @@
+{
+    "name": "derot-my-brain-tauri",
+    "version": "0.9.1",
+    "description": "Derot My Brain - Desktop Application",
+    "private": true,
+    "scripts": {
+        "tauri": "tauri",
+        "tauri:dev": "tauri dev",
+        "tauri:build": "tauri build"
+    },
+    "devDependencies": {
+        "@tauri-apps/cli": "^2.0.0"
+    }
+}
