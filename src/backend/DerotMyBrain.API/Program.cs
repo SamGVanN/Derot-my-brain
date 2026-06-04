@@ -18,6 +18,9 @@ Log.Logger = new LoggerConfiguration()
 // Build the application
 var builder = WebApplication.CreateBuilder(args);
 
+// Backend runs on port 45123 in Tauri bundled mode (production-safe port)
+builder.WebHost.UseUrls("http://127.0.0.1:45123");
+
 // Use Serilog
 builder.Host.UseSerilog();
 
@@ -30,6 +33,9 @@ builder.Services.AddControllers()
 
 // Localization
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+// Add CORS support
+builder.Services.AddCors();
 
 // 5. Documentation
 builder.Services.AddDocumentationServices();
@@ -49,6 +55,8 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 // 4. Application (Core Domain)
 builder.Services.AddApplicationServices(builder.Configuration);
+
+// System Tray Service removed - Tauri now handles native shell
 
 
 var app = builder.Build();
@@ -79,8 +87,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// IMPORTANT: Static files MUST be served before authentication middleware
+// Otherwise, the frontend files will be blocked by auth
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+// Enable CORS for local development and Tauri WebView origins
 app.UseCors(policy => policy
-    .WithOrigins("http://localhost:5173") 
+    .AllowAnyOrigin()
     .AllowAnyMethod()
     .AllowAnyHeader());
 
@@ -106,11 +120,19 @@ app.Use(async (context, next) =>
     await next();
 });
 
-app.UseHttpsRedirection();
+// Note: HTTPS redirection disabled for localhost-only Tauri operation
+// app.UseHttpsRedirection();
 
 Log.Information("Application starting up");
 
 app.MapControllers();
+
+// SPA fallback - serve index.html for all non-API routes
+app.MapFallbackToFile("index.html");
+
+// Note: Browser launch and system tray are now handled by Tauri native shell
+// The TAURI_BUNDLED environment variable is set by the Tauri launcher
+Log.Information("Application started. Access at: {Urls}", string.Join(", ", app.Urls));
 
 try
 {
