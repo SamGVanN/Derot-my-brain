@@ -5,6 +5,7 @@
 param(
     [switch]$SkipFrontend,
     [switch]$SkipBackend,
+    [switch]$SkipTauri,
     [switch]$WindowsOnly,
     [string]$Configuration = "Release"
 )
@@ -170,44 +171,49 @@ Write-Host "  - tauri.conf.json OK" -ForegroundColor Green
 
 
 # Step 4: Build Tauri Application
-Write-Host ""
-Write-Host "[4/5] Building Tauri desktop application..." -ForegroundColor Green
+if (-not $SkipTauri) {
+    Write-Host ""
+    Write-Host "[4/5] Building Tauri desktop application..." -ForegroundColor Green
 
-Push-Location $tauriDir
-try {
-    # Check if Rust is installed
-    $rustVersion = & rustc --version 2>$null
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host ""
-        Write-Host "  - Rust is not installed!" -ForegroundColor Red
-        Write-Host "  Please install Rust from: https://www.rust-lang.org/tools/install" -ForegroundColor Yellow
-        Write-Host "  After installing Rust, run this script again." -ForegroundColor Yellow
+    Push-Location $tauriDir
+    try {
+        # Check if Rust is installed
+        $rustVersion = & rustc --version 2>$null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host ""
+            Write-Host "  - Rust is not installed!" -ForegroundColor Red
+            Write-Host "  Please install Rust from: https://www.rust-lang.org/tools/install" -ForegroundColor Yellow
+            Write-Host "  After installing Rust, run this script again." -ForegroundColor Yellow
+            exit 1
+        }
+        
+        Write-Host "  - Rust version: $rustVersion" -ForegroundColor Gray
+        
+        # Install npm dependencies
+        Write-Host "  - Installing Tauri dependencies..." -ForegroundColor Gray
+        npm install
+        
+        # Build Tauri app
+        Write-Host "  - Building Tauri application (this may take a while)..." -ForegroundColor Gray
+        npm run tauri build
+        
+        if ($LASTEXITCODE -ne 0) {
+            throw "Tauri build failed with exit code $LASTEXITCODE"
+        }
+        
+        Write-Host "  - Tauri build complete" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "  - Tauri build failed: $_" -ForegroundColor Red
+        Pop-Location
         exit 1
     }
-    
-    Write-Host "  - Rust version: $rustVersion" -ForegroundColor Gray
-    
-    # Install npm dependencies
-    Write-Host "  - Installing Tauri dependencies..." -ForegroundColor Gray
-    npm install
-    
-    # Build Tauri app
-    Write-Host "  - Building Tauri application (this may take a while)..." -ForegroundColor Gray
-    npm run tauri build
-    
-    if ($LASTEXITCODE -ne 0) {
-        throw "Tauri build failed with exit code $LASTEXITCODE"
+    finally {
+        Pop-Location
     }
-    
-    Write-Host "  - Tauri build complete" -ForegroundColor Green
-}
-catch {
-    Write-Host "  - Tauri build failed: $_" -ForegroundColor Red
-    Pop-Location
-    exit 1
-}
-finally {
-    Pop-Location
+} else {
+    Write-Host ""
+    Write-Host "[4/5] Skipping Tauri build (-SkipTauri)" -ForegroundColor Yellow
 }
 
 # Summary
