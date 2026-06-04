@@ -1,6 +1,6 @@
 {
     "name": "derot-my-brain-tauri",
-    "version": "0.1.0",
+    "version": "0.9.0",
     "description": "Derot My Brain Desktop Application",
     "scripts": {
         "tauri": "tauri",
