@@ -35,15 +35,17 @@ After a successful build, your local installers can be found at:
 We use a GitHub Actions CI/CD pipeline to automate the deployment process. Whenever you want to publish a new release for your users, follow these steps:
 
 ### Step 2.1: Bump Version Numbers
-Before triggering a release, ensure your version numbers are properly updated in all relevant config files:
-1. Update `version` in **root** `/package.json`
-2. Update `version` in **Tauri** `/src-tauri/package.json`
-3. Update `version` in **Tauri Config** `/src-tauri/tauri.conf.json`
-4. Update `version` in **Frontend** `/src/frontend/package.json`
+Before triggering a release, ensure your version numbers are properly updated across all frontend and backend configuration files.
+
+To make this easy, use the provided Python script:
+```powershell
+python scripts/bump-version.py 0.1.1
+```
+*(Remplacez `0.1.1` par votre nouvelle version. Le script mettra automatiquement à jour les 4 fichiers de configuration et les fichiers source de l'interface !)*
 
 Commit these changes to your main branch:
 ```bash
-git add package.json src-tauri/package.json src-tauri/tauri.conf.json src/frontend/package.json
+git add package.json src-tauri/package.json src-tauri/tauri.conf.json src/frontend/package.json src/frontend/src/locales/fr.json src/frontend/src/locales/en.json src/frontend/src/components/Layout.tsx
 git commit -m "chore: bump version to 0.1.1"
 git push origin main
 ```
