@@ -50,6 +50,17 @@ def bump_version(new_version):
         else:
             print(f"Warning: File not found {file_path}")
 
+    # 1.5 Sync package-lock.json using npm
+    import subprocess
+    print("\nSynchronizing package-lock.json files...")
+    for pkg_dir in [root_dir / "src-tauri", root_dir / "src" / "frontend"]:
+        if pkg_dir.exists() and (pkg_dir / "package-lock.json").exists():
+            try:
+                subprocess.run(["npm", "install", "--package-lock-only", "--ignore-scripts"], cwd=pkg_dir, shell=True, check=True, capture_output=True)
+                print(f"Synced package-lock.json in {pkg_dir.relative_to(root_dir)}")
+            except subprocess.CalledProcessError:
+                print(f"Warning: Failed to sync package-lock.json in {pkg_dir.relative_to(root_dir)}")
+
     # 2. Update locale files (fr.json, en.json)
     locale_files = [
         root_dir / "src" / "frontend" / "src" / "locales" / "fr.json",

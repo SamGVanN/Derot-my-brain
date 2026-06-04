@@ -7,6 +7,7 @@ param(
     [switch]$SkipBackend,
     [switch]$SkipTauri,
     [switch]$WindowsOnly,
+    [string]$TargetRuntime = "",
     [string]$Configuration = "Release"
 )
 
@@ -65,7 +66,11 @@ if (-not $SkipBackend) {
     
     # Define target runtimes
     $runtimes = @()
-    if ($WindowsOnly) {
+    if ($TargetRuntime -ne "") {
+        $runtimes = @($TargetRuntime)
+        Write-Host "  - Building for target runtime: $TargetRuntime" -ForegroundColor Gray
+    }
+    elseif ($WindowsOnly) {
         $runtimes = @("win-x64")
         Write-Host "  - Building for Windows only" -ForegroundColor Gray
     }
@@ -125,7 +130,10 @@ if (-not $SkipFrontend) {
     
     # Get the list of runtimes (same as backend publish)
     $runtimesToCopy = @()
-    if ($WindowsOnly) {
+    if ($TargetRuntime -ne "") {
+        $runtimesToCopy = @($TargetRuntime)
+    }
+    elseif ($WindowsOnly) {
         $runtimesToCopy = @("win-x64")
     }
     else {

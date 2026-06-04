@@ -82,7 +82,7 @@
     "layout": {
         "appName": "Derot My Brain",
         "footer": "© 2026 Derot My Brain. Apprentissage Local.",
-        "version": "v0.9.2"
+        "version": "v0.9.1"
     },
     "theme": {
         "fallback": "Thème"

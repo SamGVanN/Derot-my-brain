@@ -12,12 +12,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest]
+        include:
+          - platform: windows-latest
+            runtime: win-x64
+          - platform: ubuntu-22.04
+            runtime: linux-x64
+          - platform: macos-13
+            runtime: osx-x64
+          - platform: macos-14
+            runtime: osx-arm64
     runs-on: ${{ matrix.platform }}
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Install dependencies (Ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -33,7 +47,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Build Frontend and Backend
-        run: pwsh .\scripts\build-tauri.ps1 -SkipTauri -WindowsOnly
+        run: pwsh ./scripts/build-tauri.ps1 -SkipTauri -TargetRuntime ${{ matrix.runtime }}
 
       - name: Install Tauri CLI Dependencies
         run: npm install

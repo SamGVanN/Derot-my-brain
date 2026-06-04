@@ -36,7 +36,7 @@ export function Layout({ children }: LayoutProps) {
                                     {t('layout.footer', '© 2026 Derot My Brain. Local Learning.')}
                                 </p>
                                 <div className="flex gap-4">
-                                    <span>{t('layout.version', 'v0.7.2')}</span>
+                                    <span>{t('layout.version', 'v0.9.1')}</span>
                                 </div>
                             </div>
                         </footer>

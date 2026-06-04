@@ -144,6 +144,19 @@ pub fn run() {
                     eprintln!("[Tauri] Launching backend from: {:?}", path);
                     eprintln!("[Tauri] Working dir: {:?}", backend_dir);
 
+                    #[cfg(unix)]
+                    {
+                        use std::os::unix::fs::PermissionsExt;
+                        if let Ok(metadata) = std::fs::metadata(&path) {
+                            let mut perms = metadata.permissions();
+                            // Add execute permission for owner, group, and others
+                            perms.set_mode(perms.mode() | 0o111);
+                            if let Err(e) = std::fs::set_permissions(&path, perms) {
+                                eprintln!("[Tauri] WARNING: Failed to set execute permissions on backend: {}", e);
+                            }
+                        }
+                    }
+
                     match Command::new(&path)
                         .current_dir(&backend_dir)
                         .spawn()
