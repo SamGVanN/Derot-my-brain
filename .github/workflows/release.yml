@@ -46,6 +46,18 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Inject secrets into appsettings.json
+        shell: pwsh
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET_KEY }}
+          WIKIPEDIA_EMAIL: ${{ secrets.WIKIPEDIA_CONTACT_EMAIL }}
+        run: |
+          $appsettings = "src/backend/DerotMyBrain.API/appsettings.json"
+          $content = Get-Content $appsettings -Raw
+          $content = $content -replace '__GITHUB_JWT_SECRET_KEY__', $env:JWT_SECRET
+          $content = $content -replace '__GITHUB_WIKIPEDIA_CONTACT_EMAIL__', $env:WIKIPEDIA_EMAIL
+          Set-Content -Path $appsettings -Value $content
+
       - name: Build Frontend and Backend
         run: pwsh ./scripts/build-tauri.ps1 -SkipTauri -TargetRuntime ${{ matrix.runtime }}
 
